@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "default": {
+    "rate": 0.05
+  },
+  "rules": [
+    {
+      "url_path": "*",
+      "service_name": "*",
+      "http_method": "*"
+    }
+  ]
+}

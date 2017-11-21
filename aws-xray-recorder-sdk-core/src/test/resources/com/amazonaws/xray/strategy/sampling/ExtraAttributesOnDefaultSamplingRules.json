@@ -1,0 +1,7 @@
+{
+  "default": {
+    "fixed_target": 1,
+    "url_path": "test",
+    "rate": 0.05
+  }
+}

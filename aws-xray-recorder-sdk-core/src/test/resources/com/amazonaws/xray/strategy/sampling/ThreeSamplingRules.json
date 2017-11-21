@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "service_name": "test",
+      "http_method": "*",
+      "url_path": "*",
+      "fixed_target": 0,
+      "rate": 0.00
+    },
+    {
+      "service_name": "test2",
+      "http_method": "*",
+      "url_path": "*",
+      "fixed_target": 1,
+      "rate": 0.05
+    }
+  ],
+  "default": {
+    "fixed_target": 0,
+    "rate": 0.00
+  }
+}

@@ -1,0 +1,54 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://mapven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.amazonaws</groupId>
+    <artifactId>aws-xray-recorder-sdk-pom</artifactId>
+    <version>1.2.1</version>
+  </parent>
+  <groupId>com.amazonaws</groupId>
+  <artifactId>aws-xray-recorder-sdk-bom</artifactId>
+  <packaging>pom</packaging>
+  <name>AWS X-Ray Recorder SDK for Java - BOM</name>
+  <description>The AWS X-Ray Recorder SDK for Java - BOM module performs the dependency mangement for individual X-Ray modules.</description>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-xray-recorder-sdk-core</artifactId>
+        <optional>false</optional>
+        <version>${awsxrayrecordersdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-xray-recorder-sdk-apache-http</artifactId>
+        <optional>false</optional>
+        <version>${awsxrayrecordersdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
+        <optional>false</optional>
+        <version>${awsxrayrecordersdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-xray-recorder-sdk-aws-sdk-instrumentor</artifactId>
+        <optional>false</optional>
+        <version>${awsxrayrecordersdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-xray-recorder-sdk-sql-postgres</artifactId>
+        <optional>false</optional>
+        <version>${awsxrayrecordersdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-xray-recorder-sdk-sql-mysql</artifactId>
+        <optional>false</optional>
+        <version>${awsxrayrecordersdk.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>
