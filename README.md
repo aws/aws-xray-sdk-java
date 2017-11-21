@@ -12,32 +12,32 @@ Add the AWS X-Ray SDK dependencies to your pom.xml:
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-sdk-core</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-sdk-apache-http</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-sdk-aws-sdk</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-sdk-aws-sdk-instrumentor</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-sdk-sql-mysql</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-sdk-sql-postgresql</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
 </dependency>
 ```
 
