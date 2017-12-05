@@ -36,6 +36,7 @@
     <module>aws-xray-recorder-sdk-core</module>
     <module>aws-xray-recorder-sdk-sql-mysql</module>
     <module>aws-xray-recorder-sdk-sql-postgres</module>
+    <module>aws-xray-recorder-sdk-spring</module>
   </modules>
   <distributionManagement>
     <repository>

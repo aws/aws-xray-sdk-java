@@ -5,3 +5,6 @@
 .project
 .classpath
 .DS_Store
+
+*.iml
+/.idea
