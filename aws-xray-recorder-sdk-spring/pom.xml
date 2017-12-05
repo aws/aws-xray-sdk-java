@@ -10,11 +10,9 @@
     <groupId>com.amazonaws</groupId>
     <artifactId>aws-xray-recorder-sdk-spring</artifactId>
     <version>1.2.1</version>
+    <name>AWS X-Ray Recorder SDK for Java - Spring Framework Interceptors</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
         <spring-cloud.version>Dalston.SR4</spring-cloud.version>
     </properties>
 
