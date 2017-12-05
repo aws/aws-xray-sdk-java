@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.2.2 - 2017-12-05
+### Changed
+- Fixed a bug a bug which caused certain non-sampled segments to be emitted to the X-Ray daemon. This issue occurred only when the segment began as sampled and was manually overridden to non-sampled using `setSampled(false)`.
+
 ## 1.2.1 - 2017-11-20
 ### Changed
 - Fixed a bug in the exception serialization logic that occurred when an added exception had one or more 'cause' exceptions.

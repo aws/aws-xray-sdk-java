@@ -4,11 +4,11 @@
   <parent>
     <groupId>com.amazonaws</groupId>
     <artifactId>aws-xray-recorder-sdk-pom</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
   </parent>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-sql-mysql</artifactId>
-  <version>1.2.1</version>
+  <version>1.2.2</version>
   <name>AWS X-Ray Recorder SDK for Java - AWS SDK MySQL Interceptor</name>
   <build>
     <plugins>
