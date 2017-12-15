@@ -33,6 +33,7 @@ public class XRaySpringDataInterceptor {
     }
 
     @Pointcut("execution(public !void java.sql.Statement.execute*(java.lang.String))")
-    private void queryExecution(){}
+    private void queryExecution() {
+    }
 
 }
