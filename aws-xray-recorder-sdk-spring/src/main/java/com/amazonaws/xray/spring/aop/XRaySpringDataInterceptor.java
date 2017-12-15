@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 @Configurable
 public class XRaySpringDataInterceptor {
 
-    private final Log logger = LogFactory.getLog(XRaySpringDataInterceptor.class);
+    private static final Log logger = LogFactory.getLog(XRaySpringDataInterceptor.class);
 
     @Around("queryExecution()")
     public Object traceSQL(ProceedingJoinPoint pjp) throws Throwable {
