@@ -3,47 +3,19 @@ package com.amazonaws.xray.spring.aop;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
+import com.amazonaws.xray.strategy.ContextMissingStrategy;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class AbstractXRayInterceptor {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    private static final Log logger = LogFactory.getLog(AbstractXRayInterceptor.class);
 
-    protected Object processXRayTrace(ProceedingJoinPoint pjp) throws Throwable {
-        boolean endSegment = false;
-        try {
-            if (AWSXRay.getCurrentSegment() != null) {
-                LOGGER.trace("Current segment exists");
-            }
-        } catch (SegmentNotFoundException snfe) {
-            LOGGER.trace("Creating new segment");
-            AWSXRay.beginSegment(pjp.getClass().getSimpleName());
-            endSegment = true;
-        }
-
-        try {
-            Subsegment subsegment = AWSXRay.beginSubsegment(pjp.getSignature().getName());
-            subsegment.setMetadata(this.generateMetadata(pjp, subsegment));
-            return XRayInterceptorUtils.conditionalProceed(pjp);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-            AWSXRay.getCurrentSegment().addException(e);
-            throw e;
-        } finally {
-            LOGGER.trace("Ending Subsegment");
-            AWSXRay.endSubsegment();
-            if (endSegment) {
-                LOGGER.trace("Ending Segment");
-                AWSXRay.endSegment();
-            }
-        }
+    private static ContextMissingStrategy getContextMissingStrategy() {
+        return AWSXRay.getGlobalRecorder().getContextMissingStrategy();
     }
 
     /**
@@ -56,27 +28,32 @@ public abstract class AbstractXRayInterceptor {
         return this.processXRayTrace(pjp);
     }
 
-    /**
-     * @param pjp the proceeding join point
-     * @return the result of the method being wrapped
-     * @throws Throwable
-     */
-    @Around("springRepositories()")
-    public Object traceAroundRepositoryMethods(ProceedingJoinPoint pjp) throws Throwable {
-        LOGGER.trace("Advising repository");
-        boolean hasClassAnnotation = false;
-
-        for (Class<?> i : pjp.getTarget().getClass().getInterfaces()) {
-            if (i.getAnnotation(XRayEnabled.class) != null) {
-                hasClassAnnotation = true;
-                break;
+    protected Object processXRayTrace(ProceedingJoinPoint pjp) throws Throwable {
+        boolean endSegment = false;
+        try {
+            if (AWSXRay.getCurrentSegment() != null) {
+                logger.trace("Current segment exists");
             }
+        } catch (SegmentNotFoundException snfe) {
+            ContextMissingStrategy contextMissingStrategy = getContextMissingStrategy();
+            contextMissingStrategy.contextMissing("Context Missing from Spring Interceptor", snfe.getClass());
+            endSegment = true;
         }
 
-        if (hasClassAnnotation) {
-            return this.processXRayTrace(pjp);
-        } else {
+        try {
+            Subsegment subsegment = AWSXRay.beginSubsegment(pjp.getSignature().getName());
+            subsegment.setMetadata(XRayInterceptorUtils.generateMetadata(pjp, subsegment));
             return XRayInterceptorUtils.conditionalProceed(pjp);
+        } catch (Exception e) {
+            AWSXRay.getCurrentSegment().addException(e);
+            throw e;
+        } finally {
+            logger.trace("Ending Subsegment");
+            AWSXRay.endSubsegment();
+            if (endSegment) {
+                logger.trace("Ending Segment");
+                AWSXRay.endSegment();
+            }
         }
     }
 
@@ -91,12 +68,28 @@ public abstract class AbstractXRayInterceptor {
     protected void springRepositories() {
     }
 
-    protected Map<String, Map<String, Object>> generateMetadata(ProceedingJoinPoint pjp, Subsegment subsegment) throws Exception{
-        final Map<String, Map<String, Object>> metadata = new HashMap<>();
-        final Map<String, Object> classInfo = new HashMap<>();
-        classInfo.put("Class", pjp.getTarget().getClass().getSimpleName());
-        metadata.put("ClassInfo", classInfo);
-        return metadata;
+    /**
+     * @param pjp the proceeding join point
+     * @return the result of the method being wrapped
+     * @throws Throwable
+     */
+    @Around("springRepositories()")
+    public Object traceAroundRepositoryMethods(ProceedingJoinPoint pjp) throws Throwable {
+        logger.trace("Advising repository");
+        boolean hasClassAnnotation = false;
+
+        for (Class<?> i : pjp.getTarget().getClass().getInterfaces()) {
+            if (i.getAnnotation(XRayEnabled.class) != null) {
+                hasClassAnnotation = true;
+                break;
+            }
+        }
+
+        if (hasClassAnnotation) {
+            return this.processXRayTrace(pjp);
+        } else {
+            return XRayInterceptorUtils.conditionalProceed(pjp);
+        }
     }
 
 }
