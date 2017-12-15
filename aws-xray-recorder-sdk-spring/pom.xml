@@ -7,7 +7,7 @@
         <artifactId>aws-xray-recorder-sdk-pom</artifactId>
         <version>1.2.1</version>
     </parent>
-    <groupId>com.amazonaws</groupId>
+
     <artifactId>aws-xray-recorder-sdk-spring</artifactId>
     <version>${parent.version}</version>
     <name>AWS X-Ray Recorder SDK for Java - Spring Framework Interceptors</name>
