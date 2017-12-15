@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.amazonaws</groupId>
     <artifactId>aws-xray-recorder-sdk-spring</artifactId>
-    <version>1.2.1</version>
+    <version>${parent.version}</version>
     <name>AWS X-Ray Recorder SDK for Java - Spring Framework Interceptors</name>
 
     <properties>
