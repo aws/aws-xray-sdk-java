@@ -224,6 +224,18 @@ public class AWSXRayRecorderTest {
     }
 
     @Test
+    public void testNotSendingUnsampledSegment() {
+        Emitter mockEmitter = Mockito.mock(UDPEmitter.class);
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();
+
+        Segment segment = recorder.beginSegment("test");
+        segment.setSampled(false);
+        recorder.endSegment();
+
+        Mockito.verify(mockEmitter, Mockito.times(0)).sendSegment(Mockito.any());
+    }
+
+    @Test
     public void testSegmentEmitted() {
         Emitter mockEmitter = Mockito.mock(UDPEmitter.class);
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();

@@ -396,7 +396,7 @@ public class AWSXRayRecorder {
             Segment segment = current.getParentSegment();
             logger.debug("Ending segment named '" + segment.getName() + "'.");
             if(segment.end()) {
-                emitter.sendSegment(segment);
+                sendSegment(segment);
             } else {
                 logger.debug("Not emitting segment named '" + segment.getName() + "' as it parents in-progress subsegments.");
             }
