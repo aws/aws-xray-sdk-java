@@ -5,11 +5,11 @@
     <parent>
         <groupId>com.amazonaws</groupId>
         <artifactId>aws-xray-recorder-sdk-pom</artifactId>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
     </parent>
 
     <artifactId>aws-xray-recorder-sdk-spring</artifactId>
-    <version>${parent.version}</version>
+    <version>${awsxrayrecordersdk.version}</version>
     <name>AWS X-Ray Recorder SDK for Java - Spring Framework Interceptors</name>
 
     <properties>
@@ -38,7 +38,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-xray-recorder-sdk-core</artifactId>
-            <version>1.2.0</version>
+            <version>${awsxrayrecordersdk.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -54,12 +54,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
@@ -69,6 +63,11 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.4</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
