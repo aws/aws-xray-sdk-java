@@ -67,6 +67,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.4</version>
+                <configuration>
+                    <javadocDirectory>${basedir}/docs</javadocDirectory>
+                    <docfilessubdirs>true</docfilessubdirs>
+                    <overview>${basedir}/docs/overview.html</overview>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
