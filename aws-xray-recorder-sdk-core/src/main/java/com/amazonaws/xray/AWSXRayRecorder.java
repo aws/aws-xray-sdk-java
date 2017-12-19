@@ -1,5 +1,20 @@
 package com.amazonaws.xray;
 
+import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
+import com.amazonaws.xray.contexts.SegmentContext;
+import com.amazonaws.xray.contexts.SegmentContextResolverChain;
+import com.amazonaws.xray.contexts.ThreadLocalSegmentContextResolver;
+import com.amazonaws.xray.emitters.DefaultEmitter;
+import com.amazonaws.xray.emitters.Emitter;
+import com.amazonaws.xray.entities.*;
+import com.amazonaws.xray.exceptions.SegmentNotFoundException;
+import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
+import com.amazonaws.xray.strategy.*;
+import com.amazonaws.xray.strategy.sampling.DefaultSamplingStrategy;
+import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
@@ -11,34 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
-import com.amazonaws.xray.contexts.SegmentContext;
-import com.amazonaws.xray.contexts.SegmentContextResolverChain;
-import com.amazonaws.xray.contexts.ThreadLocalSegmentContextResolver;
-import com.amazonaws.xray.emitters.DefaultEmitter;
-import com.amazonaws.xray.emitters.Emitter;
-import com.amazonaws.xray.entities.DummySegment;
-import com.amazonaws.xray.entities.Entity;
-import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.entities.SegmentImpl;
-import com.amazonaws.xray.entities.Subsegment;
-import com.amazonaws.xray.entities.TraceID;
-import com.amazonaws.xray.exceptions.SegmentNotFoundException;
-import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
-import com.amazonaws.xray.strategy.ContextMissingStrategy;
-import com.amazonaws.xray.strategy.DefaultContextMissingStrategy;
-import com.amazonaws.xray.strategy.DefaultPrioritizationStrategy;
-import com.amazonaws.xray.strategy.DefaultStreamingStrategy;
-import com.amazonaws.xray.strategy.DefaultThrowableSerializationStrategy;
-import com.amazonaws.xray.strategy.PrioritizationStrategy;
-import com.amazonaws.xray.strategy.StreamingStrategy;
-import com.amazonaws.xray.strategy.ThrowableSerializationStrategy;
-import com.amazonaws.xray.strategy.sampling.DefaultSamplingStrategy;
-import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
 
 public class AWSXRayRecorder {
 
@@ -466,7 +453,7 @@ public class AWSXRayRecorder {
         if (current instanceof Segment) {
             return Optional.of((Segment) current);
         } else if (current instanceof Subsegment) {
-            return Optional.of(((Subsegment) current).getParentSegment());
+            return Optional.of(current.getParentSegment());
         } else {
             return Optional.empty();
         }

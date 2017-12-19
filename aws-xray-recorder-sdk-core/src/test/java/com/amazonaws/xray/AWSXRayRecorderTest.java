@@ -1,25 +1,5 @@
 package com.amazonaws.xray;
 
-import java.util.List;
-
-import org.json.JSONException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.skyscreamer.jsonassert.JSONAssert;
-import org.skyscreamer.jsonassert.JSONCompareMode;
-
 import com.amazonaws.xray.contexts.LambdaSegmentContext;
 import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
 import com.amazonaws.xray.emitters.Emitter;
@@ -35,6 +15,21 @@ import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.json.JSONException;
+import org.junit.*;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
+import org.junit.contrib.java.lang.system.RestoreSystemProperties;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
+
+import java.util.List;
 
 @FixMethodOrder(MethodSorters.JVM)
 @PrepareForTest({LambdaSegmentContext.class, LambdaSegmentContextResolver.class})
@@ -306,7 +301,7 @@ public class AWSXRayRecorderTest {
     }
 
     @Test
-    public void testSubsegmentWithChildEmittedTogetherInLambdaContext() throws JSONException {
+    public void testSubsegmentWithChildEmittedTogetherInLambdaContext() {
         TraceHeader header = TraceHeader.fromString(TRACE_HEADER);
 
         PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);
@@ -329,7 +324,7 @@ public class AWSXRayRecorderTest {
     }
 
     @Test
-    public void testSubsequentSubsegmentBranchesEmittedInLambdaContext() throws JSONException {
+    public void testSubsequentSubsegmentBranchesEmittedInLambdaContext() {
         TraceHeader header = TraceHeader.fromString(TRACE_HEADER);
 
         PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);

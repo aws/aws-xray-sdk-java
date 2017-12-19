@@ -1,14 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://mapven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+>
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.amazonaws</groupId>
     <artifactId>aws-xray-recorder-sdk-pom</artifactId>
-    <version>1.2.2</version>
+      <version>1.2.2</version>
   </parent>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
-  <version>1.2.2</version>
+    <version>1.2.2</version>
   <name>AWS X-Ray Recorder SDK for Java - AWS SDK Handler</name>
   <build>
     <plugins>
