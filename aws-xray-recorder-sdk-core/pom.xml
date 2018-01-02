@@ -4,12 +4,12 @@
   <parent>
     <groupId>com.amazonaws</groupId>
     <artifactId>aws-xray-recorder-sdk-pom</artifactId>
-    <version>1.2.2</version>
+      <version>1.3.0</version>
   </parent>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-core</artifactId>
   <name>AWS X-Ray Recorder SDK for Java - Core</name>
-  <version>1.2.2</version>
+    <version>1.3.0</version>
   <build>
     <plugins>
       <plugin>
