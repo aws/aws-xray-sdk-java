@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.0 - 2018-01-08
+### Added
+- Support for Spring Framework which enables the usage of aspects to trace requests down a call stack. Classes can either implement an interface or be annotated to identify themselves as available to the aspect for tracing. [PR1](https://github.com/aws/aws-xray-sdk-java/pull/1)
+
 ## 1.2.2 - 2017-12-05
 ### Changed
 - Fixed a bug a bug which caused certain non-sampled segments to be emitted to the X-Ray daemon. This issue occurred only when the segment began as sampled and was manually overridden to non-sampled using `setSampled(false)`.
