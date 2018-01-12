@@ -11,6 +11,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static com.amazonaws.xray.AWSXRay.getCurrentSegmentOptional;
@@ -46,7 +47,7 @@ public abstract class AbstractXRayInterceptor {
     protected Object processXRayTrace(ProceedingJoinPoint pjp) throws Throwable {
         try {
             Subsegment subsegment = AWSXRay.beginSubsegment(pjp.getSignature().getName());
-            subsegment.setMetadata(XRayInterceptorUtils.generateMetadata(pjp, subsegment));
+            subsegment.setMetadata(generateMetadata(pjp, subsegment));
             return XRayInterceptorUtils.conditionalProceed(pjp);
         } catch (Exception e) {
             AWSXRay.getCurrentSegment().addException(e);
@@ -89,6 +90,10 @@ public abstract class AbstractXRayInterceptor {
         } else {
             return XRayInterceptorUtils.conditionalProceed(pjp);
         }
+    }
+
+    protected Map<String, Map<String, Object>> generateMetadata(ProceedingJoinPoint pjp, Subsegment subsegment) {
+        return XRayInterceptorUtils.generateMetadata(pjp, subsegment);
     }
 
 }
