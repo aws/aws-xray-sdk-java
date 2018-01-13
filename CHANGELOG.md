@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.1 - 2018-01-12
+### Changed
+- Fixed a bug in `AbstractXRayInterceptor` so that `generateMetadata` can be overriden. [PR6](https://github.com/aws/aws-xray-sdk-java/pull/6)
+
 ## 1.3.0 - 2018-01-08
 ### Added
 - Support for Spring Framework which enables the usage of aspects to trace requests down a call stack. Classes can either implement an interface or be annotated to identify themselves as available to the aspect for tracing. [PR1](https://github.com/aws/aws-xray-sdk-java/pull/1)
