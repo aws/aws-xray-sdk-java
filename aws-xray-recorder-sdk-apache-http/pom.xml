@@ -4,11 +4,11 @@
   <parent>
     <groupId>com.amazonaws</groupId>
     <artifactId>aws-xray-recorder-sdk-pom</artifactId>
-      <version>1.3.0</version>
+      <version>1.3.1</version>
   </parent>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-apache-http</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
   <name>AWS X-Ray Recorder SDK for Java - Apache HTTP Client Proxy</name>
   <build>
     <plugins>
