@@ -147,7 +147,7 @@ It may be useful to further decorate portions of an application for which perfor
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 ...
-AWSXRayRecorder xrayRecorder = AWSXRayRecorderBuilder.defaultBuilder();
+AWSXRayRecorder xrayRecorder = AWSXRayRecorderBuilder.defaultRecorder();
 ...
 xrayRecorder.createSubsegment("getMovies" (subsegment) -> {
     doSomething();
