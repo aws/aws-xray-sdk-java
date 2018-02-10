@@ -64,6 +64,8 @@ The GitHub issues are intended for bug reports and feature requests. For help an
 
 The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java.html) provides in-depth guidance on using the AWS X-Ray service and the AWS X-Ray SDK for Java.
 
+See [awslabs/eb-java-scorekeep](https://github.com/awslabs/eb-java-scorekeep/tree/xray) for a sample application that uses this SDK.
+
 ## Quick Start
 
 ### Intercept incoming HTTP requests
