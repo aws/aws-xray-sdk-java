@@ -73,10 +73,10 @@ public class DefaultThrowableSerializationStrategy implements ThrowableSerializa
             .findAny();
     }
 
-    private ThrowableDescription describeThrowable(Throwable throwable) {
+    private ThrowableDescription describeThrowable(Throwable throwable, String id) {
         ThrowableDescription description = new ThrowableDescription();
 
-        description.setId(Entity.generateId());
+        description.setId(id);
         description.setMessage(throwable.getMessage());
         description.setType(throwable.getClass().getName());
 
@@ -116,7 +116,8 @@ public class DefaultThrowableSerializationStrategy implements ThrowableSerializa
             result.add(description);
             return result;
         } else {
-            result.add(describeThrowable(throwable));
+            description = describeThrowable(throwable, Entity.generateId());
+            result.add(description);
         }
 
         Throwable nextNode = throwable.getCause();
@@ -131,7 +132,7 @@ public class DefaultThrowableSerializationStrategy implements ThrowableSerializa
                 String newId = Entity.generateId();
                 description.setCause(newId);
 
-                description = describeThrowable(currentNode);
+                description = describeThrowable(currentNode, newId);
             }
 
             result.add(description);
