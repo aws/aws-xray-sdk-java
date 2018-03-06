@@ -252,7 +252,9 @@ public class AWSXRayRecorder {
         try {
             return function.apply(subsegment);
         } catch (Exception e) {
-            subsegment.addException(e);
+            if (subsegment != null) {
+                subsegment.addException(e);
+            }
             throw e;
         } finally {
             endSubsegment();
@@ -272,7 +274,9 @@ public class AWSXRayRecorder {
         try {
             consumer.accept(subsegment);
         } catch (Exception e) {
-            subsegment.addException(e);
+            if (subsegment != null) {
+                subsegment.addException(e);
+            }
             throw e;
         } finally {
             endSubsegment();
@@ -295,7 +299,9 @@ public class AWSXRayRecorder {
         try {
             return supplier.get();
         } catch (Exception e) {
-            subsegment.addException(e);
+            if (subsegment != null) {
+                subsegment.addException(e);
+            }
             throw e;
         } finally {
             endSubsegment();
@@ -315,7 +321,9 @@ public class AWSXRayRecorder {
         try {
             runnable.run();
         } catch (Exception e) {
-            subsegment.addException(e);
+            if (subsegment != null) {
+                subsegment.addException(e);
+            }
             throw e;
         } finally {
             endSubsegment();

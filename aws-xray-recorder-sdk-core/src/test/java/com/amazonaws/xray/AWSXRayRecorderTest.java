@@ -30,6 +30,9 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @FixMethodOrder(MethodSorters.JVM)
 @PrepareForTest({LambdaSegmentContext.class, LambdaSegmentContextResolver.class})
@@ -384,5 +387,77 @@ public class AWSXRayRecorderTest {
         AWSXRay.endSegment();
         AWSXRay.injectThreadLocal(s);
         AWSXRay.endSegment();
+    }
+
+	@Test
+    public void testSubsegmentFunctionExceptionWhenMissingContextIsLogged() {
+        // given
+        RuntimeException expectedException = new RuntimeException("To be thrown by function");
+        Function<Subsegment, Void> function = (subsegment) -> {throw expectedException;};
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+                .withContextMissingStrategy(new LogErrorContextMissingStrategy())
+                .build();
+
+        // when
+        try {
+            recorder.createSubsegment("test", function);
+            Assert.fail("An exception should have been thrown");
+        } catch (Exception e) {
+            Assert.assertEquals("Function exception was not propagated", expectedException, e);
+        }
+    }
+
+    @Test
+    public void testSubsegmentConsumerExceptionWhenMissingContextIsLogged() {
+        // given
+        RuntimeException expectedException = new RuntimeException("To be thrown by consumer");
+        Consumer<Subsegment> consumer = (subsegment) -> {throw expectedException;};
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+                .withContextMissingStrategy(new LogErrorContextMissingStrategy())
+                .build();
+
+        // when
+        try {
+            recorder.createSubsegment("test", consumer);
+            Assert.fail("An exception should have been thrown");
+        } catch (Exception e) {
+            Assert.assertEquals("Consumer exception was not propagated", expectedException, e);
+        }
+    }
+
+    @Test
+    public void testSubsegmentSupplierExceptionWhenMissingContextIsLogged() {
+        // given
+        RuntimeException expectedException = new RuntimeException("To be thrown by supplier");
+        Supplier<Void> supplier = () -> {throw expectedException;};
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+                .withContextMissingStrategy(new LogErrorContextMissingStrategy())
+                .build();
+
+        // when
+        try {
+            recorder.createSubsegment("test", supplier);
+            Assert.fail("An exception should have been thrown");
+        } catch (Exception e) {
+            Assert.assertEquals("Supplier exception was not propagated", expectedException, e);
+        }
+    }
+
+    @Test
+    public void testSubsegmentRunnableExceptionWhenMissingContextIsLogged() {
+        // given
+        RuntimeException expectedException = new RuntimeException("To be thrown by runnable");
+        Runnable runnable = () -> {throw expectedException;};
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+                .withContextMissingStrategy(new LogErrorContextMissingStrategy())
+                .build();
+
+        // when
+        try {
+            recorder.createSubsegment("test", runnable);
+            Assert.fail("An exception should have been thrown");
+        } catch (Exception e) {
+            Assert.assertEquals("Runnable exception was not propagated", expectedException, e);
+        }
     }
 }
