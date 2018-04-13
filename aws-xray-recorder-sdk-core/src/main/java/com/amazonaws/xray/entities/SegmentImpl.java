@@ -44,7 +44,10 @@ public class SegmentImpl extends EntityImpl implements Segment {
 
     @Override
     public boolean end() {
-        setEndTime(Instant.now().toEpochMilli() / 1000.0d);
+        if(getEndTime() < Double.MIN_NORMAL) {
+            setEndTime(Instant.now().toEpochMilli() / 1000.0d);
+        }
+
         setInProgress(false);
         boolean shouldEmit = referenceCount.intValue() <= 0;
         if (shouldEmit) {

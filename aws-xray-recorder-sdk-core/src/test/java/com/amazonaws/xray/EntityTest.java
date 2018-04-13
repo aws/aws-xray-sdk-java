@@ -110,6 +110,26 @@ public class EntityTest {
 
     }
 
+    @Test
+    public void testManuallySetEntityEndTime() {
+        Segment segment = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", new TraceID());
+        Subsegment subsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "test", segment);
+        segment.addSubsegment(subsegment);
+
+        double endTime = 20.0d;
+
+        segment.setStartTime(1.0);
+        subsegment.setStartTime(1.0);
+        segment.setEndTime(endTime);
+        subsegment.setEndTime(endTime);
+
+        subsegment.end();
+        segment.end();
+
+        Assert.assertEquals(endTime, segment.getEndTime(), 0);
+        Assert.assertEquals(endTime, subsegment.getEndTime(), 0);
+    }
+
     public ObjectNode expectedCompletedSegmentWithSubsegment(TraceID traceId, String segmentId, String subsegmentId, double startTime, double subsegmentEndTime, double segmentEndTime) {
         ObjectNode expected = expectedCompletedSegment(traceId, segmentId, startTime, segmentEndTime);
         expected.putArray("subsegments").add(expectedCompletedSubsegment(traceId, subsegmentId, startTime, subsegmentEndTime));

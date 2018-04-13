@@ -36,7 +36,10 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
         if (logger.isDebugEnabled()) {
             logger.debug("Subsegment named '" + getName() + "' ending. Parent segment named '" + parentSegment.getName() + "' has reference count " + parentSegment.getReferenceCount());
         }
-        setEndTime(Instant.now().toEpochMilli() / 1000.0d);
+
+        if (getEndTime() < Double.MIN_NORMAL) {
+            setEndTime(Instant.now().toEpochMilli() / 1000.0d);
+        }
         setInProgress(false);
         boolean shouldEmit = parentSegment.decrementReferenceCount() && parentSegment.isSampled();
         if (shouldEmit) {
