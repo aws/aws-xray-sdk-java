@@ -1,0 +1,14 @@
+language: java
+
+jdk:
+  - openjdk7
+  - oraclejdk7
+  - openjdk8
+  - oraclejdk8
+
+env:
+  - MAVEN_OPTS=-XX:MaxPermSize=256m
+
+install: /bin/true
+sudo: required
+dist: precise

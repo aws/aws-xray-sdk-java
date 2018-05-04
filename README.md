@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/aws/aws-xray-sdk-java.svg?branch=master)](https://travis-ci.org/aws/aws-xray-sdk-java)
+
 # AWS X-Ray SDK for Java
 
 ![Screenshot of the AWS X-Ray console](/images/example_servicemap.png?raw=true)
