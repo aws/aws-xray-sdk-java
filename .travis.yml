@@ -9,6 +9,5 @@ jdk:
 env:
   - MAVEN_OPTS=-XX:MaxPermSize=256m
 
-install: /bin/true
-sudo: required
-dist: precise
+sudo: false
+dist: trusty
