@@ -6,8 +6,8 @@ jdk:
   - openjdk8
   - oraclejdk8
 
-env:
-  - MAVEN_OPTS=-XX:MaxPermSize=256m
+install:
+  - mvn install -DskipTests -Dgpg.skip -Dmaven.javadoc.skip -B -V
 
 sudo: false
 dist: trusty
