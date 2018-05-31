@@ -119,6 +119,14 @@
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>2.10.4</version>
+        <configuration>
+         <footer> <![CDATA[
+                <script src="/SdkStatic/sdk-priv.js" async="true"></script>
+                ]]>
+         </footer>
+         <bottom><![CDATA[Copyright &#169; 2018 Amazon Web Services, Inc. All Rights Reserved.]]></bottom>
+         <additionalparam>&#45;&#45;allow-script-in-comments</additionalparam>-->
+        </configuration>
         <executions>
           <execution>
             <id>javadoc-jar</id>
