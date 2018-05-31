@@ -2,6 +2,7 @@ package com.amazonaws.xray.proxies.apache.http;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -77,9 +78,27 @@ public class TracedHttpClient extends CloseableHttpClient {
         return request.getURI().toString();
     }
 
-    public static String getUrl(HttpHost target, HttpRequest request) {
-        return target.getHostName() + request.getRequestLine().getUri();
-    }
+	public static String getUrl(HttpHost target, HttpRequest request)
+	{
+		URI requestURI = null;
+		try {
+			requestURI = new URI(request.getRequestLine().getUri());
+		}
+		catch (URISyntaxException e) {
+			// Not a valid URI, so it's obviously not absolute. Default to
+			// hostname + request line
+		}
+
+		// Check if the uri in the request line is an absolute or relative url.
+		// If it's aboslute, just use it as the url. If it's not, concatenate
+		// the hostname with the relative path to (almost) get an absolute url.
+		if(requestURI != null && requestURI.isAbsolute()) {
+			return requestURI.toString();
+		}
+		else{
+			return target.getHostName() + request.getRequestLine().getUri();
+		}
+	}
 
     public static void addRequestInformation(Subsegment subsegment, HttpRequest request, String url) {
         subsegment.setNamespace(Namespace.REMOTE.toString());
