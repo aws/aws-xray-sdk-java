@@ -2,6 +2,7 @@ package com.amazonaws.xray.proxies.apache.http;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,7 +79,18 @@ public class TracedHttpClient extends CloseableHttpClient {
     }
 
     public static String getUrl(HttpHost target, HttpRequest request) {
-        return target.getHostName() + request.getRequestLine().getUri();
+        String uri = request.getRequestLine().getUri();
+
+        try {
+            URI requestURI = new URI(uri);
+            if (requestURI.isAbsolute()) {
+                return requestURI.toString();
+            }
+        } catch (URISyntaxException ex){
+            // Not a valid URI
+        }
+
+        return target.toURI() + uri;
     }
 
     public static void addRequestInformation(Subsegment subsegment, HttpRequest request, String url) {
