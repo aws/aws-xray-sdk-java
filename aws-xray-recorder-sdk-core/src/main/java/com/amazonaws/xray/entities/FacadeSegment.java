@@ -463,4 +463,9 @@ public class FacadeSegment extends EntityImpl implements Segment {
         throw new UnsupportedOperationException(MUTATION_UNSUPPORTED_MESSAGE);
     }
 
+    @Override
+    public void setRuleName(String name) {
+        throw new UnsupportedOperationException(MUTATION_UNSUPPORTED_MESSAGE);
+    }
+
 }

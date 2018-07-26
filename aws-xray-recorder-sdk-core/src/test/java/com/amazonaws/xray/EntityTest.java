@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,9 +35,10 @@ public class EntityTest {
     @Before
     public void setupAWSXRay() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
+        LocalizedSamplingStrategy defaultSamplingStrategy = new LocalizedSamplingStrategy();
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSamplingStrategy(defaultSamplingStrategy).build());
         AWSXRay.clearTraceEntity();
     }
 

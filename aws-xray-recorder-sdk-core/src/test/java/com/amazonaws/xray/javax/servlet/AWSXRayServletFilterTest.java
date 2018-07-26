@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -39,9 +40,10 @@ public class AWSXRayServletFilterTest {
     @Before
     public void setupAWSXRay() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
+        LocalizedSamplingStrategy defaultSamplingStrategy = new LocalizedSamplingStrategy();
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSamplingStrategy(defaultSamplingStrategy).build());
         AWSXRay.clearTraceEntity();
     }
 
@@ -170,5 +172,4 @@ public class AWSXRayServletFilterTest {
 
         environmentVariables.set(SegmentNamingStrategy.NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY, null);
     }
-
 }

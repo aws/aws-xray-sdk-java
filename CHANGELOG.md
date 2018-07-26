@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.0.0 - 2018-08-14
+### Backwards incompatible change
+- Default Sampling Strategy has been updated to Centralized Sampling Strategy.
+- Fallback to Localized Sampling Strategy when sampling rules are not available.
+- In order to disable Centralized Sampling Strategy, provide `withSamplingStrategy` with Localized one.
+
 ## 1.3.1 - 2018-01-12
 ### Changed
 - Fixed a bug in `AbstractXRayInterceptor` so that `generateMetadata` can be overriden. [PR6](https://github.com/aws/aws-xray-sdk-java/pull/6)

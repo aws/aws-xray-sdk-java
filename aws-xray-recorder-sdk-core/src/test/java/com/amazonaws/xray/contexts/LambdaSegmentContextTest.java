@@ -1,5 +1,6 @@
 package com.amazonaws.xray.contexts;
 
+import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -8,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -21,6 +23,7 @@ import com.amazonaws.xray.entities.TraceHeader;
 @FixMethodOrder(MethodSorters.JVM)
 @PrepareForTest(LambdaSegmentContext.class)
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.net.ssl.*")
 public class LambdaSegmentContextTest {
 
     private static final String TRACE_HEADER = "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1";
@@ -33,7 +36,7 @@ public class LambdaSegmentContextTest {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSamplingStrategy(new LocalizedSamplingStrategy()).build());
         AWSXRay.clearTraceEntity();
     }
 

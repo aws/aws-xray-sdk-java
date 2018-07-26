@@ -1,6 +1,7 @@
 package com.amazonaws.xray.entities;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -122,6 +123,16 @@ public class SegmentImpl extends EntityImpl implements Segment {
     public void putAllService(Map<String, Object> all) {
         checkAlreadyEmitted();
         service.putAll(all);
+    }
+    @Override
+    public void setRuleName(String ruleName) {
+        checkAlreadyEmitted();
+        if (getAws().get("xray") instanceof Map) {
+            Map<String, Object> a = (HashMap<String, Object>)getAws().get("xray");
+            HashMap<String, Object> referA = new HashMap<String, Object>(a);
+            referA.put("rule_name", ruleName);
+            this.putAws("xray", referA);
+        }
     }
 
     @Override

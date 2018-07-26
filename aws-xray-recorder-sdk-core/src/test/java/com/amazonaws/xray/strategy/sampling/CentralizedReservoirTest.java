@@ -1,12 +1,13 @@
 package com.amazonaws.xray.strategy.sampling;
 
+import com.amazonaws.xray.strategy.sampling.reservoir.Reservoir;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
-public class ReservoirTest {
+public class CentralizedReservoirTest {
 
     private static final int INTERVAL = 100;
     private int takeOverTime(Reservoir reservoir, int millis) {

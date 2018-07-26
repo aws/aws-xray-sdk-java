@@ -3,6 +3,7 @@ package com.amazonaws.xray.strategy.sampling;
 import java.net.URL;
 import java.util.ArrayList;
 
+import com.amazonaws.xray.strategy.sampling.rule.SamplingRule;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -55,22 +56,26 @@ public class LocalizedSamplingStrategyTest {
     public void testLocalizedSamplingStrategyWithMissingAttributesThrowsRuntimeException() {
         URL emptySamplingRules = LocalizedSamplingStrategyTest.class.getResource("/com/amazonaws/xray/strategy/sampling/MissingAttributesSamplingRules.json");
         LocalizedSamplingStrategy localizedSamplingStrategy = new LocalizedSamplingStrategy(emptySamplingRules);
-        Assert.assertFalse(localizedSamplingStrategy.shouldTrace("test", "/test", "test"));
+        SamplingResponse sr = localizedSamplingStrategy.shouldTrace("","test", "/test", "test");
+        Assert.assertFalse(sr.isSampled());
     }
 
     @Test(expected=RuntimeException.class)
     public void testLocalizedSamplingStrategyWithOneRuleMissingAttributesThrowsRuntimeException() {
         URL emptySamplingRules = LocalizedSamplingStrategyTest.class.getResource("/com/amazonaws/xray/strategy/sampling/OneRuleMissingAttributesSamplingRules.json");
         LocalizedSamplingStrategy localizedSamplingStrategy = new LocalizedSamplingStrategy(emptySamplingRules);
-        Assert.assertFalse(localizedSamplingStrategy.shouldTrace("test", "/test", "test"));
+        SamplingResponse sr = localizedSamplingStrategy.shouldTrace("","test", "/test", "test");
+        Assert.assertFalse(sr.isSampled());
     }
 
     @Test
     public void testLocalizedSamplingStrategyWithTwoRules() {
         URL emptySamplingRules = LocalizedSamplingStrategyTest.class.getResource("/com/amazonaws/xray/strategy/sampling/TwoSamplingRules.json");
         LocalizedSamplingStrategy localizedSamplingStrategy = new LocalizedSamplingStrategy(emptySamplingRules);
-        Assert.assertTrue(localizedSamplingStrategy.shouldTrace("test", "/test", "test"));
-        Assert.assertFalse(localizedSamplingStrategy.shouldTrace("test", "/no", "test"));
+        SamplingResponse s1 = localizedSamplingStrategy.shouldTrace("","test", "/test", "test");
+        Assert.assertTrue(s1.isSampled());
+        SamplingResponse s2 = localizedSamplingStrategy.shouldTrace("","test", "/no", "test");
+        Assert.assertFalse(s2.isSampled());
     }
 
     @Test
@@ -78,9 +83,12 @@ public class LocalizedSamplingStrategyTest {
         URL emptySamplingRules = LocalizedSamplingStrategyTest.class.getResource("/com/amazonaws/xray/strategy/sampling/ThreeSamplingRules.json");
         LocalizedSamplingStrategy localizedSamplingStrategy = new LocalizedSamplingStrategy(emptySamplingRules);
 
-        Assert.assertFalse(localizedSamplingStrategy.shouldTrace("test", "/test", "test"));
-        Assert.assertTrue(localizedSamplingStrategy.shouldTrace("test2", "/test", "test"));
-        Assert.assertFalse(localizedSamplingStrategy.shouldTrace("no", "/test", "test"));
+        SamplingResponse s1 = localizedSamplingStrategy.shouldTrace("","test", "/test", "test");
+        Assert.assertFalse(s1.isSampled());
+        SamplingResponse s2 = localizedSamplingStrategy.shouldTrace("","test2", "/test", "test");
+        Assert.assertTrue(s2.isSampled());
+        SamplingResponse s3 = localizedSamplingStrategy.shouldTrace("","no", "/test", "test");
+        Assert.assertFalse(s3.isSampled());
     }
 
     @Test
@@ -88,9 +96,12 @@ public class LocalizedSamplingStrategyTest {
         URL emptySamplingRules = LocalizedSamplingStrategyTest.class.getResource("/com/amazonaws/xray/strategy/sampling/FourSamplingRules.json");
         LocalizedSamplingStrategy localizedSamplingStrategy = new LocalizedSamplingStrategy(emptySamplingRules);
 
-        Assert.assertFalse(localizedSamplingStrategy.shouldTrace("test", "/test", "test"));
-        Assert.assertTrue(localizedSamplingStrategy.shouldTrace("test", "/test", "rest"));
-        Assert.assertFalse(localizedSamplingStrategy.shouldTrace("test", "/test", "no"));
+        SamplingResponse s1 = localizedSamplingStrategy.shouldTrace("","test", "/test", "test");
+        Assert.assertFalse(s1.isSampled());
+        SamplingResponse s2 = localizedSamplingStrategy.shouldTrace("","test", "/test", "rest");
+        Assert.assertTrue(s2.isSampled());
+        SamplingResponse s3 = localizedSamplingStrategy.shouldTrace("","test", "/test", "no");
+        Assert.assertFalse(s3.isSampled());
     }
 
 }

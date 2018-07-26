@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,10 +88,11 @@ public class CustomSegmentContextTest {
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
 
+        LocalizedSamplingStrategy defaultSamplingStrategy = new LocalizedSamplingStrategy();
         SegmentContextResolverChain chain = new SegmentContextResolverChain();
         chain.addResolver(new GlobalMapSegmentContextResolver());
 
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSegmentContextResolverChain(chain).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSegmentContextResolverChain(chain).withSamplingStrategy(defaultSamplingStrategy).build());
         AWSXRay.clearTraceEntity();
     }
 

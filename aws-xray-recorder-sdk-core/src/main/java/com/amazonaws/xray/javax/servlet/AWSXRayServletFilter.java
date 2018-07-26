@@ -15,6 +15,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amazonaws.xray.strategy.sampling.SamplingResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -242,8 +243,13 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         }
     }
 
-    private SampleDecision fromSamplingStrategy(HttpServletRequest httpServletRequest) {
-        if (recorder.getSamplingStrategy().shouldTrace(getHost(httpServletRequest).orElse(null), httpServletRequest.getRequestURI(), httpServletRequest.getMethod())) {
+    private SamplingResponse fromSamplingStrategy(HttpServletRequest httpServletRequest) {
+        SamplingResponse sample = recorder.getSamplingStrategy().shouldTrace(getSegmentName(httpServletRequest), getHost(httpServletRequest).orElse(null), httpServletRequest.getRequestURI(), httpServletRequest.getMethod());
+        return sample;
+    }
+
+    private SampleDecision getSampleDecision(SamplingResponse sample) {
+        if (sample.isSampled()) {
             logger.debug("Sampling strategy decided SAMPLED.");
             return SampleDecision.SAMPLED;
         } else {
@@ -267,9 +273,11 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
             logger.debug("Incoming trace header received: " + incomingHeader.get().toString());
         }
 
-        SampleDecision sampleDecision = incomingHeader.isPresent() ? incomingHeader.get().getSampled() : fromSamplingStrategy(httpServletRequest);
+        SamplingResponse samplingResponse = fromSamplingStrategy(httpServletRequest);
+
+        SampleDecision sampleDecision = incomingHeader.isPresent() ? incomingHeader.get().getSampled() : getSampleDecision(samplingResponse);
         if (SampleDecision.REQUESTED.equals(sampleDecision) || SampleDecision.UNKNOWN.equals(sampleDecision)) {
-            sampleDecision = fromSamplingStrategy(httpServletRequest);
+            sampleDecision = getSampleDecision(samplingResponse);
         }
 
         TraceID traceId = incomingHeader.isPresent() ? incomingHeader.get().getRootTraceId() : null;
@@ -281,6 +289,10 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
 
         if (SampleDecision.SAMPLED.equals(sampleDecision)) {
             created = recorder.beginSegment(getSegmentName(httpServletRequest), traceId, parentId);
+            if (samplingResponse.getRuleName().isPresent()) {
+                logger.debug("Sampling strategy decided to use rule named: " + samplingResponse.getRuleName().get() + ".");
+                created.setRuleName(samplingResponse.getRuleName().get());
+            }
         } else { //NOT_SAMPLED
             if (samplingStrategy.isForcedSamplingSupported()) {
                 created = recorder.beginSegment(getSegmentName(httpServletRequest), traceId, parentId);
@@ -289,7 +301,6 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
                 created = recorder.beginDummySegment(traceId);
             }
         }
-
 
         Map<String, Object> requestAttributes = new HashMap<String, Object>();
         requestAttributes.put("url", httpServletRequest.getRequestURL().toString());

@@ -1,7 +1,8 @@
-package com.amazonaws.xray.strategy.sampling;
+package com.amazonaws.xray.strategy.sampling.manifest;
 
 import java.util.List;
 
+import com.amazonaws.xray.strategy.sampling.rule.SamplingRule;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SamplingRuleManifest {

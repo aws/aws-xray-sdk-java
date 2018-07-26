@@ -1,5 +1,6 @@
-package com.amazonaws.xray.strategy.sampling;
+package com.amazonaws.xray.strategy.sampling.rule;
 
+import com.amazonaws.xray.strategy.sampling.reservoir.Reservoir;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -8,6 +9,7 @@ import com.amazonaws.xray.entities.SearchPattern;
 public class SamplingRule {
     private static final Log logger = LogFactory.getLog(SamplingRule.class);
 
+    private String host;
     private String serviceName;
     private String httpMethod;
     private String urlPath;
@@ -21,8 +23,10 @@ public class SamplingRule {
     }
 
     /**
-     * Constructs a new {@code SamplingRule}. Patterns are supported in the {@code serviceName}, {@code httpMethod}, and {@code urlPath} parameters. Patterns are matched using the {@link com.amazonaws.xray.entities.SearchPattern} class.
+     * Constructs a new {@code SamplingRule}. Patterns are supported in the {@code host}, {@code httpMethod}, and {@code urlPath} parameters. Patterns are matched using the {@link com.amazonaws.xray.entities.SearchPattern} class.
      *
+     * @param host
+     *            the host name for which the rule should apply
      * @param serviceName
      *            the service name for which the rule should apply
      * @param httpMethod
@@ -34,7 +38,8 @@ public class SamplingRule {
      * @param rate
      *            the rate at which the rule should sample, after the fixedTarget has been reached
      */
-    public SamplingRule(String serviceName, String httpMethod, String urlPath, int fixedTarget, float rate) {
+    public SamplingRule(String host, String serviceName, String httpMethod, String urlPath, int fixedTarget, float rate) {
+        this.host = host;
         this.serviceName = serviceName;
         this.httpMethod = httpMethod;
         this.urlPath = urlPath;
@@ -57,6 +62,21 @@ public class SamplingRule {
      */
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    /**
+     * @return the host
+     */
+    public String getHost() {
+        return host;
+    }
+
+    /**
+     * @param host
+     *            the host to set
+     */
+    public void setHost(String host) {
+        this.host = host;
     }
 
     /**
@@ -129,22 +149,22 @@ public class SamplingRule {
 
     @Override
     public String toString() {
-        return "\n\tservice_name: " + serviceName + "\n\thttp_method: " + httpMethod + "\n\turl_path: " + urlPath + "\n\tfixed_target: " + fixedTarget + "\n\trate: " + rate;
+        return "\n\thost: " + host + "\n\thttp_method: " + httpMethod + "\n\turl_path: " + urlPath + "\n\tfixed_target: " + fixedTarget + "\n\trate: " + rate;
     }
 
     /**
      * Determines whether or not this sampling rule applies to the incoming request based on some of the request's parameters. Any null parameters provided will be considered an implicit match. For example, {@code appliesTo(null, null, null)} will always return {@code true}, for any rule.
      *
-     * @param requestServiceName
-     *            the service name for the incoming request. In current middleware implementations, the host header is used as the service name.
+     * @param requestHost
+     *            the host name for the incoming request.
      * @param requestPath
      *            the path from the incoming request
      * @param requestMethod
      *            the method used to make the incoming request
      * @return whether or not this rule applies to the incoming request
      */
-    public boolean appliesTo(String requestServiceName, String requestPath, String requestMethod) {
-        return (null == serviceName || SearchPattern.wildcardMatch(serviceName, requestServiceName)) &&
+    public boolean appliesTo(String requestHost, String requestPath, String requestMethod) {
+        return (null == host || SearchPattern.wildcardMatch(host, requestHost)) &&
             (null == requestPath || SearchPattern.wildcardMatch(urlPath, requestPath)) &&
             (null == requestMethod || SearchPattern.wildcardMatch(httpMethod, requestMethod));
     }

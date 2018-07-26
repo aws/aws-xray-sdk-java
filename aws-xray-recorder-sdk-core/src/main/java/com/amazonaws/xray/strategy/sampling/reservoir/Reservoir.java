@@ -1,4 +1,4 @@
-package com.amazonaws.xray.strategy.sampling;
+package com.amazonaws.xray.strategy.sampling.reservoir;
 
 import java.time.Instant;
 import java.util.concurrent.atomic.LongAdder;

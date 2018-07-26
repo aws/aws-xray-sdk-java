@@ -13,6 +13,7 @@ import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.strategy.ContextMissingStrategy;
 import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
+import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.json.JSONException;
@@ -24,6 +25,7 @@ import org.junit.runners.MethodSorters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -37,6 +39,7 @@ import java.util.function.Supplier;
 @FixMethodOrder(MethodSorters.JVM)
 @PrepareForTest({LambdaSegmentContext.class, LambdaSegmentContextResolver.class})
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.net.ssl.*")
 public class AWSXRayRecorderTest {
 
     @Rule
@@ -47,16 +50,17 @@ public class AWSXRayRecorderTest {
     @Before
     public void setupAWSXRay() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
+        LocalizedSamplingStrategy defaultSamplingStrategy = new LocalizedSamplingStrategy();
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSamplingStrategy(defaultSamplingStrategy).build());
         AWSXRay.clearTraceEntity();
     }
 
     @Test
     public void testGetThreadLocalReturnsCurrentSegment() {
         Segment segment = AWSXRay.beginSegment("test");
-        Assert.assertEquals(segment, AWSXRay.getThreadLocal());
+        Assert.assertEquals(segment, AWSXRay.getTraceEntity());
         AWSXRay.endSegment();
     }
 
@@ -71,7 +75,7 @@ public class AWSXRayRecorderTest {
     public void testGetThreadLocalReturnsCurrentSubsegment() {
         AWSXRay.beginSegment("test");
         Subsegment subsegment = AWSXRay.beginSubsegment("test");
-        Assert.assertEquals(subsegment, AWSXRay.getThreadLocal());
+        Assert.assertEquals(subsegment, AWSXRay.getTraceEntity());
         AWSXRay.endSubsegment();
         AWSXRay.endSegment();
     }
@@ -89,7 +93,7 @@ public class AWSXRayRecorderTest {
     public void testGetThreadLocalOnEmptyThreadDoesNotThrowException() {
         AWSXRay.beginSegment("test");
         AWSXRay.endSegment();
-        AWSXRay.getThreadLocal();
+        AWSXRay.getTraceEntity();
     }
 
     @Test
@@ -198,7 +202,7 @@ public class AWSXRayRecorderTest {
         AWSXRay.endSegment();
         Assert.assertFalse(AWSXRay.getCurrentSegmentOptional().isPresent());
     }
-    
+
     @Test
     public void testIsCurrentSubsegmentPresent() {
         Assert.assertFalse(AWSXRay.getCurrentSubsegmentOptional().isPresent());

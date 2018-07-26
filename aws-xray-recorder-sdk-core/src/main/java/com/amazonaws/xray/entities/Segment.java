@@ -112,6 +112,8 @@ public interface Segment extends Entity {
      */
     public void putAllService(Map<String, Object> all);
 
+    public void setRuleName(String name);
+
     @Override
     public Segment getParentSegment();
 

@@ -1,7 +1,7 @@
 package com.amazonaws.xray;
 
 import java.util.concurrent.ForkJoinPool;
-
+import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -16,9 +16,10 @@ public class ConcurrencyTest {
     @Before
     public void setupAWSXRay() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
+        LocalizedSamplingStrategy defaultSamplingStrategy = new LocalizedSamplingStrategy();
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSamplingStrategy(defaultSamplingStrategy).build());
         AWSXRay.clearTraceEntity();
     }
 

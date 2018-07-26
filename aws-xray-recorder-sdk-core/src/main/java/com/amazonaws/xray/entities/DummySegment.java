@@ -331,4 +331,7 @@ public class DummySegment implements Segment {
     @Override
     public void removeSubsegment(Subsegment subsegment) { }
 
+    @Override
+    public void setRuleName(String name) {}
+
 }
