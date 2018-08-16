@@ -2,9 +2,21 @@
 
 ## 2.0.0 - 2018-08-14
 ### Backwards incompatible change
-- Default Sampling Strategy has been updated to Centralized Sampling Strategy.
-- Fallback to Localized Sampling Strategy when sampling rules are not available.
+- Default Sampling Strategy has been updated to Centralized Sampling Strategy which gets sampling rules from X-Ray backend instead of from a static JSON file.
+- Implement two new class `RulePoller` and `TargetPoller` to periodically updating sampling rules and sampling targets through TCP connection.
+- Fallback to Localized Sampling Strategy when centralized sampling rules are not available.
 - In order to disable Centralized Sampling Strategy, provide `withSamplingStrategy` with Localized one.
+- Update `DefaultSamplingRules.json` file. i.e. `service_name` has been replaced to `host` and `version` changed to `2`. SDK still supports `v1` JSON file. 
+- Update `shouldTrace` method with four input parameters which takes one more `host` name. If `v1` version JSON has been provided, `shouldTrace` will treat `service_name` value as `host` value.
+- Environment variable `AWS_TRACING_DAEMON_ADDRESS` now takes a value of the form '127.0.0.1:2000' or 'tcp:127.0.0.1:2000 udp:127.0.0.2:2001'. The former one means UDP and TCP are running at the same address and the later one specify individual addresses for TCP and UDP connection. By default it assumes a X-Ray daemon running at 127.0.0.1:2000 listening to both UDP and TCP traffic.
+
+### Added
+- Update `DefaultOperationParameterWhitelist.json` with S3 support. [PR9](https://github.com/aws/aws-xray-sdk-java/pull/9)
+- Update `README` with correct `defaultRecorder` method. [PR10](https://github.com/aws/aws-xray-sdk-java/pull/10)
+- Link scorekeep sample application in `README`. [PR12](https://github.com/aws/aws-xray-sdk-java/pull/12)
+- Add missing open sourcing standard files. [PR14](https://github.com/aws/aws-xray-sdk-java/pull/14)
+- Add travis CI. [PR16](https://github.com/aws/aws-xray-sdk-java/pull/16)
+- Update `getUrl` method do not concatenate if the url in request is already absolute. [PR20](https://github.com/aws/aws-xray-sdk-java/pull/20)
 
 ## 1.3.1 - 2018-01-12
 ### Changed
