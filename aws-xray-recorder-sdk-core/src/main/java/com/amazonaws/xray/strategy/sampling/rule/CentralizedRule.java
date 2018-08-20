@@ -95,7 +95,6 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
     }
 
     public static boolean isValid(SamplingRule rule) {
-        logger.trace("enter isValid");
         if (rule.getRuleName() == null || rule.getPriority() == null
                 || rule.getReservoirSize() == null || rule.getFixedRate() == null || rule.getVersion() != 1) {
 
