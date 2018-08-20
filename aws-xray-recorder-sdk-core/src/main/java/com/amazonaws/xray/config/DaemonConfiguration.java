@@ -55,6 +55,25 @@ public class DaemonConfiguration {
     }
 
     /**
+     * Sets the daemon address. If either the {@code AWS_XRAY_DAEMON_ADDRESS} environment variable or {@code com.amazonaws.xray.emitters.daemonAddress} system property are set to a non-empty value, calling this method does nothing.
+     *
+     * @param socketAddress
+     *            Daemon address and port in the "ip_address:port" format.
+     *
+     * @throws IllegalArgumentException
+     *             if {@code socketAddress} does not match the specified format.
+     */
+    public void setDaemonAddress(String socketAddress) {
+        String environmentAddress = System.getenv(DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY);
+        String systemAddress = System.getProperty(DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY);
+        if (StringValidator.isNullOrBlank(environmentAddress) && StringValidator.isNullOrBlank(systemAddress)) {
+            parseAndModifyDaemonAddress(socketAddress);
+        } else {
+            logger.info("Ignoring call to setDaemonAddress as " + DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY + " is set.");
+        }
+    }
+
+    /**
      *
      * @param addr
      *      A notation of '127.0.0.1:2000' or 'tcp:127.0.0.1:2000 udp:127.0.0.2:2001' are both acceptable. The former one means UDP and TCP are running at the same address.

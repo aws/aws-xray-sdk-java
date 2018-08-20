@@ -95,22 +95,26 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
     }
 
     public static boolean isValid(SamplingRule rule) {
+        logger.trace("enter isValid");
         if (rule.getRuleName() == null || rule.getPriority() == null
-                || rule.getReservoirSize() == null || rule.getFixedRate() == null || rule.getVersion() == null) {
+                || rule.getReservoirSize() == null || rule.getFixedRate() == null || rule.getVersion() != 1) {
+
+            logger.error("Detect invalid rule. Please check sampling rule format.");
+            return false;
+        }
+
+        if (!rule.getResourceARN().equals("*") || !rule.getServiceType().equals("*") || !rule.getAttributes().isEmpty()) {
+            logger.error("Detect invalid rule. Please check sampling rule format.");
+            return false;
+        }
+
+        if (rule.getHost() == null || rule.getServiceName() == null || rule.getHTTPMethod() == null || rule.getURLPath() == null) {
+            logger.error("Detect invalid rule. Please check sampling rule format.");
             return false;
         }
 
         if (rule.getRuleName().equals(DEFAULT_RULE_NAME)) {
             return true;
-        }
-
-        if (rule.getHost() == null || rule.getServiceName() == null || rule.getServiceType() == null
-                || rule.getHTTPMethod() == null || rule.getURLPath() == null || rule.getResourceARN() == null) {
-            return false;
-        }
-
-        if (rule.getVersion() != 1) {
-            return false;
         }
 
         return true;

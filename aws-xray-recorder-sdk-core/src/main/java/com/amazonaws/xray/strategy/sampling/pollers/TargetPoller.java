@@ -36,7 +36,7 @@ public class TargetPoller {
             try {
                 pollManifest();
             } catch (Exception ex) {
-                logger.error("Encountered error polling GetSamplingRules", ex);
+                logger.error("Encountered error polling GetSamplingTargets: ", ex);
             }
         }, 0, getJitterInterval(), TimeUnit.MILLISECONDS);
     }

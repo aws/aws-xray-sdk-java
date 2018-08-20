@@ -34,18 +34,18 @@ public class SamplingRequest {
      *            not be null.
      * @param resourceARN
      *            the resource for which a sampling decision is being requested.
-     *            Ex. "arn:aws:execute-api:us-east-1:1234566789012:qsxrty/test/GET/foo/bar/*"
+     *            Ex. "arn:aws:execute-api:us-east-1:1234566789012:qsxrty/test/GET/foo/bar/*".
      * @param service
      *            the service name for which a sampling decision is being requested.
-     *            Ex. "www.foo.com"
+     *            Ex. "www.foo.com".
      * @param host
      *            the host name extracted from the incoming request Host header.
      * @param method
-     *            the Http Method extracted from the Request-Line
+     *            the Http Method extracted from the Request-Line.
      * @param url
-     *            the URL extracted from the Request-Line
+     *            the URL extracted from the Request-Line.
      * @param attributes
-     *            list of key-value pairs generated on a per-request basis
+     *            list of key-value pairs generated on a per-request basis.
      */
     public SamplingRequest(
             String roleARN,
