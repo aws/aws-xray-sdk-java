@@ -102,12 +102,12 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
             return false;
         }
 
-        if (!rule.getResourceARN().equals("*") || !rule.getServiceType().equals("*") || !rule.getAttributes().isEmpty()) {
+        if (!rule.getResourceARN().equals("*") || !rule.getAttributes().isEmpty()) {
             logger.error("Detect invalid rule. Please check sampling rule format.");
             return false;
         }
 
-        if (rule.getHost() == null || rule.getServiceName() == null || rule.getHTTPMethod() == null || rule.getURLPath() == null) {
+        if (rule.getHost() == null || rule.getServiceName() == null || rule.getHTTPMethod() == null || rule.getURLPath() == null || rule.getServiceType() == null) {
             logger.error("Detect invalid rule. Please check sampling rule format.");
             return false;
         }

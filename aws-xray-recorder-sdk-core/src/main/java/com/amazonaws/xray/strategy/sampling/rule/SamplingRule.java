@@ -1,13 +1,9 @@
 package com.amazonaws.xray.strategy.sampling.rule;
 
 import com.amazonaws.xray.strategy.sampling.reservoir.Reservoir;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.amazonaws.xray.entities.SearchPattern;
 
 public class SamplingRule {
-    private static final Log logger = LogFactory.getLog(SamplingRule.class);
 
     private String host;
     private String serviceName;

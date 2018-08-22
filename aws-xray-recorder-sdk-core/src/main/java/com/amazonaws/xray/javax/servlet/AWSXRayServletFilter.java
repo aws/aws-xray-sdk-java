@@ -15,6 +15,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import com.amazonaws.xray.strategy.sampling.SamplingResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -244,7 +245,8 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
     }
 
     private SamplingResponse fromSamplingStrategy(HttpServletRequest httpServletRequest) {
-        SamplingResponse sample = recorder.getSamplingStrategy().shouldTrace(getSegmentName(httpServletRequest), getHost(httpServletRequest).orElse(null), httpServletRequest.getRequestURI(), httpServletRequest.getMethod());
+        SamplingRequest samplingRequest = new SamplingRequest(getSegmentName(httpServletRequest), getHost(httpServletRequest).orElse(null), httpServletRequest.getRequestURI(), httpServletRequest.getMethod(), recorder.getOrigin());
+        SamplingResponse sample = recorder.getSamplingStrategy().shouldTrace(samplingRequest);
         return sample;
     }
 

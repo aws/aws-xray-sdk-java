@@ -72,7 +72,8 @@ public class CentralizedManifestTest {
                 .withServiceName("*")
                 .withHTTPMethod("*")
                 .withURLPath("*")
-                .withResourceARN("*");
+                .withResourceARN("*")
+                .withServiceType("*");
 
         manifest.putRules(Arrays.asList(r1), now);
 
@@ -83,6 +84,7 @@ public class CentralizedManifestTest {
                 "host",
                 "method",
                 "url",
+                "serviceType",
                 null
         );
 
@@ -110,6 +112,7 @@ public class CentralizedManifestTest {
                 "host",
                 "method",
                 "url",
+                "serviceType",
                 null
         );
 
@@ -132,7 +135,8 @@ public class CentralizedManifestTest {
                 .withServiceName("*")
                 .withHTTPMethod("*")
                 .withURLPath("*")
-                .withResourceARN("*");
+                .withResourceARN("*")
+                .withServiceType("*");
 
         manifest.putRules(Arrays.asList(r1), now);
 
@@ -143,6 +147,7 @@ public class CentralizedManifestTest {
                 "host",
                 "method",
                 "url",
+                "serviceType",
                 null
         );
 

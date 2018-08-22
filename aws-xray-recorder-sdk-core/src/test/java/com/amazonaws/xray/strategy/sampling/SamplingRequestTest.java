@@ -14,6 +14,7 @@ public class SamplingRequestTest {
                 null,
                 null,
                 null,
+                null,
                 null
         );
 

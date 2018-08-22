@@ -1,16 +1,16 @@
 # Change Log
 
-## 2.0.0 - 2018-08-21
+## 2.0.0 - 2018-08-28
 ### Backwards incompatible change
 - Default Sampling Strategy has been updated to Centralized Sampling Strategy which gets sampling rules from X-Ray backend instead of from a static JSON file.
 - Implement two new class `RulePoller` and `TargetPoller` to periodically updating sampling rules and sampling targets through TCP connection.
 - Fallback to Localized Sampling Strategy when centralized sampling rules are not available.
 - In order to disable Centralized Sampling Strategy, provide `withSamplingStrategy` with Localized one.
-- Update `DefaultSamplingRules.json` file. i.e. `service_name` has been replaced to `host` and `version` changed to `2`. SDK still supports `v1` JSON file. 
-- Update `shouldTrace` method with four input parameters which takes one more `host` name. If `v1` version JSON has been provided, `shouldTrace` will treat `service_name` value as `host` value.
-- Environment variable `AWS_TRACING_DAEMON_ADDRESS` now takes a value of the form '127.0.0.1:2000' or 'tcp:127.0.0.1:2000 udp:127.0.0.2:2001'. The former one means UDP and TCP are running at the same address and the later one specify individual addresses for TCP and UDP connection. By default it assumes a X-Ray daemon running at 127.0.0.1:2000 listening to both UDP and TCP traffic.
+- Update `DefaultSamplingRules.json` file. i.e. `service_name` has been replaced to `host` and `version` changed to `2`. SDK still supports `v1` JSON file. If `v1` version JSON has been provided, `shouldTrace` will treat `service_name` value as `host` value.
+- Update `shouldTrace` method to take only one parameter defined in `samplingRequest`.
 - Add a new class called `DaemonConfiguration` and both classes `UDPEmitter` and `XRayClient` are depending on it. `setDaemonAddress` method has been moved to class `DaemonConfiguration`.
 ### Added
+- Environment variable `AWS_TRACING_DAEMON_ADDRESS` now takes a value of the form '127.0.0.1:2000' or 'tcp:127.0.0.1:2000 udp:127.0.0.2:2001'. The former one means UDP and TCP are running at the same address and the later one specify individual addresses for TCP and UDP connection. By default it assumes a X-Ray daemon running at 127.0.0.1:2000 listening to both UDP and TCP traffic.
 - Update `DefaultOperationParameterWhitelist.json` with S3 support. [PR9](https://github.com/aws/aws-xray-sdk-java/pull/9)
 - Update `README` with correct `defaultRecorder` method. [PR10](https://github.com/aws/aws-xray-sdk-java/pull/10)
 - Link scorekeep sample application in `README`. [PR12](https://github.com/aws/aws-xray-sdk-java/pull/12)

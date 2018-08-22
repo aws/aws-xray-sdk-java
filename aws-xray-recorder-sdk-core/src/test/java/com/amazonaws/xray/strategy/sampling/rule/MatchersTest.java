@@ -18,7 +18,8 @@ public class MatchersTest {
                 .withServiceName("www.foo.com")
                 .withHTTPMethod("POST")
                 .withResourceARN("arn:aws:service:us-east-1:111111111111:resource")
-                .withURLPath("/bar/123");
+                .withURLPath("/bar/123")
+                .withServiceType("AWS::EC2::Instance");
 
         SamplingRequest req = new SamplingRequest(
                 "role-arn",
@@ -27,6 +28,7 @@ public class MatchersTest {
                 "192.168.1.1",
                 "POST",
                 "/bar/123",
+                "AWS::EC2::Instance",
                 null
         );
 
@@ -43,7 +45,8 @@ public class MatchersTest {
                 .withServiceName("www.foo.com")
                 .withHTTPMethod("POST")
                 .withResourceARN("arn:aws:service:us-east-1:111111111111:resource")
-                .withURLPath("/bar/123");
+                .withURLPath("/bar/123")
+                .withServiceType("AWS::EC2::Instance");
 
         SamplingRequest req = new SamplingRequest(
                 "role-arn",
@@ -52,6 +55,7 @@ public class MatchersTest {
                 "192.168.1.1",
                 "POST",
                 "/bar/123",
+                "AWS::EC2::Instance",
                 null
         );
 
@@ -77,7 +81,8 @@ public class MatchersTest {
                 .withServiceName("*")
                 .withHTTPMethod("*")
                 .withResourceARN("*")
-                .withURLPath("*");
+                .withURLPath("*")
+                .withServiceType("*");
 
         SamplingRequest req = new SamplingRequest(
                 "role-arn",
@@ -86,6 +91,7 @@ public class MatchersTest {
                 "192.168.1.1",
                 "GET",
                 "/baz/bar",
+                "AWS::EC2::Instance",
                 reqAttributes
         );
 
@@ -111,7 +117,8 @@ public class MatchersTest {
                 .withServiceName("*.foo.*")
                 .withHTTPMethod("*")
                 .withResourceARN("*")
-                .withURLPath("/bar/*");
+                .withURLPath("/bar/*")
+                .withServiceType("AWS::EC2::Instance");
 
         SamplingRequest req = new SamplingRequest(
                 "role-arn",
@@ -120,6 +127,7 @@ public class MatchersTest {
                 "192.168.1.1",
                 "GET",
                 "/bar/baz",
+                "AWS::EC2::Instance",
                 reqAttributes
         );
 
@@ -136,7 +144,8 @@ public class MatchersTest {
                 .withServiceName("*.foo.*")
                 .withHTTPMethod("*")
                 .withResourceARN("*")
-                .withURLPath("/bar/*");
+                .withURLPath("/bar/*")
+                .withServiceType("AWS::EC2::Instance");
 
         SamplingRequest req = new SamplingRequest(
                 "role-arn",
@@ -145,6 +154,7 @@ public class MatchersTest {
                 "192.168.1.1",
                 "GET",
                 "/foo/baz",
+                "AWS::EC2::Instance",
                 null
         );
 
@@ -170,7 +180,8 @@ public class MatchersTest {
                 .withServiceName("*")
                 .withHTTPMethod("*")
                 .withResourceARN("*")
-                .withURLPath("*");
+                .withURLPath("*")
+                .withServiceType("AWS::EC2::Instance");
 
         SamplingRequest req = new SamplingRequest(
                 "role-arn",
@@ -179,6 +190,7 @@ public class MatchersTest {
                 "192.168.1.1",
                 "GET",
                 "/foo/baz",
+                "AWS::EC2::Instance",
                 reqAttributes
         );
 
@@ -190,12 +202,13 @@ public class MatchersTest {
     @Test
     public void testPartialRequestMismatch() {
          SamplingRule rule = new SamplingRule()
-                .withAttributes(null)
-                .withHost("192.168.1.1")
-                .withServiceName("www.foo.com")
-                .withHTTPMethod("POST")
-                .withResourceARN("arn:aws:service:us-east-1:111111111111:resource")
-                .withURLPath("/bar/123");
+                 .withAttributes(null)
+                 .withHost("192.168.1.1")
+                 .withServiceName("www.foo.com")
+                 .withHTTPMethod("POST")
+                 .withResourceARN("arn:aws:service:us-east-1:111111111111:resource")
+                 .withURLPath("/bar/123")
+                 .withServiceType("AWS::EC2::Instance");
 
          SamplingRequest req = new SamplingRequest(
                  "role-arn",
@@ -204,6 +217,7 @@ public class MatchersTest {
                  null,
                  "POST",
                  "/bar/123",
+                 "AWS::EC2::Instance",
                  null
          );
 

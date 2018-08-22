@@ -26,6 +26,8 @@ public class SamplingRequest {
 
     private String url;
 
+    private String serviceType;
+
     private Map<String, String> attributes;
 
     /**
@@ -44,6 +46,8 @@ public class SamplingRequest {
      *            the Http Method extracted from the Request-Line.
      * @param url
      *            the URL extracted from the Request-Line.
+     * @param serviceType
+     *            the service type.
      * @param attributes
      *            list of key-value pairs generated on a per-request basis.
      */
@@ -54,6 +58,7 @@ public class SamplingRequest {
             String host,
             String method,
             String url,
+            String serviceType,
             Map<String, String> attributes
     ) {
         Objects.requireNonNull(roleARN, "RoleARN can not be null");
@@ -64,14 +69,16 @@ public class SamplingRequest {
         this.host = host;
         this.method = method;
         this.url = url;
+        this.serviceType = serviceType;
         this.attributes = attributes != null ? attributes : Collections.emptyMap();
     }
 
-    public SamplingRequest(String service, String host, String method, String url) {
+    public SamplingRequest(String service, String host, String url, String method, String serviceType) {
         this.service = service;
         this.host = host;
-        this.method = method;
         this.url = url;
+        this.method = method;
+        this.serviceType = serviceType;
     }
 
     public Optional<String> getAccountId() {
@@ -108,8 +115,15 @@ public class SamplingRequest {
         return Optional.ofNullable(host);
     }
 
+    public Optional<String> getServiceType() {
+        return Optional.ofNullable(serviceType);
+    }
+
     public Map<String, String> getAttributes() {
         return attributes;
     }
 
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
 }

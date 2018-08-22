@@ -1,6 +1,7 @@
 package com.amazonaws.xray.strategy.sampling;
 
 import com.amazonaws.services.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
 import com.amazonaws.xray.strategy.sampling.pollers.RulePoller;
 import com.amazonaws.xray.strategy.sampling.pollers.TargetPoller;
@@ -50,23 +51,26 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
     }
 
     @Override
-    public SamplingResponse shouldTrace(String serviceName, String host, String path, String method) {
+    public SamplingResponse shouldTrace(SamplingRequest samplingRequest) {
         if (!isStarted) {
             startPoller();
         }
         SamplingResponse sampleResponse;
         if (logger.isDebugEnabled()) {
-            logger.debug("Determining shouldTrace decision for:\n\tserviceName: " + serviceName + "\n\thost: " + host + "\n\tpath: " + path + "\n\tmethod: " + method);
+            logger.debug("Determining shouldTrace decision for:\n\tserviceName: " + samplingRequest.getService().orElse("") + "\n\thost: " + samplingRequest.getHost().orElse("") + "\n\tpath: " + samplingRequest.getUrl().orElse("") + "\n\tmethod: " + samplingRequest.getMethod().orElse("") + "\n\tserviceType: " + samplingRequest.getServiceType().orElse(""));
+        }
+
+        if (!samplingRequest.getServiceType().isPresent()) {
+            samplingRequest.setServiceType(AWSXRayRecorderBuilder.defaultRecorder().getOrigin());
         }
 
         if (manifest.isExpired(Instant.now())) {
-            logger.debug("Centralized sampling data expired. Using fallback sampling strategy");
-            return fallback.shouldTrace(serviceName, host, path, method);
+            logger.debug("Centralized sampling data expired. Using fallback sampling strategy.");
+            return fallback.shouldTrace(samplingRequest);
         }
 
         for (CentralizedRule rule : manifest.getRules().values()) {
-            SamplingRequest r = new SamplingRequest(serviceName, host, method, path);
-            boolean applicable = rule.match(r);
+            boolean applicable = rule.match(samplingRequest);
             if (!applicable) {
                 continue;
             }
@@ -81,8 +85,8 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
             return dRule.sample(Instant.now());
         }
 
-        logger.debug("Centralized default sampling rule unavailable. Using fallback sampling strategy");
-        sampleResponse = fallback.shouldTrace(serviceName, host, path, method);
+        logger.debug("Centralized default sampling rule unavailable. Using fallback sampling strategy.");
+        sampleResponse = fallback.shouldTrace(samplingRequest);
         return sampleResponse;
     }
 

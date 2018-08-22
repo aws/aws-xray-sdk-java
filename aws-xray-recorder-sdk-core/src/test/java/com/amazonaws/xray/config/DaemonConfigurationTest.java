@@ -1,8 +1,6 @@
 package com.amazonaws.xray.config;
 
 import java.net.InetSocketAddress;
-import java.net.SocketException;
-
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;

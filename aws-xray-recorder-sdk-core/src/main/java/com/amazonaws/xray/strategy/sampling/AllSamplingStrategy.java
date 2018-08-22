@@ -5,7 +5,7 @@ package com.amazonaws.xray.strategy.sampling;
  *
  */
 public class AllSamplingStrategy implements SamplingStrategy {
-    public SamplingResponse shouldTrace(String serviceName, String host, String path, String method) {
+    public SamplingResponse shouldTrace(SamplingRequest samplingRequest) {
         SamplingResponse sampleResponse = new SamplingResponse(true);
         return sampleResponse;
     }

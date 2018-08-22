@@ -1,7 +1,7 @@
 package com.amazonaws.xray.strategy.sampling;
 
 public interface SamplingStrategy {
-    SamplingResponse shouldTrace(String serviceName, String host, String path, String method);
+    SamplingResponse shouldTrace(SamplingRequest sampleRequest);
 
     /**
      * Returns whether or not this sampling strategy supports 'forced sampling'.

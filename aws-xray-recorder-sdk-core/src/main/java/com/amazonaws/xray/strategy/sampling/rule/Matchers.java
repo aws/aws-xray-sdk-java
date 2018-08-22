@@ -19,11 +19,14 @@ public class Matchers {
 
     private String url;
 
+    private String serviceType;
+
     public Matchers(SamplingRule r) {
         this.host = r.getHost();
         this.service = r.getServiceName();
         this.method = r.getHTTPMethod();
         this.url = r.getURLPath();
+        this.serviceType = r.getServiceType();
 
         this.attributes = r.getAttributes() == null ? Collections.emptyMap() : r.getAttributes();
     }
@@ -53,7 +56,7 @@ public class Matchers {
         return SearchPattern.wildcardMatch(url, req.getUrl().orElse(""))
                 && SearchPattern.wildcardMatch(service, req.getService().orElse(""))
                 && SearchPattern.wildcardMatch(method, req.getMethod().orElse(""))
-                && SearchPattern.wildcardMatch(host, req.getHost().orElse(""));
+                && SearchPattern.wildcardMatch(host, req.getHost().orElse(""))
+                && SearchPattern.wildcardMatch(serviceType, req.getServiceType().orElse(""));
     }
-
 }
