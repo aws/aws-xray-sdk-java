@@ -2,7 +2,7 @@
 
 ## 2.0.0 - 2018-08-28
 ### Backwards incompatible change
-- Default Sampling Strategy has been updated to Centralized Sampling Strategy which gets sampling rules from X-Ray backend instead of from a static JSON file.
+- Default Sampling Strategy has been updated to Centralized Sampling Strategy which gets sampling rules from X-Ray backend instead of from a static JSON file. [More Information](https://docs.aws.amazon.com/xray/latest/devguide/xray-console-sampling.html)
 - Implement two new class `RulePoller` and `TargetPoller` to periodically updating sampling rules and sampling targets through TCP connection.
 - Fallback to Localized Sampling Strategy when centralized sampling rules are not available.
 - In order to disable Centralized Sampling Strategy, provide `withSamplingStrategy` with Localized one.

@@ -34,16 +34,10 @@
     </plugins>
   </build>
   <dependencies>
-    <!-- This one is only for my testing and I will remove it before release -->
-    <dependency>
-      <groupId>com.lulu.code</groupId>
-      <artifactId>aws-xray-java-sdk</artifactId>
-      <version>0.1.0</version>
-    </dependency>
     <dependency>
       <groupId>com.amazonaws</groupId>
-      <artifactId>aws-java-sdk-core</artifactId>
-      <version>[1.11.106,1.12)</version>
+      <artifactId>aws-java-sdk-xray</artifactId>
+      <version>1.11.398</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
