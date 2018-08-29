@@ -13,32 +13,32 @@ Add the AWS X-Ray SDK dependencies to your pom.xml:
 ```
 <dependency>
   <groupId>com.amazonaws</groupId>
-  <artifactId>aws-xray-sdk-core</artifactId>
+  <artifactId>aws-xray-recorder-sdk-core</artifactId>
   <version>2.0.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
-  <artifactId>aws-xray-sdk-apache-http</artifactId>
+  <artifactId>aws-xray-recorder-sdk-apache-http</artifactId>
   <version>2.0.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
-  <artifactId>aws-xray-sdk-aws-sdk</artifactId>
+  <artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
   <version>2.0.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
-  <artifactId>aws-xray-sdk-aws-sdk-instrumentor</artifactId>
+  <artifactId>aws-xray-recorder-sdk-aws-sdk-instrumentor</artifactId>
   <version>2.0.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
-  <artifactId>aws-xray-sdk-sql-mysql</artifactId>
+  <artifactId>aws-xray-recorder-sdk-sql-mysql</artifactId>
   <version>2.0.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
-  <artifactId>aws-xray-sdk-sql-postgresql</artifactId>
+  <artifactId>aws-xray-recorder-sdk-sql-postgresql</artifactId>
   <version>2.0.0</version>
 </dependency>
 <dependency>
