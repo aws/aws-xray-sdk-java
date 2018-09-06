@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import com.amazonaws.services.xray.AWSXRayClientBuilder;
+import com.amazonaws.services.xray.model.GetSamplingRulesRequest;
+import com.amazonaws.services.xray.model.GetSamplingTargetsRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -84,12 +87,9 @@ public class TracingHandlerTest {
         InvokeRequest request = new InvokeRequest();
         request.setFunctionName("testFunctionName");
         InvokeResult r = lambda.invoke(request);
-        System.out.println(r.getStatusCode());
-        System.out.println(r);
 
         Assert.assertEquals(1, segment.getSubsegments().size());
         Assert.assertEquals("Invoke", segment.getSubsegments().get(0).getAws().get("operation"));
-        System.out.println(segment.getSubsegments().get(0).getAws());
         Assert.assertEquals("testFunctionName", segment.getSubsegments().get(0).getAws().get("function_name"));
     }
     
@@ -105,7 +105,6 @@ public class TracingHandlerTest {
         s3.putObject(BUCKET, KEY, "This is a test from java");               
         Assert.assertEquals(1, segment.getSubsegments().size());
         Assert.assertEquals("PutObject", segment.getSubsegments().get(0).getAws().get("operation"));
-        System.out.println(segment.getSubsegments().get(0).getAws());
         Assert.assertEquals(BUCKET, segment.getSubsegments().get(0).getAws().get("bucket_name"));
         Assert.assertEquals(KEY, segment.getSubsegments().get(0).getAws().get("key"));
     }
@@ -126,11 +125,26 @@ public class TracingHandlerTest {
         s3.copyObject(BUCKET, KEY, DST_BUCKET, DST_KEY);               
         Assert.assertEquals(1, segment.getSubsegments().size());
         Assert.assertEquals("CopyObject", segment.getSubsegments().get(0).getAws().get("operation"));
-        System.out.println(segment.getSubsegments().get(0).getAws());
         Assert.assertEquals(BUCKET, segment.getSubsegments().get(0).getAws().get("source_bucket_name"));
         Assert.assertEquals(KEY, segment.getSubsegments().get(0).getAws().get("source_key"));
         Assert.assertEquals(DST_BUCKET, segment.getSubsegments().get(0).getAws().get("destination_bucket_name"));
         Assert.assertEquals(DST_KEY, segment.getSubsegments().get(0).getAws().get("destination_key"));
+    }
+
+    @Test
+    public void testShouldNotTraceXRaySamplingOperations() {
+        com.amazonaws.services.xray.AWSXRay xray = AWSXRayClientBuilder.standard()
+                .withRequestHandlers(new TracingHandler()).withRegion(Regions.US_EAST_1)
+                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("fake", "fake")))
+                .build();
+        mockHttpClient(xray, null);
+
+        Segment segment = AWSXRay.beginSegment("test");
+        xray.getSamplingRules(new GetSamplingRulesRequest());
+        Assert.assertEquals(0, segment.getSubsegments().size());
+
+        xray.getSamplingTargets(new GetSamplingTargetsRequest());
+        Assert.assertEquals(0, segment.getSubsegments().size());
     }
 
 }

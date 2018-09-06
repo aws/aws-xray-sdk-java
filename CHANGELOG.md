@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.0.1 - 2018-09-06
+### Changed
+- Fixed a bug that caused XRay sampling rules fetching to fail when AWS SDK instrumentor is included. [ISSUE25](https://github.com/aws/aws-xray-sdk-java/issues/25)
+
 ## 2.0.0 - 2018-08-28
 ### Backwards incompatible change
 - Default Sampling Strategy has been updated to Centralized Sampling Strategy which gets sampling rules from X-Ray backend instead of from a static JSON file. [More Information](https://docs.aws.amazon.com/xray/latest/devguide/xray-console-sampling.html)
@@ -28,7 +32,7 @@
 
 ## 1.2.2 - 2017-12-05
 ### Changed
-- Fixed a bug a bug which caused certain non-sampled segments to be emitted to the X-Ray daemon. This issue occurred only when the segment began as sampled and was manually overridden to non-sampled using `setSampled(false)`.
+- Fixed a bug which caused certain non-sampled segments to be emitted to the X-Ray daemon. This issue occurred only when the segment began as sampled and was manually overridden to non-sampled using `setSampled(false)`.
 
 ## 1.2.1 - 2017-11-20
 ### Changed

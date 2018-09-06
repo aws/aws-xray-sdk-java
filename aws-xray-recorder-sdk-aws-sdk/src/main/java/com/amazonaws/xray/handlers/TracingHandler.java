@@ -58,6 +58,10 @@ public class TracingHandler extends RequestHandler2 {
     private static final String S3_EXTENDED_REQUEST_ID_HEADER_KEY = "x-amz-id-2";
     private static final String CONTENT_LENGTH_HEADER_KEY = "Content-Length";
 
+    private static final String XRAY_SERVICE_NAME = "AWSXRay";
+    private static final String XRAY_SAMPLING_RULE_REQUEST = "GetSamplingRules";
+    private static final String XRAY_SAMPLING_TARGET_REQUEST = "GetSamplingTargets";
+
     private static final String REQUEST_ID_SUBSEGMENT_KEY = "request_id";
     private static final String EXTENDED_REQUEST_ID_SUBSEGMENT_KEY = "id_2";
     private static final String CONTENT_LENGTH_SUBSEGMENT_KEY = "content_length";
@@ -138,7 +142,15 @@ public class TracingHandler extends RequestHandler2 {
 
     @Override
     public void beforeRequest(Request<?> request) {
-        if(S3_SERVICE_NAME.equals(extractServiceName(request)) && S3_PRESIGN_REQUEST.equals(extractOperationName(request))) {
+        String serviceName = extractServiceName(request);
+        String operationName = extractOperationName(request);
+
+        if(S3_SERVICE_NAME.equals(serviceName) && S3_PRESIGN_REQUEST.equals(operationName)) {
+            return;
+        }
+
+        if(XRAY_SERVICE_NAME.equals(serviceName) && (XRAY_SAMPLING_RULE_REQUEST.equals(operationName)
+                || XRAY_SAMPLING_TARGET_REQUEST.equals(operationName))) {
             return;
         }
 
@@ -149,12 +161,12 @@ public class TracingHandler extends RequestHandler2 {
         if (null != entityContext) {
             recorder.setTraceEntity(entityContext);
         }
-        Subsegment currentSubsegment = recorder.beginSubsegment(extractServiceName(request));
+        Subsegment currentSubsegment = recorder.beginSubsegment(serviceName);
         if (null == currentSubsegment) {
             return;
         }
         currentSubsegment.putAllAws(extractRequestParameters(request));
-        currentSubsegment.putAws(OPERATION_SUBSEGMENT_KEY, extractOperationName(request));
+        currentSubsegment.putAws(OPERATION_SUBSEGMENT_KEY, operationName);
         if (null != accountId) {
             currentSubsegment.putAws(ACCOUNT_ID_SUBSEGMENT_KEY, accountId);
         }
