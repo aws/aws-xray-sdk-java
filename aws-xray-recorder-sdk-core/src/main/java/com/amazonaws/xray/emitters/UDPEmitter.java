@@ -1,16 +1,16 @@
 package com.amazonaws.xray.emitters;
 
+import com.amazonaws.xray.config.DaemonConfiguration;
+import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.entities.Subsegment;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-
-import com.amazonaws.xray.config.DaemonConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.entities.Subsegment;
 
 public class UDPEmitter extends Emitter {
     private static final Log logger = LogFactory.getLog(UDPEmitter.class);
@@ -46,7 +46,7 @@ public class UDPEmitter extends Emitter {
         if (logger.isDebugEnabled()) {
             logger.debug(segment.prettySerialize());
         }
-        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes());
+        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(), segment);
     }
 
     /**
@@ -58,17 +58,17 @@ public class UDPEmitter extends Emitter {
         if (logger.isDebugEnabled()) {
             logger.debug(subsegment.prettyStreamSerialize());
         }
-        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + subsegment.streamSerialize()).getBytes());
+        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + subsegment.streamSerialize()).getBytes(), subsegment);
     }
 
-    private boolean sendData(byte[] data) {
+    private boolean sendData(byte[] data, Entity entity) {
         DatagramPacket packet = new DatagramPacket(sendBuffer, DAEMON_BUF_RECEIVE_SIZE, config.address);
         packet.setData(data);
         try {
             logger.debug("Sending UDP packet.");
             daemonSocket.send(packet);
         } catch (IOException e) {
-            logger.error("Exception while sending segment over UDP.", e);
+            logger.error("Exception while sending entity over UDP: " + entity.prettySerialize(), e);
             return false;
         }
         return true;
