@@ -68,7 +68,10 @@ public class UDPEmitter extends Emitter {
             logger.debug("Sending UDP packet.");
             daemonSocket.send(packet);
         } catch (IOException e) {
-            logger.error("Exception while sending entity over UDP: " + entity.prettySerialize(), e);
+            logger.error("Exception while sending segment over UDP.", e);
+            if (logger.isInfoEnabled()) {
+                logger.info("Failed to send the following entity: " + entity.prettySerialize());
+            }
             return false;
         }
         return true;
