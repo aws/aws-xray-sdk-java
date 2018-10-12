@@ -37,7 +37,8 @@ public class LambdaSegmentContext implements SegmentContext {
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);
         }
-        if (null == getTraceEntity()) { // First subsgment of a subsegment branch.
+        Entity current = getTraceEntity();
+        if (null == current) { // First subsegment of a subsegment branch.
             Segment parentSegment = null;
             if (LambdaSegmentContext.isInitializing(LambdaSegmentContext.getTraceHeaderFromEnvironment())) {
                 logger.warn(LAMBDA_TRACE_HEADER_KEY + " is missing a trace ID, parent ID, or sampling decision. Subsegment " + name + " discarded.");
@@ -49,8 +50,15 @@ public class LambdaSegmentContext implements SegmentContext {
             subsegment.setParent(parentSegment);
             setTraceEntity(subsegment);
             return subsegment;
-        } else { // Continuation of a subsegment branch.
-            Subsegment parentSubsegment = (Subsegment) getTraceEntity();
+        } else if(current instanceof Segment) { // Continuation of a subsegment branch.
+            Segment currentSegment = (Segment)current;
+            Subsegment subsegment = new SubsegmentImpl(recorder, name, currentSegment);
+            subsegment.setParent(currentSegment);
+            currentSegment.addSubsegment(subsegment);
+            setTraceEntity(subsegment);
+            return subsegment;
+        } else {
+            Subsegment parentSubsegment = (Subsegment) current;
             // Ensure customers have not leaked subsegments across invocations
             TraceID environmentRootTraceId = LambdaSegmentContext.getTraceHeaderFromEnvironment().getRootTraceId();
             if (null != environmentRootTraceId && !environmentRootTraceId.equals(parentSubsegment.getParentSegment().getTraceId())) {
