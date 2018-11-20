@@ -57,6 +57,8 @@ public class TargetPoller {
             logger.trace("No statistics to report. Not refreshing sampling targets.");
             return;
         }
+
+        logger.debug("Polling sampling targets.");
         GetSamplingTargetsRequest req = new GetSamplingTargetsRequest()
                 .withSamplingStatisticsDocuments(statistics);
 
