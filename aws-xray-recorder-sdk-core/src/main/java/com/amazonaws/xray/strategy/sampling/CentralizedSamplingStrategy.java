@@ -90,15 +90,25 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
         return sampleResponse;
     }
 
+    @Override
+    /**
+     * Shutdown all poller threads immediately regardless of the pending work for clean exit.
+     */
+    public void shutdown() {
+        rulePoller.shutdown();
+        targetPoller.shutdown();
+    }
+
     public static String getClientID() {
         return clientID;
     }
 
-    // Adding synchronized to this method will makes it thread-safe.
+    // This method needs to be thread-safe.
     private synchronized void startPoller() {
+        if (isStarted) { return; }
         rulePoller.start();
         targetPoller.start();
-        this.isStarted = true;
+        isStarted = true;
     }
 
     @Override

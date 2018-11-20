@@ -45,11 +45,6 @@
       <version>3.1.0</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>25.1-jre</version>
-    </dependency>
     <!-- Test -->
     <dependency>
       <groupId>org.openjdk.jmh</groupId>

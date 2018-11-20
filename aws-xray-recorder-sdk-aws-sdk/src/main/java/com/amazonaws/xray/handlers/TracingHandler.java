@@ -130,11 +130,12 @@ public class TracingHandler extends RequestHandler2 {
             (null != extractServiceName(request) && extractServiceName(request).equals(subsegment.get().getName()));
     }
 
-
     private HandlerContextKey<Entity> entityKey = new HandlerContextKey<>("AWS X-Ray Entity");
     private HandlerContextKey<Long> executingThreadKey = new HandlerContextKey<>("AWS X-Ray Executing Thread ID");
+
     @Override
     public AmazonWebServiceRequest beforeExecution(AmazonWebServiceRequest request) {
+        lazyLoadRecorder();
         request.addHandlerContext(entityKey, recorder.getTraceEntity());
         request.addHandlerContext(executingThreadKey, Thread.currentThread().getId());
         return request;
@@ -459,6 +460,11 @@ public class TracingHandler extends RequestHandler2 {
         if (executingThreadContext != null && Thread.currentThread().getId() != executingThreadContext) {
             recorder.clearTraceEntity();
         }
+    }
+
+    private void lazyLoadRecorder() {
+        if (recorder != null) { return; }
+        recorder = AWSXRay.getGlobalRecorder();
     }
 
 }

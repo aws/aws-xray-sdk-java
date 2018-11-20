@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import com.amazonaws.services.xray.AWSXRayClientBuilder;
 import com.amazonaws.services.xray.model.GetSamplingRulesRequest;
 import com.amazonaws.services.xray.model.GetSamplingTargetsRequest;
+import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -147,4 +149,38 @@ public class TracingHandlerTest {
         Assert.assertEquals(0, segment.getSubsegments().size());
     }
 
+    @Test
+    public void testShouldNotThrowContextMissingOnXRaySampling() {
+        com.amazonaws.services.xray.AWSXRay xray = AWSXRayClientBuilder.standard()
+                .withRequestHandlers(new TracingHandler()).withRegion(Regions.US_EAST_1)
+                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("fake", "fake")))
+                .build();
+        mockHttpClient(xray, null);
+
+        xray.getSamplingRules(new GetSamplingRulesRequest());
+        xray.getSamplingTargets(new GetSamplingTargetsRequest());
+    }
+
+    @Test
+    public void testRaceConditionOnRecorderInitialization() {
+        AWSXRay.setGlobalRecorder(null);
+        // TracingHandler will not have the initialized recorder
+        AWSLambda lambda = AWSLambdaClientBuilder.standard()
+                .withRequestHandlers(new TracingHandler())
+                .withRegion(Regions.US_EAST_1)
+                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("fake", "fake")))
+                .build();
+
+        mockHttpClient(lambda, "null");
+
+        // Now init the global recorder
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.defaultRecorder();
+        recorder.setContextMissingStrategy(new LogErrorContextMissingStrategy());
+        AWSXRay.setGlobalRecorder(recorder);
+
+        // Test logic
+        InvokeRequest request = new InvokeRequest();
+        request.setFunctionName("testFunctionName");
+        InvokeResult r = lambda.invoke(request);
+    }
 }
