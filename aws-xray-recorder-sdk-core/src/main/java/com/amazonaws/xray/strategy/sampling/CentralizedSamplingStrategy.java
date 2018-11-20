@@ -91,6 +91,9 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
     }
 
     @Override
+    /**
+     * Shutdown all poller threads immediately regardless of the pending work for clean exit.
+     */
     public void shutdown() {
         rulePoller.shutdown();
         targetPoller.shutdown();
