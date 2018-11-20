@@ -46,7 +46,7 @@ public class AWSXRayRecorder {
         Properties properties = new Properties();
         try {
             properties.load(propertiesStream);
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException | IllegalArgumentException | NullPointerException e) {
             logger.warn("Unable to detect SDK version.", e);
         }
         String sdkVersion = DEFAULT_SDK_VERSION;

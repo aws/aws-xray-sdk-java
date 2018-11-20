@@ -12,4 +12,9 @@ public interface SamplingStrategy {
      * @return whether or not forced sampling is supported
      */
     boolean isForcedSamplingSupported();
+
+    /**
+     * Shutdown additional resources created by advanced sampling strategies.
+     */
+    default void shutdown() {}
 }

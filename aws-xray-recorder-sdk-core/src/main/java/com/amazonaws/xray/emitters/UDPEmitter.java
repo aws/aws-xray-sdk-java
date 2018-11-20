@@ -62,7 +62,7 @@ public class UDPEmitter extends Emitter {
     }
 
     private boolean sendData(byte[] data) {
-        DatagramPacket packet = new DatagramPacket(sendBuffer, DAEMON_BUF_RECEIVE_SIZE, config.address);
+        DatagramPacket packet = new DatagramPacket(sendBuffer, DAEMON_BUF_RECEIVE_SIZE, config.getAddressForEmitter());
         packet.setData(data);
         try {
             logger.debug("Sending UDP packet.");
