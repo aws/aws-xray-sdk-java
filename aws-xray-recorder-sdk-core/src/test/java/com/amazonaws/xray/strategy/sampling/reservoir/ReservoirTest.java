@@ -66,10 +66,12 @@ public class ReservoirTest {
     @Test public void allowsOddRates() {
         mockStatic(System.class);
 
-        when(System.nanoTime()).thenReturn(NANOS_PER_SECOND);
         Reservoir reservoir = new Reservoir(11);
+        when(System.nanoTime()).thenReturn(NANOS_PER_SECOND);
+        assertTrue(reservoir.take());
+
         when(System.nanoTime()).thenReturn(NANOS_PER_SECOND + NANOS_PER_DECISECOND * 9);
-        for (int i = 0; i < 11; i++) {
+        for (int i = 1; i < 11; i++) {
             assertTrue("failed after " + (i + 1), reservoir.take());
         }
         assertFalse(reservoir.take());

@@ -11,7 +11,7 @@ public class Reservoir {
     private final int tracesPerSecond;
     private final MaxFunction maxFunction;
     private final AtomicInteger usage = new AtomicInteger(0);
-    private final AtomicLong nextReset;
+    private final AtomicLong nextReset = new AtomicLong(0);
 
     public Reservoir() {
         this(0);
@@ -21,8 +21,6 @@ public class Reservoir {
         this.tracesPerSecond = tracesPerSecond;
         this.maxFunction =
             tracesPerSecond < 10 ? new LessThan10(tracesPerSecond) : new AtLeast10(tracesPerSecond);
-        long now = System.nanoTime();
-        this.nextReset = new AtomicLong(now + NANOS_PER_SECOND);
     }
 
     public boolean take() {
@@ -32,7 +30,7 @@ public class Reservoir {
         long nanosUntilReset = -(now - updateAt); // because nanoTime can be negative
         boolean shouldReset = nanosUntilReset <= 0;
         if (shouldReset) {
-            if (nextReset.compareAndSet(updateAt, updateAt + NANOS_PER_SECOND)) {
+            if (nextReset.compareAndSet(updateAt, now + NANOS_PER_SECOND)) {
                 usage.set(0);
             }
         }
@@ -96,8 +94,9 @@ public class Reservoir {
         }
 
         @Override int max(long nanosUntilReset) {
-            int decisecondsUntilReset = ((int) nanosUntilReset / NANOS_PER_DECISECOND);
-            int index = decisecondsUntilReset == 0 ? 0 : 10 - decisecondsUntilReset;
+            if (nanosUntilReset == 0) return max[0];
+            int decisecondsUntilReset = Math.max((int) nanosUntilReset / NANOS_PER_DECISECOND, 1);
+            int index = 10 - decisecondsUntilReset;
             return max[index];
         }
     }
