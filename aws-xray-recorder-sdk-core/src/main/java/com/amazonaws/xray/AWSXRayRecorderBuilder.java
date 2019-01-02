@@ -24,7 +24,7 @@ public class AWSXRayRecorderBuilder {
     private static final Log logger =
         LogFactory.getLog(AWSXRayRecorderBuilder.class);
 
-    private Collection<Plugin> plugins;
+    private final Collection<Plugin> plugins;
 
     private SamplingStrategy samplingStrategy;
     private StreamingStrategy streamingStrategy;
@@ -42,18 +42,15 @@ public class AWSXRayRecorderBuilder {
 
     public static Optional<ContextMissingStrategy> contextMissingStrategyFromEnvironmentVariable() {
         String contextMissingStrategyOverrideValue = System.getenv(ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_ENVIRONMENT_VARIABLE_OVERRIDE_KEY);
-        if (null != contextMissingStrategyOverrideValue) {
-            if (contextMissingStrategyOverrideValue.equalsIgnoreCase(LogErrorContextMissingStrategy.OVERRIDE_VALUE)) {
-                return Optional.of(new LogErrorContextMissingStrategy());
-            } else if (contextMissingStrategyOverrideValue.equalsIgnoreCase(RuntimeErrorContextMissingStrategy.OVERRIDE_VALUE)) {
-                return Optional.of(new RuntimeErrorContextMissingStrategy());
-            }
-        }
-        return Optional.empty();
+        return getContextMissingStrategy(contextMissingStrategyOverrideValue);
     }
 
     public static Optional<ContextMissingStrategy> contextMissingStrategyFromSystemProperty() {
         String contextMissingStrategyOverrideValue = System.getProperty(ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_SYSTEM_PROPERTY_OVERRIDE_KEY);
+        return getContextMissingStrategy(contextMissingStrategyOverrideValue);
+    }
+
+    private static Optional<ContextMissingStrategy> getContextMissingStrategy(String contextMissingStrategyOverrideValue) {
         if (null != contextMissingStrategyOverrideValue) {
             if (contextMissingStrategyOverrideValue.equalsIgnoreCase(LogErrorContextMissingStrategy.OVERRIDE_VALUE)) {
                 return Optional.of(new LogErrorContextMissingStrategy());
@@ -167,7 +164,7 @@ public class AWSXRayRecorderBuilder {
             client.setEmitter(emitter);
         }
 
-        plugins.stream().filter(Objects::nonNull).forEach((plugin) -> {
+        plugins.stream().filter(Objects::nonNull).forEach(plugin -> {
             Map<String, Object> runtimeContext = plugin.getRuntimeContext();
             if (!runtimeContext.isEmpty()) {
                 client.putRuntimeContext(plugin.getServiceName(), runtimeContext);
