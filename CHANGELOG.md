@@ -1,5 +1,17 @@
 # Change Log
 
+## 2.1.0 - 2018-11-20
+- Fixed a race condition on sampling pollers start.
+- The sampling pollers now also log `Error` in addition to `Exception`.
+- Added a public API to `CentralizedSamplingStrategy` to shutdown pollers for clean exit.
+- Fixed a race condition between `TracingHandler` and `AWSXRayRecorder` which could cause an NPE on AWS calls capture. [ISSUE29](https://github.com/aws/aws-xray-sdk-java/issues/29)
+- Fixed a NPE bug in spring X-Ray interceptor when context is missing. [ISSUE41](https://github.com/aws/aws-xray-sdk-java/issues/41)
+- Fixed a NPE bug in `DaemonConfig` when system property is used to set up the daemon address. [ISSUE40](https://github.com/aws/aws-xray-sdk-java/issues/40)
+- Removed an unused dependency. [ISSUE39](https://github.com/aws/aws-xray-sdk-java/issues/39)
+- Removed unnecessary credentials retrieval for AWS client used by sampling pollers. [PR34](https://github.com/aws/aws-xray-sdk-java/pull/34)
+- Fixed the UDP address setter not work correctly on `DaemonConfig`.
+- Catching an NPE when the SDK property file is not reachable on unit tests.
+
 ## 2.0.1 - 2018-09-06
 ### Changed
 - Fixed a bug that caused XRay sampling rules fetching to fail when AWS SDK instrumentor is included. [ISSUE25](https://github.com/aws/aws-xray-sdk-java/issues/25)

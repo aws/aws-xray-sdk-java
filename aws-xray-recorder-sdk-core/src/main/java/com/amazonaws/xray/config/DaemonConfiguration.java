@@ -14,10 +14,10 @@ public class DaemonConfiguration {
     private static final int DEFAULT_PORT = 2000;
     private static final String DEFAULT_ADDRESS = "127.0.0.1:2000";
 
-    private String TCPAddress;
-    private String UDPAddress;
+    private String TCPAddress = DEFAULT_ADDRESS;
 
-    public InetSocketAddress address;
+    @Deprecated
+    public InetSocketAddress address = new InetSocketAddress(InetAddress.getLoopbackAddress(), DEFAULT_PORT);
 
     /**
      * Environment variable key used to override the address to which UDP packets will be emitted. Valid values are of the form `ip_address:port`. Takes precedence over any system property,
@@ -32,25 +32,13 @@ public class DaemonConfiguration {
     public static final String DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY = "com.amazonaws.xray.emitters.daemonAddress";
 
     public DaemonConfiguration() {
-        address = new InetSocketAddress(InetAddress.getLoopbackAddress(), DEFAULT_PORT);
         String environmentAddress = System.getenv(DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY);
         String systemAddress = System.getProperty(DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY);
+
         if (setUDPAndTCPAddress(environmentAddress)) {
-            try {
-                parseAndModifyDaemonAddress(getUDPAddress());
-            } catch (SecurityException | IllegalArgumentException e) {
-                logger.error("Error switching to provided daemon address " + environmentAddress + " set by environment variable " + DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY + ". Using loopback address by default.");
-            }
-        } else if (StringValidator.isNotNullOrBlank(systemAddress)) {
-            try {
-                parseAndModifyDaemonAddress(systemAddress);
-                logger.info("System property " + DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY + " is set. Emitting to daemon on address " + address.toString());
-            } catch (SecurityException | IllegalArgumentException e) {
-                logger.error("Error switching to provided daemon address " + systemAddress + " set by system property " + DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY + ". Using loopback address by default.");
-            }
-        } else {
-            setUDPAddress(DEFAULT_ADDRESS);
-            setTCPAddress(DEFAULT_ADDRESS);
+            logger.info(String.format("Environment variable %s is set. Emitting to daemon on address %s.", DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY, getUDPAddress()));
+        } else if (setUDPAndTCPAddress(systemAddress)) {
+            logger.info(String.format("System property %s is set. Emitting to daemon on address %s.", DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY, getUDPAddress()));
         }
     }
 
@@ -58,7 +46,7 @@ public class DaemonConfiguration {
      * Sets the daemon address. If either the {@code AWS_XRAY_DAEMON_ADDRESS} environment variable or {@code com.amazonaws.xray.emitters.daemonAddress} system property are set to a non-empty value, calling this method does nothing.
      *
      * @param socketAddress
-     *            Daemon address and port in the "ip_address:port" format.
+     *            A notation of '127.0.0.1:2000' or 'tcp:127.0.0.1:2000 udp:127.0.0.2:2001' are both acceptable. The former one means UDP and TCP are running at the same address.
      *
      * @throws IllegalArgumentException
      *             if {@code socketAddress} does not match the specified format.
@@ -67,66 +55,36 @@ public class DaemonConfiguration {
         String environmentAddress = System.getenv(DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY);
         String systemAddress = System.getProperty(DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY);
         if (StringValidator.isNullOrBlank(environmentAddress) && StringValidator.isNullOrBlank(systemAddress)) {
-            parseAndModifyDaemonAddress(socketAddress);
+            setUDPAndTCPAddress(socketAddress, false);
         } else {
-            logger.info("Ignoring call to setDaemonAddress as " + DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY + " is set.");
+            logger.info(String.format("Ignoring call to setDaemonAddress as one of %s or %s is set.", DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY, DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY));
         }
     }
 
     /**
+     * Force set daemon address regardless of environment variable or system property.
+     * It falls back to the default values if the input is invalid.
      *
      * @param addr
      *      A notation of '127.0.0.1:2000' or 'tcp:127.0.0.1:2000 udp:127.0.0.2:2001' are both acceptable. The former one means UDP and TCP are running at the same address.
      */
     public boolean setUDPAndTCPAddress(String addr) {
-        if (StringValidator.isNotNullOrBlank(addr)) {
-            String[] splitStr = addr.split("\\s+");
-            if (splitStr.length > 2) {
-                logger.error("Invalid value for agent address: " + addr + ". Value must be of form \"ip_address:port\" or \"tcp:ip_address:port udp:ip_address:port\".");
-                return false;
-            }
-
-            if (splitStr.length == 1) {
-                setTCPAddress(addr);
-                setUDPAddress(addr);
-                return true;
-            }
-
-            if (splitStr.length == 2) {
-                String[] part1 = splitStr[0].split(":");
-                String[] part2 = splitStr[1].split(":");
-                if (part1.length != 3 && part2.length != 3) {
-                    logger.error("Invalid value for agent address: " + splitStr[0] + " and " + splitStr[1] + ". Value must be of form \"tcp:ip_address:port udp:ip_address:port\".");
-                    return false;
-                }
-
-                Map<String, String[]> mapping = new HashMap<String, String[]>();
-                mapping.put(part1[0], part1);
-                mapping.put(part2[0], part2);
-                String[] TCPInfo = mapping.get("tcp");
-                String[] UDPInfo = mapping.get("udp");
-
-                setTCPAddress(TCPInfo[1] + ":" + TCPInfo[2]);
-                setUDPAddress(UDPInfo[1] + ":" + UDPInfo[2]);
-
-                return true;
-
-            }
-        }
-        return false;
+        return setUDPAndTCPAddress(addr, true);
     }
 
-    private void parseAndModifyDaemonAddress(String socketAddress) {
-        int lastColonIndex = socketAddress.lastIndexOf(':');
-        if (-1 == lastColonIndex) {
-            throw new IllegalArgumentException("Invalid value for agent address: " + socketAddress + ". Value must be of form \"ip_address:port\".");
+    private boolean setUDPAndTCPAddress(String addr, boolean ignoreInvalid) {
+        boolean result = false;
+        try {
+            result = processAddress(addr);
+        } catch (SecurityException | IllegalArgumentException e) {
+            if (ignoreInvalid) {
+                return result;
+            } else {
+                throw e;
+            }
         }
 
-        String[] parts = socketAddress.split(":");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Invalid value for agent address: " + socketAddress + ". Value must be of form \"ip_address:port\".");
-        }
-        address = new InetSocketAddress(socketAddress.substring(0, lastColonIndex), Integer.parseInt(socketAddress.substring(lastColonIndex + 1, socketAddress.length())));
+        return result;
     }
 
     public void setTCPAddress(String addr) {
@@ -139,12 +97,25 @@ public class DaemonConfiguration {
     }
 
     public void setUDPAddress(String addr) {
+        int lastColonIndex = addr.lastIndexOf(':');
+        if (-1 == lastColonIndex) {
+            throw new IllegalArgumentException("Invalid value for agent address: " + addr + ". Value must be of form \"ip_address:port\".");
+        }
+
+        String[] parts = addr.split(":");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid value for agent address: " + addr + ". Value must be of form \"ip_address:port\".");
+        }
+        address = new InetSocketAddress(addr.substring(0, lastColonIndex), Integer.parseInt(addr.substring(lastColonIndex + 1, addr.length())));
         logger.debug("UDPAddress is set to " + addr + ".");
-        this.UDPAddress = addr;
     }
 
     public String getUDPAddress() {
-        return UDPAddress;
+        return address.getHostString() + ":" + String.valueOf(address.getPort());
+    }
+
+    public InetSocketAddress getAddressForEmitter() {
+        return address;
     }
 
     public String getEndpointForTCPConnection() {
@@ -153,5 +124,45 @@ public class DaemonConfiguration {
             return "http://" + DEFAULT_ADDRESS;
         }
         return  "http://" + getTCPAddress();
+    }
+
+    private boolean processAddress(String addr) {
+        if (StringValidator.isNullOrBlank(addr)) {
+            return false;
+        }
+
+        String[] splitStr = addr.split("\\s+");
+        if (splitStr.length > 2) {
+            logger.error("Invalid value for agent address: " + addr + ". Value must be of form \"ip_address:port\" or \"tcp:ip_address:port udp:ip_address:port\".");
+            return false;
+        }
+
+        if (splitStr.length == 1) {
+            setTCPAddress(addr);
+            setUDPAddress(addr);
+            return true;
+        }
+
+        if (splitStr.length == 2) {
+            String[] part1 = splitStr[0].split(":");
+            String[] part2 = splitStr[1].split(":");
+            if (part1.length != 3 && part2.length != 3) {
+                logger.error("Invalid value for agent address: " + splitStr[0] + " and " + splitStr[1] + ". Value must be of form \"tcp:ip_address:port udp:ip_address:port\".");
+                return false;
+            }
+
+            Map<String, String[]> mapping = new HashMap<String, String[]>();
+            mapping.put(part1[0], part1);
+            mapping.put(part2[0], part2);
+            String[] TCPInfo = mapping.get("tcp");
+            String[] UDPInfo = mapping.get("udp");
+
+            setTCPAddress(TCPInfo[1] + ":" + TCPInfo[2]);
+            setUDPAddress(UDPInfo[1] + ":" + UDPInfo[2]);
+
+            return true;
+        }
+
+        return false;
     }
 }

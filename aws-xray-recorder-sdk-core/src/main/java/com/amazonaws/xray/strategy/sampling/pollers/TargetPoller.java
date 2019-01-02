@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import java.time.Clock;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class TargetPoller {
@@ -24,21 +25,30 @@ public class TargetPoller {
     private AWSXRay client;
     private Clock clock;
     private CentralizedManifest manifest;
+    private ScheduledExecutorService executor;
 
     public TargetPoller(CentralizedManifest m, AWSXRay client, Clock clock) {
         this.manifest = m;
         this.client = client;
         this.clock = clock;
+        executor = Executors.newSingleThreadScheduledExecutor();
     }
 
     public void start() {
-    Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+        executor.scheduleAtFixedRate(() -> {
             try {
                 pollManifest();
-            } catch (Exception ex) {
-                logger.error("Encountered error polling GetSamplingTargets: ", ex);
+            } catch (Throwable t) {
+                logger.error("Encountered error polling GetSamplingTargets: ", t);
+                // An Error should not be handled by the application.
+                // The executor will die and not abrupt main thread.
+                if(t instanceof Error) { throw t; }
             }
-        }, 0, getJitterInterval(), TimeUnit.MILLISECONDS);
+        }, PERIOD * 1000, getJitterInterval(), TimeUnit.MILLISECONDS);
+    }
+
+    public void shutdown() {
+        executor.shutdownNow();
     }
 
     private void pollManifest() {
@@ -47,6 +57,8 @@ public class TargetPoller {
             logger.trace("No statistics to report. Not refreshing sampling targets.");
             return;
         }
+
+        logger.debug("Polling sampling targets.");
         GetSamplingTargetsRequest req = new GetSamplingTargetsRequest()
                 .withSamplingStatisticsDocuments(statistics);
 
