@@ -56,7 +56,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
     }
 
     public AWSXRayServletFilter(SegmentNamingStrategy segmentNamingStrategy) {
-        this(segmentNamingStrategy, AWSXRay.getGlobalRecorder());
+        this(segmentNamingStrategy, null);
     }
 
     public AWSXRayServletFilter(SegmentNamingStrategy segmentNamingStrategy, AWSXRayRecorder recorder) {
@@ -245,6 +245,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
     }
 
     private SamplingResponse fromSamplingStrategy(HttpServletRequest httpServletRequest) {
+        AWSXRayRecorder recorder = getRecorder();
         SamplingRequest samplingRequest = new SamplingRequest(getSegmentName(httpServletRequest), getHost(httpServletRequest).orElse(null), httpServletRequest.getRequestURI(), httpServletRequest.getMethod(), recorder.getOrigin());
         SamplingResponse sample = recorder.getSamplingStrategy().shouldTrace(samplingRequest);
         return sample;
@@ -260,7 +261,15 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         }
     }
 
+    private AWSXRayRecorder getRecorder() {
+        if (recorder == null) {
+            recorder = AWSXRay.getGlobalRecorder();
+        }
+        return recorder;
+    }
+
     public Segment preFilter(ServletRequest request, ServletResponse response) {
+        AWSXRayRecorder recorder = getRecorder();
         Segment created = null;
         HttpServletRequest httpServletRequest = castServletRequest(request);
         if (null == httpServletRequest) {
@@ -348,6 +357,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
     }
 
     public void postFilter(ServletRequest request, ServletResponse response) {
+        AWSXRayRecorder recorder = getRecorder();
         Segment segment = recorder.getCurrentSegment();
         if (null != segment) {
             HttpServletResponse httpServletResponse = castServletResponse(response);
@@ -397,7 +407,15 @@ class AWSXRayServletAsyncListener implements AsyncListener {
         this.recorder = recorder;
     }
 
+    private AWSXRayRecorder getRecorder() {
+        if (recorder == null) {
+            recorder = AWSXRay.getGlobalRecorder();
+        }
+        return recorder;
+    }
+
     private void processEvent(AsyncEvent event) throws IOException {
+        AWSXRayRecorder recorder = getRecorder();
         Entity prior = recorder.getTraceEntity();
         try {
             Entity entity = (Entity) event.getSuppliedRequest().getAttribute(ENTITY_ATTRIBUTE_KEY);
