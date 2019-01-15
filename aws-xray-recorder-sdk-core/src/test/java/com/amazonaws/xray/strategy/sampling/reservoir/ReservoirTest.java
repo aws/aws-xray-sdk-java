@@ -36,6 +36,19 @@ public class ReservoirTest {
         assertFalse(reservoir.take());
     }
 
+    @Test public void samplesFairNegativeNanoTime() {
+        mockStatic(System.class);
+        when(System.nanoTime()).thenReturn(-2 * NANOS_PER_SECOND);
+        Reservoir reservoir = new Reservoir(10);
+
+        when(System.nanoTime()).thenReturn(-2 * NANOS_PER_SECOND + 1);
+        assertTrue(reservoir.take());
+        when(System.nanoTime()).thenReturn(-2 * NANOS_PER_SECOND + 2);
+        assertTrue(reservoir.take());
+        when(System.nanoTime()).thenReturn(-2 * NANOS_PER_SECOND + 2);
+        assertFalse(reservoir.take());
+    }
+
     @Test public void resetsAfterASecond() {
         mockStatic(System.class);
 

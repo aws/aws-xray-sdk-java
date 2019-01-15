@@ -11,7 +11,7 @@ public class Reservoir {
     private final int tracesPerSecond;
     private final MaxFunction maxFunction;
     private final AtomicInteger usage = new AtomicInteger(0);
-    private final AtomicLong nextReset = new AtomicLong(0);
+    private final AtomicLong nextReset;
 
     public Reservoir() {
         this(0);
@@ -21,6 +21,9 @@ public class Reservoir {
         this.tracesPerSecond = tracesPerSecond;
         this.maxFunction =
             tracesPerSecond < 10 ? new LessThan10(tracesPerSecond) : new AtLeast10(tracesPerSecond);
+
+        long now = System.nanoTime();
+        this.nextReset = new AtomicLong(now + NANOS_PER_SECOND);
     }
 
     public boolean take() {
