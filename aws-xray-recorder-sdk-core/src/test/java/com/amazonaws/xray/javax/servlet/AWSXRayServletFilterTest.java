@@ -1,6 +1,8 @@
 package com.amazonaws.xray.javax.servlet;
 
 import java.io.IOException;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
@@ -53,6 +55,19 @@ public class AWSXRayServletFilterTest {
         return AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSamplingStrategy(defaultSamplingStrategy).build();
     }
 
+    private FilterChain mockChain(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        FilterChain chain = Mockito.mock(FilterChain.class);
+        AtomicReference<Entity> capturedEntity = new AtomicReference<>();
+        Mockito.doAnswer(a -> {
+            capturedEntity.set(AWSXRay.getTraceEntity());
+            return null;
+        }).when(chain).doFilter(request, response);
+
+        Mockito.when(request.getAttribute("com.amazonaws.xray.entities.Entity"))
+                .thenAnswer(a -> Objects.requireNonNull(capturedEntity.get()));
+        return chain;
+    }
+
     @Test
     public void testAsyncServletRequestHasListenerAdded() throws IOException, ServletException {
         AWSXRayServletFilter servletFilter = new AWSXRayServletFilter("test");
@@ -91,16 +106,14 @@ public class AWSXRayServletFilterTest {
 
         HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 
-        FilterChain chain = Mockito.mock(FilterChain.class);
+        FilterChain chain = mockChain(request, response);
 
         AsyncEvent event = Mockito.mock(AsyncEvent.class);
         Mockito.when(event.getSuppliedRequest()).thenReturn(request);
         Mockito.when(event.getSuppliedResponse()).thenReturn(response);
 
         servletFilter.doFilter(request, response, chain);
-
-        Entity currentEntity = AWSXRay.getTraceEntity();
-        Mockito.when(request.getAttribute("com.amazonaws.xray.entities.Entity")).thenReturn(currentEntity);
+        Assert.assertNull(AWSXRay.getTraceEntity());
 
         AWSXRayServletAsyncListener listener = (AWSXRayServletAsyncListener) Whitebox.getInternalState(servletFilter, "listener");
         listener.onComplete(event);
@@ -124,16 +137,14 @@ public class AWSXRayServletFilterTest {
 
         HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 
-        FilterChain chain = Mockito.mock(FilterChain.class);
+        FilterChain chain = mockChain(request, response);
 
         AsyncEvent event = Mockito.mock(AsyncEvent.class);
         Mockito.when(event.getSuppliedRequest()).thenReturn(request);
         Mockito.when(event.getSuppliedResponse()).thenReturn(response);
 
         servletFilter.doFilter(request, response, chain);
-
-        Entity currentEntity = AWSXRay.getTraceEntity();
-        Mockito.when(request.getAttribute("com.amazonaws.xray.entities.Entity")).thenReturn(currentEntity);
+        Assert.assertNull(AWSXRay.getTraceEntity());
 
         AWSXRayServletAsyncListener listener = (AWSXRayServletAsyncListener) Whitebox.getInternalState(servletFilter, "listener");
         listener.onComplete(event);
@@ -155,16 +166,14 @@ public class AWSXRayServletFilterTest {
 
         HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 
-        FilterChain chain = Mockito.mock(FilterChain.class);
+        FilterChain chain = mockChain(request, response);
 
         AsyncEvent event = Mockito.mock(AsyncEvent.class);
         Mockito.when(event.getSuppliedRequest()).thenReturn(request);
         Mockito.when(event.getSuppliedResponse()).thenReturn(response);
 
         servletFilter.doFilter(request, response, chain);
-
-        Entity currentEntity = AWSXRay.getTraceEntity();
-        Mockito.when(request.getAttribute("com.amazonaws.xray.entities.Entity")).thenReturn(currentEntity);
+        Assert.assertNull(AWSXRay.getTraceEntity());
 
         AWSXRayServletAsyncListener listener = (AWSXRayServletAsyncListener) Whitebox.getInternalState(servletFilter, "listener");
         listener.onComplete(event);
