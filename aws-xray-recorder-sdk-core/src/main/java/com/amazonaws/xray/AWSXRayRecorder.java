@@ -404,6 +404,36 @@ public class AWSXRayRecorder {
     }
 
     /**
+     * Ends the provided subsegment. This method doesn't touch context storage.
+     *
+     * @param subsegment
+     *          the subsegment to close.
+     */
+    public void endSubsegment(Subsegment subsegment) {
+        if(subsegment == null) {
+            logger.debug("No input subsegment to end. No-op.");
+            return;
+        }
+        boolean rootReady = subsegment.end();
+        // First handling the special case where its direct parent is a facade segment
+        if(subsegment.getParent() instanceof FacadeSegment) {
+            if(((FacadeSegment) subsegment.getParent()).isSampled()) {
+                getEmitter().sendSubsegment(subsegment);
+            }
+            return;
+        }
+        // Otherwise we check the happy case where the entire segment is ready
+        if (rootReady && !(subsegment.getParentSegment() instanceof FacadeSegment)) {
+            sendSegment(subsegment.getParentSegment());
+            return;
+        }
+        // If not we try to stream closed subsegments regardless the root segment is facade or real
+        if (this.getStreamingStrategy().requiresStreaming(subsegment.getParentSegment())) {
+            this.getStreamingStrategy().streamSome(subsegment.getParentSegment(), this.getEmitter());
+        }
+    }
+
+    /**
      * Begins a subsegment.
      *
      * @param name

@@ -36,7 +36,7 @@
   <dependencies>
     <dependency>
       <groupId>com.amazonaws</groupId>
-      <artifactId>aws-xray-recorder-sdk-core</artifactId>
+      <artifactId>aws-xray-recorder-sdk-aws-sdk-core</artifactId>
       <version>${awsxrayrecordersdk.version}</version>
     </dependency>
     <!-- Test -->
