@@ -9,6 +9,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.strategy.FixedSegmentNamingStrategy;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,12 +41,16 @@ public class AWSXRayServletFilterTest {
 
     @Before
     public void setupAWSXRay() {
+        AWSXRay.setGlobalRecorder(getMockRecorder());
+        AWSXRay.clearTraceEntity();
+    }
+
+    private AWSXRayRecorder getMockRecorder() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
         LocalizedSamplingStrategy defaultSamplingStrategy = new LocalizedSamplingStrategy();
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSamplingStrategy(defaultSamplingStrategy).build());
-        AWSXRay.clearTraceEntity();
+        return AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSamplingStrategy(defaultSamplingStrategy).build();
     }
 
     @Test
@@ -66,6 +72,73 @@ public class AWSXRayServletFilterTest {
         servletFilter.doFilter(request, response, chain);
 
         Mockito.verify(asyncContext, Mockito.times(1)).addListener(Mockito.any());
+    }
+
+    @Test
+    public void testServletLazilyLoadsRecorder() throws IOException, ServletException {
+        AWSXRayServletFilter servletFilter = new AWSXRayServletFilter("test");
+
+        AsyncContext asyncContext = Mockito.mock(AsyncContext.class);
+        AWSXRayRecorder customRecorder = getMockRecorder();
+        Mockito.spy(customRecorder);
+        AWSXRay.setGlobalRecorder(customRecorder);
+
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(request.getRequestURL()).thenReturn(new StringBuffer("test_url"));
+        Mockito.when(request.getMethod()).thenReturn("TEST_METHOD");
+        Mockito.when(request.isAsyncStarted()).thenReturn(true);
+        Mockito.when(request.getAsyncContext()).thenReturn(asyncContext);
+
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+
+        FilterChain chain = Mockito.mock(FilterChain.class);
+
+        AsyncEvent event = Mockito.mock(AsyncEvent.class);
+        Mockito.when(event.getSuppliedRequest()).thenReturn(request);
+        Mockito.when(event.getSuppliedResponse()).thenReturn(response);
+
+        servletFilter.doFilter(request, response, chain);
+
+        Entity currentEntity = AWSXRay.getTraceEntity();
+        Mockito.when(request.getAttribute("com.amazonaws.xray.entities.Entity")).thenReturn(currentEntity);
+
+        AWSXRayServletAsyncListener listener = (AWSXRayServletAsyncListener) Whitebox.getInternalState(servletFilter, "listener");
+        listener.onComplete(event);
+
+        Mockito.verify(customRecorder.getEmitter(), Mockito.times(1)).sendSegment(Mockito.any());
+    }
+
+    @Test
+    public void testServletUsesPassedInRecorder() throws IOException, ServletException {
+        AWSXRayRecorder customRecorder = getMockRecorder();
+        Mockito.spy(customRecorder);
+        AWSXRayServletFilter servletFilter = new AWSXRayServletFilter(new FixedSegmentNamingStrategy("test"), customRecorder);
+
+        AsyncContext asyncContext = Mockito.mock(AsyncContext.class);
+
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(request.getRequestURL()).thenReturn(new StringBuffer("test_url"));
+        Mockito.when(request.getMethod()).thenReturn("TEST_METHOD");
+        Mockito.when(request.isAsyncStarted()).thenReturn(true);
+        Mockito.when(request.getAsyncContext()).thenReturn(asyncContext);
+
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+
+        FilterChain chain = Mockito.mock(FilterChain.class);
+
+        AsyncEvent event = Mockito.mock(AsyncEvent.class);
+        Mockito.when(event.getSuppliedRequest()).thenReturn(request);
+        Mockito.when(event.getSuppliedResponse()).thenReturn(response);
+
+        servletFilter.doFilter(request, response, chain);
+
+        Entity currentEntity = AWSXRay.getTraceEntity();
+        Mockito.when(request.getAttribute("com.amazonaws.xray.entities.Entity")).thenReturn(currentEntity);
+
+        AWSXRayServletAsyncListener listener = (AWSXRayServletAsyncListener) Whitebox.getInternalState(servletFilter, "listener");
+        listener.onComplete(event);
+
+        Mockito.verify(customRecorder.getEmitter(), Mockito.times(1)).sendSegment(Mockito.any());
     }
 
     @Test
