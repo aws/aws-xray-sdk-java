@@ -2,6 +2,7 @@ package com.amazonaws.xray.emitters;
 
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.strategy.StreamingStrategy;
 
 public abstract class Emitter {
     protected static final String PROTOCOL_HEADER = "{\"format\": \"json\", \"version\": 1}";
@@ -28,4 +29,10 @@ public abstract class Emitter {
      *
      */
     public abstract boolean sendSubsegment(Subsegment subsegment);
+
+    /**
+     * Initializes the emitter.
+     * @param streamingStrategy to initialize the emitter with.
+     */
+    public void init(StreamingStrategy streamingStrategy) { }
 }

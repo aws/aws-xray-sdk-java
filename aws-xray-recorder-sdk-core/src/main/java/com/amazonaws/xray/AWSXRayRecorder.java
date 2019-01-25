@@ -113,7 +113,7 @@ public class AWSXRayRecorder {
         serviceRuntimeContext.putAll(RUNTIME_INFORMATION);
 
         try {
-            emitter = new DefaultEmitter();
+            setEmitter(new DefaultEmitter());
         } catch (SocketException e) {
             throw new RuntimeException("Unable to instantiate AWSXRayRecorder: ", e);
         }
@@ -688,6 +688,7 @@ public class AWSXRayRecorder {
      */
     public void setEmitter(Emitter emitter) {
         this.emitter = emitter;
+        emitter.init(streamingStrategy);
     }
 
     /**

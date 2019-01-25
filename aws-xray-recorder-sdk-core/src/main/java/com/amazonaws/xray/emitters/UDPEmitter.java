@@ -1,22 +1,23 @@
 package com.amazonaws.xray.emitters;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
-
 import com.amazonaws.xray.config.DaemonConfiguration;
+import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.entities.Subsegment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.entities.Subsegment;
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
+import java.util.function.Function;
 
 public class UDPEmitter extends Emitter {
-    private static final Log logger = LogFactory.getLog(UDPEmitter.class);
-
-    private DatagramSocket daemonSocket;
-    private DaemonConfiguration config;
+    private static final Log logger = LogFactory.getLog(MethodHandles.lookup().lookupClass());
+    protected DatagramSocket daemonSocket;
+    protected DaemonConfiguration config;
     private byte[] sendBuffer = new byte[DAEMON_BUF_RECEIVE_SIZE];
 
     /**
@@ -46,7 +47,7 @@ public class UDPEmitter extends Emitter {
         if (logger.isDebugEnabled()) {
             logger.debug(segment.prettySerialize());
         }
-        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes());
+        return sendData(segment, Segment::serialize);
     }
 
     /**
@@ -58,19 +59,23 @@ public class UDPEmitter extends Emitter {
         if (logger.isDebugEnabled()) {
             logger.debug(subsegment.prettyStreamSerialize());
         }
-        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + subsegment.streamSerialize()).getBytes());
+        return sendData(subsegment, Subsegment::streamSerialize);
     }
 
-    private boolean sendData(byte[] data) {
-        DatagramPacket packet = new DatagramPacket(sendBuffer, DAEMON_BUF_RECEIVE_SIZE, config.getAddressForEmitter());
-        packet.setData(data);
+    protected <T extends Entity> boolean sendData(T entity, Function<T, String> serializer) {
         try {
-            logger.debug("Sending UDP packet.");
-            daemonSocket.send(packet);
+            return sendPacket(entity, serializer);
         } catch (IOException e) {
             logger.error("Exception while sending segment over UDP.", e);
             return false;
         }
+    }
+
+    protected <T extends Entity> boolean sendPacket(T entity, Function<T, String> serializer) throws IOException {
+        DatagramPacket packet = new DatagramPacket(sendBuffer, DAEMON_BUF_RECEIVE_SIZE, config.getAddressForEmitter());
+        packet.setData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + serializer.apply(entity)).getBytes());
+        logger.debug("Sending UDP packet.");
+        daemonSocket.send(packet);
         return true;
     }
 }
