@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.Optional;
 
 public class UDPEmitter extends Emitter {
     private static final Log logger = LogFactory.getLog(UDPEmitter.class);
@@ -61,19 +62,21 @@ public class UDPEmitter extends Emitter {
         return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + subsegment.streamSerialize()).getBytes(), subsegment);
     }
 
-    private boolean sendData(byte[] data) {
+    private boolean sendData(byte[] data, Entity entity) {
         DatagramPacket packet = new DatagramPacket(sendBuffer, DAEMON_BUF_RECEIVE_SIZE, config.getAddressForEmitter());
         packet.setData(data);
         try {
             logger.debug("Sending UDP packet.");
             daemonSocket.send(packet);
         } catch (IOException e) {
-            logger.error("Exception while sending segment over UDP.", e);
-            if (logger.isInfoEnabled()) {
-                logger.info("Failed to send the following entity: " + entity.prettySerialize());
-            }
+            String segmentName = Optional.ofNullable(entity.getParent()).map(this::nameAndId).orElse("[no parent segment]");
+            logger.error("Exception while sending segment over UDP for entity " +  nameAndId(entity) + " on segment " + segmentName, e);
             return false;
         }
         return true;
+    }
+
+    private String nameAndId(Entity entity) {
+        return entity.getName() + " [" + entity.getId() + "]";
     }
 }
