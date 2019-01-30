@@ -8,6 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.EntityDataKeys;
+import com.amazonaws.xray.entities.EntityHeaderKeys;
+import com.amazonaws.xray.entities.Namespace;
+import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.entities.TraceHeader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -23,10 +29,6 @@ import com.amazonaws.http.HttpResponse;
 import com.amazonaws.retry.RetryUtils;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.entities.Entity;
-import com.amazonaws.xray.entities.Namespace;
-import com.amazonaws.xray.entities.Subsegment;
-import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import com.amazonaws.xray.handlers.config.AWSOperationHandler;
 import com.amazonaws.xray.handlers.config.AWSOperationHandlerManifest;
@@ -55,20 +57,12 @@ public class TracingHandler extends RequestHandler2 {
     private static final String S3_SERVICE_NAME = "Amazon S3";
     private static final String S3_PRESIGN_REQUEST = "GeneratePresignedUrl";
     private static final String S3_REQUEST_ID_HEADER_KEY = "x-amz-request-id";
-    private static final String S3_EXTENDED_REQUEST_ID_HEADER_KEY = "x-amz-id-2";
-    private static final String CONTENT_LENGTH_HEADER_KEY = "Content-Length";
 
     private static final String XRAY_SERVICE_NAME = "AWSXRay";
     private static final String XRAY_SAMPLING_RULE_REQUEST = "GetSamplingRules";
     private static final String XRAY_SAMPLING_TARGET_REQUEST = "GetSamplingTargets";
 
     private static final String REQUEST_ID_SUBSEGMENT_KEY = "request_id";
-    private static final String EXTENDED_REQUEST_ID_SUBSEGMENT_KEY = "id_2";
-    private static final String CONTENT_LENGTH_SUBSEGMENT_KEY = "content_length";
-    private static final String STATUS_SUBSEGMENT_KEY = "status";
-    private static final String OPERATION_SUBSEGMENT_KEY = "operation";
-    private static final String ACCOUNT_ID_SUBSEGMENT_KEY = "account_id";
-    private static final String RESPONSE_SUBSEGMENT_KEY = "response";
 
     private final String accountId;
     
@@ -167,9 +161,9 @@ public class TracingHandler extends RequestHandler2 {
             return;
         }
         currentSubsegment.putAllAws(extractRequestParameters(request));
-        currentSubsegment.putAws(OPERATION_SUBSEGMENT_KEY, operationName);
+        currentSubsegment.putAws(EntityDataKeys.AWS.OPERATION_KEY, operationName);
         if (null != accountId) {
-            currentSubsegment.putAws(ACCOUNT_ID_SUBSEGMENT_KEY, accountId);
+            currentSubsegment.putAws(EntityDataKeys.AWS.ACCOUNT_ID_SUBSEGMENT_KEY, accountId);
         }
         currentSubsegment.setNamespace(Namespace.AWS.toString());
 
@@ -312,16 +306,16 @@ public class TracingHandler extends RequestHandler2 {
         HashMap<String, Object> ret = new HashMap<>();
         HashMap<String, Object> response = new HashMap<>();
 
-        response.put(STATUS_SUBSEGMENT_KEY, ase.getStatusCode());
+        response.put(EntityDataKeys.HTTP.STATUS_CODE_KEY, ase.getStatusCode());
         try {
-            if (null != ase.getHttpHeaders() && null != ase.getHttpHeaders().get(CONTENT_LENGTH_HEADER_KEY)) {
-                response.put(CONTENT_LENGTH_SUBSEGMENT_KEY, Long.parseLong(ase.getHttpHeaders().get(CONTENT_LENGTH_HEADER_KEY)));
+            if (null != ase.getHttpHeaders() && null != ase.getHttpHeaders().get(EntityHeaderKeys.HTTP.CONTENT_LENGTH_HEADER)) {
+                response.put(EntityDataKeys.HTTP.CONTENT_LENGTH_KEY, Long.parseLong(ase.getHttpHeaders().get(EntityHeaderKeys.HTTP.CONTENT_LENGTH_HEADER)));
             }
         } catch (NumberFormatException nfe) {
             logger.warn("Unable to parse Content-Length header.", nfe);
         }
 
-        ret.put(RESPONSE_SUBSEGMENT_KEY, response);
+        ret.put(EntityDataKeys.HTTP.RESPONSE_KEY, response);
         return ret;
     }
 
@@ -329,16 +323,16 @@ public class TracingHandler extends RequestHandler2 {
         HashMap<String, Object> ret = new HashMap<>();
         HashMap<String, Object> response = new HashMap<>();
 
-        response.put(STATUS_SUBSEGMENT_KEY, httpResponse.getStatusCode());
+        response.put(EntityDataKeys.HTTP.STATUS_CODE_KEY, httpResponse.getStatusCode());
         try {
-            if (null != httpResponse.getHeaders().get(CONTENT_LENGTH_HEADER_KEY) ) {
-                response.put(CONTENT_LENGTH_SUBSEGMENT_KEY, Long.parseLong(httpResponse.getHeaders().get(CONTENT_LENGTH_HEADER_KEY)));
+            if (null != httpResponse.getHeaders().get(EntityHeaderKeys.HTTP.CONTENT_LENGTH_HEADER) ) {
+                response.put(EntityDataKeys.HTTP.CONTENT_LENGTH_KEY, Long.parseLong(httpResponse.getHeaders().get(EntityHeaderKeys.HTTP.CONTENT_LENGTH_HEADER)));
             }
         } catch (NumberFormatException nfe) {
             logger.warn("Unable to parse Content-Length header.", nfe);
         }
 
-        ret.put(RESPONSE_SUBSEGMENT_KEY, response);
+        ret.put(EntityDataKeys.HTTP.RESPONSE_KEY, response);
         return ret;
     }
 
@@ -422,8 +416,8 @@ public class TracingHandler extends RequestHandler2 {
                 if (null != response.getHttpResponse().getHeader(S3_REQUEST_ID_HEADER_KEY)) {
                     currentSubsegment.putAws(REQUEST_ID_SUBSEGMENT_KEY, response.getHttpResponse().getHeader(S3_REQUEST_ID_HEADER_KEY));
                 }
-                if (null != response.getHttpResponse().getHeader(S3_EXTENDED_REQUEST_ID_HEADER_KEY)) {
-                    currentSubsegment.putAws(EXTENDED_REQUEST_ID_SUBSEGMENT_KEY, response.getHttpResponse().getHeader(S3_EXTENDED_REQUEST_ID_HEADER_KEY));
+                if (null != response.getHttpResponse().getHeader(EntityHeaderKeys.AWS.EXTENDED_REQUEST_ID_HEADER)) {
+                    currentSubsegment.putAws(EntityDataKeys.AWS.EXTENDED_REQUEST_ID_KEY, response.getHttpResponse().getHeader(EntityHeaderKeys.AWS.EXTENDED_REQUEST_ID_HEADER));
                 }
             }
             currentSubsegment.putAllAws(extractResponseParameters(request, response.getAwsResponse()));
@@ -441,8 +435,8 @@ public class TracingHandler extends RequestHandler2 {
             if (null != ase.getRequestId()) {
                 currentSubsegment.putAws(REQUEST_ID_SUBSEGMENT_KEY, ase.getRequestId());
             }
-            if (null != ase.getHttpHeaders() && null != ase.getHttpHeaders().get(S3_EXTENDED_REQUEST_ID_HEADER_KEY)) {
-                currentSubsegment.putAws(EXTENDED_REQUEST_ID_SUBSEGMENT_KEY, ase.getHttpHeaders().get(S3_EXTENDED_REQUEST_ID_HEADER_KEY));
+            if (null != ase.getHttpHeaders() && null != ase.getHttpHeaders().get(EntityHeaderKeys.AWS.EXTENDED_REQUEST_ID_HEADER)) {
+                currentSubsegment.putAws(EntityDataKeys.AWS.EXTENDED_REQUEST_ID_KEY, ase.getHttpHeaders().get(EntityHeaderKeys.AWS.EXTENDED_REQUEST_ID_HEADER));
             }
             if (null != ase.getErrorMessage()) {
                 currentSubsegment.getCause().setMessage(ase.getErrorMessage());
