@@ -67,7 +67,29 @@ public class AWSXRayServletFilterTest {
                 .thenAnswer(a -> Objects.requireNonNull(capturedEntity.get()));
         return chain;
     }
+    @Test
+    public void testAsyncServletRequestWithCompletedAsync() throws IOException, ServletException {
+        AWSXRayServletFilter servletFilter = new AWSXRayServletFilter("test");
 
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(request.getRequestURL()).thenReturn(new StringBuffer("test_url"));
+        Mockito.when(request.getMethod()).thenReturn("TEST_METHOD");
+        Mockito.when(request.isAsyncStarted()).thenReturn(true);
+        Mockito.when(request.getAsyncContext()).thenThrow(IllegalStateException.class);
+
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+
+        FilterChain chain = mockChain(request, response);
+
+        AsyncEvent event = Mockito.mock(AsyncEvent.class);
+        Mockito.when(event.getSuppliedRequest()).thenReturn(request);
+        Mockito.when(event.getSuppliedResponse()).thenReturn(response);
+
+        servletFilter.doFilter(request, response, chain);
+        Assert.assertNull(AWSXRay.getTraceEntity());
+
+        Mockito.verify(AWSXRay.getGlobalRecorder().getEmitter(), Mockito.times(1)).sendSegment(Mockito.any());
+    }
     @Test
     public void testAsyncServletRequestHasListenerAdded() throws IOException, ServletException {
         AWSXRayServletFilter servletFilter = new AWSXRayServletFilter("test");
