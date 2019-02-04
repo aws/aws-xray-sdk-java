@@ -161,6 +161,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
                 request.setAttribute(AWSXRayServletAsyncListener.ENTITY_ATTRIBUTE_KEY, segment);
                 try {
                     request.getAsyncContext().addListener(listener);
+                    recorder.clearTraceEntity();
                 } catch (IllegalStateException ise) { // race condition that occurs when async processing finishes before adding the listener
                     postFilter(request, response);
                 }
