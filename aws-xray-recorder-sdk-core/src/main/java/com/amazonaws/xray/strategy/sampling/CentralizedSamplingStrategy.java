@@ -60,10 +60,6 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
             logger.debug("Determining shouldTrace decision for:\n\tserviceName: " + samplingRequest.getService().orElse("") + "\n\thost: " + samplingRequest.getHost().orElse("") + "\n\tpath: " + samplingRequest.getUrl().orElse("") + "\n\tmethod: " + samplingRequest.getMethod().orElse("") + "\n\tserviceType: " + samplingRequest.getServiceType().orElse(""));
         }
 
-        if (!samplingRequest.getServiceType().isPresent()) {
-            samplingRequest.setServiceType(AWSXRayRecorderBuilder.defaultRecorder().getOrigin());
-        }
-
         if (manifest.isExpired(Instant.now())) {
             logger.debug("Centralized sampling data expired. Using fallback sampling strategy.");
             return fallback.shouldTrace(samplingRequest);
