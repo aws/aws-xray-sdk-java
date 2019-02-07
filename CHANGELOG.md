@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.2.1 - 2019-02-07
+- Fixed BOM package to include new artifacts introduced in 2.2.0.
+
 ## 2.2.0 - 2019-02-07
 - Fixed a race condition with sampling reservoir.
 [PR 47](https://github.com/aws/aws-xray-sdk-java/pull/47)
