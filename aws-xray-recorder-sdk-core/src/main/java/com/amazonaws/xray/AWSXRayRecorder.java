@@ -173,7 +173,7 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Begins a segment and passes it to the supplied consumer. Intercepts exceptions, adds them to the segment, and re-throws them.
+     * Begins a segment and passes it to the supplied consumer, and ends the segment before returning the consumer's result. Intercepts exceptions, adds them to the segment, and re-throws them.
      *
      * @param name
      *            the name to use for the created segment
@@ -262,7 +262,7 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Begins a subsegment and passes it to the supplied consumer. Intercepts exceptions, adds them to the subsegment, and re-throws them.
+     * Begins a subsegment and passes it to the supplied consumer, and ends the subsegment before returning the consumer's result. Intercepts exceptions, adds them to the subsegment, and re-throws them.
      *
      * @param name
      *            the name to use for the created subsegment
