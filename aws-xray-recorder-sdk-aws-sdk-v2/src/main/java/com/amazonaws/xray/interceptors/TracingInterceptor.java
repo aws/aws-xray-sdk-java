@@ -50,7 +50,7 @@ public class TracingInterceptor implements ExecutionInterceptor {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 
-    private ExecutionAttribute<Subsegment> entityKey = new ExecutionAttribute("AWS X-Ray Entity");
+    public static final ExecutionAttribute<Subsegment> entityKey = new ExecutionAttribute("AWS X-Ray Entity");
 
     private static final URL DEFAULT_OPERATION_PARAMETER_WHITELIST = TracingInterceptor.class.getResource("/com/amazonaws/xray/interceptors/DefaultOperationParameterWhitelist.json");
 
