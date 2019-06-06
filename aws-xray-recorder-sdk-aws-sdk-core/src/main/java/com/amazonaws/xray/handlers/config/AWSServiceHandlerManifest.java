@@ -1,8 +1,8 @@
 package com.amazonaws.xray.handlers.config;
 
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Map;
 
 public class AWSServiceHandlerManifest {
     @JsonProperty

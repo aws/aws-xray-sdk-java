@@ -1,5 +1,24 @@
 # Change Log
 
+## 2.2.1 - 2019-02-07
+- Fixed BOM package to include new artifacts introduced in 2.2.0.
+
+## 2.2.0 - 2019-02-07
+- Fixed a race condition with sampling reservoir.
+[PR 47](https://github.com/aws/aws-xray-sdk-java/pull/47)
+- Cleaned up some duplicated code around handling context missing strategy.
+[PR 50](https://github.com/aws/aws-xray-sdk-java/pull/50)
+- Fixed a race condition with sampling reservoir that could lead to `IndexOutOfBoundsException`.
+[PR 52](https://github.com/aws/aws-xray-sdk-java/pull/52)
+- Fixed a race condition where the `AWSXRayServletFilter` would eagerly retrieve the global recorder on instantiation, causing custom recorders to sometimes be ignored.
+[PR 53](https://github.com/aws/aws-xray-sdk-java/pull/53)
+- Added support for instrumenting the AWS SDK for Java V2.
+[PR 56](https://github.com/aws/aws-xray-sdk-java/pull/56)
+- Fixed an issue where segments were not being cleaned up when servlets were processed asynchronously.
+[PR 57](https://github.com/aws/aws-xray-sdk-java/pull/57)
+- Fixed an issue where extra recorders were created when using `CentralizedSamplingStrategy` without a plugin setting an origin value.
+[PR 59](https://github.com/aws/aws-xray-sdk-java/pull/59)
+
 ## 2.1.0 - 2018-11-20
 - Fixed a race condition on sampling pollers start.
 - The sampling pollers now also log `Error` in addition to `Exception`.
