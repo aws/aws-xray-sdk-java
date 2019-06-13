@@ -1,14 +1,14 @@
 # Benchmarking
-Benchmarking the Java SDK is necessary to help isolate performance issues and bottlenecks. One of the key factors when on-boarding with X-Ray is knowing the performance impact on an existing application. In this Wiki, we will demonstrate how to use the benchmarking features in our SDK to get a feel for the performance impact that will be made on a target application. We will also be comparing the performances of the same tests run under different versions of the SDK. We use the micro-benchmarking framework JMH to help us benchmark the SDK.
+Benchmarking the Java SDK is necessary to help isolate performance issues and bottlenecks. One of the key factors when on-boarding with X-Ray is knowing the performance impact on an existing application. In this readme, we will demonstrate how to use the benchmarking features in our SDK to get a feel for the performance impact that will be made on a target application. We will also be comparing the performances of the same tests run under different versions of the SDK. We use the micro-benchmarking framework JMH to help us benchmark the SDK.
 
 ## Running the Benchmark
-To run the benchmark, make sure you have Maven and Java 8 or above installed. Make sure you also have the `aws-xray-sdk-java` package checked out.
+To run the benchmark, make sure you have Maven and Java 8 or above installed. With Maven, it will download the necessary X-Ray dependencies that the benchmark uses as well as the JMH core and annotation processors that this benchmark uses.
 
 To run the benchmark, use your favorite shell to go into the directory. Then run the following commands:
 ```BASH
 cd aws-xray-sdk-java/aws-xray-recorder-sdk-benchmark/
 mvn clean && mvn package
-java -jar target/benchmarks.jar
+java -jar target/benchmark.jar
 ```
 
 You should then start seeing the output of the benchmark:
@@ -50,7 +50,7 @@ These benchmarks were ran on a **m5.xlarge machine, with 16 GB of memory and 4 v
 In summary, we found that the execution time for X-Ray in a typical instrumented request-response lifecycle is approximately **15 microseconds**. The breakdown of this number will be explained below.
 
 ### Benchmark Analysis
-The benchmark numbers individually do not really give us a good sense of how the SDK as a whole performs. We wrote these benchmarks with the goal of getting a feel for how a specific X-Ray SDK method performs when individually measured. It is only valuable when you combine these tests in a way where we can mimic the overall behavior of X-Ray in a typical environment. These benchmarks are broken down into various components that make up individual behaviors in an X-Ray instrumented environment. This will be a somewhat technical explanation of the benchmarking results; if you would like to see the results and how it would impact your service, please scroll down to the [Extrapolating the Results paragraph](#extrapolating-the-results-to-a-typical-instrumented-request).
+The benchmark numbers individually do not really give us a good sense of how the SDK as a whole performs. We wrote these benchmarks with the goal of getting a feel for how a specific X-Ray SDK method performs when individually measured. It is only valuable when we combine these tests in a way where we can mimic the overall behavior of X-Ray in a typical environment. These benchmarks are broken down into various components that make up individual behaviors in an X-Ray instrumented environment. This will be a somewhat technical explanation of the benchmarking results; if you would like to see the results and how it would impact your service, please scroll down to the [Extrapolating the Results paragraph](#extrapolating-the-results-to-a-typical-instrumented-request).
 
 We have broken down the benchmarks into four main components:
 
