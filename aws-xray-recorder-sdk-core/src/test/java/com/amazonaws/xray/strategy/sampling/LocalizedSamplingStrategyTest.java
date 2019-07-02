@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.mockito.internal.util.reflection.Whitebox;
+import org.powermock.reflect.Whitebox;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class LocalizedSamplingStrategyTest {

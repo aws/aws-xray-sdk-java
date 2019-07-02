@@ -6,10 +6,10 @@ import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
 import com.amazonaws.xray.strategy.sampling.pollers.RulePoller;
 import com.amazonaws.xray.strategy.sampling.pollers.TargetPoller;
 import com.amazonaws.xray.strategy.sampling.rule.CentralizedRule;
+import com.amazonaws.xray.utils.ByteUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.xml.bind.DatatypeConverter;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.time.Clock;
@@ -24,7 +24,7 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
         SecureRandom rand = new SecureRandom();
         byte[] bytes = new byte[12];
         rand.nextBytes(bytes);
-        clientID = DatatypeConverter.printHexBinary(bytes);
+        clientID = ByteUtils.byteArrayToHexString(bytes);
     }
 
     private boolean isStarted = false;
@@ -58,10 +58,6 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
         SamplingResponse sampleResponse;
         if (logger.isDebugEnabled()) {
             logger.debug("Determining shouldTrace decision for:\n\tserviceName: " + samplingRequest.getService().orElse("") + "\n\thost: " + samplingRequest.getHost().orElse("") + "\n\tpath: " + samplingRequest.getUrl().orElse("") + "\n\tmethod: " + samplingRequest.getMethod().orElse("") + "\n\tserviceType: " + samplingRequest.getServiceType().orElse(""));
-        }
-
-        if (!samplingRequest.getServiceType().isPresent()) {
-            samplingRequest.setServiceType(AWSXRayRecorderBuilder.defaultRecorder().getOrigin());
         }
 
         if (manifest.isExpired(Instant.now())) {

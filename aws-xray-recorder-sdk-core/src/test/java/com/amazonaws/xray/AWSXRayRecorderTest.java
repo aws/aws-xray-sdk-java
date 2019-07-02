@@ -251,6 +251,19 @@ public class AWSXRayRecorderTest {
     }
 
     @Test
+    public void testExplicitSubsegmentEmitted() {
+        Emitter mockEmitter = Mockito.mock(UDPEmitter.class);
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();
+
+        recorder.beginSegment("test");
+        Subsegment subsegment = recorder.beginSubsegment("test");
+        recorder.endSubsegment(subsegment);
+        recorder.endSegment();
+
+        Mockito.verify(mockEmitter, Mockito.times(1)).sendSegment(Mockito.any());
+    }
+
+    @Test
     public void testDummySegmentNotEmitted() {
         Emitter mockEmitter = Mockito.mock(UDPEmitter.class);
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();

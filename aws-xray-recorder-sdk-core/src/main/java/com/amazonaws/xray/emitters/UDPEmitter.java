@@ -8,11 +8,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.util.function.Function;
+import java.util.Optional;
 
 public class UDPEmitter extends Emitter {
     private static final Log logger = LogFactory.getLog(MethodHandles.lookup().lookupClass());
@@ -47,7 +46,7 @@ public class UDPEmitter extends Emitter {
         if (logger.isDebugEnabled()) {
             logger.debug(segment.prettySerialize());
         }
-        return sendData(segment, Segment::serialize);
+        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(), segment);
     }
 
     /**
@@ -59,14 +58,17 @@ public class UDPEmitter extends Emitter {
         if (logger.isDebugEnabled()) {
             logger.debug(subsegment.prettyStreamSerialize());
         }
-        return sendData(subsegment, Subsegment::streamSerialize);
+        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + subsegment.streamSerialize()).getBytes(), subsegment);
     }
 
-    protected <T extends Entity> boolean sendData(T entity, Function<T, String> serializer) {
+    private boolean sendData(byte[] data, Entity entity) {
+        DatagramPacket packet = new DatagramPacket(sendBuffer, DAEMON_BUF_RECEIVE_SIZE, config.getAddressForEmitter());
+        packet.setData(data);
         try {
             return sendPacket(entity, serializer);
         } catch (IOException e) {
-            logger.error("Exception while sending segment over UDP.", e);
+            String segmentName = Optional.ofNullable(entity.getParent()).map(this::nameAndId).orElse("[no parent segment]");
+            logger.error("Exception while sending segment over UDP for entity " +  nameAndId(entity) + " on segment " + segmentName, e);
             return false;
         }
     }
@@ -77,5 +79,9 @@ public class UDPEmitter extends Emitter {
         logger.debug("Sending UDP packet.");
         daemonSocket.send(packet);
         return true;
+    }
+
+    private String nameAndId(Entity entity) {
+        return entity.getName() + " [" + entity.getId() + "]";
     }
 }

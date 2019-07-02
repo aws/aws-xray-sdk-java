@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.amazonaws</groupId>
     <artifactId>aws-xray-recorder-sdk-pom</artifactId>
-      <version>2.1.0</version>
+      <version>2.2.1</version>
   </parent>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-bom</artifactId>
@@ -33,7 +33,25 @@
       </dependency>
       <dependency>
         <groupId>com.amazonaws</groupId>
+        <artifactId>aws-xray-recorder-sdk-aws-sdk-core</artifactId>
+        <optional>false</optional>
+        <version>${awsxrayrecordersdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-xray-recorder-sdk-aws-sdk-v2</artifactId>
+        <optional>false</optional>
+        <version>${awsxrayrecordersdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
         <artifactId>aws-xray-recorder-sdk-aws-sdk-instrumentor</artifactId>
+        <optional>false</optional>
+        <version>${awsxrayrecordersdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-xray-recorder-sdk-aws-sdk-v2-instrumentor</artifactId>
         <optional>false</optional>
         <version>${awsxrayrecordersdk.version}</version>
       </dependency>

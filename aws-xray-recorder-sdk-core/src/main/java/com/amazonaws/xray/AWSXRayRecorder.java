@@ -173,7 +173,7 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Begins a segment and passes it to the supplied consumer. Intercepts exceptions, adds them to the segment, and re-throws them.
+     * Begins a segment and passes it to the supplied consumer, and ends the segment before returning the consumer's result. Intercepts exceptions, adds them to the segment, and re-throws them.
      *
      * @param name
      *            the name to use for the created segment
@@ -262,7 +262,7 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Begins a subsegment and passes it to the supplied consumer. Intercepts exceptions, adds them to the subsegment, and re-throws them.
+     * Begins a subsegment and passes it to the supplied consumer, and ends the subsegment before returning the consumer's result. Intercepts exceptions, adds them to the subsegment, and re-throws them.
      *
      * @param name
      *            the name to use for the created subsegment
@@ -401,6 +401,36 @@ public class AWSXRayRecorder {
             getContextMissingStrategy().contextMissing("Failed to end segment: segment cannot be found.", SegmentNotFoundException.class);
         }
 
+    }
+
+    /**
+     * Ends the provided subsegment. This method doesn't touch context storage.
+     *
+     * @param subsegment
+     *          the subsegment to close.
+     */
+    public void endSubsegment(Subsegment subsegment) {
+        if(subsegment == null) {
+            logger.debug("No input subsegment to end. No-op.");
+            return;
+        }
+        boolean rootReady = subsegment.end();
+        // First handling the special case where its direct parent is a facade segment
+        if(subsegment.getParent() instanceof FacadeSegment) {
+            if(((FacadeSegment) subsegment.getParent()).isSampled()) {
+                getEmitter().sendSubsegment(subsegment);
+            }
+            return;
+        }
+        // Otherwise we check the happy case where the entire segment is ready
+        if (rootReady && !(subsegment.getParentSegment() instanceof FacadeSegment)) {
+            sendSegment(subsegment.getParentSegment());
+            return;
+        }
+        // If not we try to stream closed subsegments regardless the root segment is facade or real
+        if (this.getStreamingStrategy().requiresStreaming(subsegment.getParentSegment())) {
+            this.getStreamingStrategy().streamSome(subsegment.getParentSegment(), this.getEmitter());
+        }
     }
 
     /**
