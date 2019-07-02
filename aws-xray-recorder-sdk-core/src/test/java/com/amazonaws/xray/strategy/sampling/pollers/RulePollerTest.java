@@ -5,7 +5,7 @@ import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
+import org.powermock.reflect.Whitebox;
 
 import java.time.Clock;
 import java.util.concurrent.ScheduledExecutorService;

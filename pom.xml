@@ -121,7 +121,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.4</version>
+        <version>3.0.1</version>
         <configuration>
          <footer> <![CDATA[
                 <script src="/SdkStatic/sdk-priv.js" async="true"></script>
