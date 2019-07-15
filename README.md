@@ -6,7 +6,7 @@
 
 ## Installing
 
-The AWS X-Ray SDK for Java is compatible with Java 8.
+The AWS X-Ray SDK for Java is compatible with Java 8 and 11.
 
 Add the AWS X-Ray SDK dependencies to your pom.xml:
 
