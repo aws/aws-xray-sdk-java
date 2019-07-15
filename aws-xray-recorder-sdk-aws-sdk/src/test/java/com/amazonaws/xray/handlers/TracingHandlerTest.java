@@ -38,6 +38,9 @@ import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.emitters.Emitter;
@@ -131,6 +134,25 @@ public class TracingHandlerTest {
         Assert.assertEquals(KEY, segment.getSubsegments().get(0).getAws().get("source_key"));
         Assert.assertEquals(DST_BUCKET, segment.getSubsegments().get(0).getAws().get("destination_bucket_name"));
         Assert.assertEquals(DST_KEY, segment.getSubsegments().get(0).getAws().get("destination_key"));
+    }
+    
+    @Test
+    public void testSNSPublish() {
+        // Setup test
+    	// reference : https://docs.aws.amazon.com/sns/latest/api/API_Publish.html
+        final String publishResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+                "<PublishResponse xmlns=\"http://sns.amazonaws.com/doc/2010-03-31/\">" + 
+                "<PublishResult><MessageId>94f20ce6-13c5-43a0-9a9e-ca52d816e90b</MessageId></PublishResult>" + 
+                "</PublishResponse>";
+        final String topicArn = "testTopicArn";
+        AmazonSNS sns = AmazonSNSClientBuilder.standard().withRequestHandlers(new TracingHandler()).withRegion(Regions.US_EAST_1).withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("fake", "fake"))).build();        
+        mockHttpClient(sns, publishResponse);
+        // Test logic 
+        Segment segment = AWSXRay.beginSegment("test");
+        sns.publish(new PublishRequest(topicArn, "testMessage"));
+        Assert.assertEquals(1, segment.getSubsegments().size());
+        Assert.assertEquals("Publish", segment.getSubsegments().get(0).getAws().get("operation"));
+        Assert.assertEquals(topicArn, segment.getSubsegments().get(0).getAws().get("topic_arn"));
     }
 
     @Test
