@@ -29,7 +29,18 @@ public class UDPEmitter extends Emitter {
      *
      */
     public UDPEmitter() throws SocketException {
-        config = new DaemonConfiguration();
+        this(new DaemonConfiguration());
+    }
+
+    /**
+     * Constructs a UDPEmitter. This overload allows you to specify the configuration.
+     *
+     * @param config The {@link DaemonConfiguration} for the Emitter.
+     * @throws SocketException
+     *             if an error occurs while instantiating a {@code DatagramSocket}.
+     */
+    public UDPEmitter(DaemonConfiguration config) throws SocketException {
+        this.config = config;
         try {
             daemonSocket = new DatagramSocket();
         } catch (SocketException e) {
