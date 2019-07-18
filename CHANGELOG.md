@@ -1,5 +1,15 @@
 # Change Log
 
+## 2.3.0 - 2019-07-18
+- Add SNS service to AWS SDK operation whitelist JSON
+[PR 85](https://github.com/aws/aws-xray-sdk-java/pull/85)
+- Allow specification of Daemon configuration in UDPEmitter
+[PR 80](https://github.com/aws/aws-xray-sdk-java/pull/80)
+- Add support for JDK 11
+[PR 78](https://github.com/aws/aws-xray-sdk-java/pull/78)
+- Make TraceInterceptor.entityKey public
+[PR 73](https://github.com/aws/aws-xray-sdk-java/pull/73)
+
 ## 2.2.1 - 2019-02-07
 - Fixed BOM package to include new artifacts introduced in 2.2.0.
 
