@@ -128,7 +128,7 @@
                 ]]>
          </footer>
          <bottom><![CDATA[Copyright &#169; 2018 Amazon Web Services, Inc. All Rights Reserved.]]></bottom>
-         <additionalparam>&#45;&#45;allow-script-in-comments</additionalparam>-->
+         <additionalOptions>&#45;&#45;allow-script-in-comments</additionalOptions>
         </configuration>
         <executions>
           <execution>
