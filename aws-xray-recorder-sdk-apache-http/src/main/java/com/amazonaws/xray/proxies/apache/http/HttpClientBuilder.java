@@ -16,6 +16,10 @@ public class HttpClientBuilder extends org.apache.http.impl.client.HttpClientBui
 
     private AWSXRayRecorder recorder;
 
+    protected HttpClientBuilder() {
+        super();
+    }
+
     public static HttpClientBuilder create() {
         HttpClientBuilder newBuilder = new HttpClientBuilder();
         newBuilder.setRecorder(AWSXRay.getGlobalRecorder());
