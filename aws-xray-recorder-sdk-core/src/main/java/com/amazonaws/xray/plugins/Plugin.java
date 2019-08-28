@@ -1,6 +1,10 @@
 package com.amazonaws.xray.plugins;
 
+import com.amazonaws.xray.entities.AWSLogReference;
+
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 public interface Plugin {
 
@@ -13,4 +17,10 @@ public interface Plugin {
     public String getServiceName();
 
     public Map<String, Object> getRuntimeContext();
+
+
+    default Set<AWSLogReference> getLogReferences() {
+        return Collections.emptySet();
+    }
+
 }

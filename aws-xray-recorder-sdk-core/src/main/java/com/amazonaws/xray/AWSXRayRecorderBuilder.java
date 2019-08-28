@@ -5,7 +5,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
+import com.amazonaws.xray.entities.AWSLogReference;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -172,8 +174,15 @@ public class AWSXRayRecorderBuilder {
             } else {
                 logger.warn(plugin.getClass().getName() + " plugin returned empty runtime context data. The recorder will not be setting segment origin or runtime context values from this plugin.");
             }
+
+            Set<AWSLogReference> logReferences = plugin.getLogReferences();
+            if (logReferences != null && !logReferences.isEmpty()) {
+                client.addAllLogReferences(logReferences);
+            } else {
+                logger.warn(plugin.getClass().getName() + " plugin returned empty Log References. The recorder will not reflect the logs from this plugin.");
+            }
         });
+
         return client;
     }
-
 }

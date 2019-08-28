@@ -19,9 +19,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -35,6 +37,8 @@ public class AWSXRayRecorder {
     private static final String SDK_VERSION_KEY = "awsxrayrecordersdk.version";
     private static final String DEFAULT_SDK_VERSION = "unknown";
     private static final String SDK = "X-Ray for Java";
+    private static final String CW_LOGS_KEY = "cloudwatch_logs";
+
 
     private static Map<String, Object> SDK_VERSION_INFORMATION;
     private static Map<String, Object> RUNTIME_INFORMATION;
@@ -80,6 +84,8 @@ public class AWSXRayRecorder {
 
     private Map<String, Object> awsRuntimeContext;
     private Map<String, Object> serviceRuntimeContext;
+    private Set<AWSLogReference> logReferences;
+
 
     private String origin;
 
@@ -89,6 +95,8 @@ public class AWSXRayRecorder {
         prioritizationStrategy = new DefaultPrioritizationStrategy();
         throwableSerializationStrategy = new DefaultThrowableSerializationStrategy();
         contextMissingStrategy = new DefaultContextMissingStrategy();
+
+        logReferences = new HashSet<>();
 
         Optional<ContextMissingStrategy> environmentContextMissingStrategy = AWSXRayRecorderBuilder.contextMissingStrategyFromEnvironmentVariable();
         Optional<ContextMissingStrategy> systemContextMissingStrategy = AWSXRayRecorderBuilder.contextMissingStrategyFromSystemProperty();
@@ -369,6 +377,12 @@ public class AWSXRayRecorder {
             segment.setOrigin(getOrigin());
         }
         segment.putAllService(getServiceRuntimeContext());
+
+        if(null != logReferences && !logReferences.isEmpty()) {
+
+            segment.putAws(CW_LOGS_KEY, logReferences);
+        }
+
         setTraceEntity(segment);
 
         return context.beginSegment(this, segment);
@@ -621,6 +635,10 @@ public class AWSXRayRecorder {
             value = "";
         }
         awsRuntimeContext.put(key, value);
+    }
+
+    public void addAllLogReferences(Set<AWSLogReference> logReferences) {
+            this.logReferences.addAll(logReferences);
     }
 
     /**
