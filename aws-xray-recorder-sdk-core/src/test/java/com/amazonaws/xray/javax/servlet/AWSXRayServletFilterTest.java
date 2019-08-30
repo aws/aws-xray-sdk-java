@@ -24,7 +24,7 @@ import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.runners.MethodSorters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
+import org.powermock.reflect.Whitebox;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;

@@ -6,7 +6,7 @@
 
 ## Installing
 
-The AWS X-Ray SDK for Java is compatible with Java 8 and above.
+The AWS X-Ray SDK for Java is compatible with Java 8 and 11.
 
 Add the AWS X-Ray SDK dependencies to your pom.xml:
 
@@ -14,47 +14,47 @@ Add the AWS X-Ray SDK dependencies to your pom.xml:
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-core</artifactId>
-  <version>2.2.1</version>
+  <version>2.3.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-apache-http</artifactId>
-  <version>2.2.1</version>
+  <version>2.3.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
-  <version>2.2.1</version>
+  <version>2.3.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-aws-sdk-v2</artifactId>
-  <version>2.2.1</version>
+  <version>2.3.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-aws-sdk-instrumentor</artifactId>
-  <version>2.2.1</version>
+  <version>2.3.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-aws-sdk-v2-instrumentor</artifactId>
-  <version>2.2.1</version>
+  <version>2.3.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-sql-mysql</artifactId>
-  <version>2.2.1</version>
+  <version>2.3.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-sql-postgresql</artifactId>
-  <version>2.2.1</version>
+  <version>2.3.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-spring</artifactId>
-  <version>2.2.1</version>
+  <version>2.3.0</version>
 </dependency>
 ```
 

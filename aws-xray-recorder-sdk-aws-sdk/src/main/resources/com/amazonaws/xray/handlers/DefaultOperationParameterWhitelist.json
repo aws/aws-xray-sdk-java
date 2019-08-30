@@ -326,6 +326,15 @@
         }
       }
     },
+    "AmazonSNS": {
+      "operations": {
+        "Publish": {
+          "request_parameters": [
+            "TopicArn"
+          ]
+        }
+      }
+    },
     "Amazon S3": {
       "operations": {
         "CopyObject": {
