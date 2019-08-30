@@ -160,7 +160,15 @@ public class AWSXRay {
         return globalRecorder.sendSegment(segment);
     }
 
+    /**
+     * @deprecated use {@link #sendSubsegment()} instead
+     */
+    @Deprecated
     public static boolean sendSubegment(Subsegment subsegment) {
+        return AWSXRay.sendSubsegment(subsegment);
+    }
+    
+    public static boolean sendSubsegment(Subsegment subsegment) {
         return globalRecorder.sendSubsegment(subsegment);
     }
 
