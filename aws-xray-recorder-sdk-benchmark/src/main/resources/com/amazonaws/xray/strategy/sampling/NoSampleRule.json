@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "default": {
+    "fixed_target": 0,
+    "rate": 0.00
+  },
+  "rules": [
+    {
+      "description": "Rule that samples no request.",
+      "service_name": "*",
+      "http_method": "*",
+      "url_path": "/*",
+      "fixed_target": 0,
+      "rate": 0.0
+    }
+  ]
+}
