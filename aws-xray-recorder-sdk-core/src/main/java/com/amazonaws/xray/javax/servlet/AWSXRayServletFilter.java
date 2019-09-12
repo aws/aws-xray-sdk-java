@@ -151,7 +151,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
 
         try {
             chain.doFilter(request, response);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             if (null != segment) {
                 segment.addException(e);
             }
