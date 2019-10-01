@@ -37,7 +37,7 @@ public class SLF4JSegmentListener implements SegmentListener {
      * The segment that has just ended
      */
     @Override
-    public void onEndSegment(Segment segment) {
+    public void beforeEndSegment(Segment segment) {
         MDC.remove(TRACE_ID_KEY);
     }
 }

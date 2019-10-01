@@ -34,7 +34,7 @@ public class Log4JSegmentListener implements SegmentListener {
      * The segment that has just ended
      */
     @Override
-    public void onEndSegment(Segment segment) {
+    public void beforeEndSegment(Segment segment) {
         ThreadContext.remove(TRACE_ID_KEY);
     }
 }

@@ -21,14 +21,24 @@ public interface SegmentListener {
     }
 
     /**
-     * onEndSegment is invoked when a segment is ended by the recorder and immediately before it is emitted to the daemon.
+     * beforeEndSegment is invoked just before a segment is ended by the recorder.
      * The segment can be manipulated, e.g. with putAnnotation.
      *
      * @param segment
      * The segment that has just ended
      */
-    default void onEndSegment(Segment segment) {
+    default void beforeEndSegment(Segment segment) {
 
     }
 
+    /**
+     * afterEndSegment is invoked after a segment is ended by the recorder and immediately before it is emitted to the daemon.
+     * The segment must not be manipulated. Attempts to do so will raise an exception.
+     *
+     * @param segment
+     * The segment that has just ended
+     */
+    default void afterEndSegment(Segment segment) {
+
+    }
 }

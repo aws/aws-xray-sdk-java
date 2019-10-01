@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -417,13 +418,16 @@ public class AWSXRayRecorder {
         if ((current = getTraceEntity()) != null) {
             Segment segment = current.getParentSegment();
             logger.debug("Ending segment named '" + segment.getName() + "'.");
-            segmentListeners.forEach(segmentListener -> {
-                if (segmentListener != null) {
-                    segmentListener.onEndSegment(segment);
-                }
-            });
+            segmentListeners
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .forEach(listener -> listener.beforeEndSegment(segment));
 
             if(segment.end()) {
+                segmentListeners
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .forEach(listener -> listener.afterEndSegment(segment));
                 sendSegment(segment);
             } else {
                 logger.debug("Not emitting segment named '" + segment.getName() + "' as it parents in-progress subsegments.");

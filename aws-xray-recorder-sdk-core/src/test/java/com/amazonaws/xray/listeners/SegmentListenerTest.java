@@ -18,7 +18,7 @@ public class SegmentListenerTest {
         }
 
         @Override
-        public void onEndSegment(Segment segment) { segment.putAnnotation("endTest", "isPresent"); }
+        public void beforeEndSegment(Segment segment) { segment.putAnnotation("endTest", "isPresent"); }
     }
 
     class SecondSegmentListener implements SegmentListener {
@@ -29,7 +29,7 @@ public class SegmentListenerTest {
         public void onBeginSegment(Segment segment) { testVal = 1; }
 
         @Override
-        public void onEndSegment(Segment segment) {
+        public void beforeEndSegment(Segment segment) {
             testVal2 = 1;
         }
 
