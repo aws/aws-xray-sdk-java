@@ -15,7 +15,7 @@ public class EMFMetricFormatterTest {
     private static final double START_TIME = 550378800.0d;
     private static final double END_TIME = 550382400.0d;
 
-    private static final String EXPECTED_JSON = "{\"Timestamp\":550382400000,\"CloudWatchMetrics\":[{\"Metrics\":[{\"Name\":\"ErrorRate\",\"Unit\":\"None\"},{\"Name\":\"FaultRate\",\"Unit\":\"None\"},{\"Name\":\"ThrottleRate\",\"Unit\":\"None\"},{\"Name\":\"Latency\",\"Unit\":\"Milliseconds\"}],\"Namespace\":\"Observability\",\"Dimensions\":[[\"ServiceType\",\"ServiceName\"]]}],\"Latency\":3600000.000,\"ErrorRate\":1,\"FaultRate\":1,\"ThrottleRate\":1,\"TraceId\":\"1-5759e988-bd862e3fe1be46a994272793\",\"ServiceType\":\"Test::Origin\",\"ServiceName\":\"testService\",\"Version\":\"0\"}";
+    private static final String EXPECTED_JSON = "{\"Timestamp\":550382400000,\"log_group_name\":\"XrayApplicationMetrics\",\"CloudWatchMetrics\":[{\"Metrics\":[{\"Name\":\"ErrorRate\",\"Unit\":\"None\"},{\"Name\":\"FaultRate\",\"Unit\":\"None\"},{\"Name\":\"ThrottleRate\",\"Unit\":\"None\"},{\"Name\":\"Latency\",\"Unit\":\"Milliseconds\"}],\"Namespace\":\"Observability\",\"Dimensions\":[[\"ServiceType\",\"ServiceName\"]]}],\"Latency\":3600000.000,\"ErrorRate\":1,\"FaultRate\":1,\"ThrottleRate\":1,\"TraceId\":\"1-5759e988-bd862e3fe1be46a994272793\",\"ServiceType\":\"Test::Origin\",\"ServiceName\":\"testService\",\"Version\":\"0\"}";
 
 
     private Segment testSegment;

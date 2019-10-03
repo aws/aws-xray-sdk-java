@@ -1,5 +1,6 @@
 package com.amazonaws.xray.entities;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,9 +9,9 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.amazonaws.xray.AWSXRayRecorder;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 public class DummySegment implements Segment {
-
     private Cause cause = new Cause();
     private Map<String, Object> map = new ConcurrentHashMap<>();
     private Map<String, Map<String, Object>> metadataMap = new ConcurrentHashMap<>();
@@ -18,21 +19,38 @@ public class DummySegment implements Segment {
     private LongAdder longAdder = new LongAdder();
     private ReentrantLock lock = new ReentrantLock();
 
+    private String name = "";
+    private String origin = "";
+    private double startTime;
+    private double endTime;
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean fault;
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean error;
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean throttle;
+
     private AWSXRayRecorder creator;
     private TraceID traceId;
+
+    public DummySegment(AWSXRayRecorder creator, String name, TraceID traceId) {
+        this(creator, traceId);
+        this.name = name;
+    }
 
     public DummySegment(AWSXRayRecorder creator) {
         this(creator, new TraceID());
     }
 
     public DummySegment(AWSXRayRecorder creator, TraceID traceId) {
+        this.startTime = Instant.now().toEpochMilli() / 1000.0d;
         this.creator = creator;
         this.traceId = traceId;
     }
 
     @Override
     public String getName() {
-        return "";
+        return name;
     }
 
     @Override
@@ -45,35 +63,37 @@ public class DummySegment implements Segment {
 
     @Override
     public double getStartTime() {
-        return 0;
+        return startTime;
     }
 
     @Override
-    public void setStartTime(double startTime) { }
+    public void setStartTime(double startTime) {
+        this.startTime = startTime;
+    }
 
     @Override
     public double getEndTime() {
-        return 0;
+        return endTime;
     }
 
     @Override
-    public void setEndTime(double endTime) { }
+    public void setEndTime(double endTime) { this.endTime = endTime; }
 
     @Override
     public boolean isFault() {
-        return false;
+        return fault;
     }
 
     @Override
-    public void setFault(boolean fault) { }
+    public void setFault(boolean fault) { this.fault = fault; }
 
     @Override
     public boolean isError() {
-        return false;
+        return error;
     }
 
     @Override
-    public void setError(boolean error) { }
+    public void setError(boolean error) { this.error = error; }
 
     @Override
     public String getNamespace() {
@@ -133,11 +153,11 @@ public class DummySegment implements Segment {
 
     @Override
     public boolean isThrottle() {
-        return false;
+        return throttle;
     }
 
     @Override
-    public void setThrottle(boolean throttle) { }
+    public void setThrottle(boolean throttle) { this.throttle = throttle; }
 
     @Override
     public boolean isInProgress() {
@@ -241,6 +261,10 @@ public class DummySegment implements Segment {
 
     @Override
     public boolean end() {
+        if(getEndTime() < Double.MIN_NORMAL) {
+            setEndTime(Instant.now().toEpochMilli() / 1000.0d);
+        }
+
         return false;
     }
 
@@ -291,11 +315,11 @@ public class DummySegment implements Segment {
 
     @Override
     public String getOrigin() {
-        return "";
+        return origin;
     }
 
     @Override
-    public void setOrigin(String origin) { }
+    public void setOrigin(String origin) { this.origin = origin; }
 
     @Override
     public Map<String, Object> getService() {

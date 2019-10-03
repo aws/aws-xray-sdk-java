@@ -310,7 +310,8 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
                 created = recorder.beginSegment(getSegmentName(httpServletRequest), traceId, parentId);
                 created.setSampled(false);
             } else {
-                created = recorder.beginDummySegment(traceId);
+                logger.debug("Creating Dummy Segment");
+                created = recorder.beginDummySegment(getSegmentName(httpServletRequest), traceId);
             }
         }
 

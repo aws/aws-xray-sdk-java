@@ -1,6 +1,9 @@
 package com.amazonaws.xray.metrics;
 
 import com.amazonaws.xray.entities.Segment;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.time.Instant;
 
 /**
@@ -8,7 +11,9 @@ import java.time.Instant;
  */
 public class EMFMetricFormatter implements MetricFormatter {
 
-    private static final String EMF_FORMAT="{\"Timestamp\":%d,\"CloudWatchMetrics\":[{\"Metrics\":[{\"Name\":\"ErrorRate\",\"Unit\":\"None\"},{\"Name\":\"FaultRate\",\"Unit\":\"None\"},{\"Name\":\"ThrottleRate\",\"Unit\":\"None\"},{\"Name\":\"Latency\",\"Unit\":\"Milliseconds\"}],\"Namespace\":\"Observability\",\"Dimensions\":[[\"ServiceType\",\"ServiceName\"]]}],\"Latency\":%.3f,\"ErrorRate\":%d,\"FaultRate\":%d,\"ThrottleRate\":%d,\"TraceId\":\"%s\",\"ServiceType\":\"%s\",\"ServiceName\":\"%s\",\"Version\":\"0\"}";
+    private static final Log logger = LogFactory.getLog(EMFMetricFormatter.class);
+
+    private static final String EMF_FORMAT="{\"Timestamp\":%d,\"log_group_name\":\"XrayApplicationMetrics\",\"CloudWatchMetrics\":[{\"Metrics\":[{\"Name\":\"ErrorRate\",\"Unit\":\"None\"},{\"Name\":\"FaultRate\",\"Unit\":\"None\"},{\"Name\":\"ThrottleRate\",\"Unit\":\"None\"},{\"Name\":\"Latency\",\"Unit\":\"Milliseconds\"}],\"Namespace\":\"Observability\",\"Dimensions\":[[\"ServiceType\",\"ServiceName\"]]}],\"Latency\":%.3f,\"ErrorRate\":%d,\"FaultRate\":%d,\"ThrottleRate\":%d,\"TraceId\":\"%s\",\"ServiceType\":\"%s\",\"ServiceName\":\"%s\",\"Version\":\"0\"}";
 
     @Override
     /**
@@ -36,7 +41,7 @@ public class EMFMetricFormatter implements MetricFormatter {
 
         long endTimeMillis = new Double(segment.getEndTime() * 1000).longValue();
 
-        return String.format(EMF_FORMAT,
+        String json = String.format(EMF_FORMAT,
                 endTimeMillis,
                 duration,
                 errorRate,
@@ -45,5 +50,11 @@ public class EMFMetricFormatter implements MetricFormatter {
                 segment.getTraceId().toString(),
                 segment.getOrigin(),
                 segment.getName());
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("Formatted segment " + segment.getName() + " as EMF: " + json);
+        }
+
+        return json;
     }
 }

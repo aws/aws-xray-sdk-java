@@ -365,6 +365,10 @@ public class AWSXRayRecorder {
         return beginSegment(new DummySegment(this));
     }
 
+    public Segment beginDummySegment(String name, TraceID traceId) {
+        return beginSegment(new DummySegment(this, name, traceId));
+    }
+
     public Segment beginDummySegment(TraceID traceId) {
         return beginSegment(new DummySegment(this, traceId));
     }
@@ -393,11 +397,10 @@ public class AWSXRayRecorder {
 
         setTraceEntity(segment);
 
-        segmentListeners.forEach(segmentListener -> {
-            if (segmentListener != null) {
-                segmentListener.onBeginSegment(segment);
-            }
-        });
+        segmentListeners.stream()
+                .filter(Objects::nonNull)
+                .forEach(listener -> listener.onBeginSegment(segment));
+
 
         return context.beginSegment(this, segment);
     }
@@ -418,20 +421,22 @@ public class AWSXRayRecorder {
         if ((current = getTraceEntity()) != null) {
             Segment segment = current.getParentSegment();
             logger.debug("Ending segment named '" + segment.getName() + "'.");
+
             segmentListeners
                     .stream()
                     .filter(Objects::nonNull)
                     .forEach(listener -> listener.beforeEndSegment(segment));
 
             if(segment.end()) {
-                segmentListeners
-                        .stream()
-                        .filter(Objects::nonNull)
-                        .forEach(listener -> listener.afterEndSegment(segment));
                 sendSegment(segment);
             } else {
                 logger.debug("Not emitting segment named '" + segment.getName() + "' as it parents in-progress subsegments.");
             }
+
+            segmentListeners
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .forEach(listener -> listener.afterEndSegment(segment));
 
             clearTraceEntity();
         } else {
