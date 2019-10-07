@@ -13,27 +13,32 @@ import java.util.HashMap;
 import java.util.Map;
 
 class TracingStatement {
+
     static Statement decorate(Statement s, String invokedMethodName, Object[] invokedMethodArgs) {
         return (Statement) Proxy.newProxyInstance(TracingConnection.class.getClassLoader(),
                 new Class[] { resolveProxiedInterface(invokedMethodName) },
                 new TracingStatementHandler(s, resolveSqlQuery(invokedMethodName, invokedMethodArgs)));
     }
 
+    private static final String PREPARE_CALL = "prepareCall";
+    private static final String PREPARE_STATEMENT = "prepareStatement";
+    private static final String CREATE_STATEMENT = "createStatement";
+
     private static Class resolveProxiedInterface(String invokedMethodName) {
         switch (invokedMethodName) {
-            case "prepareCall": return CallableStatement.class;
-            case "prepareStatement": return PreparedStatement.class;
-            case "createStatement": return Statement.class;
+            case PREPARE_CALL: return CallableStatement.class;
+            case PREPARE_STATEMENT: return PreparedStatement.class;
+            case CREATE_STATEMENT: return Statement.class;
             default: throw new IllegalStateException("TracingSegment can not decorate " + invokedMethodName);
         }
     }
 
     private static String resolveSqlQuery(String invokedMethodName, Object[] invokedMethodArgs) {
         switch (invokedMethodName) {
-            case "prepareCall":
-            case "prepareStatement":
+            case PREPARE_CALL:
+            case PREPARE_STATEMENT:
                 return (String) invokedMethodArgs[0];
-            case "createStatement":
+            case CREATE_STATEMENT:
                 return null; //the correct sql will be retrieved later in resolveExecutedSql
             default: throw new IllegalStateException("TracingSegment can not resolve sql for " + invokedMethodName);
         }
@@ -52,7 +57,7 @@ class TracingStatement {
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             //mostly based on https://github.com/aws/aws-xray-sdk-java/blob/master/aws-xray-recorder-sdk-sql-mysql/src/main/java/com/amazonaws/xray/sql/mysql/TracingInterceptor.java
             // but in a more straightforward logic (IMHO :) )
-            if (method.getName().equals("execute") || method.getName().equals("executeQuery") || method.getName().equals("executeUpdate") || method.getName().equals("executeBatch")) {
+            if (isStatement(method)) {
                 //invoke the original method "wrapped" in a XRay Subsegment
                 Subsegment subsegment = AWSXRay.beginSubsegment("SQL");
                 subsegment.putAllSql(extractSqlParams(method, args));
@@ -76,6 +81,18 @@ class TracingStatement {
             }
         }
 
+        private static final String EXECUTE = "execute";
+        private static final String EXECUTE_QUERY = "executeQuery";
+        private static final String EXECUTE_UPDATE = "executeUpdate";
+        private static final String EXECUTE_BATCH = "executeBatch";
+
+        private boolean isStatement(Method method) {
+            return method.getName().equals(EXECUTE)
+                    || method.getName().equals(EXECUTE_QUERY)
+                    || method.getName().equals(EXECUTE_UPDATE)
+                    || method.getName().equals(EXECUTE_BATCH);
+        }
+
         private Map<String, Object> extractSqlParams(Method method, Object[] args) {
             Map<String, Object> additionalParams = new HashMap<>();
             try {
@@ -96,11 +113,11 @@ class TracingStatement {
 
         private String resolveExecutedSql(String invokedMethodName, Object[] invokedMethodArgs) {
             switch (invokedMethodName) {
-                case "execute":
-                case "executeQuery":
-                case "executeUpdate":
+                case EXECUTE:
+                case EXECUTE_QUERY:
+                case EXECUTE_UPDATE:
                     return invokedMethodArgs != null && invokedMethodArgs.length > 0 && (invokedMethodArgs[0] instanceof String) ? (String) invokedMethodArgs[0] : sql;
-                case "executeBatch":
+                case EXECUTE_BATCH:
                     //retrieving the executed queries is possible ... but that would produce a very big output !
                     return "BATCH";
                 default:

@@ -26,12 +26,22 @@ class TracingConnection {
                 throws IllegalAccessException, IllegalArgumentException,
                 InvocationTargetException {
             //intercepted methods taken from https://github.com/aws/aws-xray-sdk-java/blob/master/aws-xray-recorder-sdk-sql-mysql/src/main/java/com/amazonaws/xray/sql/mysql/TracingInterceptor.java
-            if (method.getName().equals("prepareCall") || method.getName().equals("prepareStatement") || method.getName().equals("createStatement")) {
+            if (isNewStatement(method)) {
                 Statement s = (Statement) method.invoke(original, args);
                 return TracingStatement.decorate(s, method.getName(), args);
             }
             //else, simply delegates
             return method.invoke(original, args);
+        }
+
+        private static final String PREPARE_CALL = "prepareCall";
+        private static final String PREPARE_STATEMENT = "prepareStatement";
+        private static final String CREATE_STATEMENT = "createStatement";
+
+        private boolean isNewStatement(Method method) {
+            return method.getName().equals(PREPARE_CALL)
+                    || method.getName().equals(PREPARE_STATEMENT)
+                    || method.getName().equals(CREATE_STATEMENT);
         }
     }
 }

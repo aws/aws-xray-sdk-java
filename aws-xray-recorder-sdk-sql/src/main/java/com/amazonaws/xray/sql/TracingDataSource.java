@@ -35,12 +35,18 @@ public class TracingDataSource {
         public Object invoke(Object proxy, Method method, Object[] args)
                 throws IllegalAccessException, IllegalArgumentException,
                 InvocationTargetException {
-            if (method.getName().equals("getConnection")) {
+            if (isGetConnection(method)) {
                 Connection con = (Connection) method.invoke(original, args);
                 return TracingConnection.decorate(con);
             }
             //else, simply delegates
             return method.invoke(original, args);
+        }
+
+        private static final String GET_CONNECTION = "getConnection";
+
+        private boolean isGetConnection(Method method) {
+            return method.getName().equals(GET_CONNECTION);
         }
     }
 }
