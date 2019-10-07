@@ -54,16 +54,6 @@ class TracingStatement {
             // but in a more straightforward logic (IMHO :) )
             if (method.getName().equals("execute") || method.getName().equals("executeQuery") || method.getName().equals("executeUpdate") || method.getName().equals("executeBatch")) {
                 //invoke the original method "wrapped" in a XRay Subsegment
-                //implementation note : can not use shorter AWSXRay.createSubsegment because we need to deal with InvocationTargetException
-                boolean openDummySegment = false;
-                if (! AWSXRay.getCurrentSegmentOptional().isPresent()) {
-                    //we are (probably) being executed outside AWS env (unit tests, background process, ...)
-                    // -> we do not want to crash or to log a SegmentNotFoundException, so we print to stdout
-                    // note that if you are in AWS context, stdout will be log to cloudwatch logs anyway
-                    openDummySegment = true;
-                    System.out.println(sanitizeSql(resolveExecutedSql(method.getName(), args)));
-                    AWSXRay.beginDummySegment();
-                }
                 Subsegment subsegment = AWSXRay.beginSubsegment("SQL");
                 subsegment.putAllSql(extractSqlParams(method, args));
                 subsegment.setNamespace(Namespace.REMOTE.toString());
@@ -78,9 +68,6 @@ class TracingStatement {
                     }
                 } finally {
                     AWSXRay.endSubsegment();
-                    if (openDummySegment) {
-                        AWSXRay.endSegment();
-                    }
                 }
 
             } else {
