@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.entities.Cause;
 import com.amazonaws.xray.strategy.FixedSegmentNamingStrategy;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import org.junit.Assert;
@@ -275,5 +276,65 @@ public class AWSXRayServletFilterTest {
         Assert.assertEquals("pass", emittedSegment.getValue().getName());
 
         environmentVariables.set(SegmentNamingStrategy.NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY, null);
+    }
+
+    @Test
+    public void testServletCatchesErrors() throws IOException, ServletException {
+        AWSXRayServletFilter servletFilter = new AWSXRayServletFilter("fail");
+
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(request.getRequestURL()).thenReturn(new StringBuffer("test_url"));
+        Mockito.when(request.getMethod()).thenReturn("TEST_METHOD");
+        Mockito.when(request.isAsyncStarted()).thenReturn(false);
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+
+        FilterChain chain = Mockito.mock(FilterChain.class);
+        Error ourError = new StackOverflowError("Test");
+        Mockito.doThrow(ourError).when(chain).doFilter(Mockito.any(), Mockito.any());
+
+        try {
+            servletFilter.doFilter(request, response, chain);
+        } catch (Error e) {
+            Assert.assertEquals(ourError, e);
+        }
+        ArgumentCaptor<Segment> emittedSegment = ArgumentCaptor.forClass(Segment.class);
+        Mockito.verify(AWSXRay.getGlobalRecorder().getEmitter(), Mockito.times(1)).sendSegment(emittedSegment.capture());
+        Segment segment = emittedSegment.getValue();
+
+        Cause cause = segment.getCause();
+        Assert.assertEquals(1, cause.getExceptions().size());
+        Throwable storedThrowable = cause.getExceptions().get(0).getThrowable();
+
+        Assert.assertEquals(ourError, storedThrowable);
+    }
+
+    @Test
+    public void testServletCatchesExceptions() throws IOException, ServletException {
+        AWSXRayServletFilter servletFilter = new AWSXRayServletFilter("fail");
+
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(request.getRequestURL()).thenReturn(new StringBuffer("test_url"));
+        Mockito.when(request.getMethod()).thenReturn("TEST_METHOD");
+        Mockito.when(request.isAsyncStarted()).thenReturn(false);
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+
+        FilterChain chain = Mockito.mock(FilterChain.class);
+        Exception ourException = new RuntimeException("Test");
+        Mockito.doThrow(ourException).when(chain).doFilter(Mockito.any(), Mockito.any());
+
+        try {
+            servletFilter.doFilter(request, response, chain);
+        } catch (Exception e) {
+            Assert.assertEquals(ourException, e);
+        }
+        ArgumentCaptor<Segment> emittedSegment = ArgumentCaptor.forClass(Segment.class);
+        Mockito.verify(AWSXRay.getGlobalRecorder().getEmitter(), Mockito.times(1)).sendSegment(emittedSegment.capture());
+        Segment segment = emittedSegment.getValue();
+
+        Cause cause = segment.getCause();
+        Assert.assertEquals(1, cause.getExceptions().size());
+        Throwable storedThrowable = cause.getExceptions().get(0).getThrowable();
+
+        Assert.assertEquals(ourException, storedThrowable);
     }
 }
