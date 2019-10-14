@@ -1,5 +1,6 @@
 package com.amazonaws.xray.plugins;
 
+import com.amazonaws.util.EC2MetadataUtils;
 import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.utils.JsonUtils;
 import org.junit.Assert;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(JsonUtils.class)
+@PrepareForTest({JsonUtils.class, EC2MetadataUtils.class})
 public class EC2PluginTest {
     private EC2Plugin ec2Plugin;
     private FileSystem fakeFs = Mockito.mock(FileSystem.class);
@@ -29,7 +30,15 @@ public class EC2PluginTest {
     @Before
     public void setUpEC2Plugin() {
         PowerMockito.mockStatic(JsonUtils.class);
+        PowerMockito.mockStatic(EC2MetadataUtils.class);
         ec2Plugin = new EC2Plugin(fakeFs);
+    }
+
+    @Test
+    public void testInit() {
+        BDDMockito.given(EC2MetadataUtils.getInstanceId()).willReturn("12345");
+
+        Assert.assertTrue(ec2Plugin.isEnabled());
     }
 
     @Test

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.amazonaws.xray.entities.AWSLogReference;
@@ -28,10 +29,10 @@ import com.amazonaws.util.EC2MetadataUtils;
 public class EC2Plugin implements Plugin {
     private static final Log logger = LogFactory.getLog(EC2Plugin.class);
 
-
     private static FileSystem fs;
 
     private static final String SERVICE_NAME = "ec2";
+    public static final String ORIGIN = "AWS::EC2::Instance";
 
     private static final String LOG_CONFIGS = "log_configs";
     private static final String LOG_GROUP_NAME = "log_group_name";
@@ -47,15 +48,18 @@ public class EC2Plugin implements Plugin {
     private Set<AWSLogReference> logReferences;
 
     public EC2Plugin() {
-        runtimeContext = new HashMap<>();
-        logReferences = new HashSet<>();
-        fs = FileSystems.getDefault();
+        this(FileSystems.getDefault());
     }
 
     public EC2Plugin(FileSystem fs) {
         runtimeContext = new HashMap<>();
         logReferences = new HashSet<>();
         this.fs = fs;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return EC2MetadataUtils.getInstanceId() != null;
     }
 
     @Override
@@ -132,9 +136,25 @@ public class EC2Plugin implements Plugin {
         return logReferences;
     }
 
-    private static final String ORIGIN = "AWS::EC2::Instance";
     @Override
     public String getOrigin() {
         return ORIGIN;
+    }
+
+    @Override
+    /**
+     * Determine equality of plugins using origin to uniquely identify them
+     */
+    public boolean equals(Object o) {
+        if (!(o instanceof Plugin)) { return false; }
+        return this.getOrigin().equals(((Plugin) o).getOrigin());
+    }
+
+    @Override
+    /**
+     * Hash plugin object using origin to uniquely identify them
+     */
+    public int hashCode() {
+        return Objects.hash(this.getOrigin());
     }
 }

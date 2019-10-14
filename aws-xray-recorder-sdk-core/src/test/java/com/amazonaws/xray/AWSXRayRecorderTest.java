@@ -10,6 +10,11 @@ import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.exceptions.AlreadyEmittedException;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
+import com.amazonaws.xray.plugins.EC2Plugin;
+import com.amazonaws.xray.plugins.ECSPlugin;
+import com.amazonaws.xray.plugins.EKSPlugin;
+import com.amazonaws.xray.plugins.ElasticBeanstalkPlugin;
+import com.amazonaws.xray.plugins.Plugin;
 import com.amazonaws.xray.strategy.ContextMissingStrategy;
 import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
@@ -23,6 +28,7 @@ import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -31,7 +37,12 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -476,5 +487,86 @@ public class AWSXRayRecorderTest {
         } catch (Exception e) {
             Assert.assertEquals("Runnable exception was not propagated", expectedException, e);
         }
+    }
+
+    @Test
+    public void testOriginResolutionWithAllPlugins() {
+        //given
+        EC2Plugin ec2Plugin = Mockito.mock(EC2Plugin.class);
+        ECSPlugin ecsPlugin = Mockito.mock(ECSPlugin.class);
+        ElasticBeanstalkPlugin ebPlugin = Mockito.mock(ElasticBeanstalkPlugin.class);
+        EKSPlugin eksPlugin = Mockito.mock(EKSPlugin.class);
+
+        List<Plugin> plugins = new ArrayList<>();
+        plugins.add(ec2Plugin);
+        plugins.add(ecsPlugin);
+        plugins.add(ebPlugin);
+        plugins.add(eksPlugin);
+
+        List<String> origins = new ArrayList<>();
+        origins.add(EC2Plugin.ORIGIN);
+        origins.add(ECSPlugin.ORIGIN);
+        origins.add(ElasticBeanstalkPlugin.ORIGIN);
+        origins.add(EKSPlugin.ORIGIN);
+
+        Map<String, Object> runtimeContext = new HashMap<>();
+        runtimeContext.put("key", "value");
+
+        for (int i = 0; i < 4; i++) {
+            Mockito.doReturn(true).when(plugins.get(i)).isEnabled();
+            Mockito.doReturn(runtimeContext).when(plugins.get(i)).getRuntimeContext();
+            Mockito.doReturn("serviceName").when(plugins.get(i)).getServiceName();
+            Mockito.doReturn(origins.get(i)).when(plugins.get(i)).getOrigin();
+        }
+
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+                .withPlugin(ec2Plugin)
+                .withPlugin(ecsPlugin)
+                .withPlugin(ebPlugin)
+                .withPlugin(eksPlugin)
+                .build();
+
+       // when
+        Assert.assertEquals(ElasticBeanstalkPlugin.ORIGIN, recorder.getOrigin());
+    }
+
+    @Test
+    public void testEKSOriginResolvesOverECSOrigin() {
+        //given
+        ECSPlugin ecsPlugin = Mockito.mock(ECSPlugin.class);
+        EKSPlugin eksPlugin = Mockito.mock(EKSPlugin.class);
+
+        Map<String, Object> runtimeContext = new HashMap<>();
+        runtimeContext.put("key", "value");
+
+        Mockito.doReturn(true).when(ecsPlugin).isEnabled();
+        Mockito.doReturn(runtimeContext).when(ecsPlugin).getRuntimeContext();
+        Mockito.doReturn("ecs").when(ecsPlugin).getServiceName();
+        Mockito.doReturn(ECSPlugin.ORIGIN).when(ecsPlugin).getOrigin();
+        Mockito.doReturn(true).when(eksPlugin).isEnabled();
+        Mockito.doReturn(runtimeContext).when(eksPlugin).getRuntimeContext();
+        Mockito.doReturn("eks").when(eksPlugin).getServiceName();
+        Mockito.doReturn(EKSPlugin.ORIGIN).when(eksPlugin).getOrigin();
+
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+                .withPlugin(eksPlugin)
+                .withPlugin(ecsPlugin)
+                .build();
+
+        // when
+        Assert.assertEquals(EKSPlugin.ORIGIN, recorder.getOrigin());
+    }
+
+    @Test
+    public void testPluginEquality() {
+        Collection<Plugin> plugins = new HashSet<>();
+
+        plugins.add(new EC2Plugin());
+        plugins.add(new EC2Plugin()); // should be deduped
+        plugins.add(new ECSPlugin());
+        plugins.add(new EKSPlugin());
+        plugins.add(new ElasticBeanstalkPlugin());
+
+        Assert.assertEquals(4, plugins.size());
     }
 }

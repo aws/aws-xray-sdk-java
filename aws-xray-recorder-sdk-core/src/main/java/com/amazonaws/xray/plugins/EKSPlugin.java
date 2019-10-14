@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -22,7 +23,7 @@ import java.util.Set;
  */
 public class EKSPlugin implements Plugin {
     private static final String CI_APPLOG_GROUP_FORMAT="/aws/containerinsights/%s/application";
-    private static final String ORIGIN = "AWS::EKS::Pod";
+    public static final String ORIGIN = "AWS::EKS::Container";
     private static final String SERVICE_NAME = "eks";
     private static final String POD_CONTEXT_KEY = "pod";
     private static final String CLUSTER_NAME_KEY = "cluster_name";
@@ -32,17 +33,20 @@ public class EKSPlugin implements Plugin {
     private String clusterName;
     private Map<String, Object> runtimeContext;
     private Set<AWSLogReference> logReferences;
-    private boolean enabled;
 
     public EKSPlugin() {
-        this(ContainerInsightsUtil.getClusterName(), ContainerInsightsUtil.isK8s());
+        this(ContainerInsightsUtil.getClusterName());
     }
 
-    public EKSPlugin(final String clusterName, boolean enabled) {
+    public EKSPlugin(final String clusterName) {
         this.clusterName = clusterName;
         this.runtimeContext = new HashMap<>();
         this.logReferences = new HashSet<>();
-        this.enabled = enabled;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return ContainerInsightsUtil.isK8s();
     }
 
     @Override
@@ -52,11 +56,6 @@ public class EKSPlugin implements Plugin {
         }
 
         return logReferences;
-    }
-
-    @Override
-    public String getOrigin() {
-        return ORIGIN;
     }
 
     @Override
@@ -77,33 +76,51 @@ public class EKSPlugin implements Plugin {
      * Generate log references by calling K8s for Container Insights configuration data.
      */
     private void populateLogReferences() {
-        if (enabled) {
-            if (clusterName == null) {
-                clusterName = ContainerInsightsUtil.getClusterName();
-            }
-
-            AWSLogReference log = new AWSLogReference();
-            log.setLogGroup(String.format(CI_APPLOG_GROUP_FORMAT, clusterName));
-            logReferences.add(log);
+        if (clusterName == null) {
+            clusterName = ContainerInsightsUtil.getClusterName();
         }
+
+        AWSLogReference log = new AWSLogReference();
+        log.setLogGroup(String.format(CI_APPLOG_GROUP_FORMAT, clusterName));
+        logReferences.add(log);
     }
 
     /**
      * Generate runtime context with pod metadata from K8s.
      */
     public void populateRuntimeContext() {
-        if (enabled) {
-            if (clusterName == null) {
-                clusterName = ContainerInsightsUtil.getClusterName();
-            }
-
-            runtimeContext.put(CLUSTER_NAME_KEY, clusterName);
-
-            try {
-                runtimeContext.put(POD_CONTEXT_KEY, InetAddress.getLocalHost().getHostName());
-            } catch (UnknownHostException uhe) {
-                logger.error("Could not get pod ID from hostname.", uhe);
-            }
+        if (clusterName == null) {
+            clusterName = ContainerInsightsUtil.getClusterName();
         }
+
+        runtimeContext.put(CLUSTER_NAME_KEY, clusterName);
+
+        try {
+            runtimeContext.put(POD_CONTEXT_KEY, InetAddress.getLocalHost().getHostName());
+        } catch (UnknownHostException uhe) {
+            logger.error("Could not get pod ID from hostname.", uhe);
+        }
+    }
+
+    @Override
+    public String getOrigin() {
+        return ORIGIN;
+    }
+
+    @Override
+    /**
+     * Determine equality of plugins using origin to uniquely identify them
+     */
+    public boolean equals(Object o) {
+        if (!(o instanceof Plugin)) { return false; }
+        return this.getOrigin().equals(((Plugin) o).getOrigin());
+    }
+
+    @Override
+    /**
+     * Hash plugin object using origin to uniquely identify them
+     */
+    public int hashCode() {
+        return Objects.hash(this.getOrigin());
     }
 }

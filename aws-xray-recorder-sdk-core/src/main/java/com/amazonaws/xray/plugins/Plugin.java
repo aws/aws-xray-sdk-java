@@ -16,8 +16,15 @@ public interface Plugin {
     public String getOrigin();
     public String getServiceName();
 
-    public Map<String, Object> getRuntimeContext();
+    /**
+     * @return true if an environment inspection determines X-Ray is operating in the correct environment for this plugin OR
+     * if X-Ray cannot accurately determine if it's in this plugin's environment
+     */
+    default boolean isEnabled() {
+        return true;
+    }
 
+    public Map<String, Object> getRuntimeContext();
 
     default Set<AWSLogReference> getLogReferences() {
         return Collections.emptySet();
