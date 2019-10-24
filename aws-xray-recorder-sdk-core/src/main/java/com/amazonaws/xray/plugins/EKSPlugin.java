@@ -2,9 +2,11 @@ package com.amazonaws.xray.plugins;
 
 import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.utils.ContainerInsightsUtil;
+import com.amazonaws.xray.utils.DockerUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -27,6 +29,7 @@ public class EKSPlugin implements Plugin {
     private static final String SERVICE_NAME = "eks";
     private static final String POD_CONTEXT_KEY = "pod";
     private static final String CLUSTER_NAME_KEY = "cluster_name";
+    private static final String CONTAINER_ID_KEY = "containerId";
 
     private static final Log logger = LogFactory.getLog(EKSPlugin.class);
 
@@ -94,6 +97,12 @@ public class EKSPlugin implements Plugin {
         }
 
         runtimeContext.put(CLUSTER_NAME_KEY, clusterName);
+
+        try {
+            runtimeContext.put(CONTAINER_ID_KEY, DockerUtils.getContainerId());
+        } catch (IOException e) {
+            logger.error("Failed to read full container ID from kubernetes instance.", e);
+        }
 
         try {
             runtimeContext.put(POD_CONTEXT_KEY, InetAddress.getLocalHost().getHostName());

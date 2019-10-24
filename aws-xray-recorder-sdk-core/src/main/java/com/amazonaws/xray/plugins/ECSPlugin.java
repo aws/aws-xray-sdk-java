@@ -1,11 +1,13 @@
 package com.amazonaws.xray.plugins;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import com.amazonaws.xray.utils.DockerUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -22,6 +24,7 @@ public class ECSPlugin implements Plugin {
     private static final String ECS_METADATA_KEY = "ECS_CONTAINER_METADATA_URI";
     private static final String HTTP_PREFIX = "http://";
     public static final String ORIGIN = "AWS::ECS::Container";
+    private static final String CONTAINER_ID_KEY = "containerId";
 
     private HashMap<String, Object> runtimeContext;
 
@@ -35,6 +38,10 @@ public class ECSPlugin implements Plugin {
      */
     public boolean isEnabled() {
         String ecsMetadataURI = System.getenv(ECS_METADATA_KEY);
+        if (ecsMetadataURI == null) {
+            return false;
+        }
+
         return ecsMetadataURI.startsWith(HTTP_PREFIX);
     }
 
@@ -48,6 +55,12 @@ public class ECSPlugin implements Plugin {
             runtimeContext.put("container", InetAddress.getLocalHost().getHostName());
         } catch (UnknownHostException uhe) {
             logger.error("Could not get docker container ID from hostname.", uhe);
+        }
+
+        try {
+            runtimeContext.put(CONTAINER_ID_KEY, DockerUtils.getContainerId());
+        } catch (IOException e) {
+            logger.error("Failed to read full container ID from container instance.", e);
         }
     }
 
