@@ -8,7 +8,9 @@ import com.amazonaws.xray.entities.Segment;
 public interface MetricEmitter {
 
     /**
-     * Format the given metrics and emit it.
+     * Format the given metric and emit it.
+     *
+     * @param segment Segment to emit metrics from
      */
     void emitMetric(final Segment segment);
 

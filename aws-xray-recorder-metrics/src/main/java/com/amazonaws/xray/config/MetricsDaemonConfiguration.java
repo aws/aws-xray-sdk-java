@@ -6,6 +6,9 @@ import org.apache.commons.logging.LogFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+/**
+ * Configuration specifying where to publish EMF metrics over UDP
+ */
 public class MetricsDaemonConfiguration {
     private static final Log logger = LogFactory.getLog(MetricsDaemonConfiguration.class);
     private static final int DEFAULT_PORT = 25888;
@@ -36,7 +39,7 @@ public class MetricsDaemonConfiguration {
     }
 
     /**
-     * Sets the daemon address. If either the {@code AWS_XRAY_DAEMON_ADDRESS} environment variable or {@code com.amazonaws.xray.emitters.daemonAddress} system property are set to a non-empty value, calling this method does nothing.
+     * Sets the metrics daemon address. If either the {@code AWS_XRAY_METRICS_DAEMON_ADDRESS} environment variable or {@code com.amazonaws.xray.metrics.daemonAddress} system property are set to a non-empty value, calling this method does nothing.
      * Logs an error if the address format is invalid to allow tracing if metrics are inoperative.
      *
      * @param socketAddress
@@ -53,11 +56,13 @@ public class MetricsDaemonConfiguration {
     }
 
     /**
-     * Set daemon address, ignoring the value of of environment variable or system property.
+     * Set metrics daemon address, ignoring the value of of environment variable or system property.
      * Logs an error if the address format is invalid to allow tracing if metrics are inoperative.
      *
      * @param addr
      *      Formatted as '127.0.0.1:25888'
+     *
+     * @return true if the address updates without error
      */
     public boolean setUDPAddress(String addr) {
         if (addr == null) {
@@ -81,10 +86,18 @@ public class MetricsDaemonConfiguration {
         return true;
     }
 
+    /**
+     * Get the UDP address to publish metrics to.
+     * @return the address in string form
+     */
     public String getUDPAddress() {
         return address.getHostString() + ":" + String.valueOf(address.getPort());
     }
 
+    /**
+     * Get the socket address to publish metrics to.
+     * @return the address as InetSocketAddress
+     */
     public InetSocketAddress getAddressForEmitter() {
         return address;
     }

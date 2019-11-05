@@ -12,7 +12,9 @@ import java.net.SocketException;
  * Listener that extracts metrics from Segments and emits them to CloudWatch using a structured log mechanism.
  * Metrics are sent via UDP to the CloudWatch agent.
  *
- * Configuration of UDP metric emissions is described in {@link com.amazonaws.xray.config.MetricsDaemonConfiguration};
+ * Configuration of UDP metric emissions is described in {@link com.amazonaws.xray.config.MetricsDaemonConfiguration}.
+ *
+ * For a list of supported metrics see {@link EMFMetricFormatter}.
  */
 public class MetricsSegmentListener implements SegmentListener {
     private static final Log logger = LogFactory.getLog(MetricsSegmentListener.class);

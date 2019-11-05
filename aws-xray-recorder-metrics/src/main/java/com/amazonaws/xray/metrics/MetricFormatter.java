@@ -9,8 +9,8 @@ public interface MetricFormatter {
 
     /**
      * Converts a segment into a metric string.
-     * @param segment
-     * @return
+     * @param segment Segment to format into metrics
+     * @return a string representation of the {@link Segment}
      */
     String formatSegment(Segment segment);
 

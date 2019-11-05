@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
@@ -42,6 +44,7 @@ public class ContainerInsightsUtil {
     private static final String CI_CONFIGMAP_PATH="/api/v1/namespaces/amazon-cloudwatch/configmaps/cluster-info";
     private static final String AUTH_HEADER_NAME="Authorization";
     private static final String AUTH_HEADER_TEMPLATE="Bearer %s";
+    private static final int HTTP_TIMEOUT = 5;
 
     private static final Log logger = LogFactory.getLog(ContainerInsightsUtil.class);
 
@@ -109,7 +112,11 @@ public class ContainerInsightsUtil {
             logger.debug("Unable to create HTTP client with K8s CA certs, using default trust store.", e);
         }
 
-        return HttpClients.createDefault();
+        RequestConfig config = RequestConfig.custom()
+                .setConnectTimeout(HTTP_TIMEOUT * 1000)
+                .setConnectionRequestTimeout(HTTP_TIMEOUT * 1000)
+                .setSocketTimeout(HTTP_TIMEOUT * 1000).build();
+        return HttpClientBuilder.create().setDefaultRequestConfig(config).build();
     }
 
     private static KeyStore getK8sKeystore() {

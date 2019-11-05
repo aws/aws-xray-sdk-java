@@ -85,6 +85,12 @@
         <optional>false</optional>
         <version>${awsxrayrecordersdk.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-xray-recorder-metrics</artifactId>
+        <optional>false</optional>
+        <version>${awsxrayrecordersdk.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 </project>

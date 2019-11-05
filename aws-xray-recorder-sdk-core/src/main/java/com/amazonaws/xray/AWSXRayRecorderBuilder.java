@@ -15,6 +15,7 @@ import com.amazonaws.xray.plugins.EC2Plugin;
 import com.amazonaws.xray.plugins.ECSPlugin;
 import com.amazonaws.xray.plugins.EKSPlugin;
 import com.amazonaws.xray.plugins.ElasticBeanstalkPlugin;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -220,27 +221,37 @@ public class AWSXRayRecorderBuilder {
         plugins.stream().filter(Objects::nonNull).filter(p -> p.isEnabled()).forEach(plugin -> {
             logger.info("Collecting trace metadata from " + plugin.getClass().getName() + ".");
 
-            Map<String, Object> runtimeContext = plugin.getRuntimeContext();
-            if (!runtimeContext.isEmpty()) {
-                client.putRuntimeContext(plugin.getServiceName(), runtimeContext);
+            try {
+                Map<String, Object> runtimeContext = plugin.getRuntimeContext();
+                if (!runtimeContext.isEmpty()) {
+                    client.putRuntimeContext(plugin.getServiceName(), runtimeContext);
 
-                /**
-                 * Given several enabled plugins, the recorder should resolve a single one that's most representative of this environment
-                 * Resolution order: EB > EKS > ECS > EC2
-                 * EKS > ECS because the ECS plugin checks for an environment variable whereas the EKS plugin checks for a kubernetes authentication file, which is a stronger enable condition
-                 */
-                if (client.getOrigin() == null || originPriority.get(plugin.getOrigin()) < originPriority.get(client.getOrigin())) {
-                    client.setOrigin(plugin.getOrigin());
+                    /**
+                     * Given several enabled plugins, the recorder should resolve a single one that's most representative of this environment
+                     * Resolution order: EB > EKS > ECS > EC2
+                     * EKS > ECS because the ECS plugin checks for an environment variable whereas the EKS plugin checks for a kubernetes authentication file, which is a stronger enable condition
+                     */
+                    if (client.getOrigin() == null || originPriority.get(plugin.getOrigin()) < originPriority.get(client.getOrigin())) {
+                        client.setOrigin(plugin.getOrigin());
+                    }
+                } else {
+                    logger.warn(plugin.getClass().getName() + " plugin returned empty runtime context data. The recorder will not be setting segment origin or runtime context values from this plugin.");
                 }
-            } else {
-                logger.warn(plugin.getClass().getName() + " plugin returned empty runtime context data. The recorder will not be setting segment origin or runtime context values from this plugin.");
+            } catch (Exception e) {
+                logger.warn("Failed to get runtime context from "+plugin.getClass().getName()+".", e);
             }
 
-            Set<AWSLogReference> logReferences = plugin.getLogReferences();
-            if (logReferences != null && !logReferences.isEmpty()) {
-                client.addAllLogReferences(logReferences);
-            } else {
-                logger.warn(plugin.getClass().getName() + " plugin returned empty Log References. The recorder will not reflect the logs from this plugin.");
+            try {
+                Set<AWSLogReference> logReferences = plugin.getLogReferences();
+                if(Objects.nonNull(logReferences)) {
+                    if (!logReferences.isEmpty()) {
+                        client.addAllLogReferences(logReferences);
+                    } else {
+                        logger.warn(plugin.getClass().getName() + " plugin returned empty Log References. The recorder will not reflect the logs from this plugin.");
+                    }
+                }
+            } catch (Exception e) {
+                logger.warn("Failed to get log references from "+plugin.getClass().getName()+".", e);
             }
         });
 

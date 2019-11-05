@@ -48,7 +48,7 @@ public class UDPMetricEmitter implements MetricEmitter {
         try {
             socket.send(packet);
         } catch (IOException e) {
-            logger.error("Unable to send Metric to Agent.", e);
+            logger.error("Unable to send metric to agent.", e);
         }
     }
 }
