@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.amazonaws.xray.entities.AWSLogReference;
+import com.amazonaws.xray.listeners.SegmentListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -38,8 +39,11 @@ public class AWSXRayRecorderBuilder {
 
     private Emitter emitter;
 
+    private final Collection<SegmentListener> segmentListeners;
+
     private AWSXRayRecorderBuilder() {
         plugins = new ArrayList<>();
+        segmentListeners = new ArrayList<>();
     }
 
     public static Optional<ContextMissingStrategy> contextMissingStrategyFromEnvironmentVariable() {
@@ -121,6 +125,19 @@ public class AWSXRayRecorderBuilder {
     }
 
     /**
+     * Adds a SegmentListener to the list of segment listeners that will be attached to the recorder at build time.
+     *
+     * @param segmentListener
+     * the SegmentListener to add
+     * @return
+     * the builder instance, for chaining
+     */
+    public AWSXRayRecorderBuilder withSegmentListener(SegmentListener segmentListener) {
+        this.segmentListeners.add(segmentListener);
+        return this;
+    }
+
+    /**
      * Prepares this builder to build an instance of {@code AWSXRayRecorder} with the provided context missing strategy. This value will be overriden at {@code build()} time if either the environment
      * variable with key {@code AWS_XRAY_CONTEXT_MISSING} or system property with key {@code com.amazonaws.xray.strategy.contextMissingStrategy} are set to a valid value.
      *
@@ -164,6 +181,10 @@ public class AWSXRayRecorderBuilder {
 
         if (null != emitter) {
             client.setEmitter(emitter);
+        }
+
+        if (!segmentListeners.isEmpty()) {
+            client.addAllSegmentListeners(segmentListeners);
         }
 
         plugins.stream().filter(Objects::nonNull).forEach(plugin -> {

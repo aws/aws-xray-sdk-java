@@ -40,6 +40,7 @@
     <module>aws-xray-recorder-sdk-aws-sdk-core</module>
     <module>aws-xray-recorder-sdk-aws-sdk-v2</module>
     <module>aws-xray-recorder-sdk-aws-sdk-v2-instrumentor</module>
+    <module>aws-xray-recorder-sdk-slf4j</module>
   </modules>
   <distributionManagement>
     <repository>

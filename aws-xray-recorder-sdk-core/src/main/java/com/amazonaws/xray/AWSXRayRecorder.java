@@ -6,6 +6,7 @@ import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.contexts.ThreadLocalSegmentContextResolver;
 import com.amazonaws.xray.emitters.DefaultEmitter;
 import com.amazonaws.xray.emitters.Emitter;
+import com.amazonaws.xray.listeners.SegmentListener;
 import com.amazonaws.xray.entities.*;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
@@ -18,6 +19,8 @@ import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -82,6 +85,8 @@ public class AWSXRayRecorder {
 
     private Emitter emitter;
 
+    private ArrayList<SegmentListener> segmentListeners;
+
     private Map<String, Object> awsRuntimeContext;
     private Map<String, Object> serviceRuntimeContext;
     private Set<AWSLogReference> logReferences;
@@ -113,6 +118,8 @@ public class AWSXRayRecorder {
         segmentContextResolverChain = new SegmentContextResolverChain();
         segmentContextResolverChain.addResolver(new LambdaSegmentContextResolver());
         segmentContextResolverChain.addResolver(new ThreadLocalSegmentContextResolver());
+
+        segmentListeners = new ArrayList<>();
 
         awsRuntimeContext = new ConcurrentHashMap<>();
         awsRuntimeContext.put("xray", SDK_VERSION_INFORMATION);
@@ -385,6 +392,12 @@ public class AWSXRayRecorder {
 
         setTraceEntity(segment);
 
+        segmentListeners.forEach(segmentListener -> {
+            if (segmentListener != null) {
+                segmentListener.onBeginSegment(segment);
+            }
+        });
+
         return context.beginSegment(this, segment);
     }
 
@@ -404,6 +417,12 @@ public class AWSXRayRecorder {
         if ((current = getTraceEntity()) != null) {
             Segment segment = current.getParentSegment();
             logger.debug("Ending segment named '" + segment.getName() + "'.");
+            segmentListeners.forEach(segmentListener -> {
+                if (segmentListener != null) {
+                    segmentListener.onEndSegment(segment);
+                }
+            });
+
             if(segment.end()) {
                 sendSegment(segment);
             } else {
@@ -737,6 +756,34 @@ public class AWSXRayRecorder {
     public void setEmitter(Emitter emitter) {
         this.emitter = emitter;
     }
+
+    /**
+     * Returns the list of SegmentListeners attached to the recorder
+     *
+     * @return the SegmentListeners
+     */
+    public ArrayList<SegmentListener> getSegmentListeners() {
+        return segmentListeners;
+    }
+
+    /**
+     * Adds a single SegmentListener to the recorder
+     *
+     * @param segmentListener a SegmentListener to add
+     */
+    public void addSegmentListener(SegmentListener segmentListener) {
+        this.segmentListeners.add(segmentListener);
+    }
+
+    /**
+     * Adds a Collection of SegmentListeners to the recorder
+     *
+     * @param segmentListeners a Collection of SegmentListeners to add
+     */
+    public void addAllSegmentListeners(Collection<SegmentListener> segmentListeners) {
+        this.segmentListeners.addAll(segmentListeners);
+    }
+
 
     /**
      * @return the awsRuntimeContext
