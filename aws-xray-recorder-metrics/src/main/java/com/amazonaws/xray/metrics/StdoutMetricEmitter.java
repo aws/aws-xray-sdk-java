@@ -3,7 +3,7 @@ package com.amazonaws.xray.metrics;
 import com.amazonaws.xray.entities.Segment;
 
 /**
- * Writes EMF formatted structured logs to stdout for use with Lambda
+ * Writes EMF formatted structured logs to stdout for testing.
  */
 public class StdoutMetricEmitter implements MetricEmitter {
 

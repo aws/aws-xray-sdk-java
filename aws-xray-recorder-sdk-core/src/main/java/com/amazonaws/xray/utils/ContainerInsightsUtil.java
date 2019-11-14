@@ -33,7 +33,7 @@ import java.security.cert.CertificateFactory;
 import java.util.Collection;
 
 /**
- * Utility class for querying configuration information from ContainerInsights enabled Kubernetes clusters
+ * Utility class for querying configuration information from ContainerInsights enabled Kubernetes clusters.
  */
 public class ContainerInsightsUtil {
 
@@ -120,6 +120,9 @@ public class ContainerInsightsUtil {
     }
 
     private static KeyStore getK8sKeystore() {
+
+        InputStream certificateFile = null;
+
         try {
             KeyStore k8sTrustStore = null;
             File caFile = Paths.get(K8S_CRED_FOLDER, K8S_CRED_CERT_SUFFIX).toFile();
@@ -129,7 +132,7 @@ public class ContainerInsightsUtil {
                 k8sTrustStore.load(null, null);
                 CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 
-                InputStream certificateFile =
+                certificateFile =
                         new FileInputStream(caFile);
                 Collection<? extends Certificate> certificates =
                         certificateFactory.generateCertificates(certificateFile);
@@ -147,18 +150,37 @@ public class ContainerInsightsUtil {
 
             return k8sTrustStore;
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-            logger.warn("Unable to load K8S CA certificate.", e);
+            logger.warn("Unable to load K8s CA certificate.", e);
             return null;
+        } finally {
+            if(certificateFile != null) {
+                try {
+                    certificateFile.close();
+                } catch (IOException e) {
+                    logger.error("Can't close K8s CA certificate file.", e);
+                }
+            }
         }
     }
 
     private static String getK8sCredentialHeader() {
+
+        BufferedReader tokenReader = null;
+
         try {
             File tokenFile = Paths.get(K8S_CRED_FOLDER, K8S_CRED_TOKEN_SUFFIX).toFile();
-            BufferedReader tokenReader = new BufferedReader(new FileReader(tokenFile));
+            tokenReader = new BufferedReader(new FileReader(tokenFile));
             return String.format(AUTH_HEADER_TEMPLATE, tokenReader.readLine());
         } catch (IOException e) {
             logger.warn("Unable to read K8s credential file.", e);
+        } finally {
+            if(tokenReader != null) {
+                try {
+                    tokenReader.close();
+                } catch (IOException e) {
+                    logger.error("Can't close K8s credential file.", e);
+                }
+            }
         }
         return null;
     }

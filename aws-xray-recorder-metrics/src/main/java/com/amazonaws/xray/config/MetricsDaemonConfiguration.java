@@ -16,13 +16,12 @@ public class MetricsDaemonConfiguration {
     private InetSocketAddress address = new InetSocketAddress(InetAddress.getLoopbackAddress(), DEFAULT_PORT);
 
     /**
-     * Environment variable key used to override the address to which UDP packets will be emitted. Valid values are of the form `ip_address:port`. Takes precedence over any system property,
-     * constructor value, or setter value used.
+     * Environment variable key used to override the address to which UDP packets will be emitted. Valid values are of the form `ip_address:port`. Takes precedence over the system property when used.
      */
     public static final String DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY = "AWS_XRAY_METRICS_DAEMON_ADDRESS";
 
     /**
-     * System property key used to override the address to which UDP packets will be emitted. Valid values are of the form `ip_address:port`. Takes precedence over any constructor or setter value
+     * System property key used to override the address to which UDP packets will be emitted. Valid values are of the form `ip_address:port`.
      * used.
      */
     public static final String DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY = "com.amazonaws.xray.metrics.daemonAddress";

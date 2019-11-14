@@ -3,7 +3,7 @@ package com.amazonaws.xray.metrics;
 import com.amazonaws.xray.entities.Segment;
 
 /**
- * Convert a segment into a string representation of metrics
+ * Convert a segment into a formatted log string.
  */
 public interface MetricFormatter {
 

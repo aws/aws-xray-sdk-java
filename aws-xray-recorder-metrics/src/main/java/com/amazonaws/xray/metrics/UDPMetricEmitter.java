@@ -4,7 +4,6 @@ import com.amazonaws.xray.config.MetricsDaemonConfiguration;
 import com.amazonaws.xray.entities.Segment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

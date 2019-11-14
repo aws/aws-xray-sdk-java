@@ -9,7 +9,8 @@ import java.util.Set;
 public interface Plugin {
 
     /**
-     * Returns the name of the origin associated with this plugin. By default, the {@link com.amazonaws.xray.AWSXRayRecorder} will set the origin of created segments to the name provided by the latest-loaded plugin.
+     * Returns the name of the origin associated with this plugin.
+     * The {@link com.amazonaws.xray.AWSXRayRecorder} contains a prioritized list of origins from least to most specific.
      *
      * @return the name of the origin associated with this plugin.
      */
