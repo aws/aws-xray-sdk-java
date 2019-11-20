@@ -70,6 +70,10 @@
     </dependency>
     <dependency>
       <groupId>com.amazonaws</groupId>
+      <artifactId>aws-xray-recorder-sdk-sql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
       <artifactId>aws-xray-recorder-sdk-sql-postgres</artifactId>
     </dependency>
     <dependency>
