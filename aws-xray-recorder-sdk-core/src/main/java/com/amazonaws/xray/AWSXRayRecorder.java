@@ -6,6 +6,7 @@ import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.contexts.ThreadLocalSegmentContextResolver;
 import com.amazonaws.xray.emitters.DefaultEmitter;
 import com.amazonaws.xray.emitters.Emitter;
+import com.amazonaws.xray.listeners.SegmentListener;
 import com.amazonaws.xray.entities.*;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
@@ -18,10 +19,15 @@ import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -35,6 +41,8 @@ public class AWSXRayRecorder {
     private static final String SDK_VERSION_KEY = "awsxrayrecordersdk.version";
     private static final String DEFAULT_SDK_VERSION = "unknown";
     private static final String SDK = "X-Ray for Java";
+    private static final String CW_LOGS_KEY = "cloudwatch_logs";
+
 
     private static Map<String, Object> SDK_VERSION_INFORMATION;
     private static Map<String, Object> RUNTIME_INFORMATION;
@@ -78,8 +86,12 @@ public class AWSXRayRecorder {
 
     private Emitter emitter;
 
+    private ArrayList<SegmentListener> segmentListeners;
+
     private Map<String, Object> awsRuntimeContext;
     private Map<String, Object> serviceRuntimeContext;
+    private Set<AWSLogReference> logReferences;
+
 
     private String origin;
 
@@ -89,6 +101,8 @@ public class AWSXRayRecorder {
         prioritizationStrategy = new DefaultPrioritizationStrategy();
         throwableSerializationStrategy = new DefaultThrowableSerializationStrategy();
         contextMissingStrategy = new DefaultContextMissingStrategy();
+
+        logReferences = new HashSet<>();
 
         Optional<ContextMissingStrategy> environmentContextMissingStrategy = AWSXRayRecorderBuilder.contextMissingStrategyFromEnvironmentVariable();
         Optional<ContextMissingStrategy> systemContextMissingStrategy = AWSXRayRecorderBuilder.contextMissingStrategyFromSystemProperty();
@@ -105,6 +119,8 @@ public class AWSXRayRecorder {
         segmentContextResolverChain = new SegmentContextResolverChain();
         segmentContextResolverChain.addResolver(new LambdaSegmentContextResolver());
         segmentContextResolverChain.addResolver(new ThreadLocalSegmentContextResolver());
+
+        segmentListeners = new ArrayList<>();
 
         awsRuntimeContext = new ConcurrentHashMap<>();
         awsRuntimeContext.put("xray", SDK_VERSION_INFORMATION);
@@ -349,6 +365,10 @@ public class AWSXRayRecorder {
         return beginSegment(new DummySegment(this));
     }
 
+    public Segment beginDummySegment(String name, TraceID traceId) {
+        return beginSegment(new DummySegment(this, name, traceId));
+    }
+
     public Segment beginDummySegment(TraceID traceId) {
         return beginSegment(new DummySegment(this, traceId));
     }
@@ -369,7 +389,18 @@ public class AWSXRayRecorder {
             segment.setOrigin(getOrigin());
         }
         segment.putAllService(getServiceRuntimeContext());
+
+        if(null != logReferences && !logReferences.isEmpty()) {
+
+            segment.putAws(CW_LOGS_KEY, logReferences);
+        }
+
         setTraceEntity(segment);
+
+        segmentListeners.stream()
+                .filter(Objects::nonNull)
+                .forEach(listener -> listener.onBeginSegment(segment));
+
 
         return context.beginSegment(this, segment);
     }
@@ -390,11 +421,22 @@ public class AWSXRayRecorder {
         if ((current = getTraceEntity()) != null) {
             Segment segment = current.getParentSegment();
             logger.debug("Ending segment named '" + segment.getName() + "'.");
+
+            segmentListeners
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .forEach(listener -> listener.beforeEndSegment(segment));
+
             if(segment.end()) {
                 sendSegment(segment);
             } else {
                 logger.debug("Not emitting segment named '" + segment.getName() + "' as it parents in-progress subsegments.");
             }
+
+            segmentListeners
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .forEach(listener -> listener.afterEndSegment(segment));
 
             clearTraceEntity();
         } else {
@@ -623,6 +665,10 @@ public class AWSXRayRecorder {
         awsRuntimeContext.put(key, value);
     }
 
+    public void addAllLogReferences(Set<AWSLogReference> logReferences) {
+            this.logReferences.addAll(logReferences);
+    }
+
     /**
      * @return the samplingStrategy
      */
@@ -719,6 +765,34 @@ public class AWSXRayRecorder {
     public void setEmitter(Emitter emitter) {
         this.emitter = emitter;
     }
+
+    /**
+     * Returns the list of SegmentListeners attached to the recorder
+     *
+     * @return the SegmentListeners
+     */
+    public ArrayList<SegmentListener> getSegmentListeners() {
+        return segmentListeners;
+    }
+
+    /**
+     * Adds a single SegmentListener to the recorder
+     *
+     * @param segmentListener a SegmentListener to add
+     */
+    public void addSegmentListener(SegmentListener segmentListener) {
+        this.segmentListeners.add(segmentListener);
+    }
+
+    /**
+     * Adds a Collection of SegmentListeners to the recorder
+     *
+     * @param segmentListeners a Collection of SegmentListeners to add
+     */
+    public void addAllSegmentListeners(Collection<SegmentListener> segmentListeners) {
+        this.segmentListeners.addAll(segmentListeners);
+    }
+
 
     /**
      * @return the awsRuntimeContext
