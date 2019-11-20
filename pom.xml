@@ -127,12 +127,13 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.0.1</version>
         <configuration>
-         <footer> <![CDATA[
+          <footer> <![CDATA[
                 <script src="/SdkStatic/sdk-priv.js" async="true"></script>
                 ]]>
-         </footer>
-         <bottom><![CDATA[Copyright &#169; 2018 Amazon Web Services, Inc. All Rights Reserved.]]></bottom>
-         <additionalOptions>&#45;&#45;allow-script-in-comments</additionalOptions>
+          </footer>
+          <bottom><![CDATA[Copyright &#169; 2018 Amazon Web Services, Inc. All Rights Reserved.]]></bottom>
+          <additionalJOption>-Xdoclint:none</additionalJOption>
+          <additionalOptions>--allow-script-in-comments</additionalOptions>
         </configuration>
         <executions>
           <execution>

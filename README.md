@@ -43,6 +43,11 @@ Add the AWS X-Ray SDK dependencies to your pom.xml:
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
+  <artifactId>aws-xray-recorder-sdk-sql</artifactId>
+  <version>2.4.0</version>
+</dependency>
+<dependency>
+  <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-sql-mysql</artifactId>
   <version>2.4.0</version>
 </dependency>
