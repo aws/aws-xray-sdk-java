@@ -71,6 +71,11 @@ Add the AWS X-Ray SDK dependencies to your pom.xml:
   <artifactId>aws-xray-recorder-sdk-slf4j</artifactId>
   <version>2.4.0</version>
 </dependency>
+<dependency>
+  <groupId>com.amazonaws</groupId>
+  <artifactId>aws-xray-recorder-sdk-metrics</artifactId>
+  <version>2.4.0</version>
+</dependency>
 ```
 
 ## Getting Help
