@@ -1,6 +1,6 @@
 # Change Log
 
-## 2.4.0 - 2019-11-20
+## 2.4.0 - 2019-11-21
 - Fix tags in pom.xml
 [PR 83](https://github.com/aws/aws-xray-sdk-java/pull/87)
 - Add default protected constructor for HTTPClientBuilder
