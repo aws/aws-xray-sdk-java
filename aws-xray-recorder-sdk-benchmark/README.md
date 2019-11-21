@@ -617,23 +617,23 @@ AWSXRayRecorderBenchmark.beginDummySegmentBenchmark                             
 AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark                                thrpt      20       0.001 ±      0.001  ops/ns
 AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark                      thrpt      20      ≈ 10⁻³               ops/ns
 AWSXRayRecorderBenchmark.beginEndSegmentBenchmark                                     thrpt      20      ≈ 10⁻⁴               ops/ns
-AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark                           thrpt      20      ≈ 10⁻⁵               ops/ns
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark                           thrpt      20      ≈ 10⁻⁴               ops/ns
 AWSXRayRecorderBenchmark.beginSegmentBenchmark                                        thrpt      20       0.001 ±      0.001  ops/ns
 AWSXRayRecorderBenchmark.beginSubsegmentBenchmark                                     thrpt      20       0.001 ±      0.001  ops/ns
 AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark                          thrpt      20       0.001 ±      0.001  ops/ns
-AWSXRayRecorderBenchmark.endDummySegmentBenchmark                                     thrpt      20       0.003 ±      0.001  ops/ns
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark                                     thrpt      20       0.002 ±      0.001  ops/ns
 AWSXRayRecorderBenchmark.endSegmentBenchmark                                          thrpt      20      ≈ 10⁻⁴               ops/ns
 AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark                                   thrpt      20      ≈ 10⁻⁴               ops/ns
 AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark                                 thrpt      20      ≈ 10⁻⁴               ops/ns
 AWSXRayRecorderBenchmark.endSubsegmentBenchmark                                       thrpt      20       0.003 ±      0.001  ops/ns
-AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark                            thrpt      20       0.004 ±      0.001  ops/ns
-AWSXRayRecorderBenchmark.getSegmentBenchmark                                          thrpt      20       0.006 ±      0.001  ops/ns
-AWSXRayRecorderBenchmark.getSubsegmentBenchmark                                       thrpt      20       0.007 ±      0.001  ops/ns
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark                            thrpt      20       0.003 ±      0.001  ops/ns
+AWSXRayRecorderBenchmark.getSegmentBenchmark                                          thrpt      20       0.005 ±      0.001  ops/ns
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark                                       thrpt      20       0.006 ±      0.001  ops/ns
 entities.EntityBenchmark.constructSegmentBenchmark                                    thrpt      20       0.001 ±      0.001  ops/ns
 entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark                     thrpt      20       0.002 ±      0.001  ops/ns
-entities.EntityBenchmark.putAnnotationBenchmark                                       thrpt      20       0.013 ±      0.001  ops/ns
+entities.EntityBenchmark.putAnnotationBenchmark                                       thrpt      20       0.011 ±      0.001  ops/ns
 entities.EntityBenchmark.putExceptionSegmentBenchmark                                 thrpt      20       0.001 ±      0.001  ops/ns
-entities.EntityBenchmark.putMetadataBenchmark                                         thrpt      20       0.007 ±      0.001  ops/ns
+entities.EntityBenchmark.putMetadataBenchmark                                         thrpt      20       0.006 ±      0.001  ops/ns
 entities.EntitySerializerBenchmark.serializeFourChildSegment                          thrpt      20      ≈ 10⁻⁴               ops/ns
 entities.EntitySerializerBenchmark.serializeFourGenerationSegment                     thrpt      20      ≈ 10⁻⁴               ops/ns
 entities.EntitySerializerBenchmark.serializeOneChildSegment                           thrpt      20      ≈ 10⁻⁴               ops/ns
@@ -642,113 +642,110 @@ entities.EntitySerializerBenchmark.serializeThreeGenerationSegment              
 entities.EntitySerializerBenchmark.serializeTwoChildSegment                           thrpt      20      ≈ 10⁻⁴               ops/ns
 entities.EntitySerializerBenchmark.serializeTwoGenerationSegment                      thrpt      20      ≈ 10⁻⁴               ops/ns
 entities.EntitySerializerBenchmark.serializeZeroChildSegment                          thrpt      20      ≈ 10⁻³               ops/ns
-strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark   thrpt      20       0.007 ±      0.001  ops/ns
-strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark      thrpt      20       0.007 ±      0.001  ops/ns
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark   thrpt      20       0.009 ±      0.001  ops/ns
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark      thrpt      20       0.005 ±      0.001  ops/ns
 strategy.sampling.LocalizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark     thrpt      20       0.015 ±      0.001  ops/ns
-strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark        thrpt      20       0.007 ±      0.001  ops/ns
-AWSXRayRecorderBenchmark.beginDummySegmentBenchmark                                    avgt      20    1049.343 ±     41.500   ns/op
-AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark                                 avgt      20    1457.895 ±     54.011   ns/op
-AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark                       avgt      20    2532.425 ±    202.497   ns/op
-AWSXRayRecorderBenchmark.beginEndSegmentBenchmark                                      avgt      20   33411.366 ±   7530.243   ns/op
-AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark                            avgt      20   46558.775 ±  12547.092   ns/op
-AWSXRayRecorderBenchmark.beginSegmentBenchmark                                         avgt      20    1837.190 ±     58.093   ns/op
-AWSXRayRecorderBenchmark.beginSubsegmentBenchmark                                      avgt      20     986.640 ±    133.890   ns/op
-AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark                           avgt      20     960.057 ±     36.282   ns/op
-AWSXRayRecorderBenchmark.endDummySegmentBenchmark                                      avgt      20     372.653 ±     17.314   ns/op
-AWSXRayRecorderBenchmark.endSegmentBenchmark                                           avgt      20   24313.268 ±   3321.458   ns/op
-AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark                                    avgt      20   22852.297 ±   1789.944   ns/op
-AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark                                  avgt      20   31345.990 ±   2569.574   ns/op
-AWSXRayRecorderBenchmark.endSubsegmentBenchmark                                        avgt      20     337.643 ±     46.201   ns/op
-AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark                             avgt      20     282.401 ±      9.497   ns/op
-AWSXRayRecorderBenchmark.getSegmentBenchmark                                           avgt      20     195.375 ±     77.968   ns/op
-AWSXRayRecorderBenchmark.getSubsegmentBenchmark                                        avgt      20     159.569 ±     15.153   ns/op
-entities.EntityBenchmark.constructSegmentBenchmark                                     avgt      20    1523.730 ±    149.415   ns/op
-entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark                      avgt      20     668.905 ±     25.187   ns/op
-entities.EntityBenchmark.putAnnotationBenchmark                                        avgt      20     115.660 ±     53.675   ns/op
-entities.EntityBenchmark.putExceptionSegmentBenchmark                                  avgt      20     904.609 ±     55.051   ns/op
-entities.EntityBenchmark.putMetadataBenchmark                                          avgt      20     148.018 ±      9.108   ns/op
-entities.EntitySerializerBenchmark.serializeFourChildSegment                           avgt      20    9696.399 ±    719.684   ns/op
-entities.EntitySerializerBenchmark.serializeFourGenerationSegment                      avgt      20   11570.818 ±   3116.057   ns/op
-entities.EntitySerializerBenchmark.serializeOneChildSegment                            avgt      20    4850.047 ±    802.998   ns/op
-entities.EntitySerializerBenchmark.serializeThreeChildSegment                          avgt      20    8047.386 ±    371.503   ns/op
-entities.EntitySerializerBenchmark.serializeThreeGenerationSegment                     avgt      20    7893.459 ±    824.024   ns/op
-entities.EntitySerializerBenchmark.serializeTwoChildSegment                            avgt      20    6398.402 ±    531.417   ns/op
-entities.EntitySerializerBenchmark.serializeTwoGenerationSegment                       avgt      20    6156.569 ±    504.464   ns/op
-entities.EntitySerializerBenchmark.serializeZeroChildSegment                           avgt      20    3161.795 ±    359.195   ns/op
-strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark    avgt      20     134.313 ±      3.839   ns/op
-strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark       avgt      20     156.673 ±     14.098   ns/op
-strategy.sampling.LocalizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark      avgt      20      89.533 ±     31.514   ns/op
-strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark         avgt      20     225.934 ±    159.742   ns/op
-AWSXRayRecorderBenchmark.beginDummySegmentBenchmark                                  sample  239367    1776.828 ±    274.895   ns/op
-AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark                               sample  182915    1945.430 ±    389.007   ns/op
-AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark                     sample  225979    2394.757 ±    273.780   ns/op
-AWSXRayRecorderBenchmark.beginEndSegmentBenchmark                                    sample  317476   31480.158 ±    859.630   ns/op
-AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark                          sample  246011   40203.315 ±    860.426   ns/op
-AWSXRayRecorderBenchmark.beginSegmentBenchmark                                       sample  326647    2036.221 ±    193.708   ns/op
-AWSXRayRecorderBenchmark.beginSubsegmentBenchmark                                    sample  216715    1326.764 ±    230.947   ns/op
-AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark                         sample  204756     918.211 ±    119.459   ns/op
-AWSXRayRecorderBenchmark.endDummySegmentBenchmark                                    sample  247911     409.511 ±     34.808   ns/op
-AWSXRayRecorderBenchmark.endSegmentBenchmark                                         sample  283607   24888.490 ±    673.074   ns/op
-AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark                                  sample  261324   32398.653 ±   1133.643   ns/op
-AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark                                sample  216096   37211.150 ±   1498.067   ns/op
-AWSXRayRecorderBenchmark.endSubsegmentBenchmark                                      sample  362642     355.396 ±     16.644   ns/op
-AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark                           sample  246539     449.388 ±    334.775   ns/op
-AWSXRayRecorderBenchmark.getSegmentBenchmark                                         sample  152518     234.768 ±     48.972   ns/op
-AWSXRayRecorderBenchmark.getSubsegmentBenchmark                                      sample  121331     224.911 ±     12.755   ns/op
-entities.EntityBenchmark.constructSegmentBenchmark                                   sample  219319    1183.959 ±    187.061   ns/op
-entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark                    sample  297270    1141.767 ±    193.756   ns/op
-entities.EntityBenchmark.putAnnotationBenchmark                                      sample  202578      79.274 ±      1.660   ns/op
-entities.EntityBenchmark.putExceptionSegmentBenchmark                                sample  253820    1157.285 ±    344.009   ns/op
-entities.EntityBenchmark.putMetadataBenchmark                                        sample  188256     205.269 ±    155.528   ns/op
-entities.EntitySerializerBenchmark.serializeFourChildSegment                         sample  231724   13689.661 ±   2257.143   ns/op
-entities.EntitySerializerBenchmark.serializeFourGenerationSegment                    sample  343934    9566.948 ±    598.116   ns/op
-entities.EntitySerializerBenchmark.serializeOneChildSegment                          sample  311024    5772.467 ±    226.759   ns/op
-entities.EntitySerializerBenchmark.serializeThreeChildSegment                        sample  276276    9040.885 ±    325.085   ns/op
-entities.EntitySerializerBenchmark.serializeThreeGenerationSegment                   sample  325903    8931.942 ±    163.537   ns/op
-entities.EntitySerializerBenchmark.serializeTwoChildSegment                          sample  280322    7829.090 ±    929.957   ns/op
-entities.EntitySerializerBenchmark.serializeTwoGenerationSegment                     sample  166287    7840.696 ±   2218.103   ns/op
-entities.EntitySerializerBenchmark.serializeZeroChildSegment                         sample  309407    3966.831 ±    568.114   ns/op
-strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark  sample  254755     211.358 ±     68.319   ns/op
-strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark     sample  270518     187.555 ±     18.022   ns/op
-strategy.sampling.LocalizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark    sample  251168     113.991 ±      6.713   ns/op
-strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark       sample  278120     171.538 ±      4.644   ns/op
-AWSXRayRecorderBenchmark.beginDummySegmentBenchmark                                      ss      20   96812.250 ±  23051.082   ns/op
-AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark                                   ss      20  128506.850 ±  26108.654   ns/op
-AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark                         ss      20  192553.800 ±  70106.568   ns/op
-AWSXRayRecorderBenchmark.beginEndSegmentBenchmark                                        ss      20  421277.250 ± 214467.895   ns/op
-AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark                              ss      20  440211.050 ±  82624.750   ns/op
-AWSXRayRecorderBenchmark.beginSegmentBenchmark                                           ss      20  134590.650 ±  54642.517   ns/op
-AWSXRayRecorderBenchmark.beginSubsegmentBenchmark                                        ss      20   43766.650 ±   8466.403   ns/op
-AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark                             ss      20   52822.200 ±  23026.041   ns/op
-AWSXRayRecorderBenchmark.endDummySegmentBenchmark                                        ss      20   47267.250 ±  17482.324   ns/op
-AWSXRayRecorderBenchmark.endSegmentBenchmark                                             ss      20  293961.200 ± 245424.227   ns/op
-AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark                                      ss      20  331351.050 ± 294654.828   ns/op
-AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark                                    ss      20  293051.050 ±  47151.267   ns/op
-AWSXRayRecorderBenchmark.endSubsegmentBenchmark                                          ss      20   30610.300 ±  10772.278   ns/op
-AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark                               ss      20   31091.550 ±  14229.785   ns/op
-AWSXRayRecorderBenchmark.getSegmentBenchmark                                             ss      20   17525.350 ±   7919.532   ns/op
-AWSXRayRecorderBenchmark.getSubsegmentBenchmark                                          ss      20   16139.250 ±   6502.622   ns/op
-entities.EntityBenchmark.constructSegmentBenchmark                                       ss      20   36228.950 ±  17106.887   ns/op
-entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark                        ss      20   95968.550 ± 291688.874   ns/op
-entities.EntityBenchmark.putAnnotationBenchmark                                          ss      20    4079.300 ±   3295.795   ns/op
-entities.EntityBenchmark.putExceptionSegmentBenchmark                                    ss      20  102517.100 ±  52545.423   ns/op
-entities.EntityBenchmark.putMetadataBenchmark                                            ss      20    9700.700 ±   5834.989   ns/op
-entities.EntitySerializerBenchmark.serializeFourChildSegment                             ss      20  199625.650 ±  45459.102   ns/op
-entities.EntitySerializerBenchmark.serializeFourGenerationSegment                        ss      20  243687.450 ±  82062.094   ns/op
-entities.EntitySerializerBenchmark.serializeOneChildSegment                              ss      20  276347.300 ± 285896.277   ns/op
-entities.EntitySerializerBenchmark.serializeThreeChildSegment                            ss      20  223551.850 ±  55728.730   ns/op
-entities.EntitySerializerBenchmark.serializeThreeGenerationSegment                       ss      20  236757.300 ±  79637.084   ns/op
-entities.EntitySerializerBenchmark.serializeTwoChildSegment                              ss      20  190885.050 ±  39482.595   ns/op
-entities.EntitySerializerBenchmark.serializeTwoGenerationSegment                         ss      20  273897.550 ± 316274.088   ns/op
-entities.EntitySerializerBenchmark.serializeZeroChildSegment                             ss      20  157717.350 ±  36728.264   ns/op
-strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark      ss      20   39683.500 ±   8811.485   ns/op
-strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark         ss      20   46770.050 ±   8698.713   ns/op
-strategy.sampling.LocalizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark        ss      20   29647.400 ±   5044.132   ns/op
-strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark           ss      20   33961.250 ±   3031.693   ns/op
-
+strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark        thrpt      20       0.006 ±      0.001  ops/ns
+AWSXRayRecorderBenchmark.beginDummySegmentBenchmark                                    avgt      20    1041.499 ±      1.949   ns/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark                                 avgt      20    1565.383 ±      2.028   ns/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark                       avgt      20    2770.433 ±      5.588   ns/op
+AWSXRayRecorderBenchmark.beginEndSegmentBenchmark                                      avgt      20    9123.404 ±     16.630   ns/op
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark                            avgt      20   12094.797 ±     43.192   ns/op
+AWSXRayRecorderBenchmark.beginSegmentBenchmark                                         avgt      20    1715.721 ±      2.687   ns/op
+AWSXRayRecorderBenchmark.beginSubsegmentBenchmark                                      avgt      20     950.378 ±      4.452   ns/op
+AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark                           avgt      20     905.941 ±      3.186   ns/op
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark                                      avgt      20     596.117 ±      4.522   ns/op
+AWSXRayRecorderBenchmark.endSegmentBenchmark                                           avgt      20    7839.399 ±     43.860   ns/op
+AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark                                    avgt      20    7578.632 ±     25.965   ns/op
+AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark                                  avgt      20    9392.873 ±     33.571   ns/op
+AWSXRayRecorderBenchmark.endSubsegmentBenchmark                                        avgt      20     426.620 ±      2.629   ns/op
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark                             avgt      20     358.871 ±      2.002   ns/op
+AWSXRayRecorderBenchmark.getSegmentBenchmark                                           avgt      20     203.888 ±      2.078   ns/op
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark                                        avgt      20     178.235 ±      1.341   ns/op
+entities.EntityBenchmark.constructSegmentBenchmark                                     avgt      20    1017.563 ±      2.903   ns/op
+entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark                      avgt      20     571.089 ±      2.446   ns/op
+entities.EntityBenchmark.putAnnotationBenchmark                                        avgt      20      86.213 ±      0.622   ns/op
+entities.EntityBenchmark.putExceptionSegmentBenchmark                                  avgt      20     804.234 ±      4.239   ns/op
+entities.EntityBenchmark.putMetadataBenchmark                                          avgt      20     165.585 ±      1.804   ns/op
+entities.EntitySerializerBenchmark.serializeFourChildSegment                           avgt      20   10956.216 ±     38.724   ns/op
+entities.EntitySerializerBenchmark.serializeFourGenerationSegment                      avgt      20   10655.412 ±     31.139   ns/op
+entities.EntitySerializerBenchmark.serializeOneChildSegment                            avgt      20    5226.236 ±     28.453   ns/op
+entities.EntitySerializerBenchmark.serializeThreeChildSegment                          avgt      20    8907.718 ±     36.280   ns/op
+entities.EntitySerializerBenchmark.serializeThreeGenerationSegment                     avgt      20    8627.488 ±     34.715   ns/op
+entities.EntitySerializerBenchmark.serializeTwoChildSegment                            avgt      20    7090.400 ±     31.906   ns/op
+entities.EntitySerializerBenchmark.serializeTwoGenerationSegment                       avgt      20    6805.178 ±     14.657   ns/op
+entities.EntitySerializerBenchmark.serializeZeroChildSegment                           avgt      20    3023.165 ±     22.132   ns/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark    avgt      20     111.288 ±      0.114   ns/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark       avgt      20     210.761 ±      0.270   ns/op
+strategy.sampling.LocalizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark      avgt      20      72.751 ±      1.449   ns/op
+strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark         avgt      20     161.627 ±      0.069   ns/op
+AWSXRayRecorderBenchmark.beginDummySegmentBenchmark                                  sample  253511    1055.618 ±     37.425   ns/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark                               sample  344093    1718.683 ±     48.921   ns/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark                     sample  209507    2831.574 ±     60.508   ns/op
+AWSXRayRecorderBenchmark.beginEndSegmentBenchmark                                    sample  263710    9262.353 ±     62.869   ns/op
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark                          sample  202903   12068.384 ±     72.265   ns/op
+AWSXRayRecorderBenchmark.beginSegmentBenchmark                                       sample  324024    1741.153 ±     41.595   ns/op
+AWSXRayRecorderBenchmark.beginSubsegmentBenchmark                                    sample  225716     911.156 ±     37.990   ns/op
+AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark                         sample  210748     941.469 ±     38.485   ns/op
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark                                    sample  236574     623.994 ±     20.051   ns/op
+AWSXRayRecorderBenchmark.endSegmentBenchmark                                         sample  261241    7490.715 ±     51.209   ns/op
+AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark                                  sample  272114    7233.746 ±     50.534   ns/op
+AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark                                sample  206959    9171.063 ±     67.154   ns/op
+AWSXRayRecorderBenchmark.endSubsegmentBenchmark                                      sample  200531     378.912 ±     13.123   ns/op
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark                           sample  263603     365.118 ±     10.849   ns/op
+AWSXRayRecorderBenchmark.getSegmentBenchmark                                         sample  212591     209.722 ±     18.189   ns/op
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark                                      sample  201929     191.968 ±      0.673   ns/op
+entities.EntityBenchmark.constructSegmentBenchmark                                   sample  308810    1167.917 ±     55.308   ns/op
+entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark                    sample  388403     583.289 ±     22.434   ns/op
+entities.EntityBenchmark.putAnnotationBenchmark                                      sample  287428      87.637 ±      7.405   ns/op
+entities.EntityBenchmark.putExceptionSegmentBenchmark                                sample  343820     831.644 ±     29.341   ns/op
+entities.EntityBenchmark.putMetadataBenchmark                                        sample  267907     164.430 ±      0.627   ns/op
+entities.EntitySerializerBenchmark.serializeFourChildSegment                         sample  278945   10913.147 ±     54.193   ns/op
+entities.EntitySerializerBenchmark.serializeFourGenerationSegment                    sample  334454   10367.976 ±     41.548   ns/op
+entities.EntitySerializerBenchmark.serializeOneChildSegment                          sample  332754    5178.619 ±     24.284   ns/op
+entities.EntitySerializerBenchmark.serializeThreeChildSegment                        sample  293438    9024.675 ±     40.063   ns/op
+entities.EntitySerializerBenchmark.serializeThreeGenerationSegment                   sample  355035    8661.668 ±     36.189   ns/op
+entities.EntitySerializerBenchmark.serializeTwoChildSegment                          sample  312395    7058.556 ±     32.718   ns/op
+entities.EntitySerializerBenchmark.serializeTwoGenerationSegment                     sample  376709    6887.692 ±     31.219   ns/op
+entities.EntitySerializerBenchmark.serializeZeroChildSegment                         sample  360486    3072.852 ±     29.020   ns/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark  sample  336401     149.325 ±      0.470   ns/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark     sample  359463     262.593 ±     15.510   ns/op
+strategy.sampling.LocalizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark    sample  266014     110.714 ±      6.621   ns/op
+strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark       sample  222630     208.720 ±     12.643   ns/op
+AWSXRayRecorderBenchmark.beginDummySegmentBenchmark                                      ss      20   84395.150 ±  18332.065   ns/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark                                   ss      20  132328.650 ±  25262.608   ns/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark                         ss      20  235990.650 ±  37859.562   ns/op
+AWSXRayRecorderBenchmark.beginEndSegmentBenchmark                                        ss      20  439731.950 ± 476949.085   ns/op
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark                              ss      20  406657.800 ±  31046.482   ns/op
+AWSXRayRecorderBenchmark.beginSegmentBenchmark                                           ss      20  103035.400 ±  17920.897   ns/op
+AWSXRayRecorderBenchmark.beginSubsegmentBenchmark                                        ss      20   55743.950 ±  14231.622   ns/op
+AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark                             ss      20   63175.900 ±  16048.124   ns/op
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark                                        ss      20   64224.400 ±   8068.344   ns/op
+AWSXRayRecorderBenchmark.endSegmentBenchmark                                             ss      20  214629.500 ±  55811.204   ns/op
+AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark                                      ss      20  214615.600 ±  61501.096   ns/op
+AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark                                    ss      20  307790.150 ±  47987.596   ns/op
+AWSXRayRecorderBenchmark.endSubsegmentBenchmark                                          ss      20   28885.500 ±   7862.089   ns/op
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark                               ss      20   30340.850 ±   8560.596   ns/op
+AWSXRayRecorderBenchmark.getSegmentBenchmark                                             ss      20   13515.550 ±   3236.533   ns/op
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark                                          ss      20   16732.500 ±   4408.320   ns/op
+entities.EntityBenchmark.constructSegmentBenchmark                                       ss      20   39893.400 ±  10180.646   ns/op
+entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark                        ss      20   21437.250 ±   8907.737   ns/op
+entities.EntityBenchmark.putAnnotationBenchmark                                          ss      20    2682.650 ±    545.990   ns/op
+entities.EntityBenchmark.putExceptionSegmentBenchmark                                    ss      20   70976.150 ±  38090.008   ns/op
+entities.EntityBenchmark.putMetadataBenchmark                                            ss      20    5444.800 ±   1039.818   ns/op
+entities.EntitySerializerBenchmark.serializeFourChildSegment                             ss      20  202159.750 ±  40475.107   ns/op
+entities.EntitySerializerBenchmark.serializeFourGenerationSegment                        ss      20  198535.500 ±  32971.593   ns/op
+entities.EntitySerializerBenchmark.serializeOneChildSegment                              ss      20  181780.550 ±  55144.974   ns/op
+entities.EntitySerializerBenchmark.serializeThreeChildSegment                            ss      20  234412.300 ±  46889.301   ns/op
+entities.EntitySerializerBenchmark.serializeThreeGenerationSegment                       ss      20  261439.400 ±  41988.448   ns/op
+entities.EntitySerializerBenchmark.serializeTwoChildSegment                              ss      20  170450.250 ±  22630.134   ns/op
+entities.EntitySerializerBenchmark.serializeTwoGenerationSegment                         ss      20  186123.550 ±  38979.925   ns/op
+entities.EntitySerializerBenchmark.serializeZeroChildSegment                             ss      20  129310.000 ±  25264.663   ns/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark      ss      20   28959.550 ±   2666.203   ns/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark         ss      20   34625.400 ±   6316.498   ns/op
+strategy.sampling.LocalizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark        ss      20   11330.300 ±    451.807   ns/op
+strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark           ss      20   20679.850 ±   2234.130   ns/op
 ```
-The latency for benchmarks related to segment creation and termination increased by roughly 3-4 times in this version of the SDK. 
-This is due to the addition of the `SegmentListener` interface, which adds some work to the begin and end segment methods to call methods on those listeners.
 
 </p>
 </details>
@@ -776,231 +773,231 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 930.006 ± 1.430 ns/op</td>
 <td> 932.213 ± 1.533 ns/op</td>
 <td> 1116.352 ± 65.138 ns/op</td>
-<td> 1049.343 ± 41.500 ns/op</td>
+<td> 1041.499 ± 1.949 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark</td>
 <td> 1338.062 ± 36.102 ns/op</td>
 <td> 1375.375 ± 141.220 ns/op</td>
 <td> 1384.115 ± 116.348 ns/op</td>
-<td> 1457.895 ± 54.011 ns/op</td>
+<td> 1565.383 ± 2.028 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark</td>
 <td> 2494.100 ± 1.864 ns/op</td>
 <td> 2478.136 ± 2.670 ns/op</td>
 <td> 2548.739 ± 17.057 ns/op</td>
-<td> 2532.425 ± 202.497 ns/op</td>
+<td> 2770.433 ± 5.588 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.beginEndSegmentBenchmark</td>
 <td> 9020.679 ± 25.179 ns/op</td>
 <td> 9127.754 ± 19.352 ns/op</td>
 <td> 9229.839 ± 21.222 ns/op</td>
-<td> 33411.366 ± 7530.243 ns/op</td>
+<td> 9123.404 ± 16.630 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark</td>
 <td> 12284.696 ± 505.733 ns/op</td>
 <td> 12257.246 ± 337.792 ns/op</td>
 <td> 12106.073 ± 258.082 ns/op</td>
-<td> 46558.775 ± 12547.092 ns/op</td>
+<td> 12094.797 ± 43.192 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.beginSegmentBenchmark</td>
 <td> 1649.248 ± 2.289 ns/op</td>
 <td> 1647.842 ± 2.535 ns/op</td>
 <td> 1636.812 ± 2.025 ns/op</td>
-<td> 1837.190 ± 58.093 ns/op</td>
+<td> 1715.721 ± 2.687 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.beginSubsegmentBenchmark</td>
 <td> 866.134 ± 3.796 ns/op</td>
 <td> 866.843 ± 3.770 ns/op</td>
 <td> 889.173 ± 2.707 ns/op</td>
-<td> 986.640 ± 133.890 ns/op</td>
+<td> 950.378 ± 4.452 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark</td>
 <td> 928.351 ± 57.592 ns/op</td>
 <td> 925.648 ± 57.932 ns/op</td>
 <td> 884.073 ± 17.982 ns/op</td>
-<td> 960.057 ± 36.282 ns/op</td>
+<td> 905.941 ± 3.186 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.endDummySegmentBenchmark</td>
 <td> 448.467 ± 5.861 ns/op</td>
 <td> 444.140 ± 3.100 ns/op</td>
 <td> 445.395 ± 3.020 ns/op</td>
-<td> 372.653 ± 17.314 ns/op</td>
+<td> 596.117 ± 4.522 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.endSegmentBenchmark</td>
 <td> 7478.520 ± 26.655 ns/op</td>
 <td> 7442.642 ± 14.195 ns/op</td>
 <td> 7399.554 ± 19.442 ns/op</td>
-<td> 24313.268 ± 3321.458 ns/op</td>
+<td> 7839.399 ± 43.860 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark</td>
 <td> 7343.836 ± 230.851 ns/op</td>
 <td> 7473.374 ± 274.008 ns/op</td>
 <td> 7480.519 ± 341.880 ns/op</td>
-<td> 22852.297 ± 1789.944 ns/op</td>
+<td> 7578.632 ± 25.965 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark</td>
 <td> 9202.114 ± 267.064 ns/op</td>
 <td> 9311.713 ± 31.022 ns/op</td>
 <td> 9194.198 ± 15.454 ns/op</td>
-<td> 31345.990 ± 2569.574 ns/op</td>
+<td> 9392.873 ± 33.571 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.endSubsegmentBenchmark</td>
 <td> 385.743 ± 2.821 ns/op</td>
 <td> 352.493 ± 1.498 ns/op</td>
 <td> 349.199 ± 2.644 ns/op</td>
-<td> 337.643 ± 46.201 ns/op</td>
+<td> 426.620 ± 2.629 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark</td>
 <td> 336.228 ± 2.557 ns/op</td>
 <td> 345.812 ± 26.341 ns/op</td>
 <td> 359.009 ± 86.696 ns/op</td>
-<td> 282.401 ± 9.467 ns/op</td>
+<td> 358.871 ± 2.002 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.getSegmentBenchmark</td>
 <td> 209.839 ± 10.374 ns/op</td>
 <td> 197.065 ± 1.262 ns/op</td>
 <td> 200.958 ± 2.204 ns/op</td>
-<td> 195.375 ± 77.968 ns/op</td>
+<td> 203.888 ± 2.078 ns/op</td>
 </tr>
 <tr>
 <td>AWSXRayRecorderBenchmark.getSubsegmentBenchmark</td>
 <td> 173.015 ± 2.319 ns/op</td>
 <td> 175.089 ± 3.163 ns/op</td>
 <td> 173.120 ± 1.907 ns/op</td>
-<td> 159.569 ± 15.153 ns/op</td>
+<td> 178.235 ± 1.341 ns/op</td>
 </tr>
 <tr>
 <td>entities.EntityBenchmark.constructSegmentBenchmark</td>
 <td> 978.648 ± 3.556 ns/op</td>
 <td> 1120.922 ± 177.050 ns/op</td>
 <td> 1035.187 ± 23.819 ns/op</td>
-<td> 1523.730 ± 149.415 ns/op</td>
+<td> 1017.563 ± 2.903 ns/op</td>
 </tr>
 <tr>
 <td>entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark</td>
 <td> 613.445 ± 132.987 ns/op</td>
 <td> 571.394 ± 2.378 ns/op</td>
 <td> 571.755 ± 2.414 ns/op</td>
-<td> 668.905 ± 25.187 ns/op</td>
+<td> 571.089 ± 2.446 ns/op</td>
 </tr>
 <tr>
 <td>entities.EntityBenchmark.putAnnotationBenchmark</td>
 <td> 84.141 ± 2.014 ns/op</td>
 <td> 79.732 ± 0.670 ns/op</td>
 <td> 80.885 ± 0.962 ns/op</td>
-<td> 904.609 ± 55.051 ns/op</td>
+<td> 86.213 ± 0.622 ns/op</td>
 </tr>
 <tr>
 <td>entities.EntityBenchmark.putExceptionSegmentBenchmark</td>
 <td> 800.592 ± 2.352 ns/op</td>
 <td> 787.575 ± 18.291 ns/op</td>
 <td> 835.846 ± 39.917 ns/op</td>
-<td> 115.660 ± 53.675 ns/op</td>
+<td> 804.234 ± 4.239 ns/op</td>
 </tr>
 <tr>
 <td>entities.EntityBenchmark.putMetadataBenchmark</td>
 <td> 160.012 ± 1.629 ns/op</td>
 <td> 156.425 ± 1.451 ns/op</td>
 <td> 155.620 ± 1.347 ns/op</td>
-<td> 148.018 ± 9.108 ns/op</td>
+<td> 165.585 ± 1.084 ns/op</td>
 </tr>
 <tr>
 <td>entities.EntitySerializerBenchmark.serializeFourChildSegment</td>
 <td> 10454.440 ± 33.857 ns/op</td>
 <td> 10516.215 ± 45.882 ns/op</td>
 <td> 10602.465 ± 39.805 ns/op</td>
-<td> 9696.399 ± 719.684 ns/op</td>
+<td> 10956.216 ± 38.724 ns/op</td>
 </tr>
 <tr>
 <td>entities.EntitySerializerBenchmark.serializeFourGenerationSegment</td>
 <td> 10060.976 ± 45.191 ns/op</td>
 <td> 10207.415 ± 39.337 ns/op</td>
 <td> 10283.689 ± 457.224 ns/op</td>
-<td> 11570.818 ± 3116.057 ns/op</td>
+<td> 10655.412 ± 31.139 ns/op</td>
 </tr>
 <tr>
 <td>entities.EntitySerializerBenchmark.serializeOneChildSegment</td>
 <td> 5155.852 ± 265.627 ns/op</td>
 <td> 5543.381 ± 1486.911 ns/op</td>
 <td> 5115.504 ± 27.507 ns/op</td>
-<td> 4850.047 ± 802.998 ns/op</td>
+<td> 5226.236 ± 28.453 ns/op</td>
 </tr>
 <tr>
 <td>entities.EntitySerializerBenchmark.serializeThreeChildSegment</td>
 <td> 8791.764 ± 189.374 ns/op</td>
 <td> 8764.877 ± 94.731 ns/op</td>
 <td> 8688.281 ± 42.657 ns/op</td>
-<td> 8047.386 ± 371.503 ns/op</td>
+<td> 8907.718 ± 36.280 ns/op</td>
 </tr>
 <tr>
 <td>entities.EntitySerializerBenchmark.serializeThreeGenerationSegment</td>
 <td> 8497.261 ± 50.650 ns/op</td>
 <td> 8429.500 ± 27.255 ns/op</td>
 <td> 8471.203 ± 312.402 ns/op</td>
-<td> 7893.459 ± 824.024 ns/op</td>
+<td> 8627.488 ± 34.715 ns/op</td>
 </tr>
 <tr>
 <td>entities.EntitySerializerBenchmark.serializeTwoChildSegment</td>
 <td> 7174.814 ± 529.818 ns/op</td>
 <td> 6676.010 ± 128.959 ns/op</td>
 <td> 6798.185 ± 28.915 ns/op</td>
-<td> 6398.402 ± 531.417 ns/op</td>
+<td> 7090.400 ± 31.906 ns/op</td>
 </tr>
 <tr>
 <td>entities.EntitySerializerBenchmark.serializeTwoGenerationSegment</td>
 <td> 6585.686 ± 26.487 ns/op</td>
 <td> 6624.364 ± 35.145 ns/op</td>
 <td> 6628.881 ± 25.755 ns/op</td>
-<td> 6156.569 ± 504.464 ns/op</td>
+<td> 6805.178 ± 14.657 ns/op</td>
 </tr>
 <tr>
 <td>entities.EntitySerializerBenchmark.serializeZeroChildSegment</td>
 <td> 3034.740 ± 20.371 ns/op</td>
 <td> 3025.951 ± 19.453 ns/op</td>
 <td> 3055.384 ± 103.331 ns/op</td>
-<td> 3161.795 ± 359.195 ns/op</td>
+<td> 3023.165 ± 22.132 ns/op</td>
 </tr>
 <tr>
 <td>strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark</td>
 <td> </td>
 <td> 823736.245 ± 324446.993 ns/op</td>
 <td> 113.674 ± 5.104 ns/op</td>
-<td> 134.313 ± 3.839 ns/op</td>
+<td> 111.288 ± 0.114 ns/op</td>
 </tr>
 <tr>
 <td>strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark</td>
 <td> </td>
 <td> 791788.528 ± 341848.672 ns/op</td>
 <td> 207.037 ± 6.451 ns/op</td>
-<td> 156.673 ± 14.098 ns/op</td>
+<td> 210.761 ± 0.270 ns/op</td>
 </tr>
 <tr>
 <td>strategy.sampling.LocalizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark</td>
 <td> 71.837 ± 3.236 ns/op</td>
 <td> 66.956 ± 0.197 ns/op</td>
 <td> 66.541 ± 0.093 ns/op</td>
-<td> 89.533 ± 31.514 ns/op</td>
+<td> 72.751 ± 1.449 ns/op</td>
 </tr>
 <tr>
 <td>strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark</td>
 <td> 98.047 ± 0.179 ns/op</td>
 <td> 148.325 ± 10.031 ns/op</td>
 <td> 153.962 ± 5.669 ns/op</td>
-<td> 225.934 ± 159.742 ns/op</td>
+<td> 161.627 ± 0.069 ns/op</td>
 </tr>
 </tbody>
 </table>
@@ -1030,7 +1027,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 1007.384 ± 37.568 ns/op</td>
 <td> 951.650 ± 37.475 ns/op</td>
 <td> 931.994 ± 33.393 ns/op</td>
-<td> 1776.828 ± 274.895 ns/op</td>
+<td> 1055.618 ± 37.425 ns/op</td>
 </tr>
 <tr>
 
@@ -1038,7 +1035,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 1428.892 ± 54.666 ns/op</td>
 <td> 1381.797 ± 43.789 ns/op</td>
 <td> 1503.007 ± 68.511 ns/op</td>
-<td> 1945.430 ± 389.007 ns/op</td>
+<td> 1718.683 ± 48.921 ns/op</td>
 </tr>
 <tr>
 
@@ -1046,7 +1043,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 2412.564 ± 48.628 ns/op</td>
 <td> 2362.696 ± 42.796 ns/op</td>
 <td> 2582.186 ± 60.289 ns/op</td>
-<td> 2394.757 ± 273.780 ns/op</td>
+<td> 2831.574 ± 60.508 ns/op</td>
 </tr>
 <tr>
 
@@ -1054,7 +1051,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 9035.149 ± 66.519 ns/op</td>
 <td> 9091.674 ± 66.711 ns/op</td>
 <td> 9391.118 ± 74.131 ns/op</td>
-<td> 31480.158 ± 859.630 ns/op</td>
+<td> 9262.353 ± 62.869 ns/op</td>
 </tr>
 <tr>
 
@@ -1062,7 +1059,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 12075.350 ± 85.069 ns/op</td>
 <td> 11910.439 ± 90.948 ns/op</td>
 <td> 11962.424 ± 96.458 ns/op</td>
-<td> 40203.315 ± 860.426 ns/op</td>
+<td> 12068.384 ± 72.265 ns/op</td>
 </tr>
 <tr>
 
@@ -1070,7 +1067,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 1615.833 ± 32.173 ns/op</td>
 <td> 1728.847 ± 50.414 ns/op</td>
 <td> 1808.904 ± 54.412 ns/op</td>
-<td> 2036.221 ± 193.708 ns/op</td>
+<td> 1741.153 ± 41.595 ns/op</td>
 </tr>
 <tr>
 
@@ -1078,7 +1075,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 892.790 ± 28.473 ns/op</td>
 <td> 980.078 ± 48.343 ns/op</td>
 <td> 962.641 ± 49.752 ns/op</td>
-<td> 1326.764 ± 230.947 ns/op</td>
+<td> 911.156 ± 37.990 ns/op</td>
 </tr>
 <tr>
 
@@ -1086,7 +1083,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 974.702 ± 44.365 ns/op</td>
 <td> 923.680 ± 43.547 ns/op</td>
 <td> 873.949 ± 18.823 ns/op</td>
-<td> 918.211 ± 119.459 ns/op</td>
+<td> 941.469 ± 38.485 ns/op</td>
 </tr>
 <tr>
 
@@ -1094,7 +1091,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 453.411 ± 13.522 ns/op</td>
 <td> 521.729 ± 22.663 ns/op</td>
 <td> 526.263 ± 133.149 ns/op</td>
-<td> 409.511 ± 34.808 ns/op</td>
+<td> 623.994 ± 20.051 ns/op</td>
 </tr>
 <tr>
 
@@ -1102,7 +1099,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 7414.041 ± 50.324 ns/op</td>
 <td> 7336.683 ± 56.541 ns/op</td>
 <td> 7533.645 ± 57.424 ns/op</td>
-<td> 24888.490 ± 673.074 ns/op</td>
+<td> 7490.715 ± 51.209 ns/op</td>
 </tr>
 <tr>
 
@@ -1110,7 +1107,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 7502.169 ± 48.535 ns/op</td>
 <td> 7330.511 ± 52.730 ns/op</td>
 <td> 7411.349 ± 47.386 ns/op</td>
-<td> 32398.653 ± 1133.643 ns/op</td>
+<td> 7233.746 ± 50.534 ns/op</td>
 </tr>
 <tr>
 
@@ -1118,7 +1115,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 9390.585 ± 70.031 ns/op</td>
 <td> 9423.119 ± 62.879 ns/op</td>
 <td> 9252.474 ± 69.567 ns/op</td>
-<td> 37211.150 ± 1498.067 ns/op</td>
+<td> 9171.063 ± 67.154 ns/op</td>
 </tr>
 <tr>
 
@@ -1126,7 +1123,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 372.220 ± 13.495 ns/op</td>
 <td> 371.572 ± 10.796 ns/op</td>
 <td> 377.350 ± 19.777 ns/op</td>
-<td> 355.396 ± 16.644 ns/op</td>
+<td> 378.912 ± 13.123 ns/op</td>
 </tr>
 <tr>
 
@@ -1134,7 +1131,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 370.760 ± 7.143 ns/op</td>
 <td> 370.156 ± 0.708 ns/op</td>
 <td> 357.153 ± 9.942 ns/op</td>
-<td> 449.388 ± 334.775 ns/op</td>
+<td> 365.118 ± 10.849 ns/op</td>
 </tr>
 <tr>
 
@@ -1142,7 +1139,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 193.887 ± 0.556 ns/op</td>
 <td> 199.410 ± 0.661 ns/op</td>
 <td> 204.551 ± 23.926 ns/op</td>
-<td> 234.768 ± 48.972 ns/op</td>
+<td> 209.722 ± 18.189 ns/op</td>
 </tr>
 <tr>
 
@@ -1150,7 +1147,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 171.070 ± 0.499 ns/op</td>
 <td> 176.346 ± 10.327 ns/op</td>
 <td> 169.448 ± 0.306 ns/op</td>
-<td> 224.911 ± 12.755 ns/op</td>
+<td> 191.968 ± 0.673 ns/op</td>
 </tr>
 <tr>
 
@@ -1158,7 +1155,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 930.151 ± 17.919 ns/op</td>
 <td> 978.141 ± 32.858 ns/op</td>
 <td> 980.774 ± 35.691 ns/op</td>
-<td> 1183.959 ± 187.061 ns/op</td>
+<td> 1167.917 ± 55.308 ns/op</td>
 </tr>
 <tr>
 
@@ -1166,7 +1163,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 540.864 ± 10.458 ns/op</td>
 <td> 672.604 ± 38.863 ns/op</td>
 <td> 546.640 ± 13.767 ns/op</td>
-<td> 1141.767 ± 193.756 ns/op</td>
+<td> 583.289 ± 22.434 ns/op</td>
 </tr>
 <tr>
 
@@ -1174,7 +1171,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 84.191 ± 10.058 ns/op</td>
 <td> 82.524 ± 0.405 ns/op</td>
 <td> 81.289 ± 0.341 ns/op</td>
-<td> 79.274 ± 1.660 ns/op</td>
+<td> 87.637 ± 7.405 ns/op</td>
 </tr>
 <tr>
 
@@ -1182,7 +1179,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 873.304 ± 36.024 ns/op</td>
 <td> 793.917 ± 22.564 ns/op</td>
 <td> 803.436 ± 24.653 ns/op</td>
-<td> 1157.285 ± 344.009 ns/op</td>
+<td> 831.644 ± 29.341 ns/op</td>
 </tr>
 <tr>
 
@@ -1190,7 +1187,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 159.797 ± 0.497 ns/op</td>
 <td> 156.575 ± 0.348 ns/op</td>
 <td> 164.339 ± 15.373 ns/op</td>
-<td> 205.269 ± 155.528 ns/op</td>
+<td> 164.430 ± 0.627 ns/op</td>
 </tr>
 <tr>
 
@@ -1198,7 +1195,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 10578.761 ± 48.766 ns/op</td>
 <td> 10759.065 ± 40.994 ns/op</td>
 <td> 10669.374 ± 50.429 ns/op</td>
-<td> 13689.661 ± 2257.143 ns/op</td>
+<td> 10913.147 ± 54.193 ns/op</td>
 </tr>
 <tr>
 
@@ -1206,7 +1203,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 10075.489 ± 44.027 ns/op</td>
 <td> 10115.702 ± 45.922 ns/op</td>
 <td> 10188.362 ± 45.859 ns/op</td>
-<td> 9566.948 ± 598.116 ns/op</td>
+<td> 10367.976 ± 41.548 ns/op</td>
 </tr>
 <tr>
 
@@ -1214,7 +1211,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 5361.372 ± 207.563 ns/op</td>
 <td> 5152.807 ± 24.741 ns/op</td>
 <td> 5131.806 ± 19.300 ns/op</td>
-<td> 5772.467 ± 226.759 ns/op</td>
+<td> 5178.619 ± 24.284 ns/op</td>
 </tr>
 <tr>
 
@@ -1222,7 +1219,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 8668.409 ± 39.159 ns/op</td>
 <td> 8827.096 ± 55.710 ns/op</td>
 <td> 8678.958 ± 43.823 ns/op</td>
-<td> 9040.885 ± 325.085 ns/op</td>
+<td> 9024.675 ± 40.063 ns/op</td>
 </tr>
 <tr>
 
@@ -1230,7 +1227,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 8468.849 ± 39.072 ns/op</td>
 <td> 8261.909 ± 34.359 ns/op</td>
 <td> 8479.553 ± 36.573 ns/op</td>
-<td> 8931.942 ± 163.537 ns/op</td>
+<td> 8661.668 ± 36.189 ns/op</td>
 </tr>
 <tr>
 
@@ -1238,7 +1235,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 6722.815 ± 36.229 ns/op</td>
 <td> 6850.871 ± 39.525 ns/op</td>
 <td> 6868.064 ± 34.837 ns/op</td>
-<td> 7829.090 ± 929.957 ns/op</td>
+<td> 7058.556 ± 32.718 ns/op</td>
 </tr>
 <tr>
 
@@ -1246,7 +1243,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 6783.476 ± 31.444 ns/op</td>
 <td> 6915.767 ± 36.542 ns/op</td>
 <td> 7016.832 ± 36.956 ns/op</td>
-<td> 7840.696 ± 2218.103 ns/op</td>
+<td> 6887.692 ± 31.219 ns/op</td>
 </tr>
 <tr>
 
@@ -1254,7 +1251,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 2988.778 ± 21.014 ns/op</td>
 <td> 3084.496 ± 34.069 ns/op</td>
 <td> 2980.228 ± 28.911 ns/op</td>
-<td> 3966.831 ± 568.114 ns/op</td>
+<td> 3070.852 ± 29.020 ns/op</td>
 </tr>
 <tr>
 
@@ -1262,7 +1259,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> </td>
 <td> 734722.616 ± 110761.289 ns/op</td>
 <td> 147.561 ± 8.108 ns/op</td>
-<td> 211.358 ± 68.319 ns/op</td>
+<td> 149.325 ± 0.470 ns/op</td>
 </tr>
 <tr>
 
@@ -1270,7 +1267,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> </td>
 <td> 742860.436 ± 106937.420 ns/op</td>
 <td> 240.887 ± 0.367 ns/op</td>
-<td> 187.555 ± 18.022 ns/op</td>
+<td> 262.593 ± 15.510 ns/op</td>
 </tr>
 <tr>
 
@@ -1278,7 +1275,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 114.778 ± 0.279 ns/op</td>
 <td> 101.288 ± 0.349 ns/op</td>
 <td> 102.284 ± 7.177 ns/op</td>
-<td> 113.991 ± 6.713 ns/op</td>
+<td> 110.714 ± 6.621 ns/op</td>
 </tr>
 <tr>
 
@@ -1286,7 +1283,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 150.760 ± 5.409 ns/op</td>
 <td> 188.131 ± 7.420 ns/op</td>
 <td> 185.437 ± 7.562 ns/op</td>
-<td> 171.538 ± 4.644 ns/op</td>
+<td> 208.720 ± 12.643 ns/op</td>
 </tr>
 </tbody>
 </table>
@@ -1315,7 +1312,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 71780.850 ± 13043.936 ns/op</td>
 <td> 68370.650 ± 11627.071 ns/op</td>
 <td> 71174.150 ± 16424.521 ns/op</td>
-<td> 96812.250 ± 23051.082 ns/op</td>
+<td> 84395.150 ± 18332.065 ns/op</td>
 </tr>
 <tr>
 
@@ -1323,15 +1320,15 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 106716.200 ± 15338.184 ns/op</td>
 <td> 100117.800 ± 12494.162 ns/op</td>
 <td> 108678.650 ± 12724.120 ns/op</td>
-<td> 128506.850 ± 26108.654 ns/op</td>
+<td> 132328.650 ± 25262.608 ns/op</td>
 </tr>
 <tr>
 
 <td>AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark</td>
 <td> 173875.150 ± 16590.641 ns/op</td>
 <td> 158388.000 ± 34965.201 ns/op</td>
-<td> 163669.950 ± 19524.146 ns/</td>
-<td> 192553.800 ± 70106.568 ns/op</td>
+<td> 163669.950 ± 19524.146 ns/op</td>
+<td> 235990.650 ± 37859.562 ns/op</td>
 </tr>
 <tr>
 
@@ -1339,7 +1336,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 301932.850 ± 61829.854 ns/op</td>
 <td> 345795.250 ± 76751.481 ns/op</td>
 <td> 318049.550 ± 69059.912 ns/op</td>
-<td> 421277.250 ± 214467.895 ns/op</td>
+<td> 439731.950 ± 476949.085 ns/op</td>
 </tr>
 <tr>
 
@@ -1347,7 +1344,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 388685.150 ± 38089.192 ns/op</td>
 <td> 593120.900 ± 518445.478 ns/op</td>
 <td> 504465.650 ± 517056.690 ns/op</td>
-<td> 440211.050 ± 82624.750 ns/op</td>
+<td> 406657.800 ± 31046.482 ns/op</td>
 </tr>
 <tr>
 
@@ -1355,7 +1352,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 106415.100 ± 22736.487 ns/op</td>
 <td> 90836.150 ± 6853.108 ns/op</td>
 <td> 90568.900 ± 7221.828 ns/op</td>
-<td> 134590.650 ± 54642.517 ns/op</td>
+<td> 103035.400 ± 17920.897 ns/op</td>
 </tr>
 <tr>
 
@@ -1363,7 +1360,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 50527.450 ± 13094.358 ns/op</td>
 <td> 47766.900 ± 7274.915 ns/op</td>
 <td> 46093.500 ± 6820.556 ns/op</td>
-<td> 43766.650 ± 8466.403 ns/op</td>
+<td> 55743.950 ± 14231.622 ns/op</td>
 </tr>
 <tr>
 
@@ -1371,7 +1368,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 53030.550 ± 14692.622 ns/op</td>
 <td> 190739.350 ± 552172.899 ns/op</td>
 <td> 47105.600 ± 9366.854 ns/op</td>
-<td> 52822.200 ± 23026.041 ns/op</td>
+<td> 63175.900 ± 16048.124 ns/op</td>
 </tr>
 <tr>
 
@@ -1379,7 +1376,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 44701.600 ± 9207.924 ns/op</td>
 <td> 51147.600 ± 4794.063 ns/op</td>
 <td> 46869.850 ± 8903.325 ns/op</td>
-<td> 47267.250 ± 17482.324 ns/op</td>
+<td> 64224.400 ± 8068.344 ns/op</td>
 </tr>
 <tr>
 
@@ -1387,7 +1384,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 317982.450 ± 481059.745 ns/op</td>
 <td> 197417.150 ± 48739.834 ns/op</td>
 <td> 279840.150 ± 68061.636 ns/op</td>
-<td> 293961.200 ± 245424.227 ns/op</td>
+<td> 214629.500 ± 55811.204 ns/op</td>
 </tr>
 <tr>
 
@@ -1395,7 +1392,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 203383.600 ± 65826.428 ns/op</td>
 <td> 197504.900 ± 57174.870 ns/op</td>
 <td> 263707.150 ± 26406.598 ns/op</td>
-<td> 331351.050 ± 294654.828 ns/op</td>
+<td> 214615.600 ± 61501.096 ns/op</td>
 </tr>
 <tr>
 
@@ -1403,7 +1400,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 232714.050 ± 21600.059 ns/op</td>
 <td> 274234.400 ± 39891.232 ns/op</td>
 <td> 274557.600 ± 67514.350 ns/op</td>
-<td> 293051.050 ±  47151.267 ns/op</td>
+<td> 307790.150 ± 47987.596 ns/op</td>
 </tr>
 <tr>
 
@@ -1411,7 +1408,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 43734.300 ± 14613.564 ns/op</td>
 <td> 38756.900 ± 8849.498 ns/op</td>
 <td> 43848.350 ± 21195.445 ns/op</td>
-<td> 30610.300 ± 10772.278 ns/op</td>
+<td> 28885.500 ± 7862.089 ns/op</td>
 </tr>
 <tr>
 
@@ -1419,7 +1416,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 38158.150 ± 13030.108 ns/op</td>
 <td> 25866.500 ± 4889.527 ns/op</td>
 <td> 28571.650 ± 6948.929 ns/op</td>
-<td> 31091.550 ± 14229.785 ns/op</td>
+<td> 30340.850 ± 8560.596 ns/op</td>
 </tr>
 <tr>
 
@@ -1427,7 +1424,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 18086.550 ± 2397.587 ns/op</td>
 <td> 13732.600 ± 3244.993 ns/op</td>
 <td> 16270.700 ± 5463.849 ns/op</td>
-<td> 17525.350 ± 7919.532 ns/op</td>
+<td> 13515.550 ± 3236.533 ns/op</td>
 </tr>
 <tr>
 
@@ -1435,7 +1432,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 13893.700 ± 2565.680 ns/op</td>
 <td> 16197.700 ± 6158.938 ns/op</td>
 <td> 14082.550 ± 3384.261 ns/op</td>
-<td> 16139.250 ± 6502.622 ns/op</td>
+<td> 39893.400 ± 10180.646 ns/op</td>
 </tr>
 <tr>
 
@@ -1443,7 +1440,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 34599.050 ± 6171.982 ns/op</td>
 <td> 49008.100 ± 4527.988 ns/op</td>
 <td> 35302.550 ± 8108.275 ns/op</td>
-<td> 36228.950 ± 17106.887 ns/op</td>
+<td> 39893.400 ± 10180.646 ns/op</td>
 </tr>
 <tr>
 
@@ -1451,7 +1448,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 19230.250 ± 7912.950 ns/op</td>
 <td> 17926.300 ± 7054.509 ns/op</td>
 <td> 18459.800 ± 7297.470 ns/op</td>
-<td> 95968.550 ± 291688.874 ns/op</td>
+<td> 21437.250 ± 8907.737 ns/op</td>
 </tr>
 <tr>
 
@@ -1459,7 +1456,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 1942.150 ± 137.822 ns/op</td>
 <td> 1646.300 ± 49.005 ns/op</td>
 <td> 1722.250 ± 509.794 ns/op</td>
-<td> 4079.300 ± 3295.795 ns/op</td>
+<td> 2682.650 ± 545.990 ns/op</td>
 </tr>
 <tr>
 
@@ -1467,7 +1464,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 80286.550 ± 12801.908 ns/op</td>
 <td> 52532.100 ± 8539.397 ns/op</td>
 <td> 53393.800 ± 8129.174 ns/op</td>
-<td> 102517.100 ± 52545.423 ns/op</td>
+<td> 70976.150 ± 38090.008 ns/op</td>
 </tr>
 <tr>
 
@@ -1475,7 +1472,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 5165.400 ± 649.324 ns/op</td>
 <td> 4426.000 ± 522.927 ns/op</td>
 <td> 7369.300 ± 1118.205 ns/op</td>
-<td> 9700.700 ± 5834.989 ns/op</td>
+<td> 5444.800 ± 1039.818 ns/op</td>
 </tr>
 <tr>
 
@@ -1483,15 +1480,15 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 264698.350 ± 77626.498 ns/op</td>
 <td> 270610.450 ± 41210.088 ns/op</td>
 <td> 253479.750 ± 35969.549 ns/op</td>
-<td> 199625.650 ± 45459.102 ns/op</td>
+<td> 202159.750 ± 40475.107 ns/op</td>
 </tr>
 <tr>
 
 <td>entities.EntitySerializerBenchmark.serializeFourGenerationSegment</td>
 <td> 298566.900 ± 44469.691 ns/op</td>
 <td> 286474.600 ± 60631.433 ns/op</td>
-<td> 265888.600 ± 53059.660 ns/</td>
-<td> 243687.450 ± 82062.094 ns/op</td>
+<td> 265888.600 ± 53059.660 ns/op</td>
+<td> 198535.500 ± 32971.593 ns/op</td>
 </tr>
 <tr>
 
@@ -1499,7 +1496,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 217949.450 ± 19814.233 ns/op</td>
 <td> 204155.850 ± 58185.492 ns/op</td>
 <td> 216416.850 ± 79926.449 ns/op</td>
-<td> 276347.300 ± 285896.277 ns/op</td>
+<td> 181780.550 ± 55144.974 ns/op</td>
 </tr>
 <tr>
 
@@ -1507,15 +1504,15 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 260486.550 ± 41310.794 ns/op</td>
 <td> 268726.300 ± 88452.746 ns/op</td>
 <td> 174684.200 ± 38101.401 ns/op</td>
-<td> 223551.850 ± 55728.730 ns/op</td>
+<td> 234412.300 ± 46889.301 ns/op</td>
 </tr>
 <tr>
 
 <td>entities.EntitySerializerBenchmark.serializeThreeGenerationSegment</td>
 <td> 269507.400 ± 35183.580 ns/op</td>
 <td> 247986.600 ± 42356.471 ns/op</td>
-<td> 232019.050 ± 96938.539 ns</td>
-<td> 236757.300 ± 79637.084 ns/op</td>
+<td> 232019.050 ± 96938.539 ns/op</td>
+<td> 261439.400 ± 41988.448 ns/op</td>
 </tr>
 <tr>
 
@@ -1523,15 +1520,15 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 234306.050 ± 25350.092 ns/op</td>
 <td> 214421.200 ± 48320.247 ns/op</td>
 <td> 203800.250 ± 34897.374 ns/op</td>
-<td> 190885.050 ± 39482.595 ns/op</td>
+<td> 170450.250 ± 22630.134 ns/op</td>
 </tr>
 <tr>
 
 <td>entities.EntitySerializerBenchmark.serializeTwoGenerationSegment</td>
 <td> 237843.700 ± 23343.518 ns/op</td>
 <td> 170816.850 ± 26840.355 ns/op</td>
-<td> 224530.800 ± 29306.559 ns/</td>
-<td> 273897.550 ± 316274.088 ns/op</td>
+<td> 224530.800 ± 29306.559 ns/op</td>
+<td> 186123.550 ± 38979.925 ns/op</td>
 </tr>
 <tr>
 
@@ -1539,7 +1536,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 168435.600 ± 23087.524 ns/op</td>
 <td> 154021.600 ± 17279.524 ns/op</td>
 <td> 182037.400 ± 21712.052 ns/op</td>
-<td> 157717.350 ± 36728.264 ns/op</td>
+<td> 129310.000 ± 25264.663 ns/op</td>
 </tr>
 <tr>
 
@@ -1547,7 +1544,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> </td>
 <td> 3793324.000 ± 656772.473 ns/op</td>
 <td> 53129.100 ± 88328.543 ns/op</td>
-<td> 39683.500 ± 8811.485 ns/op</td>
+<td> 28959.550 ± 2666.203 ns/op</td>
 </tr>
 <tr>
 
@@ -1555,7 +1552,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> </td>
 <td> 3766371.300 ± 793959.189 ns/op</td>
 <td> 24411.000 ± 2299.247 ns/op</td>
-<td> 46770.050 ± 8698.713 ns/op</td>
+<td> 34625.400 ± 6316.498 ns/op</td>
 </tr>
 <tr>
 
@@ -1563,7 +1560,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 15432.150 ± 2119.627 ns/op</td>
 <td> 11442.200 ± 586.758 ns/op</td>
 <td> 11676.300 ± 1166.085 ns/op</td>
-<td> 29647.400 ± 5044.132 ns/op</td>
+<td> 11330.300 ± 451.807 ns/op</td>
 </tr>
 <tr>
 
@@ -1571,7 +1568,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 30223.750 ± 3854.294 ns/op</td>
 <td> 28641.600 ± 2647.503 ns/op</td>
 <td> 27204.750 ± 2544.664 ns/op</td>
-<td> 33961.250 ± 3031.693 ns/op</td>
+<td> 20679.850 ± 2234.130 ns/op</td>
 </tr>
 </tbody>
 </table>
@@ -1633,7 +1630,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
-<td> ≈ 10⁻⁵ ops/ns</td>
+<td> ≈ 10⁻⁴ ops/ns</td>
 </tr>
 <tr>
 
@@ -1665,7 +1662,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 0.002 ± 0.001 ops/ns</td>
 <td> 0.002 ± 0.001 ops/ns</td>
 <td> 0.002 ± 0.001 ops/ns</td>
-<td> 0.003 ± 0.001 ops/ns</td>
+<td> 0.002 ± 0.001 ops/ns</td>
 </tr>
 <tr>
 
@@ -1705,7 +1702,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 0.003 ± 0.001 ops/ns</td>
 <td> 0.003 ± 0.001 ops/ns</td>
 <td> 0.003 ± 0.001 ops/ns</td>
-<td> 0.004 ± 0.001 ops/ns</td>
+<td> 0.003 ± 0.001 ops/ns</td>
 </tr>
 <tr>
 
@@ -1713,7 +1710,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 0.005 ± 0.001 ops/ns</td>
 <td> 0.005 ± 0.001 ops/ns</td>
 <td> 0.005 ± 0.001 ops/ns</td>
-<td> 0.006 ± 0.001 ops/ns</td>
+<td> 0.005 ± 0.001 ops/ns</td>
 </tr>
 <tr>
 
@@ -1721,7 +1718,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 0.006 ± 0.001 ops/ns</td>
 <td> 0.006 ± 0.001 ops/ns</td>
 <td> 0.006 ± 0.001 ops/ns</td>
-<td> 0.007 ± 0.001 ops/ns</td>
+<td> 0.006 ± 0.001 ops/ns</td>
 </tr>
 <tr>
 
@@ -1745,7 +1742,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 0.013 ± 0.001 ops/ns</td>
 <td> 0.012 ± 0.001 ops/ns</td>
 <td> 0.012 ± 0.001 ops/ns</td>
-<td> 0.013 ± 0.001 ops/ns</td>
+<td> 0.011 ± 0.001 ops/ns</td>
 </tr>
 <tr>
 
@@ -1761,7 +1758,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 0.006 ± 0.001 ops/ns</td>
 <td> 0.006 ± 0.001 ops/ns</td>
 <td> 0.006 ± 0.001 ops/ns</td>
-<td> 0.007 ± 0.001 ops/ns</td>
+<td> 0.006 ± 0.001 ops/ns</td>
 </tr>
 <tr>
 
@@ -1833,7 +1830,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> </td>
 <td> ≈ 10⁻⁶ ops/ns</td>
 <td> 0.009 ± 0.001 ops/ns</td>
-<td> 0.007 ± 0.001 ops/ns</td>
+<td> 0.009 ± 0.001 ops/ns</td>
 </tr>
 <tr>
 
@@ -1841,7 +1838,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> </td>
 <td> ≈ 10⁻⁶ ops/ns</td>
 <td> 0.005 ± 0.001 ops/ns</td>
-<td> 0.007 ± 0.001 ops/ns</td>
+<td> 0.005 ± 0.001 ops/ns</td>
 </tr>
 <tr>
 
@@ -1857,7 +1854,7 @@ This is due to the addition of the `SegmentListener` interface, which adds some 
 <td> 0.010 ± 0.001 ops/ns</td>
 <td> 0.007 ± 0.001 ops/ns</td>
 <td> 0.006 ± 0.001 ops/ns</td>
-<td> 0.007 ± 0.001 ops/ns</td>
+<td> 0.006 ± 0.001 ops/ns</td>
 </tr>
 </tbody>
 </table>
