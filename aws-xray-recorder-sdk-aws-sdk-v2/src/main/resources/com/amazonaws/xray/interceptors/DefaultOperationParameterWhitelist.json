@@ -728,6 +728,15 @@
           ]
         }
       }
+    },
+    "SageMakerRuntime": {
+      "operations": {
+        "InvokeEndpoint": {
+          "request_parameters": [
+            "EndpointName"
+          ]
+        }
+      }
     }
   }
 }
