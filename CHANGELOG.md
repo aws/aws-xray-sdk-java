@@ -1,5 +1,28 @@
 # Change Log
 
+## 2.4.0 - 2019-11-21
+- Fix tags in pom.xml
+[PR 83](https://github.com/aws/aws-xray-sdk-java/pull/87)
+- Add default protected constructor for HTTPClientBuilder
+[PR 90](https://github.com/aws/aws-xray-sdk-java/pull/90)
+- Add subtree streaming for subsegments
+[PR 91](https://github.com/aws/aws-xray-sdk-java/pull/91)
+- Add a benchmarking package for timing
+[PR 75](https://github.com/aws/aws-xray-sdk-java/pull/75)
+- Capture throwables instead of just errors in XRayServletFilter
+[PR 100](https://github.com/aws/aws-xray-sdk-java/pull/100)
+- Change sonatype endpoint to dedicated AWS one
+[PR 105](https://github.com/aws/aws-xray-sdk-java/pull/105)
+- Add generic SQL recorder module
+[PR 107](https://github.com/aws/aws-xray-sdk-java/pull/107)
+- Add support for segment-level metrics and integration with logs
+[PR 110](https://github.com/aws/aws-xray-sdk-java/pull/110)
+  - Add log4j module
+  - Add slf4j module
+  - Add metrics module
+- Upgrade Maven Javadoc plugin & disable javadoc linting
+[PR 111](https://github.com/aws/aws-xray-sdk-java/pull/111)
+
 ## 2.3.0 - 2019-07-18
 - Add SNS service to AWS SDK operation whitelist JSON
 [PR 85](https://github.com/aws/aws-xray-sdk-java/pull/85)
