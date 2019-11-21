@@ -7,7 +7,7 @@
       <version>2.4.0</version>
   </parent>
   <groupId>com.amazonaws</groupId>
-  <artifactId>aws-xray-recorder-metrics</artifactId>
+  <artifactId>aws-xray-recorder-sdk-metrics</artifactId>
     <version>2.4.0</version>
   <name>AWS X-Ray Recorder SDK for Java - Segment Metrics</name>
   <build>
@@ -24,7 +24,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.4</version>
+        <version>3.0.1</version>
         <configuration>
           <javadocDirectory>${basedir}/docs</javadocDirectory>
           <docfilessubdirs>true</docfilessubdirs>
