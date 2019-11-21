@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +28,7 @@ public class ElasticBeanstalkPlugin implements Plugin {
 
     private static final String CONF_PATH = "/var/elasticbeanstalk/xray/environment.conf";
     private static final String SERVICE_NAME = "elastic_beanstalk";
+    public static final String ORIGIN = "AWS::ElasticBeanstalk::Environment";
 
     public ElasticBeanstalkPlugin() {
         objectMapper = new ObjectMapper();
@@ -38,6 +40,11 @@ public class ElasticBeanstalkPlugin implements Plugin {
         return SERVICE_NAME;
     }
 
+    @Override
+    public boolean isEnabled() {
+        return Files.exists(Paths.get(CONF_PATH));
+    }
+
     public void populateRuntimeContext() {
         byte[] manifestBytes = new byte[0];
         try {
@@ -47,7 +54,7 @@ public class ElasticBeanstalkPlugin implements Plugin {
             return;
         }
         try {
-            TypeReference<HashMap<String,Object>> typeReference = new TypeReference<HashMap<String,Object>>() {};
+            TypeReference<HashMap<String, Object>> typeReference = new TypeReference<HashMap<String, Object>>() {};
             runtimeContext = objectMapper.readValue(manifestBytes, typeReference);
         } catch (IOException e) {
             logger.warn("Unable to read Beanstalk configuration at path " + CONF_PATH + " : " + e.getMessage());
@@ -57,13 +64,32 @@ public class ElasticBeanstalkPlugin implements Plugin {
 
     @Override
     public Map<String, Object> getRuntimeContext() {
-        populateRuntimeContext();
+        if (runtimeContext.isEmpty()) {
+            populateRuntimeContext();
+        }
+
         return runtimeContext;
     }
 
-    private static final String ORIGIN = "AWS::ElasticBeanstalk::Environment";
     @Override
     public String getOrigin() {
         return ORIGIN;
+    }
+
+    @Override
+    /**
+     * Determine equality of plugins using origin to uniquely identify them
+     */
+    public boolean equals(Object o) {
+        if (!(o instanceof Plugin)) { return false; }
+        return this.getOrigin().equals(((Plugin) o).getOrigin());
+    }
+
+    @Override
+    /**
+     * Hash plugin object using origin to uniquely identify them
+     */
+    public int hashCode() {
+        return Objects.hash(this.getOrigin());
     }
 }

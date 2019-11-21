@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-pom</artifactId>
-  <version>2.3.0</version>
+  <version>2.4.0</version>
   <packaging>pom</packaging>
   <name>AWS X-Ray Recorder SDK for Java</name>
   <description>The Amazon Web Services X-Ray Recorder SDK for Java provides Java APIs for emitting tracing data to AWS X-Ray. AWS X-Ray helps developers analyze and debug distributed applications. With X-Ray, you can understand how your application and its underlying services are performing to identify and troubleshoot the root cause of performance issues and errors.</description>
@@ -34,12 +34,16 @@
     <module>aws-xray-recorder-sdk-aws-sdk-instrumentor</module>
     <module>aws-xray-recorder-sdk-bom</module>
     <module>aws-xray-recorder-sdk-core</module>
+    <module>aws-xray-recorder-sdk-sql</module>
     <module>aws-xray-recorder-sdk-sql-mysql</module>
     <module>aws-xray-recorder-sdk-sql-postgres</module>
     <module>aws-xray-recorder-sdk-spring</module>
     <module>aws-xray-recorder-sdk-aws-sdk-core</module>
     <module>aws-xray-recorder-sdk-aws-sdk-v2</module>
     <module>aws-xray-recorder-sdk-aws-sdk-v2-instrumentor</module>
+    <module>aws-xray-recorder-sdk-slf4j</module>
+    <module>aws-xray-recorder-sdk-log4j</module>
+    <module>aws-xray-recorder-metrics</module>
   </modules>
   <distributionManagement>
     <repository>
@@ -49,7 +53,7 @@
     </repository>
   </distributionManagement>
   <properties>
-    <awsxrayrecordersdk.version>2.3.0</awsxrayrecordersdk.version>
+    <awsxrayrecordersdk.version>2.4.0</awsxrayrecordersdk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <build>

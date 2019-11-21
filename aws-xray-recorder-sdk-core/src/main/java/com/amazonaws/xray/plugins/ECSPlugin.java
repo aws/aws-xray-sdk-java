@@ -1,10 +1,13 @@
 package com.amazonaws.xray.plugins;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
+import com.amazonaws.xray.utils.DockerUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -18,11 +21,28 @@ public class ECSPlugin implements Plugin {
     private static final Log logger = LogFactory.getLog(ECSPlugin.class);
 
     private static final String SERVICE_NAME = "ecs";
+    private static final String ECS_METADATA_KEY = "ECS_CONTAINER_METADATA_URI";
+    private static final String HTTP_PREFIX = "http://";
+    public static final String ORIGIN = "AWS::ECS::Container";
+    private static final String CONTAINER_ID_KEY = "containerId";
 
     private HashMap<String, Object> runtimeContext;
 
     public ECSPlugin() {
         runtimeContext = new HashMap<>();
+    }
+
+    @Override
+    /**
+     * Returns true if the environment variable added by ECS is present and contains a valid URI
+     */
+    public boolean isEnabled() {
+        String ecsMetadataURI = System.getenv(ECS_METADATA_KEY);
+        if (ecsMetadataURI == null) {
+            return false;
+        }
+
+        return ecsMetadataURI.startsWith(HTTP_PREFIX);
     }
 
     @Override
@@ -36,6 +56,12 @@ public class ECSPlugin implements Plugin {
         } catch (UnknownHostException uhe) {
             logger.error("Could not get docker container ID from hostname.", uhe);
         }
+
+        try {
+            runtimeContext.put(CONTAINER_ID_KEY, DockerUtils.getContainerId());
+        } catch (IOException e) {
+            logger.error("Failed to read full container ID from container instance.", e);
+        }
     }
 
     public Map<String, Object> getRuntimeContext() {
@@ -43,9 +69,27 @@ public class ECSPlugin implements Plugin {
         return runtimeContext;
     }
 
-    private static final String ORIGIN = "AWS::ECS::Container";
     @Override
     public String getOrigin() {
         return ORIGIN;
     }
+
+    @Override
+    /**
+     * Determine equality of plugins using origin to uniquely identify them
+     */
+    public boolean equals(Object o) {
+        if (!(o instanceof Plugin)) { return false; }
+        return this.getOrigin().equals(((Plugin) o).getOrigin());
+    }
+
+    @Override
+    /**
+     * Hash plugin object using origin to uniquely identify them
+     */
+    public int hashCode() {
+        return Objects.hash(this.getOrigin());
+    }
+
+
 }

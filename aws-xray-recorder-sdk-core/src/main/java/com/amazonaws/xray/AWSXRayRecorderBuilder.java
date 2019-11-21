@@ -2,10 +2,19 @@ package com.amazonaws.xray;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
+import com.amazonaws.xray.entities.AWSLogReference;
+import com.amazonaws.xray.listeners.SegmentListener;
+import com.amazonaws.xray.plugins.EC2Plugin;
+import com.amazonaws.xray.plugins.ECSPlugin;
+import com.amazonaws.xray.plugins.EKSPlugin;
+import com.amazonaws.xray.plugins.ElasticBeanstalkPlugin;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,8 +45,20 @@ public class AWSXRayRecorderBuilder {
 
     private Emitter emitter;
 
+    private final Collection<SegmentListener> segmentListeners;
+    private static final Map<String, Integer> originPriority;
+
+    static {
+        originPriority = new HashMap<>();
+        originPriority.put(ElasticBeanstalkPlugin.ORIGIN, 0);
+        originPriority.put(EKSPlugin.ORIGIN, 1);
+        originPriority.put(ECSPlugin.ORIGIN, 2);
+        originPriority.put(EC2Plugin.ORIGIN, 3);
+    }
+
     private AWSXRayRecorderBuilder() {
-        plugins = new ArrayList<>();
+        plugins = new HashSet<>();
+        segmentListeners = new ArrayList<>();
     }
 
     public static Optional<ContextMissingStrategy> contextMissingStrategyFromEnvironmentVariable() {
@@ -119,6 +140,19 @@ public class AWSXRayRecorderBuilder {
     }
 
     /**
+     * Adds a SegmentListener to the list of segment listeners that will be attached to the recorder at build time.
+     *
+     * @param segmentListener
+     * the SegmentListener to add
+     * @return
+     * the builder instance, for chaining
+     */
+    public AWSXRayRecorderBuilder withSegmentListener(SegmentListener segmentListener) {
+        this.segmentListeners.add(segmentListener);
+        return this;
+    }
+
+    /**
      * Prepares this builder to build an instance of {@code AWSXRayRecorder} with the provided context missing strategy. This value will be overriden at {@code build()} time if either the environment
      * variable with key {@code AWS_XRAY_CONTEXT_MISSING} or system property with key {@code com.amazonaws.xray.strategy.contextMissingStrategy} are set to a valid value.
      *
@@ -130,6 +164,21 @@ public class AWSXRayRecorderBuilder {
      */
     public AWSXRayRecorderBuilder withContextMissingStrategy(ContextMissingStrategy contextMissingStrategy) {
         this.contextMissingStrategy = contextMissingStrategy;
+        return this;
+    }
+
+    /**
+     * Adds all implemented plugins to the builder instance rather than requiring them to be individually added. The recorder will only reflect metadata from
+     * plugins that are enabled, which is checked in the build method below.
+     *
+     * @return
+     * The builder instance, for chaining
+     */
+    public AWSXRayRecorderBuilder withDefaultPlugins() {
+        plugins.add(new EC2Plugin());
+        plugins.add(new ECSPlugin());
+        plugins.add(new EKSPlugin());
+        plugins.add(new ElasticBeanstalkPlugin());
         return this;
     }
 
@@ -164,16 +213,47 @@ public class AWSXRayRecorderBuilder {
             client.setEmitter(emitter);
         }
 
-        plugins.stream().filter(Objects::nonNull).forEach(plugin -> {
-            Map<String, Object> runtimeContext = plugin.getRuntimeContext();
-            if (!runtimeContext.isEmpty()) {
-                client.putRuntimeContext(plugin.getServiceName(), runtimeContext);
-                client.setOrigin(plugin.getOrigin());
-            } else {
-                logger.warn(plugin.getClass().getName() + " plugin returned empty runtime context data. The recorder will not be setting segment origin or runtime context values from this plugin.");
+        if (!segmentListeners.isEmpty()) {
+            client.addAllSegmentListeners(segmentListeners);
+        }
+
+        plugins.stream().filter(Objects::nonNull).filter(p -> p.isEnabled()).forEach(plugin -> {
+            logger.info("Collecting trace metadata from " + plugin.getClass().getName() + ".");
+
+            try {
+                Map<String, Object> runtimeContext = plugin.getRuntimeContext();
+                if (!runtimeContext.isEmpty()) {
+                    client.putRuntimeContext(plugin.getServiceName(), runtimeContext);
+
+                    /**
+                     * Given several enabled plugins, the recorder should resolve a single one that's most representative of this environment
+                     * Resolution order: EB > EKS > ECS > EC2
+                     * EKS > ECS because the ECS plugin checks for an environment variable whereas the EKS plugin checks for a kubernetes authentication file, which is a stronger enable condition
+                     */
+                    if (client.getOrigin() == null || originPriority.get(plugin.getOrigin()) < originPriority.get(client.getOrigin())) {
+                        client.setOrigin(plugin.getOrigin());
+                    }
+                } else {
+                    logger.warn(plugin.getClass().getName() + " plugin returned empty runtime context data. The recorder will not be setting segment origin or runtime context values from this plugin.");
+                }
+            } catch (Exception e) {
+                logger.warn("Failed to get runtime context from "+plugin.getClass().getName()+".", e);
+            }
+
+            try {
+                Set<AWSLogReference> logReferences = plugin.getLogReferences();
+                if(Objects.nonNull(logReferences)) {
+                    if (!logReferences.isEmpty()) {
+                        client.addAllLogReferences(logReferences);
+                    } else {
+                        logger.warn(plugin.getClass().getName() + " plugin returned empty Log References. The recorder will not reflect the logs from this plugin.");
+                    }
+                }
+            } catch (Exception e) {
+                logger.warn("Failed to get log references from "+plugin.getClass().getName()+".", e);
             }
         });
+
         return client;
     }
-
 }
