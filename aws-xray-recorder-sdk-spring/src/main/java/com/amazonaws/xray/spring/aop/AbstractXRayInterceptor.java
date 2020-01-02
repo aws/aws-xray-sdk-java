@@ -11,15 +11,15 @@ public abstract class AbstractXRayInterceptor extends BaseAbstractXRayIntercepto
 
     private static final Log logger = LogFactory.getLog(AbstractXRayInterceptor.class);
 
-    @Override
     @Pointcut("execution(public !void org.springframework.data.repository.Repository+.*(..))")
     protected void springRepositories() {
     }
 
     /**
-     * {@inheritDoc}
+     * @param pjp the proceeding join point
+     * @return the result of the method being wrapped
+     * @throws Throwable
      */
-    @Override
     @Around("springRepositories()")
     public Object traceAroundRepositoryMethods(ProceedingJoinPoint pjp) throws Throwable {
         logger.trace("Advising repository");

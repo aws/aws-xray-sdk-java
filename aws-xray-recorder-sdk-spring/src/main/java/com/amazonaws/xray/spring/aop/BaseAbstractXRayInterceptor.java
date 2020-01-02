@@ -71,18 +71,6 @@ public abstract class BaseAbstractXRayInterceptor {
     protected void xrayTracedClasses() {
     }
 
-    protected void springRepositories() {
-    }
-
-    /**
-     * @param pjp the proceeding join point
-     * @return the result of the method being wrapped
-     * @throws Throwable
-     */
-    public Object traceAroundRepositoryMethods(ProceedingJoinPoint pjp) throws Throwable {
-        return XRayInterceptorUtils.conditionalProceed(pjp);
-    }
-
     protected Map<String, Map<String, Object>> generateMetadata(ProceedingJoinPoint pjp, Subsegment subsegment) {
         return XRayInterceptorUtils.generateMetadata(pjp, subsegment);
     }
