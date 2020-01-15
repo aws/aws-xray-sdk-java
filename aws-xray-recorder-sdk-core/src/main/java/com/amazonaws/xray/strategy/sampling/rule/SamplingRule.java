@@ -160,7 +160,7 @@ public class SamplingRule {
      * @return whether or not this rule applies to the incoming request
      */
     public boolean appliesTo(String requestHost, String requestPath, String requestMethod) {
-        return (null == host || SearchPattern.wildcardMatch(host, requestHost)) &&
+        return (null == requestHost || SearchPattern.wildcardMatch(host, requestHost)) &&
             (null == requestPath || SearchPattern.wildcardMatch(urlPath, requestPath)) &&
             (null == requestMethod || SearchPattern.wildcardMatch(httpMethod, requestMethod));
     }

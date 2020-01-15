@@ -112,4 +112,11 @@ public class LocalizedSamplingStrategyTest {
         Assert.assertFalse(s3.isSampled());
     }
 
+    @Test
+    public void testSamplingRequestHasNullField() {
+        URL samplingRules = LocalizedSamplingStrategyTest.class.getResource("/com/amazonaws/xray/strategy/sampling/TwoSamplingRules.json");
+        LocalizedSamplingStrategy localizedSamplingStrategy = new LocalizedSamplingStrategy(samplingRules);
+        localizedSamplingStrategy.shouldTrace(new SamplingRequest(null,null, null, null, ""));
+    }
+
 }
