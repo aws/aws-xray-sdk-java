@@ -100,12 +100,12 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
     @Override
     public SamplingResponse shouldTrace(SamplingRequest samplingRequest) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Determining shouldTrace decision for:\n\thost: " + samplingRequest.getHost().get() + "\n\tpath: " + samplingRequest.getUrl().get() + "\n\tmethod: " + samplingRequest.getMethod().get());
+            logger.debug("Determining shouldTrace decision for:\n\thost: " + samplingRequest.getHost().orElse("") + "\n\tpath: " + samplingRequest.getUrl().orElse("") + "\n\tmethod: " + samplingRequest.getMethod().orElse(""));
         }
         SamplingResponse sampleResponse = new SamplingResponse();
         SamplingRule firstApplicableRule = null;
         if (null != rules) {
-            firstApplicableRule = rules.stream().filter( rule -> rule.appliesTo(samplingRequest.getHost().get(), samplingRequest.getUrl().get(), samplingRequest.getMethod().get())).findFirst().orElse(null);
+            firstApplicableRule = rules.stream().filter( rule -> rule.appliesTo(samplingRequest.getHost().orElse(""), samplingRequest.getUrl().orElse(""), samplingRequest.getMethod().orElse(""))).findFirst().orElse(null);
         }
         sampleResponse.setSampled(null == firstApplicableRule ? shouldTrace(defaultRule) : shouldTrace(firstApplicableRule));
         return sampleResponse;
