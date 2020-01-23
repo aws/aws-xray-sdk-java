@@ -57,7 +57,7 @@ public abstract class BaseAbstractXRayInterceptor {
             }
             return XRayInterceptorUtils.conditionalProceed(pjp);
         } catch (Exception e) {
-            AWSXRay.getCurrentSegment().addException(e);
+            AWSXRay.getCurrentSegmentOptional().ifPresent(x -> x.addException(e));
             throw e;
         } finally {
             logger.trace("Ending Subsegment");
