@@ -1,6 +1,6 @@
 package com.amazonaws.xray.slf4j;
 
-import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.listeners.SegmentListener;
 import org.slf4j.MDC;
 
@@ -18,26 +18,25 @@ public class SLF4JSegmentListener implements SegmentListener {
     /**
      * Maps the AWS-XRAY-TRACE-ID key to the trace ID of the segment that's just been created in the MDC.
      *
-     * @param segment
+     * @param oldEntity the previous entity or null
+     * @param newEntity the new entity
      * The segment that has just begun
      */
     @Override
-    public void onBeginSegment(Segment segment) {
-
-        // TODO: Check if we are in a Lambda environment (dealing w/ facade segment), and grab the Trace ID from the Header instead if so
-        if (segment != null) {
-            MDC.put(TRACE_ID_KEY, TRACE_ID_KEY + ": " + segment.getTraceId().toString());
+    public void onSetEntity(Entity oldEntity, Entity newEntity) {
+        if (newEntity != null && newEntity.getTraceId() != null) {
+            MDC.put(TRACE_ID_KEY, TRACE_ID_KEY + ": " + newEntity.getTraceId().toString());
         }
     }
 
     /**
      * Removes the AWS-XRAY-TRACE-ID key from the MDC upon the completion of each segment.
      *
-     * @param segment
+     * @param entity
      * The segment that has just ended
      */
     @Override
-    public void beforeEndSegment(Segment segment) {
+    public void onClearEntity(Entity entity) {
         MDC.remove(TRACE_ID_KEY);
     }
 }

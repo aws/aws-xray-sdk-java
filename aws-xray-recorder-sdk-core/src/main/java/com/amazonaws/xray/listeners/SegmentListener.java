@@ -1,5 +1,6 @@
 package com.amazonaws.xray.listeners;
 
+import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 
 /**
@@ -41,4 +42,25 @@ public interface SegmentListener {
     default void afterEndSegment(Segment segment) {
 
     }
+
+    /**
+     * onSetEntity is invoked when the SegmentContext is being updated with a new entity.
+     * Both the new entity and the previous entity (or null if unset) are passed.
+     *
+     * @param previousEntity
+     * @param newEntity
+     */
+    default void onSetEntity(Entity previousEntity, Entity newEntity) {
+
+    }
+
+    /**
+     * onClearEntity is invoked just before the SegmentContext is cleared.
+     *
+     * @param previousEntity
+     */
+    default void onClearEntity(Entity previousEntity) {
+
+    }
+
 }
