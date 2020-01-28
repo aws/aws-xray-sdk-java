@@ -1,6 +1,6 @@
 package com.amazonaws.xray.log4j;
 
-import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.listeners.SegmentListener;
 import org.apache.logging.log4j.ThreadContext;
 
@@ -17,24 +17,25 @@ public class Log4JSegmentListener implements SegmentListener {
     /**
      * Maps the AWS-XRAY-TRACE-ID key to the trace ID of the segment that's just been created in the Log4J ThreadContext.
      *
-     * @param segment
+     * @param oldEntity the previous entity or null
+     * @param newEntity the new entity
      * The segment that has just begun
      */
     @Override
-    public void onBeginSegment(Segment segment) {
-        if (segment != null) {
-            ThreadContext.put(TRACE_ID_KEY, TRACE_ID_KEY + ": " + segment.getTraceId().toString());
+    public void onSetEntity(Entity oldEntity, Entity newEntity) {
+        if (newEntity != null && newEntity.getTraceId() != null) {
+            ThreadContext.put(TRACE_ID_KEY, TRACE_ID_KEY + ": " + newEntity.getTraceId().toString());
         }
     }
 
     /**
      * Removes the AWS-XRAY-TRACE-ID key from the ThreadContext upon the completion of each segment.
      *
-     * @param segment
+     * @param entity
      * The segment that has just ended
      */
     @Override
-    public void beforeEndSegment(Segment segment) {
+    public void onClearEntity(Entity entity) {
         ThreadContext.remove(TRACE_ID_KEY);
     }
 }
