@@ -212,7 +212,7 @@ You can automatically inject your current Trace ID into logging statements if yo
 
 ### Vended Segment-Level Metrics
 
-The X-Ray SDK can now automatically vend metrics that aggregate information about the segments your application sends as a normal CloudWatch metric. To learn more and enable this feature on your instrumented project, see the [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-monitoring.html#xray-sdk-java-monitoring-enable).
+The X-Ray SDK can now automatically vend metrics that aggregate information about the segments your application sends as a custom CloudWatch metric. To learn more and enable this feature on your instrumented project, see the [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-monitoring.html#xray-sdk-java-monitoring-enable).
 
 ### Log Group Correlation
 
