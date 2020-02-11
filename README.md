@@ -202,6 +202,22 @@ try {
 ```
 Note that in the closure-based example above, exceptions are intercepted automatically.
 
+## Integration with ServiceLens
+
+As of version 2.4.0, the X-Ray SDK for Java is integrated with [CloudWatch ServiceLens](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ServiceLens.html). This allows you to use a wide range of new observability features which connect your traces, logs, and metrics in one place.
+
+### Trace ID Injection into Logs
+
+You can automatically inject your current Trace ID into logging statements if you use the Log4J or SLF4J logging frontends. To learn more and enable this feature on your instrumented project, see the [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-configuration.html#xray-sdk-java-configuration-logging). 
+
+### Vended Segment-Level Metrics
+
+The X-Ray SDK can now automatically vend metrics that aggregate information about the segments your application sends as a custom CloudWatch metric. To learn more and enable this feature on your instrumented project, see the [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-monitoring.html#xray-sdk-java-monitoring-enable).
+
+### Log Group Correlation
+
+If you are working in an environment with a supported plugin enabled and you use CloudWatch logs, the X-Ray SDK will automatically record the log group(s) you are using in that environment in the segment document. To learn more and see which plugins are supported, see the [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-configuration.html#xray-sdk-java-configuration-plugins).
+
 ## Building From Source
 
 Once you check out the code from GitHub, you can build it using Maven. To disable the GPG-signing in the build, use:
