@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Namespace;
 import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 
 public class TracingStatement {
 
@@ -148,7 +149,13 @@ public class TracingStatement {
                     logger.warn("Unable to parse database URI. Falling back to default '" + DEFAULT_DATABASE_NAME + "' for subsegment name.", e);
                 }
 
-                Subsegment subsegment = AWSXRay.beginSubsegment(subsegmentName);
+                Subsegment subsegment = null;
+                try {
+                    subsegment = AWSXRay.beginSubsegment(subsegmentName);
+                } catch (final SegmentNotFoundException exception) {
+                    logger.debug("Statement was not in a segment.", exception);
+                }
+
                 if (subsegment == null) {
                     return null;
                 }
