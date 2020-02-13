@@ -68,6 +68,7 @@ public class TracingConnectionTest {
     @Test
     public void testUnwrap() throws SQLException {
         Assert.assertSame(connection, connection.unwrap(Connection.class));
+        Assert.assertSame(connection, connection.unwrap(TracingConnection.class));
         Assert.assertSame(delegate, connection.unwrap(OtherWrapper.class));
         Assert.assertSame(delegate, connection.unwrap(ExtraInterface.class));
         boolean exceptionThrown = false;
@@ -78,6 +79,7 @@ public class TracingConnectionTest {
         }
         assertTrue(exceptionThrown);
         verify(delegate, never()).unwrap(Connection.class);
+        verify(delegate, never()).unwrap(TracingConnection.class);
         verify(delegate).unwrap(OtherWrapper.class);
         verify(delegate).unwrap(ExtraInterface.class);
         verify(delegate).unwrap(Long.class);

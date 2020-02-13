@@ -65,6 +65,7 @@ public class TracingDataSourceTest {
     @Test
     public void testUnwrap() throws SQLException {
         Assert.assertSame(dataSource, dataSource.unwrap(DataSource.class));
+        Assert.assertSame(dataSource, dataSource.unwrap(TracingDataSource.class));
         Assert.assertSame(delegate, dataSource.unwrap(OtherWrapper.class));
         Assert.assertSame(delegate, dataSource.unwrap(ExtraInterface.class));
         boolean exceptionThrown = false;
@@ -74,6 +75,11 @@ public class TracingDataSourceTest {
             exceptionThrown = true;
         }
         assertTrue(exceptionThrown);
+        verify(delegate, never()).unwrap(DataSource.class);
+        verify(delegate, never()).unwrap(TracingDataSource.class);
+        verify(delegate).unwrap(OtherWrapper.class);
+        verify(delegate).unwrap(ExtraInterface.class);
+        verify(delegate).unwrap(Long.class);
     };
 
     @Test
