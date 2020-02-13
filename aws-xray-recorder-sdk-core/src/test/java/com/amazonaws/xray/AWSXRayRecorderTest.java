@@ -16,6 +16,7 @@ import com.amazonaws.xray.plugins.EKSPlugin;
 import com.amazonaws.xray.plugins.ElasticBeanstalkPlugin;
 import com.amazonaws.xray.plugins.Plugin;
 import com.amazonaws.xray.strategy.ContextMissingStrategy;
+import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
@@ -122,6 +123,12 @@ public class AWSXRayRecorderTest {
     @Test
     public void testBeginSubsegmentOnEmptyThreadDoesNotThrowExceptionWithLogErrorContextMissingStrategy() {
         AWSXRay.getGlobalRecorder().setContextMissingStrategy(new LogErrorContextMissingStrategy());
+        AWSXRay.beginSubsegment("test");
+    }
+
+    @Test
+    public void testBeginSubsegmentOnEmptyThreadDoesNotThrowExceptionWithIgnoreErrorContextMissingStrategy() {
+        AWSXRay.getGlobalRecorder().setContextMissingStrategy(new IgnoreErrorContextMissingStrategy());
         AWSXRay.beginSubsegment("test");
     }
 
