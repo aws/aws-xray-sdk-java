@@ -22,6 +22,7 @@ import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.plugins.Plugin;
 import com.amazonaws.xray.strategy.ContextMissingStrategy;
+import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.PrioritizationStrategy;
 import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
@@ -77,6 +78,8 @@ public class AWSXRayRecorderBuilder {
                 return Optional.of(new LogErrorContextMissingStrategy());
             } else if (contextMissingStrategyOverrideValue.equalsIgnoreCase(RuntimeErrorContextMissingStrategy.OVERRIDE_VALUE)) {
                 return Optional.of(new RuntimeErrorContextMissingStrategy());
+            } else if (contextMissingStrategyOverrideValue.equalsIgnoreCase(IgnoreErrorContextMissingStrategy.OVERRIDE_VALUE)) {
+                return Optional.of(new IgnoreErrorContextMissingStrategy());
             }
         }
         return Optional.empty();
