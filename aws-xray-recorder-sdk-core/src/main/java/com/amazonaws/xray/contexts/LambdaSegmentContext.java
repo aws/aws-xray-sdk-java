@@ -1,5 +1,6 @@
 package com.amazonaws.xray.contexts;
 
+import com.amazonaws.xray.listeners.SegmentListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -13,6 +14,9 @@ import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
+
+import java.util.List;
+import java.util.Objects;
 
 public class LambdaSegmentContext implements SegmentContext {
     private static final Log logger = LogFactory.getLog(LambdaSegmentContext.class);
@@ -61,6 +65,12 @@ public class LambdaSegmentContext implements SegmentContext {
             subsegment.setParent(parentSubsegment);
             parentSubsegment.addSubsegment(subsegment);
             setTraceEntity(subsegment);
+
+            List<SegmentListener> segmentListeners = recorder.getSegmentListeners();
+            segmentListeners.stream()
+                    .filter(Objects::nonNull)
+                    .forEach(listener -> listener.onBeginSubsegment(subsegment));
+
             return subsegment;
         }
     }
@@ -73,11 +83,23 @@ public class LambdaSegmentContext implements SegmentContext {
                 logger.debug("Ending subsegment named: " + current.getName());
             }
             Subsegment currentSubsegment = (Subsegment) current;
+
+            List<SegmentListener> segmentListeners = recorder.getSegmentListeners();
+            segmentListeners
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .forEach(listener -> listener.beforeEndSubsegment(currentSubsegment));
+
             currentSubsegment.end();
 
             if (recorder.getStreamingStrategy().requiresStreaming(currentSubsegment.getParentSegment())) {
                 recorder.getStreamingStrategy().streamSome(currentSubsegment.getParentSegment(), recorder.getEmitter());
             }
+
+            segmentListeners
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .forEach(listener -> listener.afterEndSubsegment(currentSubsegment));
 
             Entity parentEntity = current.getParent();
             if (parentEntity instanceof FacadeSegment) {
