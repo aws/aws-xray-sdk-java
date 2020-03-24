@@ -47,6 +47,7 @@ public class LambdaSegmentContext implements SegmentContext {
             }
             Subsegment subsegment = new SubsegmentImpl(recorder, name, parentSegment);
             subsegment.setParent(parentSegment);
+            parentSegment.addSubsegment(subsegment); // Enable FacadeSegment to keep track of its subsegments for subtree streaming
             setTraceEntity(subsegment);
             return subsegment;
         } else { // Continuation of a subsegment branch.
