@@ -46,13 +46,12 @@ public class Log4JSegmentListener implements SegmentListener {
     }
 
     /**
-     * Maps the AWS-XRAY-TRACE-ID key to the formatted ID of the segment that's just been created in the Log4J ThreadContext.
+     * Maps the AWS-XRAY-TRACE-ID key to the formatted ID of the entity that's just been created in the Log4J ThreadContext.
      * Does not perform injection if entity is not available or not sampled, since then the given entity would not be displayed
      * in X-Ray console.
      *
      * @param oldEntity the previous entity or null
-     * @param newEntity the new entity
-     * The segment that has just begun
+     * @param newEntity the new entity, either a subsegment or segment
      */
     @Override
     public void onSetEntity(Entity oldEntity, Entity newEntity) {
