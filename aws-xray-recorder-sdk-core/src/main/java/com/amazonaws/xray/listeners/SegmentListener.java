@@ -78,7 +78,7 @@ public interface SegmentListener {
     }
 
     /**
-     * onSetEntity is invoked when the SegmentContext is being updated with a new entity.
+     * onSetEntity is invoked immediately before the SegmentContext is updated with a new entity.
      * Both the new entity and the previous entity (or null if unset) are passed.
      *
      * @param previousEntity
