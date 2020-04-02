@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Namespace;
 import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.strategy.ContextMissingStrategy;
+import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TracingStatementTest {
@@ -169,7 +172,7 @@ public class TracingStatementTest {
     }
 
     @Test
-    public void testCaptureException() throws Exception {
+    public void testCaptureRuntimeException() throws Exception {
         Throwable exception = new RuntimeException("foo");
         when(delegate.execute(SQL)).thenThrow(exception);
         try {
@@ -180,6 +183,59 @@ public class TracingStatementTest {
         } finally {
             assertEquals(exception, AWSXRay.getCurrentSegment().getSubsegments().get(0).getCause().getExceptions().get(0).getThrowable());
             assertSubsegment();
+        }
+    }
+
+    @Test
+    public void testCaptureSqlException() throws Exception {
+        Throwable exception = new SQLException("foo");
+        when(delegate.execute(SQL)).thenThrow(exception);
+        try {
+            statement.execute(SQL);
+            fail("Expected exception is not thrown");
+        } catch (Throwable th) {
+            assertEquals(exception, th);
+        } finally {
+            assertEquals(exception, AWSXRay.getCurrentSegment().getSubsegments().get(0).getCause().getExceptions().get(0).getThrowable());
+            assertSubsegment();
+        }
+    }
+
+
+
+    @Test
+    public void testCaptureRuntimeExceptionWithoutSegment() throws Exception {
+        ContextMissingStrategy oldStrategy = AWSXRay.getGlobalRecorder().getContextMissingStrategy();
+        AWSXRay.getGlobalRecorder().setContextMissingStrategy(new IgnoreErrorContextMissingStrategy());
+        try {
+            Throwable exception = new RuntimeException("foo");
+            when(delegate.execute(SQL)).thenThrow(exception);
+            try {
+                statement.execute(SQL);
+                fail("Expected exception is not thrown");
+            } catch (Throwable th) {
+                assertEquals(exception, th);
+            }
+        } finally {
+            AWSXRay.getGlobalRecorder().setContextMissingStrategy(oldStrategy);
+        }
+    }
+
+    @Test
+    public void testCaptureSqlExceptionWithoutSegment() throws Exception {
+        ContextMissingStrategy oldStrategy = AWSXRay.getGlobalRecorder().getContextMissingStrategy();
+        AWSXRay.getGlobalRecorder().setContextMissingStrategy(new IgnoreErrorContextMissingStrategy());
+        try {
+            Throwable exception = new SQLException("foo");
+            when(delegate.execute(SQL)).thenThrow(exception);
+            try {
+                statement.execute(SQL);
+                fail("Expected exception is not thrown");
+            } catch (Throwable th) {
+                assertEquals(exception, th);
+            }
+        } finally {
+            AWSXRay.getGlobalRecorder().setContextMissingStrategy(oldStrategy);
         }
     }
 

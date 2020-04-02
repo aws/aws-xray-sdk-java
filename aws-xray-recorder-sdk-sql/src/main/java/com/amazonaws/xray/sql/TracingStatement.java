@@ -97,8 +97,24 @@ public class TracingStatement {
 
             Subsegment subsegment = createSubsegment();
             if (subsegment == null) {
-                // don't trace if failed to create subsegment
-                return method.invoke(delegate, args);
+                try {
+                    // don't trace if failed to create subsegment
+                    return method.invoke(delegate, args);
+                } catch (Throwable t) {
+                    if (t instanceof InvocationTargetException) {
+                        // the reflection may wrap the actual error with an InvocationTargetException.
+                        // we want to use the root cause to make the instrumentation seamless
+                        InvocationTargetException ite = (InvocationTargetException) t;
+                        if (ite.getTargetException() != null) {
+                            throw ite.getTargetException();
+                        }
+                        if (ite.getCause() != null) {
+                            throw ite.getCause();
+                        }
+                    }
+
+                    throw t;
+                }
             }
 
             logger.debug("Invoking statement execution with X-Ray tracing.");
