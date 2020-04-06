@@ -19,8 +19,6 @@ public class FacadeSegment extends EntityImpl implements Segment {
 
     private boolean sampled;
 
-    private LongAdder totalSize;
-
     public FacadeSegment(AWSXRayRecorder recorder, TraceID traceId, String id, SampleDecision sampleDecision) {
         super(recorder, "facade");
         super.setTraceId(traceId);
@@ -58,35 +56,11 @@ public class FacadeSegment extends EntityImpl implements Segment {
     }
 
     /**
-     * @return -1, as the reference count of a FacadeSegment is not tracked.
-     */
-    @Override
-    public int getReferenceCount() {
-        return -1;
-    }
-
-    /**
      * @return a LongAdder with a value of 0, as the total size of a FacadeSegment is not tracked.
      */
     @Override
     public LongAdder getTotalSize() {
         return totalSize;
-    }
-
-    /**
-     * No-op, as the reference count of a FacadeSegment is not tracked.
-     */
-    @Override
-    public void incrementReferenceCount() {
-    }
-
-    /**
-     * No-op, as the reference count of a FacadeSegment is not tracked.
-     * @return false, as the FacadeSegment should never be serialized to the AWS X-Ray service.
-     */
-    @Override
-    public boolean decrementReferenceCount() {
-        return false;
     }
 
     @Override
@@ -102,6 +76,7 @@ public class FacadeSegment extends EntityImpl implements Segment {
     public void setSampled(boolean sampled) {
         throw new UnsupportedOperationException(MUTATION_UNSUPPORTED_MESSAGE);
     }
+
     /**
      * Unsupported as FacadeSegments are not aware of their resource ARN.
      * @throws UnsupportedOperationException in all cases
@@ -328,15 +303,6 @@ public class FacadeSegment extends EntityImpl implements Segment {
      * @throws UnsupportedOperationException in all cases
      */
     @Override
-    public void addSubsegment(Subsegment subsegment) {
-        throw new UnsupportedOperationException(MUTATION_UNSUPPORTED_MESSAGE);
-    }
-
-    /**
-     * Unsupported as FacadeSegments cannot be mutated.
-     * @throws UnsupportedOperationException in all cases
-     */
-    @Override
     public void addException(Throwable exception) {
         throw new UnsupportedOperationException(MUTATION_UNSUPPORTED_MESSAGE);
     }
@@ -455,11 +421,6 @@ public class FacadeSegment extends EntityImpl implements Segment {
      */
     @Override
     public void setService(Map<String, Object> service) {
-        throw new UnsupportedOperationException(MUTATION_UNSUPPORTED_MESSAGE);
-    }
-
-    @Override
-    public void removeSubsegment(Subsegment subsegment) {
         throw new UnsupportedOperationException(MUTATION_UNSUPPORTED_MESSAGE);
     }
 
