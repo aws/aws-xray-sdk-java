@@ -46,12 +46,13 @@ public interface SegmentListener {
 
     /**
      * afterEndSegment is invoked after a segment is ended by the recorder and emitted to the daemon.
-     * The segment must not be manipulated. Attempts to do so will raise an exception.
+     * The segment must not be modified since it has already been sent to X-Ray's backend.
+     * Attempts to do so will raise an {@code AlreadyEmittedException}.
      *
      * @param segment
      * The segment that has just ended
      */
-    default void afterEndSegment(final Segment segment) {
+    default void afterEndSegment(Segment segment) {
 
     }
 
@@ -68,12 +69,13 @@ public interface SegmentListener {
 
     /**
      * afterEndSubsegment is invoked after a subsegment is ended by the recorder and emitted to the daemon.
-     * The subsegment must not be manipulated. Attempts to do so will raise an exception.
+     * The subsegment must not be modified since it has already been sent to X-Ray's backend.
+     * Attempts to do so will raise an {@code AlreadyEmittedException}.
      *
      * @param subsegment
      * The subsegment that has just ended
      */
-    default void afterEndSubsegment(final Subsegment subsegment) {
+    default void afterEndSubsegment(Subsegment subsegment) {
 
     }
 
