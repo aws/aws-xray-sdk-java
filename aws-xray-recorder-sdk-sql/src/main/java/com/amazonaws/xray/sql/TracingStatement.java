@@ -120,7 +120,7 @@ public class TracingStatement {
                 }
                 throw rootThrowable;
             } finally {
-                if (isExecution(method)) {
+                if (subsegment != null && isExecution(method)) {
                     AWSXRay.endSubsegment();
                 }
             }
