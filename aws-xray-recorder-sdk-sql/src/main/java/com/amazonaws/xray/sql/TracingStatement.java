@@ -90,42 +90,39 @@ public class TracingStatement {
         }
 
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (!isExecution(method)) {
-                // don't trace non execution methods
-                return method.invoke(delegate, args);
+            Subsegment subsegment = null;
+
+            if (isExecution(method)) {
+                // only trace on execution methods
+                subsegment = createSubsegment();
             }
 
-            Subsegment subsegment = createSubsegment();
-            if (subsegment == null) {
-                // don't trace if failed to create subsegment
-                return method.invoke(delegate, args);
-            }
-
-            logger.debug("Invoking statement execution with X-Ray tracing.");
+            logger.debug(String.format("Invoking statement execution with X-Ray tracing. Tracing active: %s", subsegment != null));
             try {
                 // execute the query "wrapped" in a XRay Subsegment
                 return method.invoke(delegate, args);
             } catch (Throwable t) {
+                Throwable rootThrowable = t;
                 if (t instanceof InvocationTargetException) {
                     // the reflection may wrap the actual error with an InvocationTargetException.
                     // we want to use the root cause to make the instrumentation seamless
                     InvocationTargetException ite = (InvocationTargetException) t;
                     if (ite.getTargetException() != null) {
-                        subsegment.addException(ite.getTargetException());
-                        throw ite.getTargetException();
+                        rootThrowable = ite.getTargetException();
                     }
-                    if (ite.getCause() != null) {
-                        subsegment.addException(ite.getCause());
-                        throw ite.getCause();
+                    else if (ite.getCause() != null) {
+                        rootThrowable = ite.getCause();
                     }
-                    subsegment.addException(ite);
-                    throw ite;
                 }
 
-                subsegment.addException(t);
-                throw t;
+                if (subsegment != null) {
+                    subsegment.addException(rootThrowable);
+                }
+                throw rootThrowable;
             } finally {
-                AWSXRay.endSubsegment();
+                if (subsegment != null && isExecution(method)) {
+                    AWSXRay.endSubsegment();
+                }
             }
         }
 
