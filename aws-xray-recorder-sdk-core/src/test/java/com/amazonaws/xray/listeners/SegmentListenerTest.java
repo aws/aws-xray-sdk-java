@@ -4,6 +4,7 @@ import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.entities.Subsegment;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +19,13 @@ public class SegmentListenerTest {
         }
 
         @Override
+        public void onBeginSubsegment(Subsegment subsegment) { subsegment.putAnnotation("subAnnotation1", "began"); }
+
+        @Override
         public void beforeEndSegment(Segment segment) { segment.putAnnotation("endTest", "isPresent"); }
+
+        @Override
+        public void beforeEndSubsegment(Subsegment subsegment) { subsegment.putAnnotation("subAnnotation2", "ended"); }
     }
 
     class SecondSegmentListener implements SegmentListener {
@@ -67,6 +74,18 @@ public class SegmentListenerTest {
         String endAnnotation = test.getAnnotations().get("endTest").toString();
 
         Assert.assertEquals("isPresent", endAnnotation);
+    }
+
+    @Test
+    public void testSubsegmentListeners() {
+        AWSXRay.beginSegment("test");
+        Subsegment sub = AWSXRay.beginSubsegment("testSub");
+        String beginAnnotation = sub.getAnnotations().get("subAnnotation1").toString();
+        AWSXRay.endSubsegment();
+        String endAnnotation = sub.getAnnotations().get("subAnnotation2").toString();
+
+        Assert.assertEquals("began", beginAnnotation);
+        Assert.assertEquals("ended", endAnnotation);
     }
 
     @Test

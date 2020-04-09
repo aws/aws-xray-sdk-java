@@ -1,5 +1,6 @@
 package com.amazonaws.xray.contexts;
 
+import com.amazonaws.xray.listeners.SegmentListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -10,6 +11,9 @@ import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
+
+import java.util.List;
+import java.util.Objects;
 
 public class ThreadLocalSegmentContext implements SegmentContext {
     private static final Log logger =
@@ -31,6 +35,12 @@ public class ThreadLocalSegmentContext implements SegmentContext {
         subsegment.setParent(current);
         current.addSubsegment(subsegment);
         setTraceEntity(subsegment);
+
+        List<SegmentListener> segmentListeners = recorder.getSegmentListeners();
+        segmentListeners.stream()
+                .filter(Objects::nonNull)
+                .forEach(listener -> listener.onBeginSubsegment(subsegment));
+
         return subsegment;
     }
 
@@ -42,12 +52,25 @@ public class ThreadLocalSegmentContext implements SegmentContext {
                 logger.debug("Ending subsegment named: " + current.getName());
             }
             Subsegment currentSubsegment = (Subsegment) current;
+
+            List<SegmentListener> segmentListeners = recorder.getSegmentListeners();
+            segmentListeners
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .forEach(listener -> listener.beforeEndSubsegment(currentSubsegment));
+
             if (currentSubsegment.end()) {
                 recorder.sendSegment(currentSubsegment.getParentSegment());
             } else {
                 if (recorder.getStreamingStrategy().requiresStreaming(currentSubsegment.getParentSegment())) {
                     recorder.getStreamingStrategy().streamSome(currentSubsegment.getParentSegment(), recorder.getEmitter());
                 }
+
+                segmentListeners
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .forEach(listener -> listener.afterEndSubsegment(currentSubsegment));
+
                 setTraceEntity(current.getParent());
             }
         } else {

@@ -576,4 +576,15 @@ public class AWSXRayRecorderTest {
 
         Assert.assertEquals(4, plugins.size());
     }
+
+    @Test
+    public void testCurrentFormattedId() {
+        TraceID traceId = TraceID.fromString("1-5759e988-bd862e3fe1be46a994272793");
+        String entityId = "123456789";
+
+        Segment seg = AWSXRay.beginSegment("test", traceId, "FakeParentId");
+        seg.setId(entityId);
+
+        Assert.assertEquals(traceId.toString() + "@" + entityId, AWSXRay.currentFormattedId());
+    }
 }
