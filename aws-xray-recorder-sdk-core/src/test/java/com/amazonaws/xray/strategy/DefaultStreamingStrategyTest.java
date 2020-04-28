@@ -184,4 +184,41 @@ public class DefaultStreamingStrategyTest {
     public void testDefaultStreamingStrategyMaxSegmentSizeParameterValidation() {
         DefaultStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy(-1);
     }
+
+    @Test
+    public void testDefaultStreamingStrategyForLambdaTraceContext() { //test to see if FacadeSegment can be streamed out correctly
+        DefaultStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy(1);
+
+        //if FacadeSegment size is larger than maxSegmentSize and only the first subsegment is completed, first subsegment will be streamed out
+        FacadeSegment facadeSegmentOne = new FacadeSegment(AWSXRay.getGlobalRecorder(), new TraceID(), "", TraceHeader.SampleDecision.SAMPLED);
+        Subsegment firstSubsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "FirstSubsegment", facadeSegmentOne);
+        Subsegment secondSubsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "SecondSubsegment", facadeSegmentOne);
+        facadeSegmentOne.addSubsegment(firstSubsegment);
+        facadeSegmentOne.addSubsegment(secondSubsegment);
+
+        firstSubsegment.end();
+
+        Assert.assertTrue(facadeSegmentOne.getTotalSize().intValue() == 2);
+        defaultStreamingStrategy.streamSome(facadeSegmentOne, AWSXRay.getGlobalRecorder().getEmitter());
+        Assert.assertTrue(facadeSegmentOne.getTotalSize().intValue() == 1);
+
+        Subsegment tempOne = facadeSegmentOne.getSubsegments().get(0);
+        Assert.assertEquals("SecondSubsegment", tempOne.getName());
+
+        //if FarcadeSegment size is larger than maxSegmentSize and only the second subsegment is completed, second subsegment will be streamed out
+        FacadeSegment facadeSegmentTwo = new FacadeSegment(AWSXRay.getGlobalRecorder(), new TraceID(), "", TraceHeader.SampleDecision.SAMPLED);
+        Subsegment thirdSubsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "ThirdSubsegment", facadeSegmentTwo);
+        Subsegment fourthSubsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "FourthSubsegment", facadeSegmentTwo);
+        facadeSegmentTwo.addSubsegment(thirdSubsegment);
+        facadeSegmentTwo.addSubsegment(fourthSubsegment);
+
+        fourthSubsegment.end();
+
+        Assert.assertTrue(facadeSegmentTwo.getTotalSize().intValue() == 2);
+        defaultStreamingStrategy.streamSome(facadeSegmentTwo, AWSXRay.getGlobalRecorder().getEmitter());
+        Assert.assertTrue(facadeSegmentTwo.getTotalSize().intValue() == 1);
+
+        Subsegment tempTwo = facadeSegmentTwo.getSubsegments().get(0);
+        Assert.assertEquals("ThirdSubsegment", tempTwo.getName());
+    }
 }

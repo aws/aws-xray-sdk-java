@@ -104,6 +104,8 @@ public class AWSXRay {
         return globalRecorder.currentTraceId();
     }
 
+    public static String currentFormattedId() { return globalRecorder.currentFormattedId(); }
+
     public static Segment getCurrentSegment() {
         return globalRecorder.getCurrentSegment();
     }

@@ -878,4 +878,26 @@ public class AWSXRayRecorder {
         }
     }
 
+    /**
+     *
+     * @throws SegmentNotFoundException
+     *             if {@code contextMissingStrategy} throws exceptions and no segment or subsegment is currently in progress
+     * @return the trace ID of the {@code Segment} currently in progress and the ID of the {@code Segment} or {@code Subsegment} in progress, joined with {@code @},
+     *             or {@code null} if {@code contextMissingStrategy} suppresses exceptions and no segment or subsegment is currently in progress
+     */
+    public String currentFormattedId() {
+        SegmentContext context = getSegmentContext();
+        if (null == context) {
+            return null;
+        }
+        Entity current = context.getTraceEntity();
+        if (null != current) {
+            TraceID traceId = current.getParentSegment().getTraceId();
+            String entityId = current.getId();
+            return traceId.toString() + "@" + entityId;
+        } else {
+            contextMissingStrategy.contextMissing("Failed to get current formatted ID: segment cannot be found.", SegmentNotFoundException.class);
+            return null;
+        }
+    }
 }
