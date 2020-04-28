@@ -27,9 +27,11 @@ public class ECSPlugin implements Plugin {
     private static final String CONTAINER_ID_KEY = "containerId";
 
     private HashMap<String, Object> runtimeContext;
+    private DockerUtils dockerUtils;
 
     public ECSPlugin() {
         runtimeContext = new HashMap<>();
+        dockerUtils = new DockerUtils();
     }
 
     @Override
@@ -58,7 +60,7 @@ public class ECSPlugin implements Plugin {
         }
 
         try {
-            runtimeContext.put(CONTAINER_ID_KEY, DockerUtils.getContainerId());
+            runtimeContext.put(CONTAINER_ID_KEY, dockerUtils.getContainerId());
         } catch (IOException e) {
             logger.error("Failed to read full container ID from container instance.", e);
         }
