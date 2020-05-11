@@ -8,12 +8,10 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 
@@ -133,6 +131,6 @@ public class EKSPlugin implements Plugin {
      * Hash plugin object using origin to uniquely identify them
      */
     public int hashCode() {
-        return Objects.hash(this.getOrigin());
+        return this.getOrigin().hashCode();
     }
 }

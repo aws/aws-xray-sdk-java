@@ -2,6 +2,7 @@ package com.amazonaws.xray.entities;
 
 import java.math.BigInteger;
 import java.time.Instant;
+import java.util.Objects;
 
 import com.amazonaws.xray.ThreadLocalStorage;
 
@@ -85,18 +86,10 @@ public class TraceID {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
+        if (!(obj instanceof TraceID)) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
+        }
         TraceID other = (TraceID) obj;
-        if (number == null) {
-            if (other.number != null)
-                return false;
-        } else if (!number.equals(other.number))
-            return false;
-        if (startTime != other.startTime)
-            return false;
-        return true;
+        return Objects.equals(number, other.number) && startTime == other.startTime;
     }
 }

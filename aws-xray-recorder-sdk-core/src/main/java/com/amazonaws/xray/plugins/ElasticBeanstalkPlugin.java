@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,6 +89,6 @@ public class ElasticBeanstalkPlugin implements Plugin {
      * Hash plugin object using origin to uniquely identify them
      */
     public int hashCode() {
-        return Objects.hash(this.getOrigin());
+        return this.getOrigin().hashCode();
     }
 }
