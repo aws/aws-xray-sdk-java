@@ -1,5 +1,29 @@
 # Change Log
 
+## 2.5.0 - 2020-05-11
+- Added Spring interceptor without Spring data dependency
+[PR 115](https://github.com/aws/aws-xray-sdk-java/pull/115)
+- Handled null responses in sampling API requests
+[PR 122](https://github.com/aws/aws-xray-sdk-java/pull/122)
+- Fix NPE while handling LOG_ERROR in Spring module
+[PR 125](https://github.com/aws/aws-xray-sdk-java/pull/125)
+- Support trace ID injection during context propagation
+[PR 127](https://github.com/aws/aws-xray-sdk-java/pull/127)
+- Added IgnoreContextMissingStrategy
+[PR 129](https://github.com/aws/aws-xray-sdk-java/pull/129)
+- Fixed implementation of isWrapperFor and unwrap
+[PR 131](https://github.com/aws/aws-xray-sdk-java/pull/131)
+- Fixed subsegment streaming in Lambda
+[PR 133](https://github.com/aws/aws-xray-sdk-java/pull/133)
+- Added fully qualified & configurable trace ID injection
+[PR 135](https://github.com/aws/aws-xray-sdk-java/pull/135)
+- Fixed implementation of TracingStatement when no segment present
+[PR 137](https://github.com/aws/aws-xray-sdk-java/pull/137)
+- Improved Docker ID discovery in DockerUtils
+[PR 141](https://github.com/aws/aws-xray-sdk-java/pull/141)
+- Performance improvements to equals and hashcode usages
+[PR 142](https://github.com/aws/aws-xray-sdk-java/pull/142)
+
 ## 2.4.0 - 2019-11-21
 - Fix tags in pom.xml
 [PR 83](https://github.com/aws/aws-xray-sdk-java/pull/87)
