@@ -63,11 +63,11 @@ public class AWSLogReference {
      */
     public int hashCode() {
         if (arn == null && logGroup == null) {
-            return Objects.hash("");
+            return "".hashCode();
         } else if (arn == null) {
-            return Objects.hash(logGroup);
+            return logGroup.hashCode();
         } else {
-            return Objects.hash(arn);
+            return arn.hashCode();
         }
     }
 }

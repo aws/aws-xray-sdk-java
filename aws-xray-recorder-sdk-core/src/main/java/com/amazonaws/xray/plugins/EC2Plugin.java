@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import com.amazonaws.xray.entities.AWSLogReference;
@@ -155,6 +154,6 @@ public class EC2Plugin implements Plugin {
      * Hash plugin object using origin to uniquely identify them
      */
     public int hashCode() {
-        return Objects.hash(this.getOrigin());
+        return this.getOrigin().hashCode();
     }
 }

@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -240,7 +241,9 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof CentralizedRule)) {
+            return false;
+        }
 
         CentralizedRule that = (CentralizedRule) o;
 
@@ -249,7 +252,7 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
         if (!name.equals(that.name)) return false;
         if (!centralizedReservoir.equals(that.centralizedReservoir)) return false;
         if (!statistics.equals(that.statistics)) return false;
-        return matchers != null ? matchers.equals(that.matchers) : that.matchers == null;
+        return Objects.equals(matchers, that.matchers);
     }
 
     @Override

@@ -5,7 +5,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import com.amazonaws.xray.utils.DockerUtils;
 import org.apache.commons.logging.Log;
@@ -90,7 +89,7 @@ public class ECSPlugin implements Plugin {
      * Hash plugin object using origin to uniquely identify them
      */
     public int hashCode() {
-        return Objects.hash(this.getOrigin());
+        return this.getOrigin().hashCode();
     }
 
 
