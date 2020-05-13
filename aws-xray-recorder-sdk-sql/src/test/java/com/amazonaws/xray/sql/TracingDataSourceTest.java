@@ -7,9 +7,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
