@@ -55,6 +55,7 @@ public class UnsignedXrayClientTest {
                        .withHeader("Content-Type", equalTo("application/json"))
                        .withRequestBody(equalToJson("{}")));
     }
+
     @Test
     public void getSamplingTargets() throws Exception {
         GetSamplingTargetsResult expected = new GetSamplingTargetsResult();
