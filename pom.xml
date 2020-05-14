@@ -45,6 +45,22 @@
     <module>aws-xray-recorder-sdk-log4j</module>
     <module>aws-xray-recorder-sdk-metrics</module>
   </modules>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>2.11.0</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>com.github.tomakehurst</groupId>
+        <artifactId>wiremock-jre8</artifactId>
+        <version>2.26.3</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <distributionManagement>
     <repository>
       <id>sonatype-nexus-staging</id>
