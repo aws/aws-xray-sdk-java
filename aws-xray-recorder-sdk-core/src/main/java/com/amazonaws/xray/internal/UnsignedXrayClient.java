@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -102,28 +103,48 @@ public class UnsignedXrayClient {
             throw new UncheckedIOException("Could not serialize and send request.", e);
         }
 
+        final int responseCode;
         try {
-            if (connection.getResponseCode() != 200) {
-                throw new IllegalStateException("Error response from X-Ray: " +
-                                                readString(connection.getInputStream()));
-            }
+            responseCode = connection.getResponseCode();
+        } catch (IOException e) {
+            throw new UncheckedIOException("Could not read response code.", e);
+        }
 
+        if (responseCode != 200) {
+            throw new IllegalStateException("Error response from X-Ray: " +
+                                            readResponseString(connection));
+        }
+
+        try {
             return OBJECT_MAPPER.readValue(connection.getInputStream(), responseClass);
         } catch (IOException e) {
             throw new UncheckedIOException("Error reading response.", e);
         }
     }
 
-    private static String readString(InputStream stream) {
+    private static String readResponseString(HttpURLConnection connection) {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try (InputStream is = stream) {
-            int b;
-            while ((b = is.read()) != -1) {
-                os.write(b);
-            }
-            return os.toString(StandardCharsets.UTF_8.name());
+        try (InputStream is = connection.getInputStream()) {
+            readTo(is, os);
         } catch (IOException e) {
-            throw new UncheckedIOException("Could not decode error response.", e);
+            // Only best effort read if we can.
+        }
+        try (InputStream is = connection.getErrorStream()) {
+            readTo(is, os);
+        } catch (IOException e) {
+            // Only best effort read if we can.
+        }
+        try {
+            return os.toString(StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("UTF-8 not supported can't happen.");
+        }
+    }
+
+    private static void readTo(InputStream is, ByteArrayOutputStream os) throws IOException {
+        int b;
+        while ((b = is.read()) != -1) {
+            os.write(b);
         }
     }
 }

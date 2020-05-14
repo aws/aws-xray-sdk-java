@@ -11,8 +11,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.UncheckedIOException;
 import java.util.Date;
 
 import org.junit.Before;
@@ -49,7 +51,7 @@ public class UnsignedXrayClientTest {
 
         GetSamplingRulesResult result = client.getSamplingRules(new GetSamplingRulesRequest());
 
-        assertEquals(expected, result);
+        assertThat(expected).isEqualTo(result);
 
         verify(postRequestedFor(urlEqualTo("/GetSamplingRules"))
                        .withHeader("Content-Type", equalTo("application/json"))
@@ -70,7 +72,7 @@ public class UnsignedXrayClientTest {
 
         GetSamplingTargetsResult result = client.getSamplingTargets(request);
 
-        assertEquals(expected, result);
+        assertThat(expected).isEqualTo(result);
 
         verify(postRequestedFor(urlEqualTo("/GetSamplingTargets"))
                        .withHeader("Content-Type", equalTo("application/json"))
@@ -81,5 +83,28 @@ public class UnsignedXrayClientTest {
                                                     + "    }"
                                                     + " ] "
                                                     + "}")));
+    }
+
+    @Test
+    public void badStatus() {
+        String expectedMessage = "{\"message\": \"bad authentication\"}";
+
+        stubFor(any(anyUrl()).willReturn(aResponse()
+                                                 .withStatus(500)
+                                                 .withBody(expectedMessage)));
+
+        assertThatThrownBy(() -> client.getSamplingRules(new GetSamplingRulesRequest()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining(expectedMessage);
+    }
+
+    // This test may be flaky, it's not testing much so delete if it ever flakes.
+    @Test
+    public void cannotSend() {
+        client = new UnsignedXrayClient("http://localhost:" + (server.port() + 1234));
+
+        assertThatThrownBy(() -> client.getSamplingRules(new GetSamplingRulesRequest()))
+                .isInstanceOf(UncheckedIOException.class)
+                .hasMessageContaining("Could not serialize and send request");
     }
 }
