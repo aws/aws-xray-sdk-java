@@ -20,8 +20,8 @@ import com.amazonaws.xray.strategy.sampling.rand.RandImpl;
 
 public class TargetPoller {
     private static final Log logger = LogFactory.getLog(TargetPoller.class);
-    private static final long PERIOD = 10; // Seconds
-    private static final long MAX_JITTER = 100; // Milliseconds
+    private static final long PERIOD_MILLIS = TimeUnit.SECONDS.toMillis(10);
+    private static final long MAX_JITTER_MILLIS = 100;
 
     private final UnsignedXrayClient client;
     private final CentralizedManifest manifest;
@@ -53,7 +53,7 @@ public class TargetPoller {
                 // The executor will die and not abrupt main thread.
                 if(t instanceof Error) { throw t; }
             }
-        }, PERIOD * 1000, getIntervalWithJitter(), TimeUnit.MILLISECONDS);
+        }, PERIOD_MILLIS, getIntervalWithJitter(), TimeUnit.MILLISECONDS);
     }
 
     public void shutdown() {
@@ -82,6 +82,6 @@ public class TargetPoller {
 
     private long getIntervalWithJitter() {
         Rand random = new RandImpl();
-        return Math.round(random.next() * MAX_JITTER) + PERIOD * 1000;
+        return Math.round(random.next() * MAX_JITTER_MILLIS) + PERIOD_MILLIS;
     }
 }
