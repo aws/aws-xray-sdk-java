@@ -14,7 +14,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.io.UncheckedIOException;
 import java.util.Date;
 
 import org.junit.Before;
@@ -104,7 +103,7 @@ public class UnsignedXrayClientTest {
         client = new UnsignedXrayClient("http://localhost:" + (server.port() + 1234));
 
         assertThatThrownBy(() -> client.getSamplingRules(new GetSamplingRulesRequest()))
-                .isInstanceOf(UncheckedIOException.class)
+                .isInstanceOf(XrayClientException.class)
                 .hasMessageContaining("Could not serialize and send request");
     }
 }
