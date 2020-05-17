@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -82,7 +81,7 @@ public class UnsignedXrayClient {
         try {
             connection = (HttpURLConnection) endpoint.openConnection();
         } catch (IOException e) {
-            throw new UncheckedIOException("Could not connect to endpoint " + endpoint, e);
+            throw new XrayClientException("Could not connect to endpoint " + endpoint, e);
         }
 
         connection.setConnectTimeout(TIME_OUT_MILLIS);
@@ -100,25 +99,25 @@ public class UnsignedXrayClient {
         try (OutputStream outputStream = connection.getOutputStream()) {
             OBJECT_MAPPER.writeValue(outputStream, request);
         } catch (IOException e) {
-            throw new UncheckedIOException("Could not serialize and send request.", e);
+            throw new XrayClientException("Could not serialize and send request.", e);
         }
 
         final int responseCode;
         try {
             responseCode = connection.getResponseCode();
         } catch (IOException e) {
-            throw new UncheckedIOException("Could not read response code.", e);
+            throw new XrayClientException("Could not read response code.", e);
         }
 
         if (responseCode != 200) {
-            throw new IllegalStateException("Error response from X-Ray: " +
-                                            readResponseString(connection));
+            throw new XrayClientException("Error response from X-Ray: " +
+                                          readResponseString(connection));
         }
 
         try {
             return OBJECT_MAPPER.readValue(connection.getInputStream(), responseClass);
         } catch (IOException e) {
-            throw new UncheckedIOException("Error reading response.", e);
+            throw new XrayClientException("Error reading response.", e);
         }
     }
 

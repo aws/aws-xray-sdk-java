@@ -54,8 +54,9 @@ public class RulePoller {
                 pollRule();
             } catch (Throwable t) {
                 logger.error("Encountered error polling GetSamplingRules: ", t);
-                // An Error should not be handled by the application.
-                // The executor will die and not abrupt main thread.
+                // Propagate if Error so executor stops executing.
+                // TODO(anuraaga): Many Errors aren't fatal, this should probably be more restricted, e.g.
+                // https://github.com/openzipkin/brave/blob/master/brave/src/main/java/brave/internal/Throwables.java
                 if(t instanceof Error) { throw t; }
             }
         }, 0, getIntervalWithJitter(), TimeUnit.SECONDS);
