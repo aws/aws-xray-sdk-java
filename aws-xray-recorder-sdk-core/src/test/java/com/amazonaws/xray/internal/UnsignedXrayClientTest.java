@@ -93,7 +93,7 @@ public class UnsignedXrayClientTest {
                                                  .withBody(expectedMessage)));
 
         assertThatThrownBy(() -> client.getSamplingRules(new GetSamplingRulesRequest()))
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(XrayClientException.class)
                 .hasMessageContaining(expectedMessage);
     }
 
