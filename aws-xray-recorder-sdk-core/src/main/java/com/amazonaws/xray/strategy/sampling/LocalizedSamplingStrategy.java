@@ -40,7 +40,6 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
         processRuleManifest(getRuleManifest(ruleLocation));
     }
 
-    @Override
     public URL getSamplingManifestURL() {
         return samplingRulesLocation;
     }
