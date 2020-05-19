@@ -1,7 +1,17 @@
 package com.amazonaws.xray.strategy.sampling;
 
+import java.net.URL;
+
 public interface SamplingStrategy {
     SamplingResponse shouldTrace(SamplingRequest sampleRequest);
+
+    /**
+     * @return the URL of the sampling manifest provided by the customer, the default sampling rule URL, or
+     * null if custom rules are not applicable to the strategy
+     */
+    default URL getSamplingManifestURL() {
+        return null;
+    }
 
     /**
      * Returns whether or not this sampling strategy supports 'forced sampling'.

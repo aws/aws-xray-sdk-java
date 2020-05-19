@@ -51,6 +51,11 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
     }
 
     @Override
+    public URL getSamplingManifestURL() {
+        return this.fallback.getSamplingManifestURL();
+    }
+
+    @Override
     public SamplingResponse shouldTrace(SamplingRequest samplingRequest) {
         if (!isStarted) {
             startPoller();
