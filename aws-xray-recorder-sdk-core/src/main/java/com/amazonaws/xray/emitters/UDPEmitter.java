@@ -49,6 +49,10 @@ public class UDPEmitter extends Emitter {
         }
     }
 
+    public DaemonConfiguration getConfig() {
+        return config;
+    }
+
     /**
      * {@inheritDoc}
      *
