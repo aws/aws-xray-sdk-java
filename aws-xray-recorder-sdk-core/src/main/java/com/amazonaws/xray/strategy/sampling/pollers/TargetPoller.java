@@ -1,35 +1,44 @@
 package com.amazonaws.xray.strategy.sampling.pollers;
 
-import com.amazonaws.services.xray.AWSXRay;
-import com.amazonaws.services.xray.model.GetSamplingTargetsRequest;
-import com.amazonaws.services.xray.model.GetSamplingTargetsResult;
-import com.amazonaws.services.xray.model.SamplingStatisticsDocument;
-import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
-
-import com.amazonaws.xray.strategy.sampling.rand.Rand;
-import com.amazonaws.xray.strategy.sampling.rand.RandImpl;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.time.Clock;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.amazonaws.services.xray.AWSXRay;
+import com.amazonaws.services.xray.model.GetSamplingTargetsRequest;
+import com.amazonaws.services.xray.model.GetSamplingTargetsResult;
+import com.amazonaws.services.xray.model.SamplingStatisticsDocument;
+import com.amazonaws.xray.internal.UnsignedXrayClient;
+import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
+import com.amazonaws.xray.strategy.sampling.rand.Rand;
+import com.amazonaws.xray.strategy.sampling.rand.RandImpl;
+
 public class TargetPoller {
-    private static Log logger = LogFactory.getLog(TargetPoller.class);
-    private static final long PERIOD = 10; // Seconds
-    private static final long MAX_JITTER = 100; // Milliseconds
+    private static final Log logger = LogFactory.getLog(TargetPoller.class);
+    private static final long PERIOD_MILLIS = TimeUnit.SECONDS.toMillis(10);
+    private static final long MAX_JITTER_MILLIS = 100;
 
-    private AWSXRay client;
-    private Clock clock;
-    private CentralizedManifest manifest;
-    private ScheduledExecutorService executor;
+    private final UnsignedXrayClient client;
+    private final CentralizedManifest manifest;
+    private final Clock clock;
+    private final ScheduledExecutorService executor;
 
-    public TargetPoller(CentralizedManifest m, AWSXRay client, Clock clock) {
-        this.manifest = m;
+    /**
+     * @deprecated Use {@link #TargetPoller(UnsignedXrayClient, CentralizedManifest, Clock)}.
+     */
+    @Deprecated
+    public TargetPoller(CentralizedManifest manifest, AWSXRay unused, Clock clock) {
+        this(new UnsignedXrayClient(), manifest, clock);
+    }
+
+    public TargetPoller(UnsignedXrayClient client, CentralizedManifest manifest, Clock clock) {
         this.client = client;
+        this.manifest = manifest;
         this.clock = clock;
         executor = Executors.newSingleThreadScheduledExecutor();
     }
@@ -40,15 +49,21 @@ public class TargetPoller {
                 pollManifest();
             } catch (Throwable t) {
                 logger.error("Encountered error polling GetSamplingTargets: ", t);
-                // An Error should not be handled by the application.
-                // The executor will die and not abrupt main thread.
+                // Propagate if Error so executor stops executing.
+                // TODO(anuraaga): Many Errors aren't fatal, this should probably be more restricted, e.g.
+                // https://github.com/openzipkin/brave/blob/master/brave/src/main/java/brave/internal/Throwables.java
                 if(t instanceof Error) { throw t; }
             }
-        }, PERIOD * 1000, getJitterInterval(), TimeUnit.MILLISECONDS);
+        }, PERIOD_MILLIS, getIntervalWithJitter(), TimeUnit.MILLISECONDS);
     }
 
     public void shutdown() {
         executor.shutdownNow();
+    }
+
+    // Visible for testing
+    ScheduledExecutorService getExecutor() {
+        return executor;
     }
 
     private void pollManifest() {
@@ -66,9 +81,8 @@ public class TargetPoller {
         manifest.putTargets(result.getSamplingTargetDocuments(), clock.instant());
     }
 
-    private long getJitterInterval() {
+    private long getIntervalWithJitter() {
         Rand random = new RandImpl();
-        long interval = Math.round(random.next() * MAX_JITTER) + PERIOD * 1000;
-        return interval;
+        return Math.round(random.next() * MAX_JITTER_MILLIS) + PERIOD_MILLIS;
     }
 }

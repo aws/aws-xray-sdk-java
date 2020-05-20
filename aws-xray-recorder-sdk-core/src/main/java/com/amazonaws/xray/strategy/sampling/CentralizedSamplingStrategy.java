@@ -1,25 +1,25 @@
 package com.amazonaws.xray.strategy.sampling;
 
-import com.amazonaws.services.xray.AWSXRay;
-import com.amazonaws.xray.AWSXRayRecorderBuilder;
-import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
-import com.amazonaws.xray.strategy.sampling.pollers.RulePoller;
-import com.amazonaws.xray.strategy.sampling.pollers.TargetPoller;
-import com.amazonaws.xray.strategy.sampling.rule.CentralizedRule;
-import com.amazonaws.xray.utils.ByteUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.net.URL;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Instant;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.amazonaws.xray.internal.UnsignedXrayClient;
+import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
+import com.amazonaws.xray.strategy.sampling.pollers.RulePoller;
+import com.amazonaws.xray.strategy.sampling.pollers.TargetPoller;
+import com.amazonaws.xray.strategy.sampling.rule.CentralizedRule;
+import com.amazonaws.xray.utils.ByteUtils;
+
 public class CentralizedSamplingStrategy implements SamplingStrategy {
-    private static Log logger = LogFactory.getLog(TargetPoller.class);
+    private static final Log logger = LogFactory.getLog(TargetPoller.class);
     // Initialize random ClientID. We use the same ClientID for all GetSamplingTargets calls. Conflicts are avoided
     // because IDs are scoped to a single account.
-    private static String clientID;
+    private static final String clientID;
     static {
         SecureRandom rand = new SecureRandom();
         byte[] bytes = new byte[12];
@@ -27,27 +27,27 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
         clientID = ByteUtils.byteArrayToHexString(bytes);
     }
 
+    private final CentralizedManifest manifest;
+    private final LocalizedSamplingStrategy fallback;
+    private final RulePoller rulePoller;
+    private final TargetPoller targetPoller;
+
     private boolean isStarted = false;
-    private CentralizedManifest manifest;
-    private LocalizedSamplingStrategy fallback;
-    private RulePoller rulePoller;
-    private TargetPoller targetPoller;
-    private AWSXRay client;
 
     public CentralizedSamplingStrategy() {
         this.manifest = new CentralizedManifest();
         this.fallback = new LocalizedSamplingStrategy();
-        this.client = XRayClient.newClient();
-        this.rulePoller = new RulePoller(manifest, client, Clock.systemUTC());
-        this.targetPoller = new TargetPoller(manifest, client, Clock.systemUTC());
+        UnsignedXrayClient client = new UnsignedXrayClient();
+        this.rulePoller = new RulePoller(client, manifest, Clock.systemUTC());
+        this.targetPoller = new TargetPoller(client, manifest, Clock.systemUTC());
     }
 
     public CentralizedSamplingStrategy(URL ruleLocation) {
         this.manifest = new CentralizedManifest();
         this.fallback = new LocalizedSamplingStrategy(ruleLocation);
-        this.client = XRayClient.newClient();
-        this.rulePoller = new RulePoller(manifest, client, Clock.systemUTC());
-        this.targetPoller = new TargetPoller(manifest, client, Clock.systemUTC());
+        UnsignedXrayClient client = new UnsignedXrayClient();
+        this.rulePoller = new RulePoller(client, manifest, Clock.systemUTC());
+        this.targetPoller = new TargetPoller(client, manifest, Clock.systemUTC());
     }
 
     @Override

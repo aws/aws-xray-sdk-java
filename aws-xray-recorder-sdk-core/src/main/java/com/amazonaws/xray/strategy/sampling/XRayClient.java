@@ -9,6 +9,11 @@ import com.amazonaws.services.xray.AWSXRayClientBuilder;
 import com.amazonaws.services.xray.AWSXRay;
 import com.amazonaws.xray.config.DaemonConfiguration;
 
+/**
+ * @deprecated aws-xray-recorder only supports communicating with the X-Ray daemon, which does not
+ * require the usual AWS API signatures so we have stopped using the SDK X-Ray client.
+ */
+@Deprecated
 public final class XRayClient {
 
     private static final AWSCredentialsProvider ANONYMOUS_CREDENTIALS = new AWSStaticCredentialsProvider(
@@ -17,6 +22,12 @@ public final class XRayClient {
     private static final int TIME_OUT = 2000; // Milliseconds
     private XRayClient() {}
 
+    /**
+     *
+     * @deprecated aws-xray-recorder only supports communicating with the X-Ray daemon, which does
+     * not require the usual AWS API signatures so we have stopped using the SDK X-Ray client.
+     */
+    @Deprecated
     public static AWSXRay newClient() {
         DaemonConfiguration config = new DaemonConfiguration();
 
