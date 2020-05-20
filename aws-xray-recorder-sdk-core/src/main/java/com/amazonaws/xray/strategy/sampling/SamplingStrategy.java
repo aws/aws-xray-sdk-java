@@ -1,7 +1,5 @@
 package com.amazonaws.xray.strategy.sampling;
 
-import java.net.URL;
-
 public interface SamplingStrategy {
     SamplingResponse shouldTrace(SamplingRequest sampleRequest);
 

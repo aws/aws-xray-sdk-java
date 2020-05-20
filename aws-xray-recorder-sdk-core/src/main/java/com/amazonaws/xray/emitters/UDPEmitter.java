@@ -49,8 +49,8 @@ public class UDPEmitter extends Emitter {
         }
     }
 
-    public DaemonConfiguration getConfig() {
-        return config;
+    public String getUDPAddress() {
+        return config.getUDPAddress();
     }
 
     /**
