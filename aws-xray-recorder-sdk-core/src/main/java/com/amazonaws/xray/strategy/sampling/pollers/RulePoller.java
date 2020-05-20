@@ -1,41 +1,49 @@
 package com.amazonaws.xray.strategy.sampling.pollers;
 
-import com.amazonaws.services.xray.model.GetSamplingRulesRequest;
-import com.amazonaws.services.xray.model.GetSamplingRulesResult;
-import com.amazonaws.services.xray.model.SamplingRule;
-import com.amazonaws.services.xray.AWSXRay;
-import com.amazonaws.services.xray.model.SamplingRuleRecord;
-import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
-import com.amazonaws.xray.strategy.sampling.rand.Rand;
-import com.amazonaws.xray.strategy.sampling.rand.RandImpl;
-import com.amazonaws.xray.strategy.sampling.rule.CentralizedRule;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.Executor;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.amazonaws.services.xray.AWSXRay;
+import com.amazonaws.services.xray.model.GetSamplingRulesRequest;
+import com.amazonaws.services.xray.model.GetSamplingRulesResult;
+import com.amazonaws.services.xray.model.SamplingRule;
+import com.amazonaws.services.xray.model.SamplingRuleRecord;
+import com.amazonaws.xray.internal.UnsignedXrayClient;
+import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
+import com.amazonaws.xray.strategy.sampling.rand.Rand;
+import com.amazonaws.xray.strategy.sampling.rand.RandImpl;
+import com.amazonaws.xray.strategy.sampling.rule.CentralizedRule;
+
 public class RulePoller {
-    private static Log logger = LogFactory.getLog(RulePoller.class);
+    private static final Log logger = LogFactory.getLog(RulePoller.class);
 
     private static final long PERIOD = 300; // Seconds
     private static final long MAX_JITTER = 5; // Seconds
 
+    private final UnsignedXrayClient client;
+    private final CentralizedManifest manifest;
+    private final Clock clock;
+    private final ScheduledExecutorService executor;
 
-    private AWSXRay client;
-    private Clock clock;
-    private CentralizedManifest manifest;
-    private ScheduledExecutorService executor;
+    /**
+     * @deprecated Use {@link #RulePoller(UnsignedXrayClient, CentralizedManifest, Clock)}.
+     */
+    @Deprecated
+    public RulePoller(CentralizedManifest manifest, AWSXRay unused, Clock clock) {
+        this(new UnsignedXrayClient(), manifest, clock);
+    }
 
-    public RulePoller(CentralizedManifest manifest, AWSXRay client, Clock clock) {
-        this.manifest = manifest;
+    public RulePoller(UnsignedXrayClient client, CentralizedManifest manifest, Clock clock) {
         this.client = client;
+        this.manifest = manifest;
         this.clock = clock;
         executor = Executors.newSingleThreadScheduledExecutor();
     }
@@ -46,15 +54,21 @@ public class RulePoller {
                 pollRule();
             } catch (Throwable t) {
                 logger.error("Encountered error polling GetSamplingRules: ", t);
-                // An Error should not be handled by the application.
-                // The executor will die and not abrupt main thread.
+                // Propagate if Error so executor stops executing.
+                // TODO(anuraaga): Many Errors aren't fatal, this should probably be more restricted, e.g.
+                // https://github.com/openzipkin/brave/blob/master/brave/src/main/java/brave/internal/Throwables.java
                 if(t instanceof Error) { throw t; }
             }
-        }, 0, getJitterInterval(), TimeUnit.SECONDS);
+        }, 0, getIntervalWithJitter(), TimeUnit.SECONDS);
     }
 
     public void shutdown() {
         executor.shutdownNow();
+    }
+
+    // Visible for testing
+    ScheduledExecutorService getExecutor() {
+        return executor;
     }
 
     private void pollRule() {
@@ -72,9 +86,8 @@ public class RulePoller {
         manifest.putRules(rules, now);
     }
 
-    private long getJitterInterval() {
+    private long getIntervalWithJitter() {
         Rand random = new RandImpl();
-        long interval = Math.round(random.next() * MAX_JITTER) + PERIOD;
-        return interval;
+        return Math.round(random.next() * MAX_JITTER) + PERIOD;
     }
 }
