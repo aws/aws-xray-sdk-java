@@ -1,32 +1,35 @@
 package com.amazonaws.xray.strategy.sampling.pollers;
 
-import com.amazonaws.services.xray.AWSXRayClient;
-import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
-import org.junit.Test;
-import org.junit.Assert;
-import org.mockito.Mockito;
-import org.powermock.reflect.Whitebox;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Clock;
-import java.util.concurrent.ScheduledExecutorService;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+
+import com.amazonaws.xray.internal.UnsignedXrayClient;
+import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
 
 public class TargetPollerTest {
 
+    @Rule
+    public MockitoRule mocks = MockitoJUnit.rule();
+
+    @Mock
+    private CentralizedManifest manifest;
+
+    @Mock
+    private UnsignedXrayClient client;
+
     @Test
     public void testPollerShutdown() {
-        TargetPoller poller = new TargetPoller(new CentralizedManifest(), getMockedClient(), Clock.systemUTC());
+        TargetPoller poller = new TargetPoller(client, manifest, Clock.systemUTC());
         poller.start();
         poller.shutdown();
 
-
-        Assert.assertTrue(getExecutor(poller).isShutdown());
-    }
-
-    private ScheduledExecutorService getExecutor(TargetPoller poller) {
-        return (ScheduledExecutorService) Whitebox.getInternalState(poller, "executor");
-    }
-
-    private AWSXRayClient getMockedClient() {
-        return Mockito.mock(AWSXRayClient.class);
+        assertThat(poller.getExecutor().isShutdown()).isTrue();
     }
 }
