@@ -33,6 +33,9 @@ public class DelegatingEmitter extends Emitter {
 
     private final Emitter delegate;
 
+    /**
+     * Constructs a new {@link DelegatingEmitter} that delegates all calls to the provided {@link Emitter}.
+     */
     protected DelegatingEmitter(Emitter delegate) {
         this.delegate = requireNonNull(delegate, "delegate");
     }
