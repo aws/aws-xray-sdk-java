@@ -50,6 +50,10 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
         this.targetPoller = new TargetPoller(client, manifest, Clock.systemUTC());
     }
 
+    public URL getSamplingManifestURL() {
+        return this.fallback.getSamplingManifestURL();
+    }
+
     @Override
     public SamplingResponse shouldTrace(SamplingRequest samplingRequest) {
         if (!isStarted) {
