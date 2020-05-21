@@ -49,6 +49,10 @@ public class UDPEmitter extends Emitter {
         }
     }
 
+    public String getUDPAddress() {
+        return config.getUDPAddress();
+    }
+
     /**
      * {@inheritDoc}
      *

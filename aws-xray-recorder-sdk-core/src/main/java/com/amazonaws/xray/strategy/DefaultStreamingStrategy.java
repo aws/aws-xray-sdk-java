@@ -17,6 +17,10 @@ public class DefaultStreamingStrategy implements StreamingStrategy {
 
     private final int maxSegmentSize;
 
+    public int getMaxSegmentSize() {
+        return maxSegmentSize;
+    }
+
     /**
      * {@inheritDoc}
      *
