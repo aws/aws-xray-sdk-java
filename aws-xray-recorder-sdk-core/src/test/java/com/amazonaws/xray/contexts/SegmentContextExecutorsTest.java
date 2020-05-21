@@ -32,16 +32,16 @@ public class SegmentContextExecutorsTest {
     public MockitoRule mocks = MockitoJUnit.rule();
 
     @Mock
-    private AWSXRayRecorder recorder;
+    private volatile AWSXRayRecorder recorder;
 
     @Mock
-    private Segment current;
+    private volatile Segment current;
 
     @Mock
-    private Segment manual;
+    private volatile Segment manual;
 
     @Mock
-    private Segment previous;
+    private volatile Segment previous;
 
     @BeforeClass
     public static void startBackgroundExecutor() {

@@ -1,6 +1,6 @@
 package com.amazonaws.xray.contexts;
 
-import static com.amazonaws.xray.internal.LooseValidation.checkNotNull;
+import static com.amazonaws.xray.utils.LooseValidations.checkNotNull;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;

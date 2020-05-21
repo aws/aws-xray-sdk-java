@@ -1,11 +1,11 @@
-package com.amazonaws.xray.internal;
+package com.amazonaws.xray.utils;
 
-import static com.amazonaws.xray.internal.LooseValidation.checkNotNull;
+import static com.amazonaws.xray.utils.LooseValidations.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-public class LooseValidationTest {
+public class LooseValidationsTest {
 
     @Test
     public void checkNotNull_notNull() {

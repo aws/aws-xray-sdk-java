@@ -1,4 +1,4 @@
-package com.amazonaws.xray.internal;
+package com.amazonaws.xray.utils;
 
 import java.util.function.Supplier;
 import javax.annotation.CheckReturnValue;
@@ -10,8 +10,8 @@ import org.apache.commons.logging.LogFactory;
  * property {@code -Dcom.amazonaws.xray.validationMode=log} or throwing exceptions by setting the system property
  * {@code -Dcom.amazonaws.xray.validationMode=throw}.
  */
-public final class LooseValidation {
-    private static final Log logger = LogFactory.getLog(LooseValidation.class);
+public final class LooseValidations {
+    private static final Log logger = LogFactory.getLog(LooseValidations.class);
 
     private enum ValidationMode {
         NONE,
