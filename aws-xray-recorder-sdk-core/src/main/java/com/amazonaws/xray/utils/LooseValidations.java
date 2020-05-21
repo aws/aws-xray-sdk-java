@@ -58,4 +58,6 @@ public final class LooseValidations {
                 return ValidationMode.NONE;
         }
     }
+
+    private LooseValidations() {}
 }

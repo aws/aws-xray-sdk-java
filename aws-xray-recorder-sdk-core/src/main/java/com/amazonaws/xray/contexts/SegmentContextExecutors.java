@@ -71,4 +71,6 @@ public final class SegmentContextExecutors {
             }
         }
     }
+
+    private SegmentContextExecutors() {}
 }
