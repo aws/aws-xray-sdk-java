@@ -3,7 +3,6 @@ package com.amazonaws.xray;
 import com.amazonaws.xray.contexts.LambdaSegmentContext;
 import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
 import com.amazonaws.xray.emitters.Emitter;
-import com.amazonaws.xray.emitters.UDPEmitter;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
@@ -22,22 +21,6 @@ import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.json.JSONException;
-import org.junit.*;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.skyscreamer.jsonassert.JSONAssert;
-import org.skyscreamer.jsonassert.JSONCompareMode;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -47,6 +30,24 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.json.JSONException;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.FixMethodOrder;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
+import org.junit.contrib.java.lang.system.RestoreSystemProperties;
+import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
 
 @FixMethodOrder(MethodSorters.JVM)
 @PrepareForTest({LambdaSegmentContext.class, LambdaSegmentContextResolver.class})
@@ -245,7 +246,7 @@ public class AWSXRayRecorderTest {
 
     @Test
     public void testNotSendingUnsampledSegment() {
-        Emitter mockEmitter = Mockito.mock(UDPEmitter.class);
+        Emitter mockEmitter = Mockito.mock(Emitter.class);
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();
 
         Segment segment = recorder.beginSegment("test");
@@ -257,7 +258,7 @@ public class AWSXRayRecorderTest {
 
     @Test
     public void testSegmentEmitted() {
-        Emitter mockEmitter = Mockito.mock(UDPEmitter.class);
+        Emitter mockEmitter = Mockito.mock(Emitter.class);
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();
 
         recorder.beginSegment("test");
@@ -270,7 +271,7 @@ public class AWSXRayRecorderTest {
 
     @Test
     public void testExplicitSubsegmentEmitted() {
-        Emitter mockEmitter = Mockito.mock(UDPEmitter.class);
+        Emitter mockEmitter = Mockito.mock(Emitter.class);
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();
 
         recorder.beginSegment("test");
@@ -283,7 +284,7 @@ public class AWSXRayRecorderTest {
 
     @Test
     public void testDummySegmentNotEmitted() {
-        Emitter mockEmitter = Mockito.mock(UDPEmitter.class);
+        Emitter mockEmitter = Mockito.mock(Emitter.class);
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();
 
         recorder.beginDummySegment();
@@ -302,7 +303,7 @@ public class AWSXRayRecorderTest {
         PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);
         PowerMockito.stub(PowerMockito.method(LambdaSegmentContextResolver.class, "getLambdaTaskRoot")).toReturn("/var/task");
 
-        Emitter mockEmitter = Mockito.mock(UDPEmitter.class);
+        Emitter mockEmitter = Mockito.mock(Emitter.class);
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();
         recorder.createSubsegment("test", () -> {});
 
@@ -331,7 +332,7 @@ public class AWSXRayRecorderTest {
         PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(TraceHeader.fromString(null));
         PowerMockito.stub(PowerMockito.method(LambdaSegmentContextResolver.class, "getLambdaTaskRoot")).toReturn("/var/task");
 
-        Emitter mockEmitter = Mockito.mock(UDPEmitter.class);
+        Emitter mockEmitter = Mockito.mock(Emitter.class);
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();
         recorder.createSubsegment("test", () -> {});
 
@@ -345,7 +346,7 @@ public class AWSXRayRecorderTest {
         PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);
         PowerMockito.stub(PowerMockito.method(LambdaSegmentContextResolver.class, "getLambdaTaskRoot")).toReturn("/var/task");
 
-        Emitter mockEmitter = Mockito.mock(UDPEmitter.class);
+        Emitter mockEmitter = Mockito.mock(Emitter.class);
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();
 
         recorder.createSubsegment("testTogether", () -> {
@@ -368,7 +369,7 @@ public class AWSXRayRecorderTest {
         PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);
         PowerMockito.stub(PowerMockito.method(LambdaSegmentContextResolver.class, "getLambdaTaskRoot")).toReturn("/var/task");
 
-        Emitter mockEmitter = Mockito.mock(UDPEmitter.class);
+        Emitter mockEmitter = Mockito.mock(Emitter.class);
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();
 
         recorder.createSubsegment("testTogether", () -> {
