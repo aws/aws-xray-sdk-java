@@ -11,10 +11,10 @@ import javax.annotation.Nullable;
 
 /**
  * {@link Executor}s that will mount a segment before running a command. When switching threads, for example when instrumenting an
- * asynchronous appilcation, it is recommended to use one of these {@link Executor}s to make sure callbacks have the trace segment
+ * asynchronous application, it is recommended to use one of these {@link Executor}s to make sure callbacks have the trace segment
  * available.
  *
- * <p>For example, <pre>{@code
+ * <pre>{@code
  * DynamoDbAsyncClient client = DynamoDbAsyncClient.create();
  *
  * client.getItem(request).thenComposeAsync(response -> {

@@ -13,7 +13,8 @@ import org.apache.commons.logging.LogFactory;
 public final class LooseValidations {
     private static final Log logger = LogFactory.getLog(LooseValidations.class);
 
-    private enum ValidationMode {
+    // Visible for testing
+    enum ValidationMode {
         NONE,
         LOG,
         THROW,
@@ -22,7 +23,7 @@ public final class LooseValidations {
     private static final ValidationMode VALIDATION_MODE = validationMode();
 
     /**
-     * Returhs whether {@code obj} is {@code null}.
+     * Returns whether {@code obj} is {@code null}.
      */
     @CheckReturnValue
     public static boolean checkNotNull(Object obj, String message) {
@@ -47,15 +48,15 @@ public final class LooseValidations {
     }
 
     private static ValidationMode validationMode() {
-        String config = System.getProperty("com.amazonaws.xray.validationMode", "").toLowerCase();
-        switch (config) {
-            case "log":
-                return ValidationMode.LOG;
-            case "throw":
-                return ValidationMode.THROW;
-            case "none":
-            default:
-                return ValidationMode.NONE;
+        return validationMode(System.getProperty("com.amazonaws.xray.validationMode", ""));
+    }
+
+    // Visible for testing
+    static ValidationMode validationMode(String config) {
+        try {
+            return ValidationMode.valueOf(config.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ValidationMode.NONE;
         }
     }
 
