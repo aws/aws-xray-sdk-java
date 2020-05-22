@@ -23,6 +23,7 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
 
     private static final URL DEFAULT_RULES = LocalizedSamplingStrategy.class.getResource("/com/amazonaws/xray/strategy/sampling/DefaultSamplingRules.json");
 
+    private URL samplingRulesLocation;
     private List<SamplingRule> rules;
     private SamplingRule defaultRule;
 
@@ -35,7 +36,12 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
     }
 
     public LocalizedSamplingStrategy(URL ruleLocation) {
+        this.samplingRulesLocation = ruleLocation;
         processRuleManifest(getRuleManifest(ruleLocation));
+    }
+
+    public URL getSamplingManifestURL() {
+        return samplingRulesLocation;
     }
 
     private SamplingRuleManifest getRuleManifest(URL ruleLocation) {

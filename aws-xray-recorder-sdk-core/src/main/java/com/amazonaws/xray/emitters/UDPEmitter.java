@@ -1,18 +1,23 @@
 package com.amazonaws.xray.emitters;
 
-import com.amazonaws.xray.config.DaemonConfiguration;
-import com.amazonaws.xray.entities.Entity;
-import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.entities.Subsegment;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.Optional;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.amazonaws.xray.config.DaemonConfiguration;
+import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.entities.Subsegment;
+
+/**
+ * @deprecated Use {@link Emitter#create()}.
+ */
+@Deprecated
 public class UDPEmitter extends Emitter {
     private static final Log logger = LogFactory.getLog(UDPEmitter.class);
 
@@ -47,6 +52,10 @@ public class UDPEmitter extends Emitter {
             logger.error("Exception while instantiating daemon socket.", e);
             throw e;
         }
+    }
+
+    public String getUDPAddress() {
+        return config.getUDPAddress();
     }
 
     /**

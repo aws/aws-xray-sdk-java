@@ -4,21 +4,30 @@ import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
 import com.amazonaws.xray.contexts.SegmentContext;
 import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.contexts.ThreadLocalSegmentContextResolver;
-import com.amazonaws.xray.emitters.DefaultEmitter;
 import com.amazonaws.xray.emitters.Emitter;
-import com.amazonaws.xray.listeners.SegmentListener;
-import com.amazonaws.xray.entities.*;
+import com.amazonaws.xray.entities.AWSLogReference;
+import com.amazonaws.xray.entities.DummySegment;
+import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.FacadeSegment;
+import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.entities.SegmentImpl;
+import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
-import com.amazonaws.xray.strategy.*;
+import com.amazonaws.xray.listeners.SegmentListener;
+import com.amazonaws.xray.strategy.ContextMissingStrategy;
+import com.amazonaws.xray.strategy.DefaultContextMissingStrategy;
+import com.amazonaws.xray.strategy.DefaultPrioritizationStrategy;
+import com.amazonaws.xray.strategy.DefaultStreamingStrategy;
+import com.amazonaws.xray.strategy.DefaultThrowableSerializationStrategy;
+import com.amazonaws.xray.strategy.PrioritizationStrategy;
+import com.amazonaws.xray.strategy.StreamingStrategy;
+import com.amazonaws.xray.strategy.ThrowableSerializationStrategy;
 import com.amazonaws.xray.strategy.sampling.DefaultSamplingStrategy;
 import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,6 +41,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class AWSXRayRecorder {
 
@@ -129,8 +140,8 @@ public class AWSXRayRecorder {
         serviceRuntimeContext.putAll(RUNTIME_INFORMATION);
 
         try {
-            emitter = new DefaultEmitter();
-        } catch (SocketException e) {
+            emitter = Emitter.create();
+        } catch (IOException e) {
             throw new RuntimeException("Unable to instantiate AWSXRayRecorder: ", e);
         }
     }
