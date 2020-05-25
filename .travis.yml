@@ -12,6 +12,12 @@ jdk:
 
 install:
   - mvn install -DskipTests -Dgpg.skip -Dmaven.javadoc.skip -B -V
+  - ./gradlew build
 
 sudo: false
 dist: trusty
+
+cache:
+  directories:
+    - $HOME/.gradle/caches
+    - $HOME/.m2
