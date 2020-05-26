@@ -1,6 +1,7 @@
 include(":aws-xray-recorder-sdk-apache-http")
 include(":aws-xray-recorder-sdk-aws-sdk")
 include(":aws-xray-recorder-sdk-aws-sdk-instrumentor")
+include(":aws-xray-recorder-sdk-benchmark")
 include(":aws-xray-recorder-sdk-bom")
 include(":aws-xray-recorder-sdk-core")
 include(":aws-xray-recorder-sdk-sql")

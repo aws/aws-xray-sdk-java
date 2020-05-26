@@ -15,6 +15,16 @@ allprojects {
             withSourcesJar()
         }
 
+        val propertiesDir = "build/generated/sources/properties"
+
+        configure<JavaPluginConvention> {
+            sourceSets {
+                named("main") {
+                    output.dir(mapOf("builtBy" to "generateProperties"), propertiesDir)
+                }
+            }
+        }
+
         dependencies {
             configurations.configureEach {
                 if (isCanBeResolved && !isCanBeConsumed) {
@@ -38,6 +48,15 @@ allprojects {
                 // options.addBooleanOption("Xdoclint:html", true)
                 // options.addBooleanOption("Xdoclint:reference", true)
                 // options.addBooleanOption("Xdoclint:syntax", true)
+            }
+
+            val generateProperties by registering {
+                doLast {
+                    val folder = file("${propertiesDir}/com/amazonaws/xray")
+                    folder.mkdirs()
+                    val propertiesFile = folder.resolve("sdk.properties")
+                    propertiesFile.writeText("awsxrayrecordersdk.version=${project.version}")
+                }
             }
         }
     }
