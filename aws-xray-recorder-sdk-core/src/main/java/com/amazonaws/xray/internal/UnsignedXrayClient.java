@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import javax.annotation.Nullable;
 
 /**
  * A simple client for sending API requests via the X-Ray daemon. Requests do not have to be
@@ -35,7 +36,8 @@ public class UnsignedXrayClient {
     // Visible for testing
     static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .setSerializationInclusion(Include.NON_EMPTY)
-            .setPropertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE)
+            // Use deprecated field to support older Jackson versions for now.
+            .setPropertyNamingStrategy(PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE)
             .setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
                 @Override
                 public boolean hasIgnoreMarker(AnnotatedMember m) {
@@ -140,7 +142,12 @@ public class UnsignedXrayClient {
         }
     }
 
-    private static void readTo(InputStream is, ByteArrayOutputStream os) throws IOException {
+    private static void readTo(@Nullable InputStream is, ByteArrayOutputStream os) throws IOException {
+        // It is possible for getErrorStream to return null, though since we don't read it for success cases in practice it
+        // shouldn't happen. Check just in case.
+        if (is == null) {
+            return;
+        }
         int b;
         while ((b = is.read()) != -1) {
             os.write(b);
