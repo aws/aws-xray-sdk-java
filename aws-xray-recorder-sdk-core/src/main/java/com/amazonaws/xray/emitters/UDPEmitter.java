@@ -52,16 +52,6 @@ public class UDPEmitter extends Emitter {
         }
     }
 
-    /**
-     * Constructs a UDPEmitter. This overload allows you to specify the daemonSocket and configuration.
-     * @param daemonSocket The {@link DatagramSocket} for the Emitter.
-     * @param config The {@link DaemonConfiguration} for the Emitter.
-     */
-    UDPEmitter(final DatagramSocket daemonSocket, final DaemonConfiguration config) {
-        this.daemonSocket = daemonSocket;
-        this.config = config;
-    }
-
     public String getUDPAddress() {
         return config.getUDPAddress();
     }

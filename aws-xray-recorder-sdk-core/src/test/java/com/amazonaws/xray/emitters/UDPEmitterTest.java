@@ -1,15 +1,12 @@
 package com.amazonaws.xray.emitters;
 
+import static com.amazonaws.xray.AWSXRay.getGlobalRecorder;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.amazonaws.xray.config.DaemonConfiguration;
 import com.amazonaws.xray.entities.DummySegment;
-import org.junit.Test;
-
-import java.net.DatagramSocket;
 import java.net.SocketException;
-
-import static com.amazonaws.xray.AWSXRay.getGlobalRecorder;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import org.junit.Test;
 
 public class UDPEmitterTest {
 
@@ -20,18 +17,17 @@ public class UDPEmitterTest {
 
         UDPEmitter emitter = new UDPEmitter(config);
 
-        assertEquals(address, emitter.getUDPAddress());
+        assertThat(emitter.getUDPAddress()).isEqualTo(address);
     }
 
 
     @Test
     public void sendingSegmentShouldNotThrowExceptions() throws SocketException {
-        DaemonConfiguration config = getDaemonConfiguration("host:1234");
-        UDPEmitter emitter = new UDPEmitter(mock(DatagramSocket.class), config);
+        DaemonConfiguration config = getDaemonConfiguration("__udpemittertest_unresolvable__:1234");
+        UDPEmitter emitter = new UDPEmitter(config);
 
-        final boolean success = emitter.sendSegment(new DummySegment(getGlobalRecorder()));
-
-        assertEquals(false, success);
+        boolean success = emitter.sendSegment(new DummySegment(getGlobalRecorder()));
+        assertThat(success).isFalse();
     }
 
     protected DaemonConfiguration getDaemonConfiguration(final String address) {
