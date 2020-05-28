@@ -1,18 +1,16 @@
 package com.amazonaws.xray.emitters;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
-import java.util.Optional;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.amazonaws.xray.config.DaemonConfiguration;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
+import java.util.Optional;
 
 /**
  * @deprecated Use {@link Emitter#create()}.
@@ -83,12 +81,12 @@ public class UDPEmitter extends Emitter {
     }
 
     private boolean sendData(byte[] data, Entity entity) {
-        DatagramPacket packet = new DatagramPacket(sendBuffer, DAEMON_BUF_RECEIVE_SIZE, config.getAddressForEmitter());
-        packet.setData(data);
         try {
+            DatagramPacket packet = new DatagramPacket(sendBuffer, DAEMON_BUF_RECEIVE_SIZE, config.getAddressForEmitter());
+            packet.setData(data);
             logger.debug("Sending UDP packet.");
             daemonSocket.send(packet);
-        } catch (IOException e) {
+        } catch (Exception e) {
             String segmentName = Optional.ofNullable(entity.getParent()).map(this::nameAndId).orElse("[no parent segment]");
             logger.error("Exception while sending segment over UDP for entity " +  nameAndId(entity) + " on segment " + segmentName, e);
             return false;
