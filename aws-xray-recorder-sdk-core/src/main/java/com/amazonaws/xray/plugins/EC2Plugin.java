@@ -6,6 +6,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,8 +29,6 @@ import com.amazonaws.util.EC2MetadataUtils;
 public class EC2Plugin implements Plugin {
     private static final Log logger = LogFactory.getLog(EC2Plugin.class);
 
-    private static FileSystem fs;
-
     private static final String SERVICE_NAME = "ec2";
     public static final String ORIGIN = "AWS::EC2::Instance";
 
@@ -42,23 +41,28 @@ public class EC2Plugin implements Plugin {
     private static final String LINUX_ROOT = "/";
     private static final String LINUX_PATH = "opt/aws/amazon-cloudwatch-agent/etc/log-config.json";
 
-    private HashMap<String, Object> runtimeContext;
+    private final Map<String, Object> runtimeContext;
 
-    private Set<AWSLogReference> logReferences;
+    private final Set<AWSLogReference> logReferences;
+
+    private final FileSystem fs;
+
+    private final Map<EC2MetadataFetcher.EC2Metadata, String> metadata;
 
     public EC2Plugin() {
-        this(FileSystems.getDefault());
+        this(FileSystems.getDefault(), new EC2MetadataFetcher());
     }
 
-    public EC2Plugin(FileSystem fs) {
-        runtimeContext = new HashMap<>();
-        logReferences = new HashSet<>();
+    public EC2Plugin(FileSystem fs, EC2MetadataFetcher metadataFetcher) {
         this.fs = fs;
+        metadata = metadataFetcher.fetch();
+        runtimeContext = new LinkedHashMap<>();
+        logReferences = new HashSet<>();
     }
 
     @Override
     public boolean isEnabled() {
-        return EC2MetadataUtils.getInstanceId() != null;
+        return metadata.containsKey(EC2MetadataFetcher.EC2Metadata.INSTANCE_ID);
     }
 
     @Override
@@ -70,12 +74,8 @@ public class EC2Plugin implements Plugin {
      * Reads EC2 provided metadata to include it in trace document
      */
     public void populateRuntimeContext() {
-        if (null != EC2MetadataUtils.getInstanceId()) {
-            runtimeContext.put("instance_id", EC2MetadataUtils.getInstanceId());
-        }
-        if (null != EC2MetadataUtils.getAvailabilityZone()) {
-            runtimeContext.put("availability_zone", EC2MetadataUtils.getAvailabilityZone());
-        }
+        runtimeContext.put("instance_id", metadata.get(EC2MetadataFetcher.EC2Metadata.INSTANCE_ID));
+        runtimeContext.put("availability_zone", metadata.get(EC2MetadataFetcher.EC2Metadata.AVAILABILITY_ZONE));
     }
 
     public Map<String, Object> getRuntimeContext() {
