@@ -114,6 +114,13 @@ allprojects {
                     }
                 }
             }
+
+            repositories {
+                maven {
+                    name = "staging-repo"
+                    url = uri("https://aws.oss.sonatype.org/service/local/staging/deploy/maven2")
+                }
+            }
         }
     }
 }
