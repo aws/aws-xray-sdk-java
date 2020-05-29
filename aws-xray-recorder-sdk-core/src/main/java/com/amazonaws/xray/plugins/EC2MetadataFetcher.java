@@ -27,7 +27,7 @@ class EC2MetadataFetcher {
     }
 
     private static final int TIMEOUT_MILLIS = 2000;
-    private static final String DEFAULT_IDMS_ENDPOINT = "169.254.169.254";
+    private static final String DEFAULT_IMDS_ENDPOINT = "169.254.169.254";
 
     private final URL tokenUrl;
     private final URL instanceIdUrl;
@@ -36,7 +36,7 @@ class EC2MetadataFetcher {
     private final URL amiIdUrl;
 
     EC2MetadataFetcher() {
-        this(System.getenv("IMDS_ENDPOINT") != null ? System.getenv("IMDS_ENDPOINT") : DEFAULT_IDMS_ENDPOINT);
+        this(System.getenv("IMDS_ENDPOINT") != null ? System.getenv("IMDS_ENDPOINT") : DEFAULT_IMDS_ENDPOINT);
     }
 
     EC2MetadataFetcher(String endpoint) {
@@ -55,8 +55,8 @@ class EC2MetadataFetcher {
     Map<EC2Metadata, String> fetch() {
         String token = fetchToken();
 
-        // If token is empty, either IDMSv2 isn't enabled or an unexpected failure happened. We can still get
-        // data if IDMSv1 is enabled.
+        // If token is empty, either IMDSv2 isn't enabled or an unexpected failure happened. We can still get
+        // data if IMDSv1 is enabled.
         String instanceId = fetchInstanceId(token);
         if (instanceId.isEmpty()) {
             // If no instance ID, assume we are not actually running on EC2.
@@ -95,13 +95,13 @@ class EC2MetadataFetcher {
         return fetchString("GET", amiIdUrl, token, false);
     }
 
-    // Generic HTTP fetch function for IDMS.
+    // Generic HTTP fetch function for IMDS.
     private static String fetchString(String httpMethod, URL url, String token, boolean includeTtl) {
         final HttpURLConnection connection;
         try {
             connection = (HttpURLConnection) url.openConnection();
         } catch (Exception e) {
-            logger.warn("Error connecting to IDMS.", e);
+            logger.warn("Error connecting to IMDS.", e);
             return "";
         }
 
@@ -126,12 +126,12 @@ class EC2MetadataFetcher {
         try {
             responseCode = connection.getResponseCode();
         } catch (Exception e) {
-            logger.warn("Error connecting to IDMS.", e);
+            logger.warn("Error connecting to IMDS.", e);
             return "";
         }
 
         if (responseCode != 200) {
-            logger.warn("Error reponse from IDMS: code (" + responseCode + ") text " + readResponseString(connection));
+            logger.warn("Error reponse from IMDS: code (" + responseCode + ") text " + readResponseString(connection));
         }
 
         return readResponseString(connection).trim();

@@ -33,7 +33,7 @@ public class EC2MetadataFetcherTest {
     }
 
     @Test
-    public void idmsv2() {
+    public void imdsv2() {
         stubFor(any(urlPathEqualTo("/latest/api/token")).willReturn(ok("token")));
         stubFor(any(urlPathEqualTo("/latest/meta-data/instance-id")).willReturn(ok("instance-123")));
         stubFor(any(urlPathEqualTo("/latest/meta-data/placement/availability-zone")).willReturn(ok("asia-northeast-1a")));
@@ -60,7 +60,7 @@ public class EC2MetadataFetcherTest {
     }
 
     @Test
-    public void idmsv1() {
+    public void imdsv1() {
         stubFor(any(urlPathEqualTo("/latest/api/token")).willReturn(notFound()));
         stubFor(any(urlPathEqualTo("/latest/meta-data/instance-id")).willReturn(ok("instance-123")));
         stubFor(any(urlPathEqualTo("/latest/meta-data/placement/availability-zone")).willReturn(ok("asia-northeast-1a")));
