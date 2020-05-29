@@ -3,13 +3,18 @@ package com.amazonaws.xray.plugins;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.amazonaws.util.EC2MetadataUtils;
 import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.utils.JsonUtils;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,14 +27,6 @@ import org.mockito.junit.MockitoRule;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({JsonUtils.class})
@@ -51,6 +48,8 @@ public class EC2PluginTest {
         Map<EC2MetadataFetcher.EC2Metadata, String> metadata = new HashMap<>();
         metadata.put(EC2MetadataFetcher.EC2Metadata.INSTANCE_ID, "instance-1234");
         metadata.put(EC2MetadataFetcher.EC2Metadata.AVAILABILITY_ZONE, "ap-northeast-1a");
+        metadata.put(EC2MetadataFetcher.EC2Metadata.INSTANCE_TYPE, "m4.xlarge");
+        metadata.put(EC2MetadataFetcher.EC2Metadata.AMI_ID, "ami-1234");
         PowerMockito.mockStatic(JsonUtils.class);
         when(metadataFetcher.fetch()).thenReturn(metadata);
         ec2Plugin = new EC2Plugin(fakeFs, metadataFetcher);
@@ -63,7 +62,9 @@ public class EC2PluginTest {
         ec2Plugin.populateRuntimeContext();
         assertThat(ec2Plugin.getRuntimeContext())
             .containsEntry("instance_id", "instance-1234")
-            .containsEntry("availability_zone", "ap-northeast-1a");
+            .containsEntry("availability_zone", "ap-northeast-1a")
+            .containsEntry("instance_size", "m4.xlarge")
+            .containsEntry("ami_id", "ami-1234");
     }
 
     @Test

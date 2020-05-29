@@ -22,6 +22,8 @@ class EC2MetadataFetcher {
     enum EC2Metadata {
         INSTANCE_ID,
         AVAILABILITY_ZONE,
+        INSTANCE_TYPE,
+        AMI_ID,
     }
 
     private static final int TIMEOUT_MILLIS = 2000;
@@ -30,6 +32,8 @@ class EC2MetadataFetcher {
     private final URL tokenUrl;
     private final URL instanceIdUrl;
     private final URL availabilityZoneUrl;
+    private final URL instanceTypeUrl;
+    private final URL amiIdUrl;
 
     EC2MetadataFetcher() {
         this(System.getenv("IMDS_ENDPOINT") != null ? System.getenv("IMDS_ENDPOINT") : DEFAULT_IDMS_ENDPOINT);
@@ -41,6 +45,8 @@ class EC2MetadataFetcher {
             this.tokenUrl = new URL(urlBase + "/latest/api/token");
             this.instanceIdUrl = new URL(urlBase + "/latest/meta-data/instance-id");
             this.availabilityZoneUrl = new URL(urlBase + "/latest/meta-data/placement/availability-zone");
+            this.instanceTypeUrl = new URL(urlBase + "/latest/meta-data/instance-type");
+            this.amiIdUrl = new URL(urlBase + "/latest/meta-data/ami-id");
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Illegal endpoint: " + endpoint);
         }
@@ -58,10 +64,14 @@ class EC2MetadataFetcher {
         }
 
         String availabilityZone = fetchAvailabilityZone(token);
+        String instanceType = fetchInstanceType(token);
+        String amiId = fetchAmiId(token);
 
         Map<EC2Metadata, String> result = new LinkedHashMap<>();
         result.put(EC2Metadata.INSTANCE_ID, instanceId);
         result.put(EC2Metadata.AVAILABILITY_ZONE, availabilityZone);
+        result.put(EC2Metadata.INSTANCE_TYPE, instanceType);
+        result.put(EC2Metadata.AMI_ID, amiId);
         return result;
     }
 
@@ -75,6 +85,14 @@ class EC2MetadataFetcher {
 
     private String fetchAvailabilityZone(String token) {
         return fetchString("GET", availabilityZoneUrl, token, false);
+    }
+
+    private String fetchInstanceType(String token) {
+        return fetchString("GET", instanceTypeUrl, token, false);
+    }
+
+    private String fetchAmiId(String token) {
+        return fetchString("GET", amiIdUrl, token, false);
     }
 
     // Generic HTTP fetch function for IDMS.

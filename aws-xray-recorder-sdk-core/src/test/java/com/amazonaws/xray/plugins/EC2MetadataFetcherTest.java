@@ -1,8 +1,6 @@
 package com.amazonaws.xray.plugins;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.notFound;
@@ -39,17 +37,25 @@ public class EC2MetadataFetcherTest {
         stubFor(any(urlPathEqualTo("/latest/api/token")).willReturn(ok("token")));
         stubFor(any(urlPathEqualTo("/latest/meta-data/instance-id")).willReturn(ok("instance-123")));
         stubFor(any(urlPathEqualTo("/latest/meta-data/placement/availability-zone")).willReturn(ok("asia-northeast-1a")));
+        stubFor(any(urlPathEqualTo("/latest/meta-data/instance-type")).willReturn(ok("m4.xlarge")));
+        stubFor(any(urlPathEqualTo("/latest/meta-data/ami-id")).willReturn(ok("ami-1234")));
 
         Map<EC2MetadataFetcher.EC2Metadata, String> metadata = fetcher.fetch();
         assertThat(metadata).containsExactly(
             entry(EC2MetadataFetcher.EC2Metadata.INSTANCE_ID, "instance-123"),
-            entry(EC2MetadataFetcher.EC2Metadata.AVAILABILITY_ZONE, "asia-northeast-1a"));
+            entry(EC2MetadataFetcher.EC2Metadata.AVAILABILITY_ZONE, "asia-northeast-1a"),
+            entry(EC2MetadataFetcher.EC2Metadata.INSTANCE_TYPE, "m4.xlarge"),
+            entry(EC2MetadataFetcher.EC2Metadata.AMI_ID, "ami-1234"));
 
         verify(putRequestedFor(urlEqualTo("/latest/api/token"))
                    .withHeader("X-aws-ec2-metadata-token-ttl-seconds", equalTo("60")));
         verify(getRequestedFor(urlEqualTo("/latest/meta-data/instance-id"))
                    .withHeader("X-aws-ec2-metadata-token", equalTo("token")));
         verify(getRequestedFor(urlEqualTo("/latest/meta-data/placement/availability-zone"))
+                   .withHeader("X-aws-ec2-metadata-token", equalTo("token")));
+        verify(getRequestedFor(urlEqualTo("/latest/meta-data/instance-type"))
+                   .withHeader("X-aws-ec2-metadata-token", equalTo("token")));
+        verify(getRequestedFor(urlEqualTo("/latest/meta-data/ami-id"))
                    .withHeader("X-aws-ec2-metadata-token", equalTo("token")));
     }
 
@@ -58,17 +64,25 @@ public class EC2MetadataFetcherTest {
         stubFor(any(urlPathEqualTo("/latest/api/token")).willReturn(notFound()));
         stubFor(any(urlPathEqualTo("/latest/meta-data/instance-id")).willReturn(ok("instance-123")));
         stubFor(any(urlPathEqualTo("/latest/meta-data/placement/availability-zone")).willReturn(ok("asia-northeast-1a")));
+        stubFor(any(urlPathEqualTo("/latest/meta-data/instance-type")).willReturn(ok("m4.xlarge")));
+        stubFor(any(urlPathEqualTo("/latest/meta-data/ami-id")).willReturn(ok("ami-1234")));
 
         Map<EC2MetadataFetcher.EC2Metadata, String> metadata = fetcher.fetch();
         assertThat(metadata).containsExactly(
             entry(EC2MetadataFetcher.EC2Metadata.INSTANCE_ID, "instance-123"),
-            entry(EC2MetadataFetcher.EC2Metadata.AVAILABILITY_ZONE, "asia-northeast-1a"));
+            entry(EC2MetadataFetcher.EC2Metadata.AVAILABILITY_ZONE, "asia-northeast-1a"),
+            entry(EC2MetadataFetcher.EC2Metadata.INSTANCE_TYPE, "m4.xlarge"),
+            entry(EC2MetadataFetcher.EC2Metadata.AMI_ID, "ami-1234"));
 
         verify(putRequestedFor(urlEqualTo("/latest/api/token"))
                    .withHeader("X-aws-ec2-metadata-token-ttl-seconds", equalTo("60")));
         verify(getRequestedFor(urlEqualTo("/latest/meta-data/instance-id"))
                    .withoutHeader("X-aws-ec2-metadata-token"));
         verify(getRequestedFor(urlEqualTo("/latest/meta-data/placement/availability-zone"))
+                   .withoutHeader("X-aws-ec2-metadata-token"));
+        verify(getRequestedFor(urlEqualTo("/latest/meta-data/instance-type"))
+                   .withoutHeader("X-aws-ec2-metadata-token"));
+        verify(getRequestedFor(urlEqualTo("/latest/meta-data/ami-id"))
                    .withoutHeader("X-aws-ec2-metadata-token"));
     }
 }
