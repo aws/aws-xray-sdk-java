@@ -1,44 +1,78 @@
 package com.amazonaws.xray.plugins;
 
-import com.amazonaws.util.EC2MetadataUtils;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
 import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.utils.JsonUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.BDDMockito;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({JsonUtils.class, EC2MetadataUtils.class})
+@PrepareForTest({JsonUtils.class})
 public class EC2PluginTest {
+
+    @Rule
+    public MockitoRule mocks = MockitoJUnit.rule();
+
+    @Mock
+    private FileSystem fakeFs;
+
+    @Mock
+    private EC2MetadataFetcher metadataFetcher;
+
     private EC2Plugin ec2Plugin;
-    private FileSystem fakeFs = Mockito.mock(FileSystem.class);
 
     @Before
     public void setUpEC2Plugin() {
+        Map<EC2MetadataFetcher.EC2Metadata, String> metadata = new HashMap<>();
+        metadata.put(EC2MetadataFetcher.EC2Metadata.INSTANCE_ID, "instance-1234");
+        metadata.put(EC2MetadataFetcher.EC2Metadata.AVAILABILITY_ZONE, "ap-northeast-1a");
+        metadata.put(EC2MetadataFetcher.EC2Metadata.INSTANCE_TYPE, "m4.xlarge");
+        metadata.put(EC2MetadataFetcher.EC2Metadata.AMI_ID, "ami-1234");
         PowerMockito.mockStatic(JsonUtils.class);
-        PowerMockito.mockStatic(EC2MetadataUtils.class);
-        ec2Plugin = new EC2Plugin(fakeFs);
+        when(metadataFetcher.fetch()).thenReturn(metadata);
+        ec2Plugin = new EC2Plugin(fakeFs, metadataFetcher);
     }
 
     @Test
-    public void testInit() {
-        BDDMockito.given(EC2MetadataUtils.getInstanceId()).willReturn("12345");
+    public void testMetadataPresent() {
+        assertThat(ec2Plugin.isEnabled()).isTrue();
 
-        Assert.assertTrue(ec2Plugin.isEnabled());
+        ec2Plugin.populateRuntimeContext();
+        assertThat(ec2Plugin.getRuntimeContext())
+            .containsEntry("instance_id", "instance-1234")
+            .containsEntry("availability_zone", "ap-northeast-1a")
+            .containsEntry("instance_size", "m4.xlarge")
+            .containsEntry("ami_id", "ami-1234");
+    }
+
+    @Test
+    public void testMetadataNotPresent() {
+        when(metadataFetcher.fetch()).thenReturn(Collections.emptyMap());
+        ec2Plugin = new EC2Plugin(fakeFs, metadataFetcher);
+
+        assertThat(ec2Plugin.isEnabled()).isFalse();
     }
 
     @Test
@@ -49,7 +83,7 @@ public class EC2PluginTest {
 
         Set<AWSLogReference> logReferences = ec2Plugin.getLogReferences();
 
-        Assert.assertTrue(logReferences.isEmpty());
+        assertThat(logReferences).isEmpty();
     }
 
     @Test
@@ -64,10 +98,9 @@ public class EC2PluginTest {
         BDDMockito.given(JsonUtils.getMatchingListFromJsonArrayNode(Mockito.any(), Mockito.any())).willReturn(groupList);
 
         Set<AWSLogReference> logReferences = ec2Plugin.getLogReferences();
-        AWSLogReference logReference = (AWSLogReference) logReferences.toArray()[0];
 
-        Assert.assertEquals(1, logReferences.size());
-        Assert.assertEquals("test_group", logReference.getLogGroup());
+        assertThat(logReferences).hasOnlyOneElementSatisfying(
+            reference -> assertThat(reference.getLogGroup()).isEqualTo("test_group"));
     }
 
     @Test
@@ -84,6 +117,6 @@ public class EC2PluginTest {
 
         Set<AWSLogReference> logReferences = ec2Plugin.getLogReferences();
 
-        Assert.assertEquals(2, logReferences.size());
+        assertThat(logReferences).hasSize(2);
     }
 }
