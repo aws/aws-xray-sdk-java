@@ -5,6 +5,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.notFound;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
@@ -22,6 +23,26 @@ import org.junit.Test;
 
 public class EC2MetadataFetcherTest {
 
+    // From https://docs.amazonaws.cn/en_us/AWSEC2/latest/UserGuide/instance-identity-documents.html
+    private static final String IDENTITY_DOCUMENT =
+        "{\n"
+        + "    \"devpayProductCodes\" : null,\n"
+        + "    \"marketplaceProductCodes\" : [ \"1abc2defghijklm3nopqrs4tu\" ], \n"
+        + "    \"availabilityZone\" : \"us-west-2b\",\n"
+        + "    \"privateIp\" : \"10.158.112.84\",\n"
+        + "    \"version\" : \"2017-09-30\",\n"
+        + "    \"instanceId\" : \"i-1234567890abcdef0\",\n"
+        + "    \"billingProducts\" : null,\n"
+        + "    \"instanceType\" : \"t2.micro\",\n"
+        + "    \"accountId\" : \"123456789012\",\n"
+        + "    \"imageId\" : \"ami-5fb8c835\",\n"
+        + "    \"pendingTime\" : \"2016-11-19T16:32:11Z\",\n"
+        + "    \"architecture\" : \"x86_64\",\n"
+        + "    \"kernelId\" : null,\n"
+        + "    \"ramdiskId\" : null,\n"
+        + "    \"region\" : \"us-west-2\"\n"
+        + "}";
+
     @ClassRule
     public static WireMockClassRule server = new WireMockClassRule(wireMockConfig().dynamicPort());
 
@@ -35,54 +56,53 @@ public class EC2MetadataFetcherTest {
     @Test
     public void imdsv2() {
         stubFor(any(urlPathEqualTo("/latest/api/token")).willReturn(ok("token")));
-        stubFor(any(urlPathEqualTo("/latest/meta-data/instance-id")).willReturn(ok("instance-123")));
-        stubFor(any(urlPathEqualTo("/latest/meta-data/placement/availability-zone")).willReturn(ok("asia-northeast-1a")));
-        stubFor(any(urlPathEqualTo("/latest/meta-data/instance-type")).willReturn(ok("m4.xlarge")));
-        stubFor(any(urlPathEqualTo("/latest/meta-data/ami-id")).willReturn(ok("ami-1234")));
+        stubFor(any(urlPathEqualTo("/latest/dynamic/instance-identity/document"))
+                    .willReturn(okJson(IDENTITY_DOCUMENT)));
 
         Map<EC2MetadataFetcher.EC2Metadata, String> metadata = fetcher.fetch();
-        assertThat(metadata).containsExactly(
-            entry(EC2MetadataFetcher.EC2Metadata.INSTANCE_ID, "instance-123"),
-            entry(EC2MetadataFetcher.EC2Metadata.AVAILABILITY_ZONE, "asia-northeast-1a"),
-            entry(EC2MetadataFetcher.EC2Metadata.INSTANCE_TYPE, "m4.xlarge"),
-            entry(EC2MetadataFetcher.EC2Metadata.AMI_ID, "ami-1234"));
+        assertThat(metadata).containsOnly(
+            entry(EC2MetadataFetcher.EC2Metadata.INSTANCE_ID, "i-1234567890abcdef0"),
+            entry(EC2MetadataFetcher.EC2Metadata.AVAILABILITY_ZONE, "us-west-2b"),
+            entry(EC2MetadataFetcher.EC2Metadata.INSTANCE_TYPE, "t2.micro"),
+            entry(EC2MetadataFetcher.EC2Metadata.AMI_ID, "ami-5fb8c835"));
 
         verify(putRequestedFor(urlEqualTo("/latest/api/token"))
                    .withHeader("X-aws-ec2-metadata-token-ttl-seconds", equalTo("60")));
-        verify(getRequestedFor(urlEqualTo("/latest/meta-data/instance-id"))
-                   .withHeader("X-aws-ec2-metadata-token", equalTo("token")));
-        verify(getRequestedFor(urlEqualTo("/latest/meta-data/placement/availability-zone"))
-                   .withHeader("X-aws-ec2-metadata-token", equalTo("token")));
-        verify(getRequestedFor(urlEqualTo("/latest/meta-data/instance-type"))
-                   .withHeader("X-aws-ec2-metadata-token", equalTo("token")));
-        verify(getRequestedFor(urlEqualTo("/latest/meta-data/ami-id"))
+        verify(getRequestedFor(urlEqualTo("/latest/dynamic/instance-identity/document"))
                    .withHeader("X-aws-ec2-metadata-token", equalTo("token")));
     }
 
     @Test
     public void imdsv1() {
         stubFor(any(urlPathEqualTo("/latest/api/token")).willReturn(notFound()));
-        stubFor(any(urlPathEqualTo("/latest/meta-data/instance-id")).willReturn(ok("instance-123")));
-        stubFor(any(urlPathEqualTo("/latest/meta-data/placement/availability-zone")).willReturn(ok("asia-northeast-1a")));
-        stubFor(any(urlPathEqualTo("/latest/meta-data/instance-type")).willReturn(ok("m4.xlarge")));
-        stubFor(any(urlPathEqualTo("/latest/meta-data/ami-id")).willReturn(ok("ami-1234")));
+        stubFor(any(urlPathEqualTo("/latest/dynamic/instance-identity/document"))
+                    .willReturn(okJson(IDENTITY_DOCUMENT)));
 
         Map<EC2MetadataFetcher.EC2Metadata, String> metadata = fetcher.fetch();
-        assertThat(metadata).containsExactly(
-            entry(EC2MetadataFetcher.EC2Metadata.INSTANCE_ID, "instance-123"),
-            entry(EC2MetadataFetcher.EC2Metadata.AVAILABILITY_ZONE, "asia-northeast-1a"),
-            entry(EC2MetadataFetcher.EC2Metadata.INSTANCE_TYPE, "m4.xlarge"),
-            entry(EC2MetadataFetcher.EC2Metadata.AMI_ID, "ami-1234"));
+        assertThat(metadata).containsOnly(
+            entry(EC2MetadataFetcher.EC2Metadata.INSTANCE_ID, "i-1234567890abcdef0"),
+            entry(EC2MetadataFetcher.EC2Metadata.AVAILABILITY_ZONE, "us-west-2b"),
+            entry(EC2MetadataFetcher.EC2Metadata.INSTANCE_TYPE, "t2.micro"),
+            entry(EC2MetadataFetcher.EC2Metadata.AMI_ID, "ami-5fb8c835"));
 
         verify(putRequestedFor(urlEqualTo("/latest/api/token"))
                    .withHeader("X-aws-ec2-metadata-token-ttl-seconds", equalTo("60")));
-        verify(getRequestedFor(urlEqualTo("/latest/meta-data/instance-id"))
+        verify(getRequestedFor(urlEqualTo("/latest/dynamic/instance-identity/document"))
                    .withoutHeader("X-aws-ec2-metadata-token"));
-        verify(getRequestedFor(urlEqualTo("/latest/meta-data/placement/availability-zone"))
-                   .withoutHeader("X-aws-ec2-metadata-token"));
-        verify(getRequestedFor(urlEqualTo("/latest/meta-data/instance-type"))
-                   .withoutHeader("X-aws-ec2-metadata-token"));
-        verify(getRequestedFor(urlEqualTo("/latest/meta-data/ami-id"))
+    }
+
+    @Test
+    public void badJson() {
+        stubFor(any(urlPathEqualTo("/latest/api/token")).willReturn(notFound()));
+        stubFor(any(urlPathEqualTo("/latest/dynamic/instance-identity/document"))
+                    .willReturn(okJson("I'm not JSON")));
+
+        Map<EC2MetadataFetcher.EC2Metadata, String> metadata = fetcher.fetch();
+        assertThat(metadata).isEmpty();
+
+        verify(putRequestedFor(urlEqualTo("/latest/api/token"))
+                   .withHeader("X-aws-ec2-metadata-token-ttl-seconds", equalTo("60")));
+        verify(getRequestedFor(urlEqualTo("/latest/dynamic/instance-identity/document"))
                    .withoutHeader("X-aws-ec2-metadata-token"));
     }
 }

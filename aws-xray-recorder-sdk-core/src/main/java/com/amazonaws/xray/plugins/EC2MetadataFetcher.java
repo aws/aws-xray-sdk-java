@@ -1,5 +1,8 @@
 package com.amazonaws.xray.plugins;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +13,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
@@ -18,6 +21,8 @@ import org.apache.commons.logging.LogFactory;
 
 class EC2MetadataFetcher {
     private static final Log logger = LogFactory.getLog(EC2MetadataFetcher.class);
+
+    private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
     enum EC2Metadata {
         INSTANCE_ID,
@@ -29,11 +34,8 @@ class EC2MetadataFetcher {
     private static final int TIMEOUT_MILLIS = 2000;
     private static final String DEFAULT_IMDS_ENDPOINT = "169.254.169.254";
 
+    private final URL identityDocumentUrl;
     private final URL tokenUrl;
-    private final URL instanceIdUrl;
-    private final URL availabilityZoneUrl;
-    private final URL instanceTypeUrl;
-    private final URL amiIdUrl;
 
     EC2MetadataFetcher() {
         this(System.getenv("IMDS_ENDPOINT") != null ? System.getenv("IMDS_ENDPOINT") : DEFAULT_IMDS_ENDPOINT);
@@ -42,11 +44,8 @@ class EC2MetadataFetcher {
     EC2MetadataFetcher(String endpoint) {
         String urlBase = "http://" + endpoint;
         try {
+            this.identityDocumentUrl = new URL(urlBase + "/latest/dynamic/instance-identity/document");
             this.tokenUrl = new URL(urlBase + "/latest/api/token");
-            this.instanceIdUrl = new URL(urlBase + "/latest/meta-data/instance-id");
-            this.availabilityZoneUrl = new URL(urlBase + "/latest/meta-data/placement/availability-zone");
-            this.instanceTypeUrl = new URL(urlBase + "/latest/meta-data/instance-type");
-            this.amiIdUrl = new URL(urlBase + "/latest/meta-data/ami-id");
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Illegal endpoint: " + endpoint);
         }
@@ -57,21 +56,49 @@ class EC2MetadataFetcher {
 
         // If token is empty, either IMDSv2 isn't enabled or an unexpected failure happened. We can still get
         // data if IMDSv1 is enabled.
-        String instanceId = fetchInstanceId(token);
-        if (instanceId.isEmpty()) {
-            // If no instance ID, assume we are not actually running on EC2.
+        String identity = fetchIdentity(token);
+        if (identity.isEmpty()) {
+            // If no identity document, assume we are not actually running on EC2.
             return Collections.emptyMap();
         }
 
-        String availabilityZone = fetchAvailabilityZone(token);
-        String instanceType = fetchInstanceType(token);
-        String amiId = fetchAmiId(token);
+        Map<EC2Metadata, String> result = new HashMap<>();
+        try (JsonParser parser = JSON_FACTORY.createParser(identity)) {
+            parser.nextToken();
 
-        Map<EC2Metadata, String> result = new LinkedHashMap<>();
-        result.put(EC2Metadata.INSTANCE_ID, instanceId);
-        result.put(EC2Metadata.AVAILABILITY_ZONE, availabilityZone);
-        result.put(EC2Metadata.INSTANCE_TYPE, instanceType);
-        result.put(EC2Metadata.AMI_ID, amiId);
+            if (!parser.isExpectedStartObjectToken()) {
+                throw new IOException("Invalid JSON:" + identity);
+            }
+
+            while (parser.nextToken() != JsonToken.END_OBJECT) {
+                String value = parser.nextTextValue();
+                switch (parser.getCurrentName()) {
+                    case "instanceId":
+                        result.put(EC2Metadata.INSTANCE_ID, value);
+                        break;
+                    case "availabilityZone":
+                        result.put(EC2Metadata.AVAILABILITY_ZONE, value);
+                        break;
+                    case "instanceType":
+                        result.put(EC2Metadata.INSTANCE_TYPE, value);
+                        break;
+                    case "imageId":
+                        result.put(EC2Metadata.AMI_ID, value);
+                        break;
+                    default:
+                        parser.skipChildren();
+                }
+                if (result.size() == EC2Metadata.values().length) {
+                    return result;
+                }
+            }
+        } catch (IOException e) {
+            logger.warn("Could not parse identity document.", e);
+            return Collections.emptyMap();
+        }
+
+        // Getting here means the document didn't have all the metadata fields we wanted.
+        logger.warn("Identity document missing metadata: " + identity);
         return result;
     }
 
@@ -79,20 +106,8 @@ class EC2MetadataFetcher {
         return fetchString("PUT", tokenUrl, "", true);
     }
 
-    private String fetchInstanceId(String token) {
-        return fetchString("GET", instanceIdUrl, token, false);
-    }
-
-    private String fetchAvailabilityZone(String token) {
-        return fetchString("GET", availabilityZoneUrl, token, false);
-    }
-
-    private String fetchInstanceType(String token) {
-        return fetchString("GET", instanceTypeUrl, token, false);
-    }
-
-    private String fetchAmiId(String token) {
-        return fetchString("GET", amiIdUrl, token, false);
+    private String fetchIdentity(String token) {
+        return fetchString("GET", identityDocumentUrl, token, false);
     }
 
     // Generic HTTP fetch function for IMDS.
