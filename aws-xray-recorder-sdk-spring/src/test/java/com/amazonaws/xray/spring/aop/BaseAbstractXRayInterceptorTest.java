@@ -39,7 +39,8 @@ public class BaseAbstractXRayInterceptorTest {
 
     class ImplementedXRayInterceptor extends BaseAbstractXRayInterceptor {
         @Override
-        protected void xrayEnabledClasses() {}
+        protected void xrayEnabledClasses() {
+        }
     }
 
     private BaseAbstractXRayInterceptor xRayInterceptor = new ImplementedXRayInterceptor();
@@ -57,7 +58,7 @@ public class BaseAbstractXRayInterceptorTest {
     public void setup() {
         AWSXRay.setGlobalRecorder(mockRecorder);
 
-        when(mockPjp.getArgs()).thenReturn(new Object[]{});
+        when(mockPjp.getArgs()).thenReturn(new Object[] {});
         when(mockPjp.getSignature()).thenReturn(mockSignature);
         when(mockSignature.getName()).thenReturn("testSpringName");
     }
@@ -75,7 +76,7 @@ public class BaseAbstractXRayInterceptorTest {
 
         try {
             xRayInterceptor.processXRayTrace(mockPjp);
-        } catch (Exception e){
+        } catch (Exception e) {
             // A null pointer exception here could potentially indicate that a call to getCurrentSegment() is returning null.
             // i.e. there is another exception other than our intended exception that is thrown that's not supposed to be thrown.
             assertNotEquals(NullPointerException.class, e.getClass());
@@ -97,7 +98,7 @@ public class BaseAbstractXRayInterceptorTest {
 
         try {
             xRayInterceptor.processXRayTrace(mockPjp);
-        } catch (Exception e){
+        } catch (Exception e) {
             verify(mockSegment).addException(expectedException);
         }
     }

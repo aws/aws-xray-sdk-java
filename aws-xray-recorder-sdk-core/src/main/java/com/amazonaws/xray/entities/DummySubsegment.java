@@ -59,7 +59,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setId(String id) { }
+    public void setId(String id) {
+    }
 
     @Override
     public double getStartTime() {
@@ -67,7 +68,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setStartTime(double startTime) { }
+    public void setStartTime(double startTime) {
+    }
 
     @Override
     public double getEndTime() {
@@ -75,7 +77,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setEndTime(double endTime) { }
+    public void setEndTime(double endTime) {
+    }
 
     @Override
     public boolean isFault() {
@@ -83,7 +86,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setFault(boolean fault) { }
+    public void setFault(boolean fault) {
+    }
 
     @Override
     public boolean isError() {
@@ -91,7 +95,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setError(boolean error) { }
+    public void setError(boolean error) {
+    }
 
     @Override
     public String getNamespace() {
@@ -99,7 +104,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setNamespace(String namespace) { }
+    public void setNamespace(String namespace) {
+    }
 
     @Override
     public Cause getCause() {
@@ -112,7 +118,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setHttp(Map<String, Object> http) { }
+    public void setHttp(Map<String, Object> http) {
+    }
 
     @Override
     public Map<String, Object> getAws() {
@@ -120,7 +127,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setAws(Map<String, Object> aws) { }
+    public void setAws(Map<String, Object> aws) {
+    }
 
     @Override
     public Map<String, Object> getSql() {
@@ -128,18 +136,21 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setSql(Map<String, Object> sql) { }
-
-    @Override
-    public Map<String, Map<String, Object>> getMetadata() {
-            return metadataMap;
+    public void setSql(Map<String, Object> sql) {
     }
 
     @Override
-    public void setMetadata(Map<String, Map<String, Object>> metadata) { }
+    public Map<String, Map<String, Object>> getMetadata() {
+        return metadataMap;
+    }
 
     @Override
-    public void setAnnotations(Map<String, Object> annotations) { }
+    public void setMetadata(Map<String, Map<String, Object>> metadata) {
+    }
+
+    @Override
+    public void setAnnotations(Map<String, Object> annotations) {
+    }
 
     @Override
     public Entity getParent() {
@@ -147,7 +158,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setParent(Entity parent) { }
+    public void setParent(Entity parent) {
+    }
 
     @Override
     public boolean isThrottle() {
@@ -155,7 +167,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setThrottle(boolean throttle) { }
+    public void setThrottle(boolean throttle) {
+    }
 
     @Override
     public boolean isInProgress() {
@@ -163,7 +176,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setInProgress(boolean inProgress) { }
+    public void setInProgress(boolean inProgress) {
+    }
 
     @Override
     public TraceID getTraceId() {
@@ -171,7 +185,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setTraceId(TraceID traceId) { }
+    public void setTraceId(TraceID traceId) {
+    }
 
     /**
      * @return the creator
@@ -193,7 +208,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setParentId(String parentId) { }
+    public void setParentId(String parentId) {
+    }
 
     @Override
     public List<Subsegment> getSubsegments() {
@@ -201,43 +217,56 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void addSubsegment(Subsegment subsegment) { }
+    public void addSubsegment(Subsegment subsegment) {
+    }
 
     @Override
-    public void addException(Throwable exception) { }
+    public void addException(Throwable exception) {
+    }
 
     @Override
-    public void putHttp(String key, Object value) { }
+    public void putHttp(String key, Object value) {
+    }
 
     @Override
-    public void putAllHttp(Map<String, Object> all) { }
+    public void putAllHttp(Map<String, Object> all) {
+    }
 
     @Override
-    public void putAws(String key, Object value) { }
+    public void putAws(String key, Object value) {
+    }
 
     @Override
-    public void putAllAws(Map<String, Object> all) { }
+    public void putAllAws(Map<String, Object> all) {
+    }
 
     @Override
-    public void putSql(String key, Object value) { }
+    public void putSql(String key, Object value) {
+    }
 
     @Override
-    public void putAllSql(Map<String, Object> all) { }
+    public void putAllSql(Map<String, Object> all) {
+    }
 
     @Override
-    public void putAnnotation(String key, String value) { }
+    public void putAnnotation(String key, String value) {
+    }
 
     @Override
-    public void putAnnotation(String key, Number value) { }
+    public void putAnnotation(String key, Number value) {
+    }
 
     @Override
-    public void putAnnotation(String key, Boolean value) { }
+    public void putAnnotation(String key, Boolean value) {
+    }
 
     @Override
-    public void putMetadata(String key, Object object) { }
+    public void putMetadata(String key, Object object) {
+    }
 
     @Override
-    public void putMetadata(String namespace, String key, Object object) { }
+    public void putMetadata(String namespace, String key, Object object) {
+    }
 
     @Override
     public boolean isEmitted() {
@@ -245,7 +274,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setEmitted(boolean emitted) { }
+    public void setEmitted(boolean emitted) {
+    }
 
     @Override
     public String serialize() {
@@ -272,10 +302,12 @@ public class DummySubsegment implements Subsegment {
         return parentSegment;
     }
 
-    public void close() { }
+    public void close() {
+    }
 
     @Override
-    public void setParentSegment(Segment parentSegment) { }
+    public void setParentSegment(Segment parentSegment) {
+    }
 
     @Override
     public Set<String> getPrecursorIds() {
@@ -283,10 +315,12 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setPrecursorIds(Set<String> precursorIds) { }
+    public void setPrecursorIds(Set<String> precursorIds) {
+    }
 
     @Override
-    public void addPrecursorId(String precursorId) { }
+    public void addPrecursorId(String precursorId) {
+    }
 
     @Override
     public String streamSerialize() {
@@ -318,7 +352,8 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void incrementReferenceCount() { }
+    public void incrementReferenceCount() {
+    }
 
     @Override
     public boolean decrementReferenceCount() {
@@ -326,6 +361,7 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void removeSubsegment(Subsegment subsegment) { }
+    public void removeSubsegment(Subsegment subsegment) {
+    }
 
 }

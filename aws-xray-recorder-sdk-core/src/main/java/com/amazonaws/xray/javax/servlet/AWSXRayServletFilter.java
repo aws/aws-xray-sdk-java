@@ -17,7 +17,6 @@ package com.amazonaws.xray.javax.servlet;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.StringValidator;
 import com.amazonaws.xray.entities.TraceHeader;
@@ -33,8 +32,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import javax.servlet.AsyncEvent;
-import javax.servlet.AsyncListener;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -57,7 +54,8 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
     private AWSXRayServletAsyncListener listener;
 
     /**
-     * Warning: this no-args constructor should not be used directly. This constructor is made available for use from within {@code web.xml} and other declarative file-based instantiations.
+     * Warning: this no-args constructor should not be used directly. This constructor is made available for use from within
+     * {@code web.xml} and other declarative file-based instantiations.
      */
     public AWSXRayServletFilter() {
         this((SegmentNamingStrategy) null);
@@ -111,20 +109,25 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
      *
      *
      * @param config
-     *  the filter configuration. There are various init-params which may be passed on initialization. The values in init-params will create segment naming strategies which override those passed in constructors.
+     *  the filter configuration. There are various init-params which may be passed on initialization. The values in init-params
+     *  will create segment naming strategies which override those passed in constructors.
      *
      * <ul>
      *
      * <li>
-     * <b>fixedName</b> A String value used as the fixedName parameter for a created {@link com.amazonaws.xray.strategy.FixedSegmentNamingStrategy}. Used only if the {@code dynamicNamingFallbackName} init-param is not set.
+     * <b>fixedName</b> A String value used as the fixedName parameter for a created
+     * {@link com.amazonaws.xray.strategy.FixedSegmentNamingStrategy}. Used only if the {@code dynamicNamingFallbackName}
+     * init-param is not set.
      * </li>
      *
      * <li>
-     * <b>dynamicNamingFallbackName</b> A String value used as the fallbackName parameter for a created {@link com.amazonaws.xray.strategy.DynamicSegmentNamingStrategy}.
+     * <b>dynamicNamingFallbackName</b> A String value used as the fallbackName parameter for a created
+     * {@link com.amazonaws.xray.strategy.DynamicSegmentNamingStrategy}.
      * </li>
      *
      * <li>
-     * <b>dynamicNamingRecognizedHosts</b> A String value used as the recognizedHosts parameter for a created {@link com.amazonaws.xray.strategy.DynamicSegmentNamingStrategy}.
+     * <b>dynamicNamingRecognizedHosts</b> A String value used as the recognizedHosts parameter for a created
+     * {@link com.amazonaws.xray.strategy.DynamicSegmentNamingStrategy}.
      * </li>
      *
      * </ul>
@@ -143,19 +146,23 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
             } else {
                 segmentNamingStrategy = new DynamicSegmentNamingStrategy(dynamicNamingFallbackName);
             }
-        }
-        else if (StringValidator.isNotNullOrBlank(fixedName)) {
+        } else if (StringValidator.isNotNullOrBlank(fixedName)) {
             segmentNamingStrategy = new FixedSegmentNamingStrategy(fixedName);
         } else if (null == segmentNamingStrategy) {
-            throw new ServletException("The AWSXRayServletFilter requires either a fixedName init-param or an instance of SegmentNamingStrategy. Add an init-param tag to the AWSXRayServletFilter's declaration in web.xml, using param-name: 'fixedName'. Alternatively, pass an instance of SegmentNamingStrategy to the AWSXRayServletFilter constructor.");
+            throw new ServletException(
+                "The AWSXRayServletFilter requires either a fixedName init-param or an instance of SegmentNamingStrategy. "
+                + "Add an init-param tag to the AWSXRayServletFilter's declaration in web.xml, using param-name: 'fixedName'. "
+                + "Alternatively, pass an instance of SegmentNamingStrategy to the AWSXRayServletFilter constructor.");
         }
     }
 
     @Override
-    public void destroy() { }
+    public void destroy() {
+    }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(
+        ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (logger.isDebugEnabled()) {
             logger.debug("AWSXRayServletFilter is beginning to process request: " + request.toString());
         }
@@ -174,7 +181,8 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
                 try {
                     request.getAsyncContext().addListener(listener);
                     recorder.clearTraceEntity();
-                } catch (IllegalStateException ise) { // race condition that occurs when async processing finishes before adding the listener
+                } catch (IllegalStateException ise) {
+                    // race condition that occurs when async processing finishes before adding the listener
                     postFilter(request, response);
                 }
             } else {
@@ -222,8 +230,8 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
     }
 
     private Optional<String> getXForwardedFor(HttpServletRequest request) {
-        String forwarded = null;
-        if ((forwarded = request.getHeader("X-Forwarded-For")) != null) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null) {
             return Optional.of(forwarded.split(",")[0].trim());
         }
         return Optional.empty();
@@ -253,13 +261,19 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         try {
             return segmentNamingStrategy.nameForRequest(httpServletRequest);
         } catch (NullPointerException npe) {
-            throw new RuntimeException("The AWSXRayServletFilter requires either a fixedName init-param or an instance of SegmentNamingStrategy. Add an init-param tag to the AWSXRayServletFilter's declaration in web.xml, using param-name: 'fixedName'. Alternatively, pass an instance of SegmentNamingStrategy to the AWSXRayServletFilter constructor.", npe);
+            throw new RuntimeException(
+                "The AWSXRayServletFilter requires either a fixedName init-param or an instance of SegmentNamingStrategy. "
+                + "Add an init-param tag to the AWSXRayServletFilter's declaration in web.xml, using param-name: 'fixedName'. "
+                + "Alternatively, pass an instance of SegmentNamingStrategy to the AWSXRayServletFilter constructor.", npe);
         }
     }
 
     private SamplingResponse fromSamplingStrategy(HttpServletRequest httpServletRequest) {
         AWSXRayRecorder recorder = getRecorder();
-        SamplingRequest samplingRequest = new SamplingRequest(getSegmentName(httpServletRequest), getHost(httpServletRequest).orElse(null), httpServletRequest.getRequestURI(), httpServletRequest.getMethod(), recorder.getOrigin());
+        SamplingRequest samplingRequest = new SamplingRequest(
+            getSegmentName(httpServletRequest),
+            getHost(httpServletRequest).orElse(null), httpServletRequest.getRequestURI(), httpServletRequest.getMethod(),
+            recorder.getOrigin());
         SamplingResponse sample = recorder.getSamplingStrategy().shouldTrace(samplingRequest);
         return sample;
     }
@@ -299,7 +313,8 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
 
         SamplingResponse samplingResponse = fromSamplingStrategy(httpServletRequest);
 
-        SampleDecision sampleDecision = incomingHeader.isPresent() ? incomingHeader.get().getSampled() : getSampleDecision(samplingResponse);
+        SampleDecision sampleDecision = incomingHeader.isPresent()
+                                        ? incomingHeader.get().getSampled() : getSampleDecision(samplingResponse);
         if (SampleDecision.REQUESTED.equals(sampleDecision) || SampleDecision.UNKNOWN.equals(sampleDecision)) {
             sampleDecision = getSampleDecision(samplingResponse);
         }
@@ -332,7 +347,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         requestAttributes.put("method", httpServletRequest.getMethod());
 
         Optional<String> userAgent = getUserAgent(httpServletRequest);
-        if(userAgent.isPresent()) {
+        if (userAgent.isPresent()) {
             requestAttributes.put("user_agent", userAgent.get());
         }
 
@@ -342,7 +357,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
             requestAttributes.put("x_forwarded_for", true);
         } else {
             Optional<String> clientIp = getClientIp(httpServletRequest);
-            if(clientIp.isPresent()) {
+            if (clientIp.isPresent()) {
                 requestAttributes.put("client_ip", clientIp.get());
             }
         }
@@ -356,13 +371,14 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
 
         TraceHeader responseHeader = null;
         if (incomingHeader.isPresent()) {
-            //create a new header, and use the incoming header so we know what to do in regards to sending back the sampling decision.
+            // create a new header, and use the incoming header so we know what to do in regards to sending back the sampling
+            // decision.
             responseHeader = new TraceHeader(created.getTraceId());
             if (SampleDecision.REQUESTED == incomingHeader.get().getSampled()) {
                 responseHeader.setSampled(created.isSampled() ? SampleDecision.SAMPLED : SampleDecision.NOT_SAMPLED);
             }
         } else {
-            //Create a new header, we're the tracing root. We wont return the sampling decision.
+            // Create a new header, we're the tracing root. We wont return the sampling decision.
             responseHeader = new TraceHeader(created.getTraceId());
         }
         httpServletResponse.addHeader(TraceHeader.HEADER_KEY, responseHeader.toString());
@@ -380,7 +396,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
                 Map<String, Object> responseAttributes = new HashMap<String, Object>();
 
                 int responseCode = httpServletResponse.getStatus();
-                switch (responseCode/100) {
+                switch (responseCode / 100) {
                     case 4:
                         segment.setError(true);
                         if (responseCode == 429) {
@@ -409,55 +425,3 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
     }
 }
 
-class AWSXRayServletAsyncListener implements AsyncListener {
-
-    public static final String ENTITY_ATTRIBUTE_KEY = "com.amazonaws.xray.entities.Entity";
-
-    private AWSXRayRecorder recorder;
-    private AWSXRayServletFilter filter;
-
-    public AWSXRayServletAsyncListener(AWSXRayServletFilter filter, AWSXRayRecorder recorder) {
-        this.filter = filter;
-        this.recorder = recorder;
-    }
-
-    private AWSXRayRecorder getRecorder() {
-        if (recorder == null) {
-            recorder = AWSXRay.getGlobalRecorder();
-        }
-        return recorder;
-    }
-
-    private void processEvent(AsyncEvent event) throws IOException {
-        AWSXRayRecorder recorder = getRecorder();
-        Entity prior = recorder.getTraceEntity();
-        try {
-            Entity entity = (Entity) event.getSuppliedRequest().getAttribute(ENTITY_ATTRIBUTE_KEY);
-            recorder.setTraceEntity(entity);
-            if (null != event.getThrowable()) {
-                entity.addException(event.getThrowable());
-            }
-            filter.postFilter(event.getSuppliedRequest(), event.getSuppliedResponse());
-        } finally {
-            recorder.setTraceEntity(prior);
-        }
-    }
-
-    @Override
-    public void onComplete(AsyncEvent event) throws IOException {
-        processEvent(event);
-    }
-
-    @Override
-    public void onTimeout(AsyncEvent event) throws IOException {
-        processEvent(event);
-    }
-
-    @Override
-    public void onError(AsyncEvent event) throws IOException {
-        processEvent(event);
-    }
-
-    @Override
-    public void onStartAsync(AsyncEvent event) throws IOException { }
-}

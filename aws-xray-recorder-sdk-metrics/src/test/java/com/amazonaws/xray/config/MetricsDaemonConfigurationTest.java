@@ -15,7 +15,6 @@
 
 package com.amazonaws.xray.config;
 
-
 import static org.junit.Assert.assertEquals;
 
 import java.net.InetSocketAddress;

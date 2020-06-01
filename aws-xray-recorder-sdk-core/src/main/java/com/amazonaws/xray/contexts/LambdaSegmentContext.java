@@ -57,21 +57,24 @@ public class LambdaSegmentContext implements SegmentContext {
         if (null == getTraceEntity()) { // First subsgment of a subsegment branch.
             Segment parentSegment = null;
             if (LambdaSegmentContext.isInitializing(LambdaSegmentContext.getTraceHeaderFromEnvironment())) {
-                logger.warn(LAMBDA_TRACE_HEADER_KEY + " is missing a trace ID, parent ID, or sampling decision. Subsegment " + name + " discarded.");
+                logger.warn(LAMBDA_TRACE_HEADER_KEY + " is missing a trace ID, parent ID, or sampling decision. Subsegment "
+                            + name + " discarded.");
                 parentSegment = new FacadeSegment(recorder, new TraceID(), "", SampleDecision.NOT_SAMPLED);
             } else {
                 parentSegment = LambdaSegmentContext.newFacadeSegment(recorder);
             }
             Subsegment subsegment = new SubsegmentImpl(recorder, name, parentSegment);
             subsegment.setParent(parentSegment);
-            parentSegment.addSubsegment(subsegment); // Enable FacadeSegment to keep track of its subsegments for subtree streaming
+            // Enable FacadeSegment to keep track of its subsegments for subtree streaming
+            parentSegment.addSubsegment(subsegment);
             setTraceEntity(subsegment);
             return subsegment;
         } else { // Continuation of a subsegment branch.
             Subsegment parentSubsegment = (Subsegment) getTraceEntity();
             // Ensure customers have not leaked subsegments across invocations
             TraceID environmentRootTraceId = LambdaSegmentContext.getTraceHeaderFromEnvironment().getRootTraceId();
-            if (null != environmentRootTraceId && !environmentRootTraceId.equals(parentSubsegment.getParentSegment().getTraceId())) {
+            if (null != environmentRootTraceId &&
+                !environmentRootTraceId.equals(parentSubsegment.getParentSegment().getTraceId())) {
                 clearTraceEntity();
                 return beginSubsegment(recorder, name);
             }
@@ -121,8 +124,7 @@ public class LambdaSegmentContext implements SegmentContext {
                     current.getCreator().getEmitter().sendSubsegment((Subsegment) current);
                 }
                 clearTraceEntity();
-            }
-            else {
+            } else {
                 setTraceEntity(current.getParent());
             }
 

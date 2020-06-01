@@ -22,8 +22,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 /**
- * Wraps and overrides some of {@code org.apache.http.impl.client.HttpClientBuilder}'s methods. Will build a TracedHttpClient wrapping the usual CloseableHttpClient result. Uses the global recorder by default, with an option to provide an alternative.
- *
+ * Wraps and overrides some of {@code org.apache.http.impl.client.HttpClientBuilder}'s methods. Will build a TracedHttpClient
+ * wrapping the usual CloseableHttpClient result. Uses the global recorder by default, with an option to provide an alternative.
  */
 public class HttpClientBuilder extends org.apache.http.impl.client.HttpClientBuilder {
     private static final Log logger = LogFactory.getLog(HttpClientBuilder.class);

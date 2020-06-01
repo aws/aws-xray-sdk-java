@@ -54,11 +54,14 @@ public class Reservoir {
         }
 
         int max = maxFunction.max(shouldReset ? 0 : nanosUntilReset);
-        int prev, next;
+        int prev;
+        int next;
         do { // same form as java 8 AtomicLong.getAndUpdate
             prev = usage.get();
             next = prev + 1;
-            if (next > max) return false;
+            if (next > max) {
+                return false;
+            }
         } while (!usage.compareAndSet(prev, next));
         return true;
     }
@@ -70,7 +73,7 @@ public class Reservoir {
         return tracesPerSecond;
     }
 
-    static abstract class MaxFunction {
+    abstract static class MaxFunction {
         /** @param nanosUntilReset zero if was just reset */
         abstract int max(long nanosUntilReset);
     }
@@ -103,7 +106,8 @@ public class Reservoir {
         final int[] max;
 
         AtLeast10(int tracesPerSecond) {
-            int tracesPerDecisecond = tracesPerSecond / 10, remainder = tracesPerSecond % 10;
+            int tracesPerDecisecond = tracesPerSecond / 10;
+            int remainder = tracesPerSecond % 10;
             max = new int[10];
             max[0] = tracesPerDecisecond + remainder;
             for (int i = 1; i < 10; i++) {
@@ -112,7 +116,9 @@ public class Reservoir {
         }
 
         @Override int max(long nanosUntilReset) {
-            if (nanosUntilReset == 0) return max[0];
+            if (nanosUntilReset == 0) {
+                return max[0];
+            }
             int decisecondsUntilReset = Math.max((int) nanosUntilReset / NANOS_PER_DECISECOND, 1);
             int index = 10 - decisecondsUntilReset;
             return max[index];

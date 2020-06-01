@@ -25,7 +25,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Static helper class which holds reference to a global client and provides a static interface for invoking methods on the client.
+ * Static helper class which holds reference to a global client and provides a static interface for invoking methods on the
+ * client.
  */
 public class AWSXRay {
 
@@ -118,7 +119,9 @@ public class AWSXRay {
         return globalRecorder.currentTraceId();
     }
 
-    public static String currentFormattedId() { return globalRecorder.currentFormattedId(); }
+    public static String currentFormattedId() {
+        return globalRecorder.currentFormattedId();
+    }
 
     public static Segment getCurrentSegment() {
         return globalRecorder.getCurrentSegment();

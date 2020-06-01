@@ -33,6 +33,7 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
     // Initialize random ClientID. We use the same ClientID for all GetSamplingTargets calls. Conflicts are avoided
     // because IDs are scoped to a single account.
     private static final String clientID;
+
     static {
         SecureRandom rand = new SecureRandom();
         byte[] bytes = new byte[12];
@@ -74,7 +75,10 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
         }
         SamplingResponse sampleResponse;
         if (logger.isDebugEnabled()) {
-            logger.debug("Determining shouldTrace decision for:\n\tserviceName: " + samplingRequest.getService().orElse("") + "\n\thost: " + samplingRequest.getHost().orElse("") + "\n\tpath: " + samplingRequest.getUrl().orElse("") + "\n\tmethod: " + samplingRequest.getMethod().orElse("") + "\n\tserviceType: " + samplingRequest.getServiceType().orElse(""));
+            logger.debug("Determining shouldTrace decision for:\n\tserviceName: " + samplingRequest.getService().orElse("")
+                         + "\n\thost: " + samplingRequest.getHost().orElse("") + "\n\tpath: "
+                         + samplingRequest.getUrl().orElse("") + "\n\tmethod: " + samplingRequest.getMethod().orElse("")
+                         + "\n\tserviceType: " + samplingRequest.getServiceType().orElse(""));
         }
 
         if (manifest.isExpired(Instant.now())) {

@@ -43,14 +43,18 @@ public class LambdaSegmentContextTest {
     private static final String TRACE_HEADER = "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1";
     private static final String TRACE_HEADER_2 = "Root=1-57ff426a-90c11c39b0c928905eb0828d;Parent=9234abcd1234abcd;Sampled=0";
 
-    private static final String MALFORMED_TRACE_HEADER = ";;Root=1-57ff426a-80c11c39b0c928905eb0828d;;Parent=1234abcd1234abcd;;;Sampled=1;;;";
+    private static final String MALFORMED_TRACE_HEADER =
+        ";;Root=1-57ff426a-80c11c39b0c928905eb0828d;;Parent=1234abcd1234abcd;;;Sampled=1;;;";
 
     @Before
     public void setupAWSXRay() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSamplingStrategy(new LocalizedSamplingStrategy()).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard()
+                                                        .withEmitter(blankEmitter)
+                                                        .withSamplingStrategy(new LocalizedSamplingStrategy())
+                                                        .build());
         AWSXRay.clearTraceEntity();
     }
 
@@ -79,11 +83,13 @@ public class LambdaSegmentContextTest {
 
         LambdaSegmentContext lsc = new LambdaSegmentContext();
 
-        PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(TraceHeader.fromString(TRACE_HEADER));
+        PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment"))
+                    .toReturn(TraceHeader.fromString(TRACE_HEADER));
         Subsegment firstInvocation = lsc.beginSubsegment(AWSXRay.getGlobalRecorder(), "test");
         Assert.assertNotNull(AWSXRay.getTraceEntity());
 
-        PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(TraceHeader.fromString(TRACE_HEADER_2));
+        PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment"))
+                    .toReturn(TraceHeader.fromString(TRACE_HEADER_2));
         Subsegment secondInvocation = lsc.beginSubsegment(AWSXRay.getGlobalRecorder(), "test");
         Assert.assertNotNull(AWSXRay.getTraceEntity());
 
@@ -93,13 +99,15 @@ public class LambdaSegmentContextTest {
 
     private void testMockContext(TraceHeader xAmznTraceId, Class<?> instanceOfClass) {
         LambdaSegmentContext mockContext = mockContext(xAmznTraceId);
-        Assert.assertTrue(instanceOfClass.isInstance(mockContext.beginSubsegment(AWSXRay.getGlobalRecorder(), "test").getParent()));
+        Assert.assertTrue(
+            instanceOfClass.isInstance(mockContext.beginSubsegment(AWSXRay.getGlobalRecorder(), "test").getParent()));
         mockContext.endSubsegment(AWSXRay.getGlobalRecorder());
         Assert.assertNull(AWSXRay.getTraceEntity());
     }
 
     private LambdaSegmentContext mockContext(TraceHeader xAmznTraceId) {
-        PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(xAmznTraceId);
+        PowerMockito.stub(
+            PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(xAmznTraceId);
         return new LambdaSegmentContext();
     }
 }

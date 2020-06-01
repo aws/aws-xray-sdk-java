@@ -35,6 +35,11 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * @deprecated For internal use only.
+ */
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
+@Deprecated
 public class TracingStatement {
 
     private static final Log logger = LogFactory.getLog(TracingStatement.class);
@@ -110,7 +115,8 @@ public class TracingStatement {
                 subsegment = createSubsegment();
             }
 
-            logger.debug(String.format("Invoking statement execution with X-Ray tracing. Tracing active: %s", subsegment != null));
+            logger.debug(
+                String.format("Invoking statement execution with X-Ray tracing. Tracing active: %s", subsegment != null));
             try {
                 // execute the query "wrapped" in a XRay Subsegment
                 return method.invoke(delegate, args);
@@ -122,8 +128,7 @@ public class TracingStatement {
                     InvocationTargetException ite = (InvocationTargetException) t;
                     if (ite.getTargetException() != null) {
                         rootThrowable = ite.getTargetException();
-                    }
-                    else if (ite.getCause() != null) {
+                    } else if (ite.getCause() != null) {
                         rootThrowable = ite.getCause();
                     }
                 }
@@ -152,10 +157,11 @@ public class TracingStatement {
                 DatabaseMetaData metadata = connection.getMetaData();
                 String subsegmentName = DEFAULT_DATABASE_NAME;
                 try {
-                    URI normalizedURI = new URI(new URI(metadata.getURL()).getSchemeSpecificPart());
-                    subsegmentName = connection.getCatalog() + "@" + normalizedURI.getHost();
+                    URI normalizedUri = new URI(new URI(metadata.getURL()).getSchemeSpecificPart());
+                    subsegmentName = connection.getCatalog() + "@" + normalizedUri.getHost();
                 } catch (URISyntaxException e) {
-                    logger.warn("Unable to parse database URI. Falling back to default '" + DEFAULT_DATABASE_NAME + "' for subsegment name.", e);
+                    logger.warn("Unable to parse database URI. Falling back to default '" + DEFAULT_DATABASE_NAME
+                                + "' for subsegment name.", e);
                 }
 
                 Subsegment subsegment = AWSXRay.beginSubsegment(subsegmentName);

@@ -57,7 +57,7 @@ public class TracingStatementTest {
     private Statement statement;
     private PreparedStatement preparedStatement;
     private CallableStatement callableStatement;
-    private Map<String, Object> expectedSQLParams;
+    private Map<String, Object> expectedSqlParams;
 
     @Mock
     private Statement delegate;
@@ -89,12 +89,12 @@ public class TracingStatementTest {
         when(metaData.getDriverVersion()).thenReturn(DRIVER_VERSION);
         when(metaData.getDatabaseProductName()).thenReturn(DB_TYPE);
         when(metaData.getDatabaseProductVersion()).thenReturn(DB_VERSION);
-        expectedSQLParams = new HashMap<>();
-        expectedSQLParams.put("url", URL);
-        expectedSQLParams.put("user", USER);
-        expectedSQLParams.put("driver_version", DRIVER_VERSION);
-        expectedSQLParams.put("database_type", DB_TYPE);
-        expectedSQLParams.put("database_version", DB_VERSION);
+        expectedSqlParams = new HashMap<>();
+        expectedSqlParams.put("url", URL);
+        expectedSqlParams.put("user", USER);
+        expectedSqlParams.put("driver_version", DRIVER_VERSION);
+        expectedSqlParams.put("database_type", DB_TYPE);
+        expectedSqlParams.put("database_version", DB_VERSION);
         AWSXRay.beginSegment("foo");
     }
 
@@ -194,7 +194,8 @@ public class TracingStatementTest {
         } catch (Throwable th) {
             assertEquals(exception, th);
         } finally {
-            assertEquals(exception, AWSXRay.getCurrentSegment().getSubsegments().get(0).getCause().getExceptions().get(0).getThrowable());
+            assertEquals(exception, AWSXRay.getCurrentSegment().getSubsegments().get(0).getCause().getExceptions().get(0)
+                                           .getThrowable());
             assertSubsegment();
         }
     }
@@ -209,7 +210,8 @@ public class TracingStatementTest {
         } catch (Throwable th) {
             assertEquals(exception, th);
         } finally {
-            assertEquals(exception, AWSXRay.getCurrentSegment().getSubsegments().get(0).getCause().getExceptions().get(0).getThrowable());
+            assertEquals(exception, AWSXRay.getCurrentSegment().getSubsegments().get(0).getCause().getExceptions().get(0)
+                                           .getThrowable());
             assertSubsegment();
         }
     }
@@ -263,6 +265,6 @@ public class TracingStatementTest {
         Subsegment subsegment = AWSXRay.getCurrentSegment().getSubsegments().get(0);
         assertEquals(CATALOG + "@" + HOST, subsegment.getName());
         assertEquals(Namespace.REMOTE.toString(), subsegment.getNamespace());
-        assertEquals(expectedSQLParams, subsegment.getSql());
+        assertEquals(expectedSqlParams, subsegment.getSql());
     }
 }

@@ -28,8 +28,9 @@ public interface Plugin {
      *
      * @return the name of the origin associated with this plugin.
      */
-    public String getOrigin();
-    public String getServiceName();
+    String getOrigin();
+
+    String getServiceName();
 
     /**
      * @return true if an environment inspection determines X-Ray is operating in the correct environment for this plugin OR
@@ -39,7 +40,7 @@ public interface Plugin {
         return true;
     }
 
-    public Map<String, Object> getRuntimeContext();
+    Map<String, Object> getRuntimeContext();
 
     default Set<AWSLogReference> getLogReferences() {
         return Collections.emptySet();

@@ -21,7 +21,8 @@ import java.util.List;
 
 public interface ThrowableSerializationStrategy {
     /**
-     * Serializes a {@code Throwable} into a {@code ThrowableDescription}. Uses the provided subsegments to chain exceptions where possible.
+     * Serializes a {@code Throwable} into a {@code ThrowableDescription}. Uses the provided subsegments to chain exceptions where
+     * possible.
      *
      * @param throwable
      *            the Throwable to serialize
@@ -30,5 +31,5 @@ public interface ThrowableSerializationStrategy {
      *
      * @return a list of {@code ThrowableDescription}s which represent the provided {@code Throwable}
      */
-    public List<ThrowableDescription> describeInContext(Throwable throwable, List<Subsegment> subsegments);
+    List<ThrowableDescription> describeInContext(Throwable throwable, List<Subsegment> subsegments);
 }

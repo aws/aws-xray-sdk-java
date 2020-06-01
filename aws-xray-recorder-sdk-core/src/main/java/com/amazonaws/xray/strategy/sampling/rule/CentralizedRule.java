@@ -40,10 +40,11 @@ import org.apache.commons.logging.LogFactory;
  * X-Ray.
  */
 public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
-    private static final Log logger =
-            LogFactory.getLog(CentralizedRule.class);
 
     public static final String DEFAULT_RULE_NAME = "Default";
+
+    private static final Log logger =
+            LogFactory.getLog(CentralizedRule.class);
 
     private int priority = 10000; // Default
 
@@ -122,7 +123,8 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
             return false;
         }
 
-        if (rule.getHost() == null || rule.getServiceName() == null || rule.getHTTPMethod() == null || rule.getURLPath() == null || rule.getServiceType() == null) {
+        if (rule.getHost() == null || rule.getServiceName() == null || rule.getHTTPMethod() == null ||
+            rule.getURLPath() == null || rule.getServiceType() == null) {
             logger.error("Detect invalid rule. Please check sampling rule format.");
             return false;
         }
@@ -254,18 +256,30 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         if (!(o instanceof CentralizedRule)) {
             return false;
         }
 
         CentralizedRule that = (CentralizedRule) o;
 
-        if (priority != that.priority) return false;
-        if (Double.compare(that.fixedRate, fixedRate) != 0) return false;
-        if (!name.equals(that.name)) return false;
-        if (!centralizedReservoir.equals(that.centralizedReservoir)) return false;
-        if (!statistics.equals(that.statistics)) return false;
+        if (priority != that.priority) {
+            return false;
+        }
+        if (Double.compare(that.fixedRate, fixedRate) != 0) {
+            return false;
+        }
+        if (!name.equals(that.name)) {
+            return false;
+        }
+        if (!centralizedReservoir.equals(that.centralizedReservoir)) {
+            return false;
+        }
+        if (!statistics.equals(that.statistics)) {
+            return false;
+        }
         return Objects.equals(matchers, that.matchers);
     }
 

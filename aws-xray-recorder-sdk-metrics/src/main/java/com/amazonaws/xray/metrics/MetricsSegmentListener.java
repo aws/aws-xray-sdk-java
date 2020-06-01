@@ -40,7 +40,7 @@ public class MetricsSegmentListener implements SegmentListener {
     public MetricsSegmentListener() {
         String awsEnv = System.getenv(AWS_EXECUTION_ENV_NAME);
         try {
-            if(awsEnv != null && awsEnv.contains(AWS_LAMBDA_PREFIX)) {
+            if (awsEnv != null && awsEnv.contains(AWS_LAMBDA_PREFIX)) {
                 // Metrics are not supported on Lambda as the root Segment is managed by Lambda and not this SDK.
                 logger.info("Metric emissions is not supported on Lambda.");
             } else {
@@ -55,7 +55,7 @@ public class MetricsSegmentListener implements SegmentListener {
 
     @Override
     public void afterEndSegment(final Segment segment) {
-        if(segment != null && !(segment instanceof FacadeSegment)) {
+        if (segment != null && !(segment instanceof FacadeSegment)) {
             emitter.emitMetric(segment);
         }
     }

@@ -27,6 +27,6 @@ public interface MetricEmitter {
      *
      * @param segment Segment to emit metrics from
      */
-    void emitMetric(final Segment segment);
+    void emitMetric(Segment segment);
 
 }

@@ -30,7 +30,9 @@ public class ThrowableDescription {
     @JsonIgnore
     private Throwable throwable;
 
-    public ThrowableDescription() { }
+    public ThrowableDescription() {
+    }
+
     public ThrowableDescription(Throwable throwable) {
         this.throwable = throwable;
     }

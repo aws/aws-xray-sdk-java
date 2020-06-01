@@ -80,6 +80,7 @@ public class AWSXRayServletFilterTest {
                 .thenAnswer(a -> Objects.requireNonNull(capturedEntity.get()));
         return chain;
     }
+
     @Test
     public void testAsyncServletRequestWithCompletedAsync() throws IOException, ServletException {
         AWSXRayServletFilter servletFilter = new AWSXRayServletFilter("test");
@@ -103,6 +104,7 @@ public class AWSXRayServletFilterTest {
 
         Mockito.verify(AWSXRay.getGlobalRecorder().getEmitter(), Mockito.times(1)).sendSegment(Mockito.any());
     }
+
     @Test
     public void testAsyncServletRequestHasListenerAdded() throws IOException, ServletException {
         AWSXRayServletFilter servletFilter = new AWSXRayServletFilter("test");

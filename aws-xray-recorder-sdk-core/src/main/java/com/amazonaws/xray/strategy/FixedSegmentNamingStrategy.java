@@ -29,7 +29,9 @@ public class FixedSegmentNamingStrategy implements SegmentNamingStrategy {
      *
      *
      * @param fixedName
-     *  the fixed name to use for all segments generated for incoming requests. This will be overriden by the value of the {@code AWS_XRAY_TRACING_NAME} environment variable or {@code com.amazonaws.xray.strategy.tracingName} system property, if either are set to a non-empty value.
+     *  the fixed name to use for all segments generated for incoming requests. This will be overriden by the value of the
+     *  {@code AWS_XRAY_TRACING_NAME} environment variable or {@code com.amazonaws.xray.strategy.tracingName} system property,
+     *  if either are set to a non-empty value.
      */
     public FixedSegmentNamingStrategy(String fixedName) {
         this.fixedName = fixedName;
@@ -37,7 +39,10 @@ public class FixedSegmentNamingStrategy implements SegmentNamingStrategy {
         if (null != overrideName) {
             this.fixedName = overrideName;
             if (logger.isInfoEnabled()) {
-                logger.info("Environment variable " + NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY + " or system property " + NAME_OVERRIDE_SYSTEM_PROPERTY_KEY + " set. Overriding FixedSegmentNamingStrategy constructor argument. Segments generated with this strategy will be named: " + this.fixedName + ".");
+                logger.info("Environment variable " + NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY + " or system property "
+                            + NAME_OVERRIDE_SYSTEM_PROPERTY_KEY
+                            + " set. Overriding FixedSegmentNamingStrategy constructor argument. Segments generated with this "
+                            + "strategy will be named: " + this.fixedName + ".");
             }
         }
     }

@@ -91,7 +91,9 @@ public class TracingDataSourceTest {
         verify(delegate).unwrap(OtherWrapper.class);
         verify(delegate).unwrap(ExtraInterface.class);
         verify(delegate).unwrap(Long.class);
-    };
+    }
+
+    ;
 
     @Test
     public void testGetConnection() throws Exception {

@@ -79,8 +79,8 @@ public class UnsignedXrayClientTest {
                                                  .withStatus(200)
                                                  .withBody(OBJECT_MAPPER.writeValueAsBytes(expected))));
 
-        GetSamplingTargetsRequest request = new GetSamplingTargetsRequest().
-                withSamplingStatisticsDocuments(new SamplingStatisticsDocument().withClientID("client-id"));
+        GetSamplingTargetsRequest request = new GetSamplingTargetsRequest()
+            .withSamplingStatisticsDocuments(new SamplingStatisticsDocument().withClientID("client-id"));
 
         GetSamplingTargetsResult result = client.getSamplingTargets(request);
 

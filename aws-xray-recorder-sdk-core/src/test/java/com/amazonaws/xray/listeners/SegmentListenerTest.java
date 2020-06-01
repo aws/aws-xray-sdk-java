@@ -34,13 +34,19 @@ public class SegmentListenerTest {
         }
 
         @Override
-        public void onBeginSubsegment(Subsegment subsegment) { subsegment.putAnnotation("subAnnotation1", "began"); }
+        public void onBeginSubsegment(Subsegment subsegment) {
+            subsegment.putAnnotation("subAnnotation1", "began");
+        }
 
         @Override
-        public void beforeEndSegment(Segment segment) { segment.putAnnotation("endTest", "isPresent"); }
+        public void beforeEndSegment(Segment segment) {
+            segment.putAnnotation("endTest", "isPresent");
+        }
 
         @Override
-        public void beforeEndSubsegment(Subsegment subsegment) { subsegment.putAnnotation("subAnnotation2", "ended"); }
+        public void beforeEndSubsegment(Subsegment subsegment) {
+            subsegment.putAnnotation("subAnnotation2", "ended");
+        }
     }
 
     class SecondSegmentListener implements SegmentListener {
@@ -48,7 +54,9 @@ public class SegmentListenerTest {
         private int testVal2 = 0;
 
         @Override
-        public void onBeginSegment(Segment segment) { testVal = 1; }
+        public void onBeginSegment(Segment segment) {
+            testVal = 1;
+        }
 
         @Override
         public void beforeEndSegment(Segment segment) {
@@ -58,7 +66,10 @@ public class SegmentListenerTest {
         public int getTestVal() {
             return testVal;
         }
-        public int getTestVal2() { return testVal2; }
+
+        public int getTestVal2() {
+            return testVal2;
+        }
     }
 
     @Before
@@ -68,7 +79,10 @@ public class SegmentListenerTest {
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.any());
         CustomSegmentListener segmentListener = new CustomSegmentListener();
 
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSegmentListener(segmentListener).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard()
+                                                        .withEmitter(blankEmitter)
+                                                        .withSegmentListener(segmentListener)
+                                                        .build());
         AWSXRay.clearTraceEntity();
     }
 

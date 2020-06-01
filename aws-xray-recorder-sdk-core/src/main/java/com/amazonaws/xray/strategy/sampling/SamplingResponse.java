@@ -42,9 +42,12 @@ public class SamplingResponse {
         this.ruleName = ruleName;
     }
 
-    public SamplingResponse(boolean sampled) { this.sampled = sampled; }
+    public SamplingResponse(boolean sampled) {
+        this.sampled = sampled;
+    }
 
-    public SamplingResponse() {}
+    public SamplingResponse() {
+    }
 
     public boolean isSampled() {
         return sampled;

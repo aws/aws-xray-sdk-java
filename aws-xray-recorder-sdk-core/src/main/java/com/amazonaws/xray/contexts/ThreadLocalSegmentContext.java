@@ -37,7 +37,8 @@ public class ThreadLocalSegmentContext implements SegmentContext {
     public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
         Entity current = getTraceEntity();
         if (null == current) {
-            recorder.getContextMissingStrategy().contextMissing("Failed to begin subsegment named '" + name + "': segment cannot be found.", SegmentNotFoundException.class);
+            recorder.getContextMissingStrategy().contextMissing("Failed to begin subsegment named '" + name
+                                                                + "': segment cannot be found.", SegmentNotFoundException.class);
             return null;
         }
         if (logger.isDebugEnabled()) {
@@ -87,7 +88,8 @@ public class ThreadLocalSegmentContext implements SegmentContext {
                 setTraceEntity(current.getParent());
             }
         } else {
-            recorder.getContextMissingStrategy().contextMissing("Failed to end subsegment: subsegment cannot be found.", SubsegmentNotFoundException.class);
+            recorder.getContextMissingStrategy().contextMissing("Failed to end subsegment: subsegment cannot be found.",
+                                                                SubsegmentNotFoundException.class);
         }
     }
 }

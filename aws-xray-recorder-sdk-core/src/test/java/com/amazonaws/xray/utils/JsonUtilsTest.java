@@ -23,9 +23,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class JsonUtilsTest {
-    private static final String singleLogConfig = "[{\"log_group_name\":\"test_group\"}]";
-    private static final String multiLogConfig = "[{\"log_group_name\":\"test_group1\"}, {\"log_group_name\":\"test_group2\"}, {\"log_group_name\":\"test_group1\"}]";
-    private static final String singleLogConfigWithStream = "[{\"log_group_name\":\"test_group\", \"log_stream_name\":\"test_stream\"}]";
+    private static final String SINGLE_LOG_CONFIG = "[{\"log_group_name\":\"test_group\"}]";
+    private static final String MULTI_LOG_CONFIG = "[{\"log_group_name\":\"test_group1\"}, {\"log_group_name\":\"test_group2\"}, "
+                                                   + "{\"log_group_name\":\"test_group1\"}]";
+    private static final String SINGLE_LOG_CONFIG_WITH_STREAM = "[{\"log_group_name\":\"test_group\", "
+                                                                + "\"log_stream_name\":\"test_stream\"}]";
 
     private static final String LOG_GROUP_NAME = "log_group_name";
 
@@ -33,7 +35,7 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetLogGroup() throws IOException {
-        JsonNode node = mapper.readTree(singleLogConfig);
+        JsonNode node = mapper.readTree(SINGLE_LOG_CONFIG);
 
         List<String> groupList = JsonUtils.getMatchingListFromJsonArrayNode(node, LOG_GROUP_NAME);
 
@@ -43,7 +45,7 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetMultipleLogGroups() throws IOException {
-        JsonNode node = mapper.readTree(multiLogConfig);
+        JsonNode node = mapper.readTree(MULTI_LOG_CONFIG);
 
         List<String> groupList = JsonUtils.getMatchingListFromJsonArrayNode(node, LOG_GROUP_NAME);
 
@@ -54,7 +56,7 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetLogGroupWithStreamPresent() throws IOException {
-        JsonNode node = mapper.readTree(singleLogConfigWithStream);
+        JsonNode node = mapper.readTree(SINGLE_LOG_CONFIG_WITH_STREAM);
 
         List<String> groupList = JsonUtils.getMatchingListFromJsonArrayNode(node, LOG_GROUP_NAME);
 

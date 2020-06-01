@@ -35,7 +35,9 @@ public final class XRayClient {
             new AnonymousAWSCredentials());
     private static final String DUMMY_REGION = "us-west-1"; // Ignored because we use anonymous credentials
     private static final int TIME_OUT = 2000; // Milliseconds
-    private XRayClient() {}
+
+    private XRayClient() {
+    }
 
     /**
      *

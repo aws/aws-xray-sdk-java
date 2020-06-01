@@ -183,7 +183,7 @@ public class SearchPatternTest {
         Random r = new Random();
         int size = 8192;
 
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             text.append(t[Math.abs(r.nextInt()) % t.length]);
         }
         text.append("b");

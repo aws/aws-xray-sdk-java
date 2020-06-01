@@ -15,6 +15,11 @@
 
 package com.amazonaws.xray.utils;
 
+/**
+ * @deprecated For internal use only.
+ */
+@Deprecated
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
 public class StringTransform {
     private static final String REGEX = "([a-z])([A-Z]+)";
     private static final String REPLACE = "$1_$2";

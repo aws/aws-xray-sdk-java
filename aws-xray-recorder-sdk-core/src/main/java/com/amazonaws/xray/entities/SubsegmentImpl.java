@@ -47,7 +47,8 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     @Override
     public boolean end() {
         if (logger.isDebugEnabled()) {
-            logger.debug("Subsegment named '" + getName() + "' ending. Parent segment named '" + parentSegment.getName() + "' has reference count " + parentSegment.getReferenceCount());
+            logger.debug("Subsegment named '" + getName() + "' ending. Parent segment named '" + parentSegment.getName()
+                         + "' has reference count " + parentSegment.getReferenceCount());
         }
 
         if (getEndTime() < Double.MIN_NORMAL) {

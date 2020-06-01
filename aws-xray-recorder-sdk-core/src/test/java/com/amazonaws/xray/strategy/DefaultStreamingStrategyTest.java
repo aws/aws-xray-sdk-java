@@ -42,7 +42,10 @@ public class DefaultStreamingStrategyTest {
         LocalizedSamplingStrategy defaultSamplingStrategy = new LocalizedSamplingStrategy();
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSamplingStrategy(defaultSamplingStrategy).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard()
+                                                        .withEmitter(blankEmitter)
+                                                        .withSamplingStrategy(defaultSamplingStrategy)
+                                                        .build());
         AWSXRay.clearTraceEntity();
     }
 
@@ -86,8 +89,10 @@ public class DefaultStreamingStrategyTest {
         defaultStreamingStrategy.streamSome(segment, AWSXRay.getGlobalRecorder().getEmitter());
         Assert.assertTrue(segment.getTotalSize().intValue() == 1);
     }
+
+    //test to see if the correct actions are being taken in streamSome (children get removed from parent)
     @Test
-    public void testStreamSomeChildrenRemovedFromParent() { //test to see if the correct actions are being taken in streamSome (children get removed from parent)
+    public void testStreamSomeChildrenRemovedFromParent() {
         TraceID traceId = new TraceID();
         DefaultStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy(1);
 
@@ -95,7 +100,7 @@ public class DefaultStreamingStrategyTest {
         bigSegment.setStartTime(1.0);
 
         for (int i = 0; i < 5; i++) {
-            Subsegment subsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "child"+i, bigSegment);
+            Subsegment subsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "child" + i, bigSegment);
             subsegment.setStartTime(1.0);
             bigSegment.addSubsegment(subsegment);
             subsegment.end();
@@ -105,8 +110,10 @@ public class DefaultStreamingStrategyTest {
         Assert.assertTrue(bigSegment.getTotalSize().intValue() == 0);
     }
 
+    //test to see if the correct actions are being taken in streamSome (children do NOT get removed from parent due to subsegments
+    //being in progress.)
     @Test
-    public void testStreamSomeChildrenNotRemovedFromParent() { //test to see if the correct actions are being taken in streamSome (children do NOT get removed from parent due to subsegments being in progress.)
+    public void testStreamSomeChildrenNotRemovedFromParent() {
         TraceID traceId = new TraceID();
         DefaultStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy(1);
 
@@ -114,7 +121,7 @@ public class DefaultStreamingStrategyTest {
         bigSegment.setStartTime(1.0);
 
         for (int i = 0; i < 5; i++) {
-            Subsegment subsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "child"+i, bigSegment);
+            Subsegment subsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "child" + i, bigSegment);
             subsegment.setStartTime(1.0);
             bigSegment.addSubsegment(subsegment);
         }
@@ -158,7 +165,8 @@ public class DefaultStreamingStrategyTest {
         }
 
         Assert.assertTrue(AWSXRay.getTraceEntity().getName().equals("big"));
-        Assert.assertTrue(AWSXRay.getTraceEntity().getTotalSize().intValue() == 3); //asserts that all subsegments are added correctly.
+        //asserts that all subsegments are added correctly.
+        Assert.assertTrue(AWSXRay.getTraceEntity().getTotalSize().intValue() == 3);
 
         defaultStreamingStrategy.streamSome(segment, AWSXRay.getGlobalRecorder().getEmitter());
 
@@ -168,13 +176,12 @@ public class DefaultStreamingStrategyTest {
     @Test
     public void testBushyandSpindlySegmentTreeStreaming() {
         TraceID traceId = new TraceID();
-        DefaultStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy(1);
 
         Segment bigSegment = new SegmentImpl(AWSXRay.getGlobalRecorder(), "big", traceId);
         bigSegment.setStartTime(1.0);
 
         for (int i = 0; i < 5; i++) {
-            Subsegment subsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "child"+i, bigSegment);
+            Subsegment subsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "child" + i, bigSegment);
             subsegment.setStartTime(1.0);
             bigSegment.addSubsegment(subsegment);
             subsegment.end();
@@ -195,6 +202,7 @@ public class DefaultStreamingStrategyTest {
         bigSegment.addSubsegment(holder2);
         holder2.end();
 
+        DefaultStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy(1);
         Assert.assertTrue(defaultStreamingStrategy.requiresStreaming(bigSegment));
         defaultStreamingStrategy.streamSome(bigSegment, AWSXRay.getGlobalRecorder().getEmitter());
         Assert.assertTrue(bigSegment.getReferenceCount() == 0);
@@ -206,12 +214,15 @@ public class DefaultStreamingStrategyTest {
         DefaultStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy(-1);
     }
 
+    //test to see if FacadeSegment can be streamed out correctly
     @Test
-    public void testDefaultStreamingStrategyForLambdaTraceContext() { //test to see if FacadeSegment can be streamed out correctly
+    public void testDefaultStreamingStrategyForLambdaTraceContext() {
         DefaultStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy(1);
 
-        //if FacadeSegment size is larger than maxSegmentSize and only the first subsegment is completed, first subsegment will be streamed out
-        FacadeSegment facadeSegmentOne = new FacadeSegment(AWSXRay.getGlobalRecorder(), new TraceID(), "", TraceHeader.SampleDecision.SAMPLED);
+        //if FacadeSegment size is larger than maxSegmentSize and only the first subsegment is completed, first subsegment will be
+        //streamed out
+        FacadeSegment facadeSegmentOne = new FacadeSegment(AWSXRay.getGlobalRecorder(), new TraceID(), "",
+                                                           TraceHeader.SampleDecision.SAMPLED);
         Subsegment firstSubsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "FirstSubsegment", facadeSegmentOne);
         Subsegment secondSubsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "SecondSubsegment", facadeSegmentOne);
         facadeSegmentOne.addSubsegment(firstSubsegment);
@@ -226,8 +237,10 @@ public class DefaultStreamingStrategyTest {
         Subsegment tempOne = facadeSegmentOne.getSubsegments().get(0);
         Assert.assertEquals("SecondSubsegment", tempOne.getName());
 
-        //if FarcadeSegment size is larger than maxSegmentSize and only the second subsegment is completed, second subsegment will be streamed out
-        FacadeSegment facadeSegmentTwo = new FacadeSegment(AWSXRay.getGlobalRecorder(), new TraceID(), "", TraceHeader.SampleDecision.SAMPLED);
+        //if FarcadeSegment size is larger than maxSegmentSize and only the second subsegment is completed, second subsegment will
+        //be streamed out
+        FacadeSegment facadeSegmentTwo = new FacadeSegment(AWSXRay.getGlobalRecorder(), new TraceID(), "",
+                                                           TraceHeader.SampleDecision.SAMPLED);
         Subsegment thirdSubsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "ThirdSubsegment", facadeSegmentTwo);
         Subsegment fourthSubsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "FourthSubsegment", facadeSegmentTwo);
         facadeSegmentTwo.addSubsegment(thirdSubsegment);

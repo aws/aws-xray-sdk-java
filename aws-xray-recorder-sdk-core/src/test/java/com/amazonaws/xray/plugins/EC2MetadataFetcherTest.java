@@ -38,6 +38,9 @@ import org.junit.Test;
 
 public class EC2MetadataFetcherTest {
 
+    @ClassRule
+    public static WireMockClassRule server = new WireMockClassRule(wireMockConfig().dynamicPort());
+
     // From https://docs.amazonaws.cn/en_us/AWSEC2/latest/UserGuide/instance-identity-documents.html
     private static final String IDENTITY_DOCUMENT =
         "{\n"
@@ -57,9 +60,6 @@ public class EC2MetadataFetcherTest {
         + "    \"ramdiskId\" : null,\n"
         + "    \"region\" : \"us-west-2\"\n"
         + "}";
-
-    @ClassRule
-    public static WireMockClassRule server = new WireMockClassRule(wireMockConfig().dynamicPort());
 
     private EC2MetadataFetcher fetcher;
 

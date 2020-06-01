@@ -31,7 +31,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 @FixMethodOrder(MethodSorters.JVM)
 @RunWith(MockitoJUnitRunner.class)
 public class AWSServiceHandlerManifestTest {
-    private static URL testParameterWhitelist = AWSServiceHandlerManifestTest.class.getResource("/com/amazonaws/xray/handlers/config/OperationParameterWhitelist.json");
+    private static URL testParameterWhitelist =
+        AWSServiceHandlerManifestTest.class.getResource("/com/amazonaws/xray/handlers/config/OperationParameterWhitelist.json");
 
     private ObjectMapper mapper = new ObjectMapper()
             .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)

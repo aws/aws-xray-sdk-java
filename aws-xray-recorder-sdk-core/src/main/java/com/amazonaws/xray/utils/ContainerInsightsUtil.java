@@ -48,16 +48,20 @@ import org.apache.http.util.EntityUtils;
 
 /**
  * Utility class for querying configuration information from ContainerInsights enabled Kubernetes clusters.
+ *
+ * @deprecated For internal use only.
  */
+@Deprecated
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
 public class ContainerInsightsUtil {
 
-    private static final String K8S_CRED_FOLDER="/var/run/secrets/kubernetes.io/serviceaccount";
-    private static final String K8S_CRED_TOKEN_SUFFIX="token";
-    private static final String K8S_CRED_CERT_SUFFIX="ca.crt";
-    private static final String K8S_URL="https://kubernetes.default.svc";
-    private static final String CI_CONFIGMAP_PATH="/api/v1/namespaces/amazon-cloudwatch/configmaps/cluster-info";
-    private static final String AUTH_HEADER_NAME="Authorization";
-    private static final String AUTH_HEADER_TEMPLATE="Bearer %s";
+    private static final String K8S_CRED_FOLDER = "/var/run/secrets/kubernetes.io/serviceaccount";
+    private static final String K8S_CRED_TOKEN_SUFFIX = "token";
+    private static final String K8S_CRED_CERT_SUFFIX = "ca.crt";
+    private static final String K8S_URL = "https://kubernetes.default.svc";
+    private static final String CI_CONFIGMAP_PATH = "/api/v1/namespaces/amazon-cloudwatch/configmaps/cluster-info";
+    private static final String AUTH_HEADER_NAME = "Authorization";
+    private static final String AUTH_HEADER_TEMPLATE = "Bearer %s";
     private static final int HTTP_TIMEOUT = 5;
 
     private static final Log logger = LogFactory.getLog(ContainerInsightsUtil.class);
@@ -68,11 +72,11 @@ public class ContainerInsightsUtil {
      * @return the name
      */
     public static String getClusterName() {
-        if(isK8s()) {
+        if (isK8s()) {
             CloseableHttpClient client = getHttpClient();
-            HttpGet getRequest = new HttpGet(K8S_URL+CI_CONFIGMAP_PATH);
+            HttpGet getRequest = new HttpGet(K8S_URL + CI_CONFIGMAP_PATH);
 
-            if(getK8sCredentialHeader() != null) {
+            if (getK8sCredentialHeader() != null) {
                 getRequest.setHeader(AUTH_HEADER_NAME, getK8sCredentialHeader());
             }
 
@@ -86,8 +90,8 @@ public class ContainerInsightsUtil {
                     ObjectMapper mapper = new ObjectMapper();
                     String clusterName = mapper.readTree(json).at("/data/cluster.name").asText();
 
-                    if(logger.isDebugEnabled()) {
-                        logger.debug("Container Insights Cluster Name: "+ clusterName);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Container Insights Cluster Name: " + clusterName);
                     }
 
                     return clusterName;
@@ -111,7 +115,7 @@ public class ContainerInsightsUtil {
     private static CloseableHttpClient getHttpClient() {
         KeyStore k8sTrustStore = getK8sKeystore();
         try {
-            if(k8sTrustStore != null) {
+            if (k8sTrustStore != null) {
                 TrustManagerFactory trustManagerFactory = null;
                 trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                 trustManagerFactory.init(k8sTrustStore);
@@ -141,7 +145,7 @@ public class ContainerInsightsUtil {
             KeyStore k8sTrustStore = null;
             File caFile = Paths.get(K8S_CRED_FOLDER, K8S_CRED_CERT_SUFFIX).toFile();
 
-            if(caFile.exists()) {
+            if (caFile.exists()) {
                 k8sTrustStore = KeyStore.getInstance(KeyStore.getDefaultType());
                 k8sTrustStore.load(null, null);
                 CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
@@ -167,7 +171,7 @@ public class ContainerInsightsUtil {
             logger.warn("Unable to load K8s CA certificate.", e);
             return null;
         } finally {
-            if(certificateFile != null) {
+            if (certificateFile != null) {
                 try {
                     certificateFile.close();
                 } catch (IOException e) {
@@ -188,7 +192,7 @@ public class ContainerInsightsUtil {
         } catch (IOException e) {
             logger.warn("Unable to read K8s credential file.", e);
         } finally {
-            if(tokenReader != null) {
+            if (tokenReader != null) {
                 try {
                     tokenReader.close();
                 } catch (IOException e) {

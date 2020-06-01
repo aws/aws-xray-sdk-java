@@ -66,7 +66,7 @@ public abstract class BaseAbstractXRayInterceptor {
     protected Object processXRayTrace(ProceedingJoinPoint pjp) throws Throwable {
         try {
             Subsegment subsegment = AWSXRay.beginSubsegment(pjp.getSignature().getName());
-            if(subsegment != null) {
+            if (subsegment != null) {
                 subsegment.setMetadata(generateMetadata(pjp, subsegment));
             }
             return XRayInterceptorUtils.conditionalProceed(pjp);

@@ -29,9 +29,11 @@ import org.apache.http.protocol.HttpContext;
 /*
  * @deprecated Apache 4.3
  *
- * Wraps and overrides {@code org.apache.http.impl.client.DefaultHttpClient}'s execute() methods. Accesses the global recorder upon each invocation to generate {@code Segment}s.
+ * Wraps and overrides {@code org.apache.http.impl.client.DefaultHttpClient}'s execute() methods. Accesses the global recorder
+ * upon each invocation to generate {@code Segment}s.
  *
- * Only overrides those signatures which directly invoke doExecute. Other execute() signatures are wrappers which call these overriden methods.
+ * Only overrides those signatures which directly invoke doExecute. Other execute() signatures are wrappers which call these
+ * overridden methods.
  *
  */
 @Deprecated
@@ -42,7 +44,8 @@ public class DefaultHttpClient extends org.apache.http.impl.client.DefaultHttpCl
     }
 
     @Override
-    public CloseableHttpResponse execute(HttpHost target, HttpRequest request, HttpContext context) throws IOException, ClientProtocolException {
+    public CloseableHttpResponse execute(
+        HttpHost target, HttpRequest request, HttpContext context) throws IOException, ClientProtocolException {
         Subsegment subsegment = getRecorder().beginSubsegment(target.getHostName());
         try {
             if (null != subsegment) {
@@ -66,7 +69,8 @@ public class DefaultHttpClient extends org.apache.http.impl.client.DefaultHttpCl
     }
 
     @Override
-    public CloseableHttpResponse execute(HttpUriRequest request, HttpContext context) throws IOException, ClientProtocolException {
+    public CloseableHttpResponse execute(
+        HttpUriRequest request, HttpContext context) throws IOException, ClientProtocolException {
         Subsegment subsegment = getRecorder().beginSubsegment(TracedHttpClient.determineTarget(request).getHostName());
         try {
             if (null != subsegment) {

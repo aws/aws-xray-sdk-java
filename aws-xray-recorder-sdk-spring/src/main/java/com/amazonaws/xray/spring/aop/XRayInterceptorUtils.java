@@ -20,6 +20,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.aspectj.lang.ProceedingJoinPoint;
 
+/**
+ * @deprecated For internal use only.
+ */
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
+@Deprecated
 public class XRayInterceptorUtils {
 
     public static Object conditionalProceed(ProceedingJoinPoint pjp) throws Throwable {

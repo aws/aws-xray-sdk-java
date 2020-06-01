@@ -37,6 +37,9 @@ public final class LooseValidations {
 
     private static final ValidationMode VALIDATION_MODE = validationMode();
 
+    private LooseValidations() {
+    }
+
     /**
      * Returns whether {@code obj} is {@code null}.
      */
@@ -74,6 +77,4 @@ public final class LooseValidations {
             return ValidationMode.NONE;
         }
     }
-
-    private LooseValidations() {}
 }

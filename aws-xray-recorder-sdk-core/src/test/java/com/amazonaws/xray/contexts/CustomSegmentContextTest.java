@@ -65,7 +65,8 @@ public class CustomSegmentContextTest {
                     map.put(Thread.currentThread().getId(), current.getParent());
                 }
             } else {
-                recorder.getContextMissingStrategy().contextMissing("Failed to end subsegment: subsegment cannot be found.", SubsegmentNotFoundException.class);
+                recorder.getContextMissingStrategy().contextMissing("Failed to end subsegment: subsegment cannot be found.",
+                                                                    SubsegmentNotFoundException.class);
             }
         }
 
@@ -105,7 +106,11 @@ public class CustomSegmentContextTest {
         SegmentContextResolverChain chain = new SegmentContextResolverChain();
         chain.addResolver(new GlobalMapSegmentContextResolver());
 
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSegmentContextResolverChain(chain).withSamplingStrategy(defaultSamplingStrategy).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard()
+                                                        .withEmitter(blankEmitter)
+                                                        .withSegmentContextResolverChain(chain)
+                                                        .withSamplingStrategy(defaultSamplingStrategy)
+                                                        .build());
         AWSXRay.clearTraceEntity();
     }
 

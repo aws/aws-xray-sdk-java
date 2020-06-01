@@ -25,7 +25,7 @@ public class NoOpMetricEmitter implements MetricEmitter {
 
     @Override
     public void emitMetric(final Segment segment) {
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Not emitting metrics for Segment:" + segment.getTraceId() + segment.getId());
         }
     }

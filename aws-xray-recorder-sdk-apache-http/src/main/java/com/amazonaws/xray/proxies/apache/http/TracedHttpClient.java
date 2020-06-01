@@ -76,12 +76,12 @@ public class TracedHttpClient extends CloseableHttpClient {
         // Otherwise, the null target is detected in the director.
         HttpHost target = null;
 
-        final URI requestURI = request.getURI();
-        if (requestURI.isAbsolute()) {
-            target = URIUtils.extractHost(requestURI);
+        final URI requestUri = request.getURI();
+        if (requestUri.isAbsolute()) {
+            target = URIUtils.extractHost(requestUri);
             if (target == null) {
                 throw new ClientProtocolException("URI does not specify a valid host name: "
-                        + requestURI);
+                        + requestUri);
             }
         }
         return target;
@@ -95,11 +95,11 @@ public class TracedHttpClient extends CloseableHttpClient {
         String uri = request.getRequestLine().getUri();
 
         try {
-            URI requestURI = new URI(uri);
-            if (requestURI.isAbsolute()) {
-                return requestURI.toString();
+            URI requestUri = new URI(uri);
+            if (requestUri.isAbsolute()) {
+                return requestUri.toString();
             }
-        } catch (URISyntaxException ex){
+        } catch (URISyntaxException ex) {
             // Not a valid URI
         }
 
@@ -287,9 +287,11 @@ public class TracedHttpClient extends CloseableHttpClient {
     }
 
     @Override
-    protected CloseableHttpResponse doExecute(HttpHost httpHost, HttpRequest httpRequest, HttpContext httpContext) throws IOException, ClientProtocolException {
-        return wrappedClient.execute(httpHost, httpRequest, httpContext); // gross hack to call the wrappedClient's doExecute...
-                                                                          // see line 67 of Apache's CloseableHttpClient
+    protected CloseableHttpResponse doExecute(
+        HttpHost httpHost, HttpRequest httpRequest, HttpContext httpContext) throws IOException, ClientProtocolException {
+        // gross hack to call the wrappedClient's doExecute...
+        // see line 67 of Apache's CloseableHttpClient
+        return wrappedClient.execute(httpHost, httpRequest, httpContext);
     }
 
 }

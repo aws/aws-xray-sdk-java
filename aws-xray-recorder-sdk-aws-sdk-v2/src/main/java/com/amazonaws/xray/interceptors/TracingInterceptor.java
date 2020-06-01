@@ -56,23 +56,31 @@ import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.regions.Region;
 
 public class TracingInterceptor implements ExecutionInterceptor {
+
+    /**
+     * @deprecated For internal use only.
+     */
+    @Deprecated
+    @SuppressWarnings("checkstyle:ConstantName")
+    // TODO(anuraaga): Make private in next major version and rename.
+    public static final ExecutionAttribute<Subsegment> entityKey = new ExecutionAttribute("AWS X-Ray Entity");
+
     private static final Log logger = LogFactory.getLog(TracingInterceptor.class);
 
-    private AWSServiceHandlerManifest awsServiceHandlerManifest;
-    private AWSXRayRecorder recorder;
-    private final String accountId;
-
-    private ObjectMapper mapper = new ObjectMapper()
+    private static final ObjectMapper MAPPER = new ObjectMapper()
             .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 
-    public static final ExecutionAttribute<Subsegment> entityKey = new ExecutionAttribute("AWS X-Ray Entity");
-
-    private static final URL DEFAULT_OPERATION_PARAMETER_WHITELIST = TracingInterceptor.class.getResource("/com/amazonaws/xray/interceptors/DefaultOperationParameterWhitelist.json");
+    private static final URL DEFAULT_OPERATION_PARAMETER_WHITELIST =
+        TracingInterceptor.class.getResource("/com/amazonaws/xray/interceptors/DefaultOperationParameterWhitelist.json");
 
     private static final String UNKNOWN_REQUEST_ID = "UNKNOWN";
     private static final List<String> REQUEST_ID_KEYS = Arrays.asList("x-amz-request-id", "x-amzn-requestid");
+
+    private AWSServiceHandlerManifest awsServiceHandlerManifest;
+    private AWSXRayRecorder recorder;
+    private final String accountId;
 
     public TracingInterceptor() {
         this(null, null, null);
@@ -87,22 +95,25 @@ public class TracingInterceptor implements ExecutionInterceptor {
     private void initInterceptorManifest(URL parameterWhitelist) {
         if (parameterWhitelist != null) {
             try {
-                awsServiceHandlerManifest = mapper.readValue(parameterWhitelist, AWSServiceHandlerManifest.class);
+                awsServiceHandlerManifest = MAPPER.readValue(parameterWhitelist, AWSServiceHandlerManifest.class);
                 return;
             } catch (IOException e) {
                 logger.error(
-                        "Unable to parse operation parameter whitelist at " + parameterWhitelist.getPath() +
-                                ". Falling back to default operation parameter whitelist at " + TracingInterceptor.DEFAULT_OPERATION_PARAMETER_WHITELIST.getPath() + ".",
+                        "Unable to parse operation parameter whitelist at " + parameterWhitelist.getPath()
+                        + ". Falling back to default operation parameter whitelist at "
+                        + TracingInterceptor.DEFAULT_OPERATION_PARAMETER_WHITELIST.getPath() + ".",
                         e
                 );
             }
         }
         try {
-            awsServiceHandlerManifest = mapper.readValue(TracingInterceptor.DEFAULT_OPERATION_PARAMETER_WHITELIST, AWSServiceHandlerManifest.class);
+            awsServiceHandlerManifest = MAPPER.readValue(
+                TracingInterceptor.DEFAULT_OPERATION_PARAMETER_WHITELIST, AWSServiceHandlerManifest.class);
         } catch (IOException e) {
             logger.error(
-                    "Unable to parse default operation parameter whitelist at " + TracingInterceptor.DEFAULT_OPERATION_PARAMETER_WHITELIST.getPath() +
-                            ". This will affect this handler's ability to capture AWS operation parameter information.",
+                    "Unable to parse default operation parameter whitelist at "
+                    + TracingInterceptor.DEFAULT_OPERATION_PARAMETER_WHITELIST.getPath()
+                    + ". This will affect this handler's ability to capture AWS operation parameter information.",
                     e
             );
         }
@@ -122,7 +133,8 @@ public class TracingInterceptor implements ExecutionInterceptor {
         return operationManifest.getOperationHandler(operationName);
     }
 
-    private HashMap<String, Object> extractRequestParameters(Context.BeforeExecution context, ExecutionAttributes executionAttributes) {
+    private HashMap<String, Object> extractRequestParameters(
+        Context.BeforeExecution context, ExecutionAttributes executionAttributes) {
         HashMap<String, Object> parameters = new HashMap<>();
 
         AWSOperationHandler operationHandler = getOperationHandler(executionAttributes);
@@ -163,7 +175,8 @@ public class TracingInterceptor implements ExecutionInterceptor {
         return parameters;
     }
 
-    private HashMap<String, Object> extractResponseParameters(Context.AfterExecution context, ExecutionAttributes executionAttributes) {
+    private HashMap<String, Object> extractResponseParameters(
+        Context.AfterExecution context, ExecutionAttributes executionAttributes) {
         HashMap<String, Object> parameters = new HashMap<>();
 
         AWSOperationHandler operationHandler = getOperationHandler(executionAttributes);
@@ -214,7 +227,8 @@ public class TracingInterceptor implements ExecutionInterceptor {
             return;
         }
         subsegment.setNamespace(Namespace.AWS.toString());
-        subsegment.putAws(EntityDataKeys.AWS.OPERATION_KEY, executionAttributes.getAttribute(SdkExecutionAttribute.OPERATION_NAME));
+        subsegment.putAws(EntityDataKeys.AWS.OPERATION_KEY,
+                          executionAttributes.getAttribute(SdkExecutionAttribute.OPERATION_NAME));
         Region region = executionAttributes.getAttribute(AwsExecutionAttribute.AWS_REGION);
         if (region != null) {
             subsegment.putAws(EntityDataKeys.AWS.REGION_KEY, region.id());

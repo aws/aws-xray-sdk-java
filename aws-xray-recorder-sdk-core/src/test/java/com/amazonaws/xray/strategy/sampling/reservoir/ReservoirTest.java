@@ -38,6 +38,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(Reservoir.class)
 public class ReservoirTest {
 
+    @DataPoints public static final int[] SAMPLE_RESERVOIRS = {1, 10, 100};
+
     @Test public void samplesOnlySpecifiedNumber() {
         mockStatic(System.class);
         when(System.nanoTime()).thenReturn(NANOS_PER_SECOND);
@@ -120,8 +122,6 @@ public class ReservoirTest {
         when(System.nanoTime()).thenReturn(0L); // reset
         assertTrue(reservoir.take());
     }
-
-    @DataPoints public static final int[] SAMPLE_RESERVOIRS = {1, 10, 100};
 
     @Theory public void retainsPerRate(int rate) {
         Reservoir reservoir = new Reservoir(rate);

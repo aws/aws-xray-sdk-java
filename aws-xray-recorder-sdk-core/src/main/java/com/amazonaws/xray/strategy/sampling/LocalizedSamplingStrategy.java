@@ -34,13 +34,18 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
     private static final Log logger =
         LogFactory.getLog(LocalizedSamplingStrategy.class);
 
-    private static final URL DEFAULT_RULES = LocalizedSamplingStrategy.class.getResource("/com/amazonaws/xray/strategy/sampling/DefaultSamplingRules.json");
+    private static final URL DEFAULT_RULES =
+        LocalizedSamplingStrategy.class.getResource("/com/amazonaws/xray/strategy/sampling/DefaultSamplingRules.json");
+
+    private static final ObjectMapper MAPPER =
+        new ObjectMapper()
+            .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 
     private URL samplingRulesLocation;
     private List<SamplingRule> rules;
     private SamplingRule defaultRule;
-
-    private ObjectMapper mapper = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 
     private List<Integer> supportedVersions = Arrays.asList(1, 2);
 
@@ -59,20 +64,22 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
 
     private SamplingRuleManifest getRuleManifest(URL ruleLocation) {
         if (null == ruleLocation) {
-            logger.error("Unable to parse null URL. Falling back to default rule set: " + LocalizedSamplingStrategy.DEFAULT_RULES.getPath());
+            logger.error("Unable to parse null URL. Falling back to default rule set: "
+                         + LocalizedSamplingStrategy.DEFAULT_RULES.getPath());
             return getDefaultRuleManifest();
         }
         try {
-            return mapper.readValue(ruleLocation, SamplingRuleManifest.class);
+            return MAPPER.readValue(ruleLocation, SamplingRuleManifest.class);
         } catch (IOException ioe) {
-            logger.error("Unable to parse " + ruleLocation.getPath() + ". Falling back to default rule set: " + LocalizedSamplingStrategy.DEFAULT_RULES.getPath(), ioe);
+            logger.error("Unable to parse " + ruleLocation.getPath() + ". Falling back to default rule set: "
+                         + LocalizedSamplingStrategy.DEFAULT_RULES.getPath(), ioe);
             return getDefaultRuleManifest();
         }
     }
 
     private SamplingRuleManifest getDefaultRuleManifest() {
         try {
-            return mapper.readValue(LocalizedSamplingStrategy.DEFAULT_RULES, SamplingRuleManifest.class);
+            return MAPPER.readValue(LocalizedSamplingStrategy.DEFAULT_RULES, SamplingRuleManifest.class);
         } catch (IOException ioe) {
             throw new RuntimeException("Unable to parse " + LocalizedSamplingStrategy.DEFAULT_RULES + ".", ioe);
         }
@@ -88,19 +95,23 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
         }
         if (null != defaultRule) {
             if (null != defaultRule.getUrlPath() || null != defaultRule.getHost() || null != defaultRule.getHttpMethod()) {
-                throwInvalidSamplingRuleManifestException("The default rule must not specify values for url_path, host, or http_method.");
+                throwInvalidSamplingRuleManifestException(
+                    "The default rule must not specify values for url_path, host, or http_method.");
             } else if (defaultRule.getFixedTarget() < 0 || defaultRule.getRate() < 0) {
-                throwInvalidSamplingRuleManifestException("The default rule must specify non-negative values for fixed_target and rate.");
+                throwInvalidSamplingRuleManifestException(
+                    "The default rule must specify non-negative values for fixed_target and rate.");
             }
             if (null != manifest.getRules()) {
-                manifest.getRules().forEach( (rule) -> {
+                manifest.getRules().forEach(rule -> {
                     if (manifest.getVersion() == 1) {
                         rule.setHost(rule.getServiceName());
                     }
                     if (null == rule.getUrlPath() || null == rule.getHost() || null == rule.getHttpMethod()) {
-                        throwInvalidSamplingRuleManifestException("All rules must have values for url_path, host, and http_method.");
+                        throwInvalidSamplingRuleManifestException(
+                            "All rules must have values for url_path, host, and http_method.");
                     } else if (rule.getFixedTarget() < 0 || rule.getRate() < 0) {
-                        throwInvalidSamplingRuleManifestException("All rules must have non-negative values for fixed_target and rate.");
+                        throwInvalidSamplingRuleManifestException(
+                            "All rules must have non-negative values for fixed_target and rate.");
                     }
                 });
                 rules = manifest.getRules();
@@ -119,12 +130,17 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
     @Override
     public SamplingResponse shouldTrace(SamplingRequest samplingRequest) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Determining shouldTrace decision for:\n\thost: " + samplingRequest.getHost().orElse("") + "\n\tpath: " + samplingRequest.getUrl().orElse("") + "\n\tmethod: " + samplingRequest.getMethod().orElse(""));
+            logger.debug("Determining shouldTrace decision for:\n\thost: " + samplingRequest.getHost().orElse("") + "\n\tpath: "
+                         + samplingRequest.getUrl().orElse("") + "\n\tmethod: " + samplingRequest.getMethod().orElse(""));
         }
         SamplingResponse sampleResponse = new SamplingResponse();
         SamplingRule firstApplicableRule = null;
         if (null != rules) {
-            firstApplicableRule = rules.stream().filter( rule -> rule.appliesTo(samplingRequest.getHost().orElse(""), samplingRequest.getUrl().orElse(""), samplingRequest.getMethod().orElse(""))).findFirst().orElse(null);
+            firstApplicableRule = rules.stream()
+                                       .filter(rule -> rule.appliesTo(samplingRequest.getHost().orElse(""),
+                                                                      samplingRequest.getUrl().orElse(""),
+                                                                      samplingRequest.getMethod().orElse("")))
+                                       .findFirst().orElse(null);
         }
         sampleResponse.setSampled(null == firstApplicableRule ? shouldTrace(defaultRule) : shouldTrace(firstApplicableRule));
         return sampleResponse;

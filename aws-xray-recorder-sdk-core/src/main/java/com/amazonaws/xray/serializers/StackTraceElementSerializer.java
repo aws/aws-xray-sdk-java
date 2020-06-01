@@ -27,7 +27,8 @@ public class StackTraceElementSerializer extends JsonSerializer<StackTraceElemen
     }
 
     @Override
-    public void serialize(StackTraceElement element, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(
+        StackTraceElement element, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("path", element.getFileName());
         jsonGenerator.writeNumberField("line", element.getLineNumber());

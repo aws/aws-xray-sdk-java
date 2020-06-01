@@ -40,6 +40,9 @@ import javax.annotation.Nullable;
  */
 public final class SegmentContextExecutors {
 
+    private SegmentContextExecutors() {
+    }
+
     /**
      * Returns a new {@link Executor} which will run any tasks with the current segment mounted.
      */
@@ -86,6 +89,4 @@ public final class SegmentContextExecutors {
             }
         }
     }
-
-    private SegmentContextExecutors() {}
 }

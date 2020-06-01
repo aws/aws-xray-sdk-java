@@ -44,7 +44,7 @@ public class TracedResponseHandler<T> implements ResponseHandler<T> {
         Map<String, Object> responseInformation = new HashMap<>();
 
         int responseCode = response.getStatusLine().getStatusCode();
-        switch (responseCode/100) {
+        switch (responseCode / 100) {
             case 4:
                 subsegment.setError(true);
                 if (429 == responseCode) {
@@ -54,6 +54,7 @@ public class TracedResponseHandler<T> implements ResponseHandler<T> {
             case 5:
                 subsegment.setFault(true);
                 break;
+            default:
         }
         responseInformation.put("status", responseCode);
 

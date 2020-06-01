@@ -45,13 +45,19 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 @FixMethodOrder(MethodSorters.JVM)
 public class EntityTest {
 
+    private static final String[] PREFIXES = {"set", "increment", "decrement", "put", "add"};
+    private static final List<String> MUTATING_METHOD_PREFIXES = Arrays.asList(PREFIXES);
+
     @Before
     public void setupAWSXRay() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
         LocalizedSamplingStrategy defaultSamplingStrategy = new LocalizedSamplingStrategy();
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSamplingStrategy(defaultSamplingStrategy).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard()
+                                                        .withEmitter(blankEmitter)
+                                                        .withSamplingStrategy(defaultSamplingStrategy)
+                                                        .build());
         AWSXRay.clearTraceEntity();
     }
 
@@ -88,7 +94,8 @@ public class EntityTest {
         Subsegment subsegment = AWSXRay.beginSubsegment("test");
         subsegment.setStartTime(1.0);
 
-        String expected = expectedInProgressSubsegment(parent.getTraceId(), parent.getId(), subsegment.getId(), subsegment.getStartTime()).toString();
+        String expected = expectedInProgressSubsegment(parent.getTraceId(), parent.getId(), subsegment.getId(),
+                                                       subsegment.getStartTime()).toString();
 
         JSONAssert.assertEquals(expected, subsegment.streamSerialize(), JSONCompareMode.NON_EXTENSIBLE);
     }
@@ -119,7 +126,8 @@ public class EntityTest {
         subsegment.end();
         segment.end();
 
-        String expected = expectedCompletedSegmentWithSubsegment(traceId, segment.getId(), subsegment.getId(), 1.0, subsegment.getEndTime(), segment.getEndTime()).toString();
+        String expected = expectedCompletedSegmentWithSubsegment(traceId, segment.getId(), subsegment.getId(), 1.0,
+                                                                 subsegment.getEndTime(), segment.getEndTime()).toString();
 
         JSONAssert.assertEquals(expected, segment.serialize(), JSONCompareMode.NON_EXTENSIBLE);
 
@@ -145,7 +153,8 @@ public class EntityTest {
         Assert.assertEquals(endTime, subsegment.getEndTime(), 0);
     }
 
-    public ObjectNode expectedCompletedSegmentWithSubsegment(TraceID traceId, String segmentId, String subsegmentId, double startTime, double subsegmentEndTime, double segmentEndTime) {
+    public ObjectNode expectedCompletedSegmentWithSubsegment(TraceID traceId, String segmentId, String subsegmentId,
+                                                             double startTime, double subsegmentEndTime, double segmentEndTime) {
         ObjectNode expected = expectedCompletedSegment(traceId, segmentId, startTime, segmentEndTime);
         expected.putArray("subsegments").add(expectedCompletedSubsegment(traceId, subsegmentId, startTime, subsegmentEndTime));
         return expected;
@@ -171,7 +180,7 @@ public class EntityTest {
     }
 
     @SuppressWarnings("resource")
-    @Test(expected=AlreadyEmittedException.class)
+    @Test(expected = AlreadyEmittedException.class)
     public void testModifyingSegmentAfterEndingThrowsAlreadyEmittedException() {
         TraceID traceId = new TraceID();
         Segment segment = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", traceId);
@@ -179,15 +188,11 @@ public class EntityTest {
         segment.setStartTime(1.0);
     }
 
-
-    private static final String[] prefixes = { "set", "increment", "decrement", "put", "add" };
-    private static final List<String> mutatingMethodPrefixes = Arrays.asList(prefixes);
-
     private static class MutatingMethodCount {
         private int mutatingMethods;
         private int mutatingMethodsThrowingExceptions;
 
-        public MutatingMethodCount(int mutatingMethods, int mutatingMethodsThrowingExceptions) {
+        MutatingMethodCount(int mutatingMethods, int mutatingMethodsThrowingExceptions) {
             this.mutatingMethods = mutatingMethods;
             this.mutatingMethodsThrowingExceptions = mutatingMethodsThrowingExceptions;
         }
@@ -205,21 +210,25 @@ public class EntityTest {
         int numberOfMutatingMethods = 0;
         int numberOfMutatingMethodsThatThrewException = 0;
         for (Method m : klass.getMethods()) {
-            if (mutatingMethodPrefixes.stream().anyMatch( (prefix) -> { return m.getName().startsWith(prefix); })) {
+            if (MUTATING_METHOD_PREFIXES.stream().anyMatch((prefix) -> {
+                return m.getName().startsWith(prefix);
+            })) {
                 numberOfMutatingMethods++;
                 try {
                     List<Parameter> parameters = Arrays.asList(m.getParameters());
-                    List<? extends Object> arguments = parameters.stream().map( (parameter) -> {
+                    List<?> arguments = parameters.stream().map(parameter -> {
                         try {
                             Class<?> argumentClass = parameter.getType();
                             if (boolean.class.equals(argumentClass)) {
                                 return false;
                             } else if (double.class.equals(argumentClass)) {
                                 return 0.0d;
-                            }else {
+                            } else {
                                 return argumentClass.getConstructor().newInstance();
                             }
-                        } catch (NoSuchMethodException|InvocationTargetException|InstantiationException|IllegalAccessException e) {
+                        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
+                            IllegalAccessException e) {
+                            // Ignore
                         }
                         return null;
                     }).collect(Collectors.toList());
@@ -229,6 +238,7 @@ public class EntityTest {
                         numberOfMutatingMethodsThatThrewException++;
                     }
                 } catch (IllegalAccessException e) {
+                    // Ignore
                 }
             }
         }
@@ -265,7 +275,7 @@ public class EntityTest {
         Assert.assertEquals(mutationResults.getMutatingMethods(), mutationResults.getMutatingMethodsThrowingExceptions());
     }
 
-    @Test(expected=AlreadyEmittedException.class)
+    @Test(expected = AlreadyEmittedException.class)
     public void testEndingSegmentImplTwiceThrowsAlreadyEmittedException() {
         SegmentImpl segment = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test");
         segment.getName();
@@ -273,7 +283,7 @@ public class EntityTest {
         segment.end();
     }
 
-    @Test(expected=AlreadyEmittedException.class)
+    @Test(expected = AlreadyEmittedException.class)
     public void testEndingSubsegmentImplTwiceThrowsAlreadyEmittedException() {
         SegmentImpl segment = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test");
         segment.getName();
@@ -283,7 +293,7 @@ public class EntityTest {
         subsegment.end();
     }
 
-    @Test(expected=AlreadyEmittedException.class)
+    @Test(expected = AlreadyEmittedException.class)
     public void testEndingSubsegmentImplAfterStreamingThrowsAlreadyEmittedException() {
         SegmentImpl segment = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test");
 

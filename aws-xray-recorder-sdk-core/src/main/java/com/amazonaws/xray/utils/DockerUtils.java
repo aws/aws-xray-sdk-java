@@ -51,8 +51,8 @@ public class DockerUtils {
     }
 
     /**
-     * Reads the docker-generated cgroup file that lists the full (untruncated) docker container ID at the end of each line. This method
-     * takes advantage of that fact by just reading the 64-character ID from the end of the first line
+     * Reads the docker-generated cgroup file that lists the full (untruncated) docker container ID at the end of each line. This
+     * method takes advantage of that fact by just reading the 64-character ID from the end of the first line.
      *
      * @throws IOException if the file cannot be read
      * @return the untruncated Docker container ID, or null if it can't be read
@@ -79,7 +79,8 @@ public class DockerUtils {
                     line = reader.readLine();
 
                     if (line == null) {
-                        logger.warn("Failed to read container ID because " + cgroupLocation.toString() + " didn't contain an ID.");
+                        logger.warn("Failed to read container ID because " + cgroupLocation.toString()
+                                    + " didn't contain an ID.");
                     } else if (line.length() > CONTAINER_ID_LENGTH) {
                         return line.substring(line.length() - CONTAINER_ID_LENGTH);
                     }

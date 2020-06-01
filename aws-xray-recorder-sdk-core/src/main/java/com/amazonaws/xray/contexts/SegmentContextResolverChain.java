@@ -28,7 +28,7 @@ public class SegmentContextResolverChain implements ResolverChain<SegmentContext
     }
 
     public SegmentContext resolve() {
-        Optional<SegmentContextResolver> firstResolver = resolvers.stream().filter( (resolver) -> {
+        Optional<SegmentContextResolver> firstResolver = resolvers.stream().filter(resolver -> {
             return null != resolver.resolve();
         }).findFirst();
 

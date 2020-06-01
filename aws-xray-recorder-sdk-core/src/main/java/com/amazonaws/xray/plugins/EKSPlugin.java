@@ -37,8 +37,9 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class EKSPlugin implements Plugin {
-    private static final String CI_APPLOG_GROUP_FORMAT="/aws/containerinsights/%s/application";
     public static final String ORIGIN = "AWS::EKS::Container";
+
+    private static final String CI_APPLOG_GROUP_FORMAT = "/aws/containerinsights/%s/application";
     private static final String SERVICE_NAME = "eks";
     private static final String POD_CONTEXT_KEY = "pod";
     private static final String CLUSTER_NAME_KEY = "cluster_name";
@@ -69,7 +70,7 @@ public class EKSPlugin implements Plugin {
 
     @Override
     public Set<AWSLogReference> getLogReferences() {
-        if(logReferences.isEmpty()) {
+        if (logReferences.isEmpty()) {
             populateLogReferences();
         }
 
@@ -83,7 +84,7 @@ public class EKSPlugin implements Plugin {
 
     @Override
     public Map<String, Object> getRuntimeContext() {
-        if(runtimeContext.isEmpty()) {
+        if (runtimeContext.isEmpty()) {
             populateRuntimeContext();
         }
 

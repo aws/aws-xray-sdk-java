@@ -45,7 +45,8 @@ public class DockerUtilsTest {
 
     @Test
     public void testValidLaterLineCgroupFile() throws IOException {
-        DockerUtils dockerUtils = new DockerUtils(DockerUtilsTest.class.getResource("/com/amazonaws/xray/utils/validSecondCgroup"));
+        DockerUtils dockerUtils = new DockerUtils(DockerUtilsTest.class.getResource(
+            "/com/amazonaws/xray/utils/validSecondCgroup"));
         String id = dockerUtils.getContainerId();
         Assert.assertEquals(DOCKER_ID, id);
     }

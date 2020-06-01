@@ -26,10 +26,12 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Utility class to parse JSON documents read in from the file system.
+ * @deprecated For internal use only.
  */
+@Deprecated
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
 public class JsonUtils {
-    private static final JsonFactory jsonFactory = new JsonFactory();
+    private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
     /**
      * Parses given file for an array field and returns that array as a JSON node.
@@ -39,7 +41,7 @@ public class JsonUtils {
      * @throws IOException
      */
     public static JsonNode getNodeFromJsonFile(String filePath, String fieldName) throws IOException {
-        JsonParser jp = jsonFactory.createParser(new File(filePath));
+        JsonParser jp = JSON_FACTORY.createParser(new File(filePath));
         jp.setCodec(new ObjectMapper());
         JsonNode jsonNode = jp.readValueAsTree();
         return jsonNode.findValue(fieldName);

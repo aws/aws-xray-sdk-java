@@ -58,7 +58,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
 
     @Override
     public boolean end() {
-        if(getEndTime() < Double.MIN_NORMAL) {
+        if (getEndTime() < Double.MIN_NORMAL) {
             setEndTime(Instant.now().toEpochMilli() / 1000.0d);
         }
 
@@ -137,11 +137,13 @@ public class SegmentImpl extends EntityImpl implements Segment {
         checkAlreadyEmitted();
         service.putAll(all);
     }
+
     @Override
     public void setRuleName(String ruleName) {
         checkAlreadyEmitted();
         if (getAws().get("xray") instanceof Map) {
-            Map<String, Object> a = (HashMap<String, Object>)getAws().get("xray");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> a = (HashMap<String, Object>) getAws().get("xray");
             HashMap<String, Object> referA = new HashMap<String, Object>(a);
             referA.put("rule_name", ruleName);
             this.putAws("xray", referA);

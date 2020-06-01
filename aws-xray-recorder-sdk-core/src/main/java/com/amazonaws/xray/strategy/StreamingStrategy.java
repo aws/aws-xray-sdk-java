@@ -27,7 +27,7 @@ public interface StreamingStrategy {
      *            the segment to inspect
      * @return true if the segment should be streaming.
      */
-    public boolean requiresStreaming(Segment segment);
+    boolean requiresStreaming(Segment segment);
 
 
     /**
@@ -38,5 +38,5 @@ public interface StreamingStrategy {
      * @param emitter
      *            the emitter to send the child subsegments to
      */
-    public void streamSome(Entity entity, Emitter emitter);
+    void streamSome(Entity entity, Emitter emitter);
 }

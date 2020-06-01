@@ -22,7 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * A representation of what issues caused this (sub)segment to include a failure / error. Can include exceptions or references to other exceptions.
+ * A representation of what issues caused this (sub)segment to include a failure / error. Can include exceptions or references to
+ * other exceptions.
  *
  */
 public class Cause {

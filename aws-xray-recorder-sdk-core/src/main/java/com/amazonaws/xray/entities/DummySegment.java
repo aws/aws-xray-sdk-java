@@ -73,7 +73,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setId(String id) { }
+    public void setId(String id) {
+    }
 
     @Override
     public double getStartTime() {
@@ -91,7 +92,9 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setEndTime(double endTime) { this.endTime = endTime; }
+    public void setEndTime(double endTime) {
+        this.endTime = endTime;
+    }
 
     @Override
     public boolean isFault() {
@@ -99,7 +102,9 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setFault(boolean fault) { this.fault = fault; }
+    public void setFault(boolean fault) {
+        this.fault = fault;
+    }
 
     @Override
     public boolean isError() {
@@ -107,7 +112,9 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setError(boolean error) { this.error = error; }
+    public void setError(boolean error) {
+        this.error = error;
+    }
 
     @Override
     public String getNamespace() {
@@ -115,7 +122,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setNamespace(String namespace) { }
+    public void setNamespace(String namespace) {
+    }
 
     @Override
     public Cause getCause() {
@@ -128,7 +136,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setHttp(Map<String, Object> http) { }
+    public void setHttp(Map<String, Object> http) {
+    }
 
     @Override
     public Map<String, Object> getAws() {
@@ -136,7 +145,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setAws(Map<String, Object> aws) { }
+    public void setAws(Map<String, Object> aws) {
+    }
 
     @Override
     public Map<String, Object> getSql() {
@@ -144,18 +154,21 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setSql(Map<String, Object> sql) { }
-
-    @Override
-    public Map<String, Map<String, Object>> getMetadata() {
-            return metadataMap;
+    public void setSql(Map<String, Object> sql) {
     }
 
     @Override
-    public void setMetadata(Map<String, Map<String, Object>> metadata) { }
+    public Map<String, Map<String, Object>> getMetadata() {
+        return metadataMap;
+    }
 
     @Override
-    public void setAnnotations(Map<String, Object> annotations) { }
+    public void setMetadata(Map<String, Map<String, Object>> metadata) {
+    }
+
+    @Override
+    public void setAnnotations(Map<String, Object> annotations) {
+    }
 
     @Override
     public Entity getParent() {
@@ -163,7 +176,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setParent(Entity parent) { }
+    public void setParent(Entity parent) {
+    }
 
     @Override
     public boolean isThrottle() {
@@ -171,7 +185,9 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setThrottle(boolean throttle) { this.throttle = throttle; }
+    public void setThrottle(boolean throttle) {
+        this.throttle = throttle;
+    }
 
     @Override
     public boolean isInProgress() {
@@ -179,7 +195,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setInProgress(boolean inProgress) { }
+    public void setInProgress(boolean inProgress) {
+    }
 
     @Override
     public TraceID getTraceId() {
@@ -187,7 +204,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setTraceId(TraceID traceId) { }
+    public void setTraceId(TraceID traceId) {
+    }
 
     /**
      * @return the creator
@@ -209,7 +227,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setParentId(String parentId) { }
+    public void setParentId(String parentId) {
+    }
 
     @Override
     public List<Subsegment> getSubsegments() {
@@ -217,43 +236,56 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void addSubsegment(Subsegment subsegment) { }
+    public void addSubsegment(Subsegment subsegment) {
+    }
 
     @Override
-    public void addException(Throwable exception) { }
+    public void addException(Throwable exception) {
+    }
 
     @Override
-    public void putHttp(String key, Object value) { }
+    public void putHttp(String key, Object value) {
+    }
 
     @Override
-    public void putAllHttp(Map<String, Object> all) { }
+    public void putAllHttp(Map<String, Object> all) {
+    }
 
     @Override
-    public void putAws(String key, Object value) { }
+    public void putAws(String key, Object value) {
+    }
 
     @Override
-    public void putAllAws(Map<String, Object> all) { }
+    public void putAllAws(Map<String, Object> all) {
+    }
 
     @Override
-    public void putSql(String key, Object value) { }
+    public void putSql(String key, Object value) {
+    }
 
     @Override
-    public void putAllSql(Map<String, Object> all) { }
+    public void putAllSql(Map<String, Object> all) {
+    }
 
     @Override
-    public void putAnnotation(String key, String value) { }
+    public void putAnnotation(String key, String value) {
+    }
 
     @Override
-    public void putAnnotation(String key, Number value) { }
+    public void putAnnotation(String key, Number value) {
+    }
 
     @Override
-    public void putAnnotation(String key, Boolean value) { }
+    public void putAnnotation(String key, Boolean value) {
+    }
 
     @Override
-    public void putMetadata(String key, Object object) { }
+    public void putMetadata(String key, Object object) {
+    }
 
     @Override
-    public void putMetadata(String namespace, String key, Object object) { }
+    public void putMetadata(String namespace, String key, Object object) {
+    }
 
     @Override
     public boolean isEmitted() {
@@ -261,7 +293,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setEmitted(boolean emitted) { }
+    public void setEmitted(boolean emitted) {
+    }
 
     @Override
     public String serialize() {
@@ -275,7 +308,7 @@ public class DummySegment implements Segment {
 
     @Override
     public boolean end() {
-        if(getEndTime() < Double.MIN_NORMAL) {
+        if (getEndTime() < Double.MIN_NORMAL) {
             setEndTime(Instant.now().toEpochMilli() / 1000.0d);
         }
 
@@ -283,7 +316,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void putService(String key, Object object) { }
+    public void putService(String key, Object object) {
+    }
 
     @Override
     public boolean isSampled() {
@@ -291,7 +325,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setSampled(boolean sampled) { }
+    public void setSampled(boolean sampled) {
+    }
 
     @Override
     public int getReferenceCount() {
@@ -304,7 +339,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void incrementReferenceCount() { }
+    public void incrementReferenceCount() {
+    }
 
     @Override
     public boolean decrementReferenceCount() {
@@ -317,7 +353,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setResourceArn(String resourceArn) { }
+    public void setResourceArn(String resourceArn) {
+    }
 
     @Override
     public String getUser() {
@@ -325,7 +362,8 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setUser(String user) { }
+    public void setUser(String user) {
+    }
 
     @Override
     public String getOrigin() {
@@ -333,7 +371,9 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setOrigin(String origin) { this.origin = origin; }
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
 
     @Override
     public Map<String, Object> getService() {
@@ -350,7 +390,8 @@ public class DummySegment implements Segment {
         return this;
     }
 
-    public void close() { }
+    public void close() {
+    }
 
     @Override
     public ReentrantLock getSubsegmentsLock() {
@@ -358,18 +399,23 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setSubsegmentsLock(ReentrantLock subsegmentsLock) { }
+    public void setSubsegmentsLock(ReentrantLock subsegmentsLock) {
+    }
 
     @Override
-    public void putAllService(Map<String, Object> all) { }
+    public void putAllService(Map<String, Object> all) {
+    }
 
     @Override
-    public void setService(Map<String, Object> service) { }
+    public void setService(Map<String, Object> service) {
+    }
 
     @Override
-    public void removeSubsegment(Subsegment subsegment) { }
+    public void removeSubsegment(Subsegment subsegment) {
+    }
 
     @Override
-    public void setRuleName(String name) {}
+    public void setRuleName(String name) {
+    }
 
 }

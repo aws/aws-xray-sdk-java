@@ -28,6 +28,7 @@ public class StdoutMetricEmitter implements MetricEmitter {
         formatter = new EMFMetricFormatter();
     }
 
+    @SuppressWarnings("checkstyle:Regexp")
     @Override
     public void emitMetric(final Segment segment) {
         String output = formatter.formatSegment(segment);

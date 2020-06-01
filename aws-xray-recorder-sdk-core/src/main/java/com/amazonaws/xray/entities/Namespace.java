@@ -20,7 +20,7 @@ public enum Namespace {
 
     private String value;
 
-    private Namespace(String value) {
+    Namespace(String value) {
         this.value = value;
     }
 

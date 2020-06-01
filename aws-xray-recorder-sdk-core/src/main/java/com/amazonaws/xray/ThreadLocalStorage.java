@@ -18,7 +18,11 @@ package com.amazonaws.xray;
 import com.amazonaws.xray.entities.Entity;
 import java.security.SecureRandom;
 
-
+/**
+ * @deprecated For internal use only.
+ */
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
+@Deprecated
 public class ThreadLocalStorage {
 
     static class LocalEntity extends ThreadLocal<Entity> {

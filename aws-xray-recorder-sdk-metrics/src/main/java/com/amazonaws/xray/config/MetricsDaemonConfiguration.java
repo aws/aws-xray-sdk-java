@@ -25,36 +25,42 @@ import org.apache.commons.logging.LogFactory;
  * Configuration specifying where to publish EMF metrics over UDP
  */
 public class MetricsDaemonConfiguration {
-    private static final Log logger = LogFactory.getLog(MetricsDaemonConfiguration.class);
-    private static final int DEFAULT_PORT = 25888;
-
-    private InetSocketAddress address = new InetSocketAddress(InetAddress.getLoopbackAddress(), DEFAULT_PORT);
 
     /**
-     * Environment variable key used to override the address to which UDP packets will be emitted. Valid values are of the form `ip_address:port`. Takes precedence over the system property when used.
+     * Environment variable key used to override the address to which UDP packets will be emitted. Valid values are of the form
+     * `ip_address:port`. Takes precedence over the system property when used.
      */
     public static final String DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY = "AWS_XRAY_METRICS_DAEMON_ADDRESS";
 
     /**
-     * System property key used to override the address to which UDP packets will be emitted. Valid values are of the form `ip_address:port`.
+     * System property key used to override the address to which UDP packets will be emitted. Valid values are of the form
+     * `ip_address:port`.
      * used.
      */
     public static final String DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY = "com.amazonaws.xray.metrics.daemonAddress";
+
+    private static final Log logger = LogFactory.getLog(MetricsDaemonConfiguration.class);
+    private static final int DEFAULT_PORT = 25888;
+
+    private InetSocketAddress address = new InetSocketAddress(InetAddress.getLoopbackAddress(), DEFAULT_PORT);
 
     public MetricsDaemonConfiguration() {
         String environmentAddress = System.getenv(DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY);
         String systemAddress = System.getProperty(DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY);
 
         if (setUDPAddress(environmentAddress)) {
-            logger.info(String.format("Environment variable %s is set. Emitting to daemon on address %s.", DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY, getUDPAddress()));
+            logger.info(String.format("Environment variable %s is set. Emitting to daemon on address %s.",
+                                      DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY, getUDPAddress()));
         } else if (setUDPAddress(systemAddress)) {
-            logger.info(String.format("System property %s is set. Emitting to daemon on address %s.", DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY, getUDPAddress()));
+            logger.info(String.format("System property %s is set. Emitting to daemon on address %s.",
+                                      DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY, getUDPAddress()));
         }
     }
 
     /**
-     * Sets the metrics daemon address. If either the {@code AWS_XRAY_METRICS_DAEMON_ADDRESS} environment variable or {@code com.amazonaws.xray.metrics.daemonAddress} system property are set to a non-empty value, calling this method does nothing.
-     * Logs an error if the address format is invalid to allow tracing if metrics are inoperative.
+     * Sets the metrics daemon address. If either the {@code AWS_XRAY_METRICS_DAEMON_ADDRESS} environment variable or
+     * {@code com.amazonaws.xray.metrics.daemonAddress} system property are set to a non-empty value, calling this method does
+     * nothing. Logs an error if the address format is invalid to allow tracing if metrics are inoperative.
      *
      * @param socketAddress
      *            Formatted as '127.0.0.1:25888'
@@ -65,7 +71,8 @@ public class MetricsDaemonConfiguration {
         if (StringValidator.isNullOrBlank(environmentAddress) && StringValidator.isNullOrBlank(systemAddress)) {
             setUDPAddress(socketAddress);
         } else {
-            logger.info(String.format("Ignoring call to setDaemonAddress as one of %s or %s is set.", DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY, DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY));
+            logger.info(String.format("Ignoring call to setDaemonAddress as one of %s or %s is set.",
+                                      DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY, DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY));
         }
     }
 
@@ -91,10 +98,10 @@ public class MetricsDaemonConfiguration {
 
         String[] parts = addr.split(":");
         if (parts.length != 2) {
-           logger.error("Invalid value for agent address: " + addr + ". Value must be of form \"ip_address:port\".");
-           return false;
+            logger.error("Invalid value for agent address: " + addr + ". Value must be of form \"ip_address:port\".");
+            return false;
         }
-        address = new InetSocketAddress(addr.substring(0, lastColonIndex), Integer.parseInt(addr.substring(lastColonIndex + 1, addr.length())));
+        address = new InetSocketAddress(addr.substring(0, lastColonIndex), Integer.parseInt(addr.substring(lastColonIndex + 1)));
         logger.debug("UDPAddress is set to " + addr + ".");
 
         return true;

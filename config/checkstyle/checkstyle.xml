@@ -39,14 +39,18 @@
 
     <module name="SuppressionFilter">
         <property name="file"
-                  value="${checkstyle.suppressions.file}"
-                  default="checkstyle-suppressions.xml"/>
+                  value="${config_loc}/suppressions.xml"/>
     </module>
+
+    <module name="SuppressWarningsFilter"/>
 
     <module name="TreeWalker">
 
         <!-- Allow suppressing rules via comments. -->
         <module name="SuppressionCommentFilter"/>
+
+        <!-- Allow suppressing rules with SuppressWarnings. -->
+        <module name="SuppressWarningsHolder"/>
 
         <!-- Class names must match the file name in which they are defined. -->
         <module name="OuterTypeFilename"/>
@@ -239,13 +243,6 @@
                      value="Method name ''{0}'' must match pattern ''{1}''."/>
         </module>
 
-        <!-- Should not use kotlin function name as public method name -->
-        <module name="software.amazon.awssdk.buildtools.checkstyle.SdkPublicMethodNameCheck">
-            <property name="format" value="^(?!(?:apply|let|run|also|with)$).*$"/>
-            <message key="name.invalidPattern"
-                     value="Method name ''{0}'' conflicts with kotlin function name"/>
-        </module>
-
         <!-- Finalizers must not be overridden. -->
         <module name="NoFinalizer"/>
 
@@ -272,6 +269,9 @@
             <property name="ignoreFinal" value="false"/>
             <property name="allowedAbbreviationLength" value="1"/>
             <property name="severity" value="warning"/>
+
+            <!-- TODO(anuraaga): We can consider enabling this for public API too in V3. -->
+            <property name="tokens" value="VARIABLE_DEF,PARAMETER_DEF"/>
         </module>
 
         <!-- Class contents must be defined in the order suggested by Sun/Oracle:
@@ -341,21 +341,26 @@
             <property name="ignoreComments" value="true"/>
         </module>
 
+        <!-- TODO(anuraaga): We don't have a SystemSetting/SdkAutoCloseable class but may want to add it in the future. -->
         <!-- Checks that we don't use System.getenv or System.getProperty -->
+        <!--
         <module name="Regexp">
             <property name="format" value="System\s*(\.|::)\s*(getenv|getProperty)"/>
             <property name="illegalPattern" value="true"/>
             <property name="message" value="Use SystemSetting instead of System.getenv and System.getProperty"/>
             <property name="ignoreComments" value="true"/>
         </module>
+        -->
 
         <!-- Checks that we don't implement AutoCloseable/Closeable -->
+        <!--
         <module name="Regexp">
             <property name="format" value="(class|interface).*(implements|extends).*[^\w](Closeable|AutoCloseable)[^\w]"/>
             <property name="illegalPattern" value="true"/>
             <property name="message" value="Use SdkAutoCloseable instead of Closeable/AutoCloseable"/>
             <property name="ignoreComments" value="true"/>
         </module>
+        -->
 
         <!-- Checks that we don't use Objects.hash. Objects.hashCode is preferred-->
         <module name="Regexp">
@@ -365,20 +370,11 @@
             <property name="ignoreComments" value="true"/>
         </module>
 
-        <!-- Checks that we don't use plural enum names -->
-        <module name="software.amazon.awssdk.buildtools.checkstyle.PluralEnumNames"/>
-
         <!-- Checks for redundant public modifier on interfaces and other redundant modifiers -->
         <module name="RedundantModifier" />
 
         <!-- Checks for utility and constants classes to have private constructor-->
         <module name="HideUtilityClassConstructor"/>
-
-        <!-- Checks that every class is marked with Sdk Annotation -->
-        <module name="software.amazon.awssdk.buildtools.checkstyle.MissingSdkAnnotationCheck" />
-
-        <!-- Checks that no 'final' are added on local variables -->
-        <module name="software.amazon.awssdk.buildtools.checkstyle.UnnecessaryFinalOnLocalVariableCheck" />
     </module>
 
     <!-- Enforce maximum line lengths. -->

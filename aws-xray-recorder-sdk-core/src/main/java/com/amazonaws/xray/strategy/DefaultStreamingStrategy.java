@@ -30,21 +30,17 @@ public class DefaultStreamingStrategy implements StreamingStrategy {
 
     private final int maxSegmentSize;
 
-    public int getMaxSegmentSize() {
-        return maxSegmentSize;
-    }
-
     /**
      * {@inheritDoc}
      *
      * Constructs an instance of DefaultStreamingStrategy using the default {@code maxSegmentSize} of 100.
      *
      */
-    public DefaultStreamingStrategy() { this(DEFAULT_MAX_SEGMENT_SIZE); }
+    public DefaultStreamingStrategy() {
+        this(DEFAULT_MAX_SEGMENT_SIZE);
+    }
 
     /**
-     * {@inheritDoc}
-     *
      * Constructs an instance of DefaultStreamingStrategy using the provided {@code maxSegmentSize}.
      *
      * @param maxSegmentSize
@@ -61,13 +57,19 @@ public class DefaultStreamingStrategy implements StreamingStrategy {
         this.maxSegmentSize = maxSegmentSize;
     }
 
+    public int getMaxSegmentSize() {
+        return maxSegmentSize;
+    }
+
     /**
      * {@inheritDoc}
      *
-     * Indicates that the provided segment requires streaming when it has been marked for sampling and its tree of subsegments reaches a size greater than {@code maxSegmentSize}.
+     * Indicates that the provided segment requires streaming when it has been marked for sampling and its tree of subsegments
+     * reaches a size greater than {@code maxSegmentSize}.
      *
      * @see StreamingStrategy#requiresStreaming(Segment)
      */
+    @Override
     public boolean requiresStreaming(Segment segment) {
         if (segment.isSampled() && null != segment.getTotalSize()) {
             return segment.getTotalSize().intValue() > maxSegmentSize;
@@ -78,11 +80,12 @@ public class DefaultStreamingStrategy implements StreamingStrategy {
     /**
      * {@inheritDoc}
      *
-     * Performs Subtree Subsegment Streaming to stream completed subsegment subtrees. Serializes these subtrees of subsegments, streams them to the daemon, and removes them from their parents.
+     * Performs Subtree Subsegment Streaming to stream completed subsegment subtrees. Serializes these subtrees of subsegments,
+     * streams them to the daemon, and removes them from their parents.
      *
      * @see StreamingStrategy#streamSome(Entity,Emitter)
      */
-
+    @Override
     public void streamSome(Entity entity, Emitter emitter) {
         if (entity.getSubsegmentsLock().tryLock()) {
             try {

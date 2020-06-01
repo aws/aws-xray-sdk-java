@@ -16,7 +16,8 @@
 package com.amazonaws.xray.strategy.sampling;
 
 /**
- * A sampling strategy for which {@code shouldTrace} always returns false. Use this sampling strategy to completely disable tracing.
+ * A sampling strategy for which {@code shouldTrace} always returns false. Use this sampling strategy to completely disable
+ * tracing.
  *
  */
 public class NoSamplingStrategy implements SamplingStrategy {

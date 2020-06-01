@@ -145,7 +145,7 @@ public class DaemonConfigurationTest {
         Assert.assertEquals("http://127.0.0.1:2000", config.getEndpointForTCPConnection());
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testShouldThrowOnInvalidRuntimeConfig() {
         DaemonConfiguration config = new DaemonConfiguration();
         config.setDaemonAddress("0.0.0.1");

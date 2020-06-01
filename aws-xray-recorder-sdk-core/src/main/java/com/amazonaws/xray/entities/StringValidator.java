@@ -15,6 +15,11 @@
 
 package com.amazonaws.xray.entities;
 
+/**
+ * @deprecated For internal use only.
+ */
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
+@Deprecated
 public class StringValidator {
 
     public static boolean isNotNullOrBlank(String string) {

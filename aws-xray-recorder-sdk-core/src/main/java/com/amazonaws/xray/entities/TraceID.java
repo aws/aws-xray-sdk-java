@@ -29,6 +29,15 @@ public class TraceID {
     private BigInteger number;
     private long startTime;
 
+    public TraceID() {
+        this(Instant.now().getEpochSecond());
+    }
+
+    public TraceID(long startTime) {
+        number = new BigInteger(96, ThreadLocalStorage.getRandom());
+        this.startTime = startTime;
+    }
+
     public static TraceID fromString(String string) {
         TraceID traceId = new TraceID();
         String[] parts = string.trim().split(DELIMITER + "");
@@ -39,15 +48,6 @@ public class TraceID {
         }
 
         return traceId;
-    }
-
-    public TraceID() {
-        this(Instant.now().getEpochSecond());
-    }
-
-    public TraceID(long startTime) {
-        number = new BigInteger(96, ThreadLocalStorage.getRandom());
-        this.startTime = startTime;
     }
 
     @Override
@@ -87,19 +87,19 @@ public class TraceID {
         this.startTime = startTime;
     }
 
-    private static final int PRIME = 31;
     @Override
     public int hashCode() {
         int result = 1;
-        result = PRIME * result + ((number == null) ? 0 : number.hashCode());
-        result = PRIME * result + (int) (startTime ^ (startTime >>> 32));
+        result = 31 * result + ((number == null) ? 0 : number.hashCode());
+        result = 31 * result + (int) (startTime ^ (startTime >>> 32));
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
+        }
         if (!(obj instanceof TraceID)) {
             return false;
         }

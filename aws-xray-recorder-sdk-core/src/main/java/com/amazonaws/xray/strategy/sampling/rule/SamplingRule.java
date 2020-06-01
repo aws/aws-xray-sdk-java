@@ -34,7 +34,8 @@ public class SamplingRule {
     }
 
     /**
-     * Constructs a new {@code SamplingRule}. Patterns are supported in the {@code host}, {@code httpMethod}, and {@code urlPath} parameters. Patterns are matched using the {@link com.amazonaws.xray.entities.SearchPattern} class.
+     * Constructs a new {@code SamplingRule}. Patterns are supported in the {@code host}, {@code httpMethod}, and {@code urlPath}
+     * parameters. Patterns are matched using the {@link com.amazonaws.xray.entities.SearchPattern} class.
      *
      * @param host
      *            the host name for which the rule should apply
@@ -160,11 +161,14 @@ public class SamplingRule {
 
     @Override
     public String toString() {
-        return "\n\thost: " + host + "\n\thttp_method: " + httpMethod + "\n\turl_path: " + urlPath + "\n\tfixed_target: " + fixedTarget + "\n\trate: " + rate;
+        return "\n\thost: " + host + "\n\thttp_method: " + httpMethod + "\n\turl_path: " + urlPath + "\n\tfixed_target: "
+               + fixedTarget + "\n\trate: " + rate;
     }
 
     /**
-     * Determines whether or not this sampling rule applies to the incoming request based on some of the request's parameters. Any null parameters provided will be considered an implicit match. For example, {@code appliesTo(null, null, null)} will always return {@code true}, for any rule.
+     * Determines whether or not this sampling rule applies to the incoming request based on some of the request's parameters. Any
+     * null parameters provided will be considered an implicit match. For example, {@code appliesTo(null, null, null)} will always
+     * return {@code true}, for any rule.
      *
      * @param requestHost
      *            the host name for the incoming request.
