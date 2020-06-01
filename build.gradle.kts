@@ -14,7 +14,7 @@ allprojects {
 
     plugins.apply("com.github.hierynomus.license")
     configure<LicenseExtension> {
-        header = file("${rootProject.projectDir}/misc/license-header.txt")
+        header = file("${rootProject.projectDir}/config/license/header.txt")
 
         headerDefinitions {
             // Same as SLASHSTAR_STYLE but with newline at end to match published IntelliJ copyright style.
@@ -40,6 +40,8 @@ allprojects {
     }
 
     plugins.withId("java-library") {
+        plugins.apply("checkstyle")
+
         configure<JavaPluginExtension> {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
