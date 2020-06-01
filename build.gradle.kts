@@ -1,9 +1,40 @@
+import nl.javadude.gradle.plugins.license.LicenseExtension
+
+plugins {
+    id("com.github.hierynomus.license") apply false
+}
+
 allprojects {
     group = "com.amazonaws"
 
     repositories {
         mavenCentral()
         mavenLocal()
+    }
+
+    plugins.apply("com.github.hierynomus.license")
+    configure<LicenseExtension> {
+        header = file("${rootProject.projectDir}/misc/license-header.txt")
+
+        headerDefinitions {
+            // Same as SLASHSTAR_STYLE but with newline at end to match published IntelliJ copyright style.
+            register("JAVA_STYLE") {
+                // Adds the ending newline.
+                endLine   = " */\n"
+
+                // All other config copied from here
+                // https://github.com/mycila/license-maven-plugin/blob/bdef2dca8f27af4f3134e03de0aa72d8d0863f99/license-maven-plugin/src/main/java/com/mycila/maven/plugin/license/header/HeaderType.java#L45
+                firstLine = "/*"
+                beforeEachLine = " * "
+                firstLineDetectionPattern = "(\\s|\\t)*/\\*.*$"
+                lastLineDetectionPattern  = ".*\\*/(\\s|\\t)*$"
+                allowBlankLines = false
+                isMultiline = false
+                padLines = false
+            }
+        }
+
+        mapping("java", "JAVA_STYLE")
     }
 
     plugins.withId("java-library") {

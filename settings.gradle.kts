@@ -1,3 +1,9 @@
+pluginManagement {
+    plugins {
+        id("com.github.hierynomus.license") version "0.15.0"
+    }
+}
+
 include(":aws-xray-recorder-sdk-apache-http")
 include(":aws-xray-recorder-sdk-aws-sdk")
 include(":aws-xray-recorder-sdk-aws-sdk-instrumentor")
