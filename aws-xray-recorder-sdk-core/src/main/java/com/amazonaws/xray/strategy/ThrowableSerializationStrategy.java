@@ -15,10 +15,9 @@
 
 package com.amazonaws.xray.strategy;
 
-import java.util.List;
-
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.ThrowableDescription;
+import java.util.List;
 
 public interface ThrowableSerializationStrategy {
     /**

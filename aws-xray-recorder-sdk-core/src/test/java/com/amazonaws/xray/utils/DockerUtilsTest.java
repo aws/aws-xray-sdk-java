@@ -15,10 +15,9 @@
 
 package com.amazonaws.xray.utils;
 
+import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.IOException;
 
 public class DockerUtilsTest {
     private static final String DOCKER_ID = "79311de543c2b01bdbb7ccaf355e71a02b0726366a1427ecfceb5e1f5be81644";

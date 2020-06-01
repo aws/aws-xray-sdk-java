@@ -17,11 +17,10 @@ package com.amazonaws.xray.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.util.List;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class JsonUtilsTest {
     private static final String singleLogConfig = "[{\"log_group_name\":\"test_group\"}]";

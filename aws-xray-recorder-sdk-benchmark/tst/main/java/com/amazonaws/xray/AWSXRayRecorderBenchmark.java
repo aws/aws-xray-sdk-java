@@ -17,6 +17,8 @@ package com.amazonaws.xray;
 
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
+import java.net.SocketException;
+import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -29,9 +31,6 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
-
-import java.net.SocketException;
-import java.util.concurrent.TimeUnit;
 
 public class AWSXRayRecorderBenchmark {
     private static final String SEGMENT_NAME = "BENCHMARK_SEGMENT";

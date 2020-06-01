@@ -15,6 +15,7 @@
 
 package com.amazonaws.xray.entities;
 
+import com.amazonaws.xray.AWSXRayRecorder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -23,8 +24,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
-
-import com.amazonaws.xray.AWSXRayRecorder;
 
 public class DummySubsegment implements Subsegment {
 

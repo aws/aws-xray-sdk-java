@@ -15,21 +15,20 @@
 
 package com.amazonaws.xray.spring.aop;
 
+import static com.amazonaws.xray.AWSXRay.getCurrentSegmentOptional;
+
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.strategy.ContextMissingStrategy;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
-
-import java.util.Map;
-import java.util.Optional;
-
-import static com.amazonaws.xray.AWSXRay.getCurrentSegmentOptional;
 
 
 /**

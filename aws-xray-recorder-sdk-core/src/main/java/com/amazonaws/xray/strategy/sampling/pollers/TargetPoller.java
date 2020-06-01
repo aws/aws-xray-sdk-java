@@ -15,15 +15,6 @@
 
 package com.amazonaws.xray.strategy.sampling.pollers;
 
-import java.time.Clock;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.amazonaws.services.xray.AWSXRay;
 import com.amazonaws.services.xray.model.GetSamplingTargetsRequest;
 import com.amazonaws.services.xray.model.GetSamplingTargetsResult;
@@ -32,6 +23,13 @@ import com.amazonaws.xray.internal.UnsignedXrayClient;
 import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
 import com.amazonaws.xray.strategy.sampling.rand.Rand;
 import com.amazonaws.xray.strategy.sampling.rand.RandImpl;
+import java.time.Clock;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class TargetPoller {
     private static final Log logger = LogFactory.getLog(TargetPoller.class);

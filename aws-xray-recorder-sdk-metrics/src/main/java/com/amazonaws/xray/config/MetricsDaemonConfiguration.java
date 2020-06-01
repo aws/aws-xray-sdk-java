@@ -16,10 +16,10 @@
 package com.amazonaws.xray.config;
 
 import com.amazonaws.xray.entities.StringValidator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Configuration specifying where to publish EMF metrics over UDP

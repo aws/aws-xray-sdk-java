@@ -15,12 +15,12 @@
 
 package com.amazonaws.xray.entities;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import static org.junit.Assert.*;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class AWSLogReferenceTest {

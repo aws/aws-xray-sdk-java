@@ -28,7 +28,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

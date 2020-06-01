@@ -19,15 +19,14 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import java.net.URL;
+import java.util.HashSet;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.net.URL;
-import java.util.HashSet;
 
 @FixMethodOrder(MethodSorters.JVM)
 @RunWith(MockitoJUnitRunner.class)

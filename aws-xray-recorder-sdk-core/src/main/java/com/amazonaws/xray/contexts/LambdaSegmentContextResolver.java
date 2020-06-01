@@ -15,17 +15,15 @@
 
 package com.amazonaws.xray.contexts;
 
+import com.amazonaws.xray.entities.StringValidator;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.amazonaws.xray.entities.StringValidator;
 
 public class LambdaSegmentContextResolver implements SegmentContextResolver {
     private static final Log logger = LogFactory.getLog(LambdaSegmentContextResolver.class);

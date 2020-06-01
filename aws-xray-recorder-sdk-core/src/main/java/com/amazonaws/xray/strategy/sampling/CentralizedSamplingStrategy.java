@@ -15,20 +15,18 @@
 
 package com.amazonaws.xray.strategy.sampling;
 
-import java.net.URL;
-import java.security.SecureRandom;
-import java.time.Clock;
-import java.time.Instant;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.amazonaws.xray.internal.UnsignedXrayClient;
 import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
 import com.amazonaws.xray.strategy.sampling.pollers.RulePoller;
 import com.amazonaws.xray.strategy.sampling.pollers.TargetPoller;
 import com.amazonaws.xray.strategy.sampling.rule.CentralizedRule;
 import com.amazonaws.xray.utils.ByteUtils;
+import java.net.URL;
+import java.security.SecureRandom;
+import java.time.Clock;
+import java.time.Instant;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class CentralizedSamplingStrategy implements SamplingStrategy {
     private static final Log logger = LogFactory.getLog(TargetPoller.class);

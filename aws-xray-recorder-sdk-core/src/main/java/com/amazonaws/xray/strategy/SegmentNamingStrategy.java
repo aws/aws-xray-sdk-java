@@ -15,9 +15,8 @@
 
 package com.amazonaws.xray.strategy;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.amazonaws.xray.entities.StringValidator;
+import javax.servlet.http.HttpServletRequest;
 
 public interface SegmentNamingStrategy {
 

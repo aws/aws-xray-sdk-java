@@ -15,13 +15,12 @@
 
 package com.amazonaws.xray.plugins;
 
+import com.amazonaws.xray.utils.DockerUtils;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.amazonaws.xray.utils.DockerUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

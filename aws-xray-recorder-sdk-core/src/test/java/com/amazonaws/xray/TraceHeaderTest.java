@@ -15,14 +15,13 @@
 
 package com.amazonaws.xray;
 
+import com.amazonaws.xray.entities.TraceHeader;
+import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
+import com.amazonaws.xray.entities.TraceID;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import com.amazonaws.xray.entities.TraceHeader;
-import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
-import com.amazonaws.xray.entities.TraceID;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class TraceHeaderTest {

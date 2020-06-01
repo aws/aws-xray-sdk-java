@@ -16,9 +16,8 @@
 package com.amazonaws.xray.strategy.sampling.rule;
 
 import com.amazonaws.services.xray.model.SamplingRule;
-import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import com.amazonaws.xray.entities.SearchPattern;
-
+import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import java.util.Collections;
 import java.util.Map;
 

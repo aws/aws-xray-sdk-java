@@ -15,21 +15,25 @@
 
 package com.amazonaws.xray.javax.servlet;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.AWSXRayRecorderBuilder;
+import com.amazonaws.xray.emitters.Emitter;
+import com.amazonaws.xray.entities.Cause;
+import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.strategy.FixedSegmentNamingStrategy;
+import com.amazonaws.xray.strategy.SegmentNamingStrategy;
+import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.entities.Cause;
-import com.amazonaws.xray.strategy.FixedSegmentNamingStrategy;
-import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -41,13 +45,6 @@ import org.junit.runners.MethodSorters;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
-
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.AWSXRayRecorderBuilder;
-import com.amazonaws.xray.emitters.Emitter;
-import com.amazonaws.xray.entities.Entity;
-import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.strategy.SegmentNamingStrategy;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class AWSXRayServletFilterTest {

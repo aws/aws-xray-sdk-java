@@ -15,14 +15,14 @@
 
 package com.amazonaws.xray.contexts;
 
-import java.util.Objects;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.ThreadLocalStorage;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
+import java.util.Objects;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public interface SegmentContext {
     static final Log logger =

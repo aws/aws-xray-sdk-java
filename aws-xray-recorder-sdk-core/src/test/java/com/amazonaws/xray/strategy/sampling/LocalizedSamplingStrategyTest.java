@@ -15,10 +15,9 @@
 
 package com.amazonaws.xray.strategy.sampling;
 
+import com.amazonaws.xray.strategy.sampling.rule.SamplingRule;
 import java.net.URL;
 import java.util.ArrayList;
-
-import com.amazonaws.xray.strategy.sampling.rule.SamplingRule;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;

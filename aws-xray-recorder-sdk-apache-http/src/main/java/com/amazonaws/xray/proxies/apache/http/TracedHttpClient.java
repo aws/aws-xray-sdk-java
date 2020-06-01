@@ -15,12 +15,18 @@
 
 package com.amazonaws.xray.proxies.apache.http;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.entities.Namespace;
+import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.entities.TraceHeader;
+import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.ClientProtocolException;
@@ -32,14 +38,6 @@ import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
-
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.entities.Namespace;
-import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.entities.Subsegment;
-import com.amazonaws.xray.entities.TraceHeader;
-import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 
 @SuppressWarnings("deprecation")
 public class TracedHttpClient extends CloseableHttpClient {

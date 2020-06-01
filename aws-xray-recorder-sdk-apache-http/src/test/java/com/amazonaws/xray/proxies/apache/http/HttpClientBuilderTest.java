@@ -15,21 +15,18 @@
 
 package com.amazonaws.xray.proxies.apache.http;
 
+import static org.junit.Assert.assertEquals;
+
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorderBuilder;
+import com.amazonaws.xray.emitters.Emitter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
-
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.AWSXRayRecorderBuilder;
-import com.amazonaws.xray.emitters.Emitter;
-import com.amazonaws.xray.proxies.apache.http.HttpClientBuilder;
-
-import static org.junit.Assert.assertEquals;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class HttpClientBuilderTest {

@@ -15,11 +15,10 @@
 
 package com.amazonaws.xray.entities;
 
+import com.amazonaws.xray.ThreadLocalStorage;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.Objects;
-
-import com.amazonaws.xray.ThreadLocalStorage;
 
 public class TraceID {
 

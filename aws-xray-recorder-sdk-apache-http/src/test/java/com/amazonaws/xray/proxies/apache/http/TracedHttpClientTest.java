@@ -15,13 +15,13 @@
 
 package com.amazonaws.xray.proxies.apache.http;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.message.BasicHttpRequest;
 import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
 public class TracedHttpClientTest {
     @Test

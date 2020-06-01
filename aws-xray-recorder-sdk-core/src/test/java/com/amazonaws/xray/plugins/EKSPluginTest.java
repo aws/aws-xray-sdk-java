@@ -15,8 +15,11 @@
 
 package com.amazonaws.xray.plugins;
 
+import static org.junit.Assert.assertEquals;
+
 import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.utils.ContainerInsightsUtil;
+import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,10 +28,6 @@ import org.mockito.BDDMockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.util.Set;
-
-import static org.junit.Assert.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ContainerInsightsUtil.class)

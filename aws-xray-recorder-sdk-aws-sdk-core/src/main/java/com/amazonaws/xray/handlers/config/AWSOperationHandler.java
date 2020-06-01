@@ -16,7 +16,6 @@
 package com.amazonaws.xray.handlers.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.HashMap;
 import java.util.HashSet;
 

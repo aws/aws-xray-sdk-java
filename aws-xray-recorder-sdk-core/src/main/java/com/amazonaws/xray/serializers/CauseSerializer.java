@@ -15,13 +15,12 @@
 
 package com.amazonaws.xray.serializers;
 
-import java.io.IOException;
-
 import com.amazonaws.xray.entities.Cause;
 import com.amazonaws.xray.entities.ThrowableDescription;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import java.io.IOException;
 
 public class CauseSerializer extends JsonSerializer<Cause> {
 

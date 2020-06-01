@@ -15,32 +15,6 @@
 
 package com.amazonaws.xray.handlers;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-
-import com.amazonaws.services.xray.AWSXRayClientBuilder;
-import com.amazonaws.services.xray.model.GetSamplingRulesRequest;
-import com.amazonaws.services.xray.model.GetSamplingTargetsRequest;
-import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.impl.io.EmptyInputStream;
-import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.message.BasicStatusLine;
-import org.apache.http.protocol.HttpContext;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
-import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
-
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -56,10 +30,34 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import com.amazonaws.services.sns.model.PublishRequest;
+import com.amazonaws.services.xray.AWSXRayClientBuilder;
+import com.amazonaws.services.xray.model.GetSamplingRulesRequest;
+import com.amazonaws.services.xray.model.GetSamplingTargetsRequest;
 import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.impl.io.EmptyInputStream;
+import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.message.BasicStatusLine;
+import org.apache.http.protocol.HttpContext;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runners.MethodSorters;
+import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class TracingHandlerTest {

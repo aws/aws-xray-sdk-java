@@ -20,8 +20,8 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.xray.AWSXRayClientBuilder;
 import com.amazonaws.services.xray.AWSXRay;
+import com.amazonaws.services.xray.AWSXRayClientBuilder;
 import com.amazonaws.xray.config.DaemonConfiguration;
 
 /**

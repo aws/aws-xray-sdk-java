@@ -15,8 +15,8 @@
 
 package com.amazonaws.xray.strategy.sampling.rule;
 
-import com.amazonaws.xray.strategy.sampling.reservoir.Reservoir;
 import com.amazonaws.xray.entities.SearchPattern;
+import com.amazonaws.xray.strategy.sampling.reservoir.Reservoir;
 
 public class SamplingRule {
 

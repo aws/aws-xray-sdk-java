@@ -29,18 +29,16 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.Date;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-
 import com.amazonaws.services.xray.model.GetSamplingRulesRequest;
 import com.amazonaws.services.xray.model.GetSamplingRulesResult;
 import com.amazonaws.services.xray.model.GetSamplingTargetsRequest;
 import com.amazonaws.services.xray.model.GetSamplingTargetsResult;
 import com.amazonaws.services.xray.model.SamplingStatisticsDocument;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import java.util.Date;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class UnsignedXrayClientTest {
 

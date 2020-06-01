@@ -15,14 +15,23 @@
 
 package com.amazonaws.xray;
 
+import com.amazonaws.xray.emitters.Emitter;
+import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.entities.SegmentImpl;
+import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.entities.SubsegmentImpl;
+import com.amazonaws.xray.entities.TraceID;
+import com.amazonaws.xray.exceptions.AlreadyEmittedException;
+import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,17 +41,6 @@ import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
-
-import com.amazonaws.xray.emitters.Emitter;
-import com.amazonaws.xray.entities.Entity;
-import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.entities.SegmentImpl;
-import com.amazonaws.xray.entities.Subsegment;
-import com.amazonaws.xray.entities.SubsegmentImpl;
-import com.amazonaws.xray.entities.TraceID;
-import com.amazonaws.xray.exceptions.AlreadyEmittedException;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class EntityTest {

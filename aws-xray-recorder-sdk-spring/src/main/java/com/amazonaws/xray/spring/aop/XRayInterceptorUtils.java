@@ -16,10 +16,9 @@
 package com.amazonaws.xray.spring.aop;
 
 import com.amazonaws.xray.entities.Subsegment;
-import org.aspectj.lang.ProceedingJoinPoint;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.aspectj.lang.ProceedingJoinPoint;
 
 public class XRayInterceptorUtils {
 

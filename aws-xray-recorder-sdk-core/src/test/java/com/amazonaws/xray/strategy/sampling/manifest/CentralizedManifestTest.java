@@ -20,16 +20,15 @@ import com.amazonaws.services.xray.model.SamplingStatisticsDocument;
 import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import com.amazonaws.xray.strategy.sampling.rand.RandImpl;
 import com.amazonaws.xray.strategy.sampling.rule.CentralizedRule;
-import org.junit.Assert;
-import org.junit.Test;
-import org.powermock.reflect.Whitebox;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.Assert;
+import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 
 public class CentralizedManifestTest {
 

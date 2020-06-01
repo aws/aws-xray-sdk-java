@@ -15,6 +15,14 @@
 
 package com.amazonaws.xray.strategy.sampling.reservoir;
 
+import static com.amazonaws.xray.strategy.sampling.reservoir.Reservoir.NANOS_PER_DECISECOND;
+import static com.amazonaws.xray.strategy.sampling.reservoir.Reservoir.NANOS_PER_SECOND;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 import java.util.Random;
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
@@ -23,14 +31,6 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import static com.amazonaws.xray.strategy.sampling.reservoir.Reservoir.NANOS_PER_DECISECOND;
-import static com.amazonaws.xray.strategy.sampling.reservoir.Reservoir.NANOS_PER_SECOND;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 // Added to declutter console: tells power mock not to mess with implicit classes we aren't testing

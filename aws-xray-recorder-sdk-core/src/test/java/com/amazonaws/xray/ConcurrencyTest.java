@@ -15,20 +15,18 @@
 
 package com.amazonaws.xray;
 
+import com.amazonaws.xray.emitters.Emitter;
+import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
-
-import com.amazonaws.xray.emitters.Emitter;
-import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class ConcurrencyTest {

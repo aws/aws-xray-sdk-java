@@ -17,7 +17,6 @@ package com.amazonaws.xray.strategy.sampling.reservoir;
 
 import com.amazonaws.services.xray.model.SamplingRule;
 import com.amazonaws.services.xray.model.SamplingTargetDocument;
-
 import java.time.Instant;
 
 public class CentralizedReservoir {

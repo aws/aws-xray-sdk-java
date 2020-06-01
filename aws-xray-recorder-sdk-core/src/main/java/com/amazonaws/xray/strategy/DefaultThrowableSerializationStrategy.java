@@ -15,20 +15,18 @@
 
 package com.amazonaws.xray.strategy;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.entities.ThrowableDescription;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.xray.entities.Entity;
-import com.amazonaws.xray.entities.Subsegment;
-import com.amazonaws.xray.entities.ThrowableDescription;
 
 /**
  * Default implementation of {@code ThrowableSerializationStrategy}.

@@ -15,11 +15,10 @@
 
 package com.amazonaws.xray.entities;
 
-import java.util.Map;
-import java.util.concurrent.atomic.LongAdder;
-
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
+import java.util.Map;
+import java.util.concurrent.atomic.LongAdder;
 
 public class FacadeSegment extends EntityImpl implements Segment {
 

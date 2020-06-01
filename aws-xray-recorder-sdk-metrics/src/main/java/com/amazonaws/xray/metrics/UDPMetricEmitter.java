@@ -17,13 +17,13 @@ package com.amazonaws.xray.metrics;
 
 import com.amazonaws.xray.config.MetricsDaemonConfiguration;
 import com.amazonaws.xray.entities.Segment;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Generates EMF formatted metrics and send them to the CloudWatch Agent for publication.

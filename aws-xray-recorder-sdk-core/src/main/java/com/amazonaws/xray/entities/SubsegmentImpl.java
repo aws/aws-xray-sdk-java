@@ -15,16 +15,14 @@
 
 package com.amazonaws.xray.entities;
 
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class SubsegmentImpl extends EntityImpl implements Subsegment {
     private static final Log logger = LogFactory.getLog(SubsegmentImpl.class);

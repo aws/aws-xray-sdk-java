@@ -16,7 +16,6 @@
 package com.amazonaws.xray.plugins;
 
 import com.amazonaws.xray.entities.AWSLogReference;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;

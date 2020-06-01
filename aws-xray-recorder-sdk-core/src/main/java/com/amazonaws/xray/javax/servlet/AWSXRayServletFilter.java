@@ -15,26 +15,6 @@
 
 package com.amazonaws.xray.javax.servlet;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.servlet.AsyncEvent;
-import javax.servlet.AsyncListener;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.amazonaws.xray.strategy.sampling.SamplingRequest;
-import com.amazonaws.xray.strategy.sampling.SamplingResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.entities.Entity;
@@ -46,7 +26,24 @@ import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.strategy.DynamicSegmentNamingStrategy;
 import com.amazonaws.xray.strategy.FixedSegmentNamingStrategy;
 import com.amazonaws.xray.strategy.SegmentNamingStrategy;
+import com.amazonaws.xray.strategy.sampling.SamplingRequest;
+import com.amazonaws.xray.strategy.sampling.SamplingResponse;
 import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import javax.servlet.AsyncEvent;
+import javax.servlet.AsyncListener;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class AWSXRayServletFilter implements javax.servlet.Filter {
 

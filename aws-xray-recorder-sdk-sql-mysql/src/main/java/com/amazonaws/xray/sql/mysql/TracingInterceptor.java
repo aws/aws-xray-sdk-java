@@ -15,6 +15,9 @@
 
 package com.amazonaws.xray.sql.mysql;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Namespace;
+import com.amazonaws.xray.entities.Subsegment;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -30,16 +33,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.ConnectionPool;
 import org.apache.tomcat.jdbc.pool.JdbcInterceptor;
 import org.apache.tomcat.jdbc.pool.PooledConnection;
-
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Namespace;
-import com.amazonaws.xray.entities.Subsegment;
 
 /*
  * Inspired by: http://grepcode.com/file/repo1.maven.org/maven2/org.apache.tomcat/tomcat-jdbc/8.0.24/org/apache/tomcat/jdbc/pool/interceptor/AbstractQueryReport.java#AbstractQueryReport

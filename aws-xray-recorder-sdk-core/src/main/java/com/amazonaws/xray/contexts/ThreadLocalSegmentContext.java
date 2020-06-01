@@ -15,10 +15,6 @@
 
 package com.amazonaws.xray.contexts;
 
-import com.amazonaws.xray.listeners.SegmentListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
@@ -26,9 +22,11 @@ import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
-
+import com.amazonaws.xray.listeners.SegmentListener;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class ThreadLocalSegmentContext implements SegmentContext {
     private static final Log logger =

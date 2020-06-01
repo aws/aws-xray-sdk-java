@@ -15,6 +15,8 @@
 
 package com.amazonaws.xray.entities;
 
+import com.amazonaws.xray.AWSXRayRecorder;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +24,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
-
-import com.amazonaws.xray.AWSXRayRecorder;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 public class DummySegment implements Segment {
     private Cause cause = new Cause();

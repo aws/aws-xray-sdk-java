@@ -16,13 +16,12 @@
 package com.amazonaws.xray.config;
 
 import com.amazonaws.xray.entities.StringValidator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class DaemonConfiguration {
     private static final Log logger = LogFactory.getLog(DaemonConfiguration.class);

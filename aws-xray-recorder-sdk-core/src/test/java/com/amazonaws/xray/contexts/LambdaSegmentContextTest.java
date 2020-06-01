@@ -15,6 +15,12 @@
 
 package com.amazonaws.xray.contexts;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorderBuilder;
+import com.amazonaws.xray.emitters.Emitter;
+import com.amazonaws.xray.entities.FacadeSegment;
+import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,13 +33,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.AWSXRayRecorderBuilder;
-import com.amazonaws.xray.emitters.Emitter;
-import com.amazonaws.xray.entities.FacadeSegment;
-import com.amazonaws.xray.entities.Subsegment;
-import com.amazonaws.xray.entities.TraceHeader;
 
 @FixMethodOrder(MethodSorters.JVM)
 @PrepareForTest(LambdaSegmentContext.class)

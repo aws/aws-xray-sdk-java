@@ -15,9 +15,8 @@
 
 package com.amazonaws.xray.entities;
 
-import java.util.Map;
-
 import com.amazonaws.xray.exceptions.AlreadyEmittedException;
+import java.util.Map;
 
 public interface Segment extends Entity {
 

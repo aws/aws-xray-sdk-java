@@ -20,6 +20,11 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Namespace;
+import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.strategy.ContextMissingStrategy;
+import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -29,7 +34,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,12 +41,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Namespace;
-import com.amazonaws.xray.entities.Subsegment;
-import com.amazonaws.xray.strategy.ContextMissingStrategy;
-import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TracingStatementTest {

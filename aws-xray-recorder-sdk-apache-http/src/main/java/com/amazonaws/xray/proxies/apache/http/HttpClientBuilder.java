@@ -15,12 +15,11 @@
 
 package com.amazonaws.xray.proxies.apache.http;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
-
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.AWSXRayRecorder;
 
 /**
  * Wraps and overrides some of {@code org.apache.http.impl.client.HttpClientBuilder}'s methods. Will build a TracedHttpClient wrapping the usual CloseableHttpClient result. Uses the global recorder by default, with an option to provide an alternative.

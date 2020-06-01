@@ -15,16 +15,14 @@
 
 package com.amazonaws.xray.proxies.apache.http;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Subsegment;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
-
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Subsegment;
 
 /**
  * Wraps an instance of {@code org.apache.http.client.ResponseHandler} and adds response information to the current subsegment.

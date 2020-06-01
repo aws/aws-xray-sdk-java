@@ -18,9 +18,6 @@ package com.amazonaws.xray.plugins;
 import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.utils.ContainerInsightsUtil;
 import com.amazonaws.xray.utils.DockerUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -28,6 +25,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**

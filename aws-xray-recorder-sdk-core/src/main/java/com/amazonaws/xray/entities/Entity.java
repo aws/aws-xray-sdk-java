@@ -15,15 +15,14 @@
 
 package com.amazonaws.xray.entities;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.LongAdder;
-import java.util.concurrent.locks.ReentrantLock;
-
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.ThreadLocalStorage;
 import com.amazonaws.xray.exceptions.AlreadyEmittedException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.locks.ReentrantLock;
 
 public interface Entity extends AutoCloseable {
 

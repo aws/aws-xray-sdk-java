@@ -15,22 +15,20 @@
 
 package com.amazonaws.xray.strategy.sampling;
 
+import com.amazonaws.xray.strategy.sampling.manifest.SamplingRuleManifest;
+import com.amazonaws.xray.strategy.sampling.rule.SamplingRule;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
-import com.amazonaws.xray.strategy.sampling.manifest.SamplingRuleManifest;
-import com.amazonaws.xray.strategy.sampling.rule.SamplingRule;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
 public class LocalizedSamplingStrategy implements SamplingStrategy {
     private static final Log logger =

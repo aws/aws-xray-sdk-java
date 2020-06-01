@@ -15,23 +15,6 @@
 
 package com.amazonaws.xray.handlers;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import com.amazonaws.xray.entities.Entity;
-import com.amazonaws.xray.entities.EntityDataKeys;
-import com.amazonaws.xray.entities.EntityHeaderKeys;
-import com.amazonaws.xray.entities.Namespace;
-import com.amazonaws.xray.entities.Subsegment;
-import com.amazonaws.xray.entities.TraceHeader;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.AmazonWebServiceResult;
@@ -44,6 +27,12 @@ import com.amazonaws.http.HttpResponse;
 import com.amazonaws.retry.RetryUtils;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.EntityDataKeys;
+import com.amazonaws.xray.entities.EntityHeaderKeys;
+import com.amazonaws.xray.entities.Namespace;
+import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import com.amazonaws.xray.handlers.config.AWSOperationHandler;
 import com.amazonaws.xray.handlers.config.AWSOperationHandlerManifest;
@@ -52,6 +41,15 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Extension of {@code RequestHandler2} that intercepts requests made by {@code AmazonWebServiceClient}s and generates corresponding subsegments. Operation-level customization of this request handler is by default performed based on the information contained in the file at {@code TracingHandler.class.getResource("/com/amazonaws/xray/handlers/DefaultOperationParameterWhitelist.json")}.

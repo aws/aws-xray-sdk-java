@@ -15,26 +15,14 @@
 
 package com.amazonaws.xray;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
+import com.amazonaws.xray.contexts.SegmentContextResolverChain;
+import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.listeners.SegmentListener;
 import com.amazonaws.xray.plugins.EC2Plugin;
 import com.amazonaws.xray.plugins.ECSPlugin;
 import com.amazonaws.xray.plugins.EKSPlugin;
 import com.amazonaws.xray.plugins.ElasticBeanstalkPlugin;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.amazonaws.xray.contexts.SegmentContextResolverChain;
-import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.plugins.Plugin;
 import com.amazonaws.xray.strategy.ContextMissingStrategy;
 import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
@@ -44,6 +32,16 @@ import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.StreamingStrategy;
 import com.amazonaws.xray.strategy.ThrowableSerializationStrategy;
 import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class AWSXRayRecorderBuilder {
     private static final Log logger =

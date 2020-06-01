@@ -18,10 +18,9 @@ package com.amazonaws.xray.metrics;
 import com.amazonaws.xray.entities.FacadeSegment;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.listeners.SegmentListener;
+import java.net.SocketException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.net.SocketException;
 
 /**
  * Listener that extracts metrics from Segments and emits them to CloudWatch using a structured log mechanism.

@@ -15,11 +15,10 @@
 
 package com.amazonaws.xray.emitters;
 
-import java.io.IOException;
-
 import com.amazonaws.xray.config.DaemonConfiguration;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
+import java.io.IOException;
 
 /**
  * An emitter of segments and subsegments to X-Ray.

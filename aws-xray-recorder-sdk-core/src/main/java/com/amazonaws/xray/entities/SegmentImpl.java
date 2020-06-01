@@ -15,16 +15,14 @@
 
 package com.amazonaws.xray.entities;
 
+import com.amazonaws.xray.AWSXRayRecorder;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.amazonaws.xray.AWSXRayRecorder;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class SegmentImpl extends EntityImpl implements Segment {
     private static final Log logger =

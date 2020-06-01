@@ -16,15 +16,14 @@
 package com.amazonaws.xray.config;
 
 
+import static org.junit.Assert.assertEquals;
+
+import java.net.InetSocketAddress;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
-
-import java.net.InetSocketAddress;
-
-import static org.junit.Assert.*;
 
 public class MetricsDaemonConfigurationTest {
     @Rule

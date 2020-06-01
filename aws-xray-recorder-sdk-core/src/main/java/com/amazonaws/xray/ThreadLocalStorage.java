@@ -15,9 +15,8 @@
 
 package com.amazonaws.xray;
 
-import java.security.SecureRandom;
-
 import com.amazonaws.xray.entities.Entity;
+import java.security.SecureRandom;
 
 
 public class ThreadLocalStorage {

@@ -16,7 +16,6 @@
 package com.amazonaws.xray.strategy;
 
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
