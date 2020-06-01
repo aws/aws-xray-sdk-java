@@ -216,8 +216,6 @@ public class TracingStatementTest {
         }
     }
 
-
-
     @Test
     public void testCaptureRuntimeExceptionWithoutSegment() throws Exception {
         ContextMissingStrategy oldStrategy = AWSXRay.getGlobalRecorder().getContextMissingStrategy();
