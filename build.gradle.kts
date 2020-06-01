@@ -35,6 +35,8 @@ allprojects {
         }
 
         mapping("java", "JAVA_STYLE")
+
+        exclude("**/*.json")
     }
 
     plugins.withId("java-library") {
