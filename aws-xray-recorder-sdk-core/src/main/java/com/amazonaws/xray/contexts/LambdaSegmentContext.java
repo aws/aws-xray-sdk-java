@@ -1,8 +1,19 @@
-package com.amazonaws.xray.contexts;
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
 
-import com.amazonaws.xray.listeners.SegmentListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+package com.amazonaws.xray.contexts;
 
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.entities.Entity;
@@ -14,9 +25,11 @@ import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
-
+import com.amazonaws.xray.listeners.SegmentListener;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class LambdaSegmentContext implements SegmentContext {
     private static final Log logger = LogFactory.getLog(LambdaSegmentContext.class);
@@ -44,21 +57,24 @@ public class LambdaSegmentContext implements SegmentContext {
         if (null == getTraceEntity()) { // First subsgment of a subsegment branch.
             Segment parentSegment = null;
             if (LambdaSegmentContext.isInitializing(LambdaSegmentContext.getTraceHeaderFromEnvironment())) {
-                logger.warn(LAMBDA_TRACE_HEADER_KEY + " is missing a trace ID, parent ID, or sampling decision. Subsegment " + name + " discarded.");
+                logger.warn(LAMBDA_TRACE_HEADER_KEY + " is missing a trace ID, parent ID, or sampling decision. Subsegment "
+                            + name + " discarded.");
                 parentSegment = new FacadeSegment(recorder, new TraceID(), "", SampleDecision.NOT_SAMPLED);
             } else {
                 parentSegment = LambdaSegmentContext.newFacadeSegment(recorder);
             }
             Subsegment subsegment = new SubsegmentImpl(recorder, name, parentSegment);
             subsegment.setParent(parentSegment);
-            parentSegment.addSubsegment(subsegment); // Enable FacadeSegment to keep track of its subsegments for subtree streaming
+            // Enable FacadeSegment to keep track of its subsegments for subtree streaming
+            parentSegment.addSubsegment(subsegment);
             setTraceEntity(subsegment);
             return subsegment;
         } else { // Continuation of a subsegment branch.
             Subsegment parentSubsegment = (Subsegment) getTraceEntity();
             // Ensure customers have not leaked subsegments across invocations
             TraceID environmentRootTraceId = LambdaSegmentContext.getTraceHeaderFromEnvironment().getRootTraceId();
-            if (null != environmentRootTraceId && !environmentRootTraceId.equals(parentSubsegment.getParentSegment().getTraceId())) {
+            if (null != environmentRootTraceId &&
+                !environmentRootTraceId.equals(parentSubsegment.getParentSegment().getTraceId())) {
                 clearTraceEntity();
                 return beginSubsegment(recorder, name);
             }
@@ -108,8 +124,7 @@ public class LambdaSegmentContext implements SegmentContext {
                     current.getCreator().getEmitter().sendSubsegment((Subsegment) current);
                 }
                 clearTraceEntity();
-            }
-            else {
+            } else {
                 setTraceEntity(current.getParent());
             }
 

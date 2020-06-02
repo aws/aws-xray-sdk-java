@@ -1,12 +1,19 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.strategy.sampling;
-
-import java.net.URL;
-import java.security.SecureRandom;
-import java.time.Clock;
-import java.time.Instant;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.amazonaws.xray.internal.UnsignedXrayClient;
 import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
@@ -14,12 +21,19 @@ import com.amazonaws.xray.strategy.sampling.pollers.RulePoller;
 import com.amazonaws.xray.strategy.sampling.pollers.TargetPoller;
 import com.amazonaws.xray.strategy.sampling.rule.CentralizedRule;
 import com.amazonaws.xray.utils.ByteUtils;
+import java.net.URL;
+import java.security.SecureRandom;
+import java.time.Clock;
+import java.time.Instant;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class CentralizedSamplingStrategy implements SamplingStrategy {
     private static final Log logger = LogFactory.getLog(TargetPoller.class);
     // Initialize random ClientID. We use the same ClientID for all GetSamplingTargets calls. Conflicts are avoided
     // because IDs are scoped to a single account.
     private static final String clientID;
+
     static {
         SecureRandom rand = new SecureRandom();
         byte[] bytes = new byte[12];
@@ -61,7 +75,10 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
         }
         SamplingResponse sampleResponse;
         if (logger.isDebugEnabled()) {
-            logger.debug("Determining shouldTrace decision for:\n\tserviceName: " + samplingRequest.getService().orElse("") + "\n\thost: " + samplingRequest.getHost().orElse("") + "\n\tpath: " + samplingRequest.getUrl().orElse("") + "\n\tmethod: " + samplingRequest.getMethod().orElse("") + "\n\tserviceType: " + samplingRequest.getServiceType().orElse(""));
+            logger.debug("Determining shouldTrace decision for:\n\tserviceName: " + samplingRequest.getService().orElse("")
+                         + "\n\thost: " + samplingRequest.getHost().orElse("") + "\n\tpath: "
+                         + samplingRequest.getUrl().orElse("") + "\n\tmethod: " + samplingRequest.getMethod().orElse("")
+                         + "\n\tserviceType: " + samplingRequest.getServiceType().orElse(""));
         }
 
         if (manifest.isExpired(Instant.now())) {

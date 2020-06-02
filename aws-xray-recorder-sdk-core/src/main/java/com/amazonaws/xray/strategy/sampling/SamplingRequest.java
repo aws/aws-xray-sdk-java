@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.strategy.sampling;
 
 import java.util.Collections;
@@ -14,9 +29,9 @@ public class SamplingRequest {
     private static final String ARN_SEPARATOR = ":";
     private static final int ACCOUNT_INDEX = 4;
 
-    private String roleARN;
+    private String roleArn;
 
-    private String resourceARN;
+    private String resourceArn;
 
     private String service;
 
@@ -31,10 +46,10 @@ public class SamplingRequest {
     private Map<String, String> attributes;
 
     /**
-     * @param roleARN
+     * @param roleArn
      *            the role of the customer requesting a sampling decision. Must
      *            not be null.
-     * @param resourceARN
+     * @param resourceArn
      *            the resource for which a sampling decision is being requested.
      *            Ex. "arn:aws:execute-api:us-east-1:1234566789012:qsxrty/test/GET/foo/bar/*".
      * @param service
@@ -52,8 +67,8 @@ public class SamplingRequest {
      *            list of key-value pairs generated on a per-request basis.
      */
     public SamplingRequest(
-            String roleARN,
-            String resourceARN,
+            String roleArn,
+            String resourceArn,
             String service,
             String host,
             String method,
@@ -61,10 +76,10 @@ public class SamplingRequest {
             String serviceType,
             Map<String, String> attributes
     ) {
-        Objects.requireNonNull(roleARN, "RoleARN can not be null");
+        Objects.requireNonNull(roleArn, "RoleARN can not be null");
 
-        this.roleARN = roleARN;
-        this.resourceARN = resourceARN;
+        this.roleArn = roleArn;
+        this.resourceArn = resourceArn;
         this.service = service;
         this.host = host;
         this.method = method;
@@ -82,7 +97,7 @@ public class SamplingRequest {
     }
 
     public Optional<String> getAccountId() {
-        String[] splits = roleARN.split(ARN_SEPARATOR, ACCOUNT_INDEX + 2);
+        String[] splits = roleArn.split(ARN_SEPARATOR, ACCOUNT_INDEX + 2);
 
         if (splits.length < ACCOUNT_INDEX + 2) {
             return Optional.empty();
@@ -92,11 +107,11 @@ public class SamplingRequest {
     }
 
     public String getRoleARN() {
-        return roleARN;
+        return roleArn;
     }
 
     public Optional<String> getResourceARN() {
-        return Optional.ofNullable(resourceARN);
+        return Optional.ofNullable(resourceArn);
     }
 
     public Optional<String> getService() {

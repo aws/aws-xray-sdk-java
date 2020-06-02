@@ -1,7 +1,22 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.strategy.sampling.rule;
 
-import com.amazonaws.xray.strategy.sampling.reservoir.Reservoir;
 import com.amazonaws.xray.entities.SearchPattern;
+import com.amazonaws.xray.strategy.sampling.reservoir.Reservoir;
 
 public class SamplingRule {
 
@@ -19,7 +34,8 @@ public class SamplingRule {
     }
 
     /**
-     * Constructs a new {@code SamplingRule}. Patterns are supported in the {@code host}, {@code httpMethod}, and {@code urlPath} parameters. Patterns are matched using the {@link com.amazonaws.xray.entities.SearchPattern} class.
+     * Constructs a new {@code SamplingRule}. Patterns are supported in the {@code host}, {@code httpMethod}, and {@code urlPath}
+     * parameters. Patterns are matched using the {@link com.amazonaws.xray.entities.SearchPattern} class.
      *
      * @param host
      *            the host name for which the rule should apply
@@ -145,11 +161,14 @@ public class SamplingRule {
 
     @Override
     public String toString() {
-        return "\n\thost: " + host + "\n\thttp_method: " + httpMethod + "\n\turl_path: " + urlPath + "\n\tfixed_target: " + fixedTarget + "\n\trate: " + rate;
+        return "\n\thost: " + host + "\n\thttp_method: " + httpMethod + "\n\turl_path: " + urlPath + "\n\tfixed_target: "
+               + fixedTarget + "\n\trate: " + rate;
     }
 
     /**
-     * Determines whether or not this sampling rule applies to the incoming request based on some of the request's parameters. Any null parameters provided will be considered an implicit match. For example, {@code appliesTo(null, null, null)} will always return {@code true}, for any rule.
+     * Determines whether or not this sampling rule applies to the incoming request based on some of the request's parameters. Any
+     * null parameters provided will be considered an implicit match. For example, {@code appliesTo(null, null, null)} will always
+     * return {@code true}, for any rule.
      *
      * @param requestHost
      *            the host name for the incoming request.

@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.interceptors;
 
 import com.amazonaws.xray.AWSXRay;
@@ -6,6 +21,11 @@ import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.Cause;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
+import java.io.ByteArrayInputStream;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,14 +34,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
-
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.async.EmptyPublisher;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
-
 import software.amazon.awssdk.http.AbortableInputStream;
 import software.amazon.awssdk.http.ExecutableHttpRequest;
 import software.amazon.awssdk.http.HttpExecuteResponse;
@@ -36,12 +54,6 @@ import software.amazon.awssdk.services.dynamodb.model.ListTablesRequest;
 import software.amazon.awssdk.services.lambda.LambdaAsyncClient;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
-
-import java.io.ByteArrayInputStream;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 @FixMethodOrder(MethodSorters.JVM)
 @RunWith(MockitoJUnitRunner.class)
@@ -88,13 +100,15 @@ public class TracingInterceptorTest {
 
     private SdkAsyncHttpClient mockSdkAsyncHttpClient(SdkHttpResponse response) {
         SdkAsyncHttpClient mockClient = Mockito.mock(SdkAsyncHttpClient.class);
-        Mockito.when(mockClient.execute(Mockito.any(AsyncExecuteRequest.class))).thenAnswer((Answer<CompletableFuture<Void>>) invocationOnMock -> {
-            SdkAsyncHttpResponseHandler handler = invocationOnMock.getArgumentAt(0, AsyncExecuteRequest.class).responseHandler();
-            handler.onHeaders(response);
-            handler.onStream(new EmptyPublisher<>());
+        Mockito.when(mockClient.execute(Mockito.any(AsyncExecuteRequest.class)))
+               .thenAnswer((Answer<CompletableFuture<Void>>) invocationOnMock -> {
+                   SdkAsyncHttpResponseHandler handler =
+                       invocationOnMock.getArgumentAt(0, AsyncExecuteRequest.class).responseHandler();
+                   handler.onHeaders(response);
+                   handler.onStream(new EmptyPublisher<>());
 
-            return CompletableFuture.completedFuture(null);
-        });
+                   return CompletableFuture.completedFuture(null);
+               });
 
         return mockClient;
     }
@@ -142,7 +156,8 @@ public class TracingInterceptorTest {
         Assert.assertEquals(1, segment.getSubsegments().size());
         Subsegment subsegment = segment.getSubsegments().get(0);
         Map<String, Object> awsStats = subsegment.getAws();
-        Map<String, Object> httpResponseStats = (Map<String, Object>)subsegment.getHttp().get("response");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> httpResponseStats = (Map<String, Object>) subsegment.getHttp().get("response");
 
         Assert.assertEquals("ListTables", awsStats.get("operation"));
         Assert.assertEquals(3, awsStats.get("limit"));
@@ -183,7 +198,8 @@ public class TracingInterceptorTest {
         Assert.assertEquals(1, segment.getSubsegments().size());
         Subsegment subsegment = segment.getSubsegments().get(0);
         Map<String, Object> awsStats = subsegment.getAws();
-        Map<String, Object> httpResponseStats = (Map<String, Object>)subsegment.getHttp().get("response");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> httpResponseStats = (Map<String, Object>) subsegment.getHttp().get("response");
 
         Assert.assertEquals("Invoke", awsStats.get("operation"));
         Assert.assertEquals("testFunctionName", awsStats.get("function_name"));
@@ -224,7 +240,8 @@ public class TracingInterceptorTest {
         Assert.assertEquals(1, segment.getSubsegments().size());
         Subsegment subsegment = segment.getSubsegments().get(0);
         Map<String, Object> awsStats = subsegment.getAws();
-        Map<String, Object> httpResponseStats = (Map<String, Object>)subsegment.getHttp().get("response");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> httpResponseStats = (Map<String, Object>) subsegment.getHttp().get("response");
 
         Assert.assertEquals("Invoke", awsStats.get("operation"));
         Assert.assertEquals("testFunctionName", awsStats.get("function_name"));
@@ -269,7 +286,8 @@ public class TracingInterceptorTest {
             Assert.assertEquals(1, segment.getSubsegments().size());
             Subsegment subsegment = segment.getSubsegments().get(0);
             Map<String, Object> awsStats = subsegment.getAws();
-            Map<String, Object> httpResponseStats = (Map<String, Object>)subsegment.getHttp().get("response");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> httpResponseStats = (Map<String, Object>) subsegment.getHttp().get("response");
             Cause cause = subsegment.getCause();
 
             Assert.assertEquals("Invoke", awsStats.get("operation"));
@@ -319,7 +337,8 @@ public class TracingInterceptorTest {
             Assert.assertEquals(1, segment.getSubsegments().size());
             Subsegment subsegment = segment.getSubsegments().get(0);
             Map<String, Object> awsStats = subsegment.getAws();
-            Map<String, Object> httpResponseStats = (Map<String, Object>)subsegment.getHttp().get("response");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> httpResponseStats = (Map<String, Object>) subsegment.getHttp().get("response");
             Cause cause = subsegment.getCause();
 
             Assert.assertEquals("Invoke", awsStats.get("operation"));
@@ -370,7 +389,8 @@ public class TracingInterceptorTest {
             Assert.assertEquals(1, segment.getSubsegments().size());
             Subsegment subsegment = segment.getSubsegments().get(0);
             Map<String, Object> awsStats = subsegment.getAws();
-            Map<String, Object> httpResponseStats = (Map<String, Object>)subsegment.getHttp().get("response");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> httpResponseStats = (Map<String, Object>) subsegment.getHttp().get("response");
             Cause cause = subsegment.getCause();
 
             Assert.assertEquals("Invoke", awsStats.get("operation"));
@@ -420,7 +440,8 @@ public class TracingInterceptorTest {
             Assert.assertEquals(1, segment.getSubsegments().size());
             Subsegment subsegment = segment.getSubsegments().get(0);
             Map<String, Object> awsStats = subsegment.getAws();
-            Map<String, Object> httpResponseStats = (Map<String, Object>)subsegment.getHttp().get("response");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> httpResponseStats = (Map<String, Object>) subsegment.getHttp().get("response");
             Cause cause = subsegment.getCause();
 
             Assert.assertEquals("Invoke", awsStats.get("operation"));
@@ -471,7 +492,8 @@ public class TracingInterceptorTest {
             Assert.assertEquals(1, segment.getSubsegments().size());
             Subsegment subsegment = segment.getSubsegments().get(0);
             Map<String, Object> awsStats = subsegment.getAws();
-            Map<String, Object> httpResponseStats = (Map<String, Object>)subsegment.getHttp().get("response");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> httpResponseStats = (Map<String, Object>) subsegment.getHttp().get("response");
             Cause cause = subsegment.getCause();
 
             Assert.assertEquals("Invoke", awsStats.get("operation"));
@@ -521,7 +543,8 @@ public class TracingInterceptorTest {
             Assert.assertEquals(1, segment.getSubsegments().size());
             Subsegment subsegment = segment.getSubsegments().get(0);
             Map<String, Object> awsStats = subsegment.getAws();
-            Map<String, Object> httpResponseStats = (Map<String, Object>)subsegment.getHttp().get("response");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> httpResponseStats = (Map<String, Object>) subsegment.getHttp().get("response");
             Cause cause = subsegment.getCause();
 
             Assert.assertEquals("Invoke", awsStats.get("operation"));

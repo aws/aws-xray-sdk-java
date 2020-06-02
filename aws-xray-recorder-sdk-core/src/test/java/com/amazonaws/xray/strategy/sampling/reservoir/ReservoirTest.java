@@ -1,4 +1,27 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.strategy.sampling.reservoir;
+
+import static com.amazonaws.xray.strategy.sampling.reservoir.Reservoir.NANOS_PER_DECISECOND;
+import static com.amazonaws.xray.strategy.sampling.reservoir.Reservoir.NANOS_PER_SECOND;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 import java.util.Random;
 import org.junit.Test;
@@ -9,19 +32,13 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static com.amazonaws.xray.strategy.sampling.reservoir.Reservoir.NANOS_PER_DECISECOND;
-import static com.amazonaws.xray.strategy.sampling.reservoir.Reservoir.NANOS_PER_SECOND;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-
 @RunWith(PowerMockRunner.class)
 // Added to declutter console: tells power mock not to mess with implicit classes we aren't testing
 @PowerMockIgnore({"org.apache.logging.*", "javax.script.*"})
 @PrepareForTest(Reservoir.class)
 public class ReservoirTest {
+
+    @DataPoints public static final int[] SAMPLE_RESERVOIRS = {1, 10, 100};
 
     @Test public void samplesOnlySpecifiedNumber() {
         mockStatic(System.class);
@@ -105,8 +122,6 @@ public class ReservoirTest {
         when(System.nanoTime()).thenReturn(0L); // reset
         assertTrue(reservoir.take());
     }
-
-    @DataPoints public static final int[] SAMPLE_RESERVOIRS = {1, 10, 100};
 
     @Theory public void retainsPerRate(int rate) {
         Reservoir reservoir = new Reservoir(rate);

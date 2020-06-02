@@ -1,15 +1,19 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.entities;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.LongAdder;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.exceptions.AlreadyEmittedException;
@@ -29,15 +33,43 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.locks.ReentrantLock;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * The base class from which {@code Segment} and {@code Subsegment} extend.
  *
  */
 public abstract class EntityImpl implements Entity {
+
+    /**
+     * @deprecated For internal use only.
+     */
+    @SuppressWarnings("checkstyle:ConstantName")
+    @Deprecated
+    protected static final ObjectMapper mapper = new ObjectMapper()
+        .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
+        .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
     private static final Log logger = LogFactory.getLog(EntityImpl.class);
 
     private static final String DEFAULT_METADATA_NAMESPACE = "default";
+
+    /*
+     * Reference counter to track how many subsegments are in progress on this entity. Starts with a value of 0.
+     */
+    @JsonIgnore
+    protected LongAdder referenceCount;
+
+    @JsonIgnore
+    protected LongAdder totalSize;
 
     private String name;
     private String id;
@@ -79,22 +111,13 @@ public abstract class EntityImpl implements Entity {
     @JsonIgnore
     private ReentrantLock subsegmentsLock;
 
-    /*
-     * Reference counter to track how many subsegments are in progress on this entity. Starts with a value of 0.
-     */
-    @JsonIgnore
-    protected LongAdder referenceCount;
-
-    @JsonIgnore
-    protected LongAdder totalSize;
-
     @JsonIgnore
     private boolean emitted = false;
 
-    protected static final ObjectMapper mapper = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES).setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
     static {
         /*
-         * Inject the CauseSerializer and StackTraceElementSerializer classes into the local mapper such that they will serialize their respective object types.
+         * Inject the CauseSerializer and StackTraceElementSerializer classes into the local mapper such that they will serialize
+         * their respective object types.
          */
         mapper.registerModule(new SimpleModule() {
             private static final long serialVersionUID = 545800949242254918L;
@@ -105,7 +128,10 @@ public abstract class EntityImpl implements Entity {
                 setupContext.addBeanSerializerModifier(new BeanSerializerModifier() {
                     @SuppressWarnings("unchecked")
                     @Override
-                    public JsonSerializer<?> modifySerializer(SerializationConfig serializationConfig, BeanDescription beanDescription, JsonSerializer<?> jsonSerializer) {
+                    public JsonSerializer<?> modifySerializer(
+                        SerializationConfig serializationConfig,
+                        BeanDescription beanDescription,
+                        JsonSerializer<?> jsonSerializer) {
                         Class<?> beanClass = beanDescription.getBeanClass();
                         if (Cause.class.isAssignableFrom(beanClass)) {
                             return new CauseSerializer((JsonSerializer<Object>) jsonSerializer);
@@ -119,7 +145,10 @@ public abstract class EntityImpl implements Entity {
         });
     }
 
-    protected EntityImpl() { } // default constructor for Jackson, so it can understand the default values to compare when using the Include.NON_DEFAULT annotation.
+    // default constructor for Jackson, so it can understand the default values to compare when using the Include.NON_DEFAULT
+    // annotation.
+    protected EntityImpl() {
+    }
 
     protected EntityImpl(AWSXRayRecorder creator, String name) {
         StringValidator.throwIfNullOrBlank(name, "(Sub)segment name cannot be null or blank.");
@@ -146,12 +175,14 @@ public abstract class EntityImpl implements Entity {
      * Checks if the entity has already been emitted to the X-Ray daemon.
      *
      * @throws AlreadyEmittedException
-     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the AWSXRayRecorder used to create this entity is configured to throw exceptions
+     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the
+     *             AWSXRayRecorder used to create this entity is configured to throw exceptions
      *
      */
     protected void checkAlreadyEmitted() {
         if (emitted) {
-            getCreator().getContextMissingStrategy().contextMissing("Segment " + getName() + " has already been emitted.", AlreadyEmittedException.class);
+            getCreator().getContextMissingStrategy().contextMissing("Segment " + getName() + " has already been emitted.",
+                                                                    AlreadyEmittedException.class);
         }
     }
 
@@ -331,7 +362,7 @@ public abstract class EntityImpl implements Entity {
     @Override
     public void setThrottle(boolean throttle) {
         checkAlreadyEmitted();
-        if(throttle) {
+        if (throttle) {
             this.fault = false;
             this.error = true;
         }
@@ -383,7 +414,7 @@ public abstract class EntityImpl implements Entity {
     @Override
     public void addSubsegment(Subsegment subsegment) {
         checkAlreadyEmitted();
-        synchronized(subsegments) {
+        synchronized (subsegments) {
             subsegments.add(subsegment);
         }
     }
@@ -500,7 +531,8 @@ public abstract class EntityImpl implements Entity {
     }
 
     /**
-     * Returns the reference count of the segment. This number represents how many open subsegments are children of this segment. The segment is emitted when its reference count reaches 0.
+     * Returns the reference count of the segment. This number represents how many open subsegments are children of this segment.
+     * The segment is emitted when its reference count reaches 0.
      *
      * @return the reference count
      */
@@ -557,7 +589,7 @@ public abstract class EntityImpl implements Entity {
 
     @Override
     public void removeSubsegment(Subsegment subsegment) {
-        synchronized(subsegments) {
+        synchronized (subsegments) {
             getSubsegments().remove(subsegment);
         }
         getParentSegment().getTotalSize().decrement();

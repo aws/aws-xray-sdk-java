@@ -1,7 +1,24 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.proxies.apache.http;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.entities.Subsegment;
 import java.io.IOException;
-
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.ClientProtocolException;
@@ -9,16 +26,14 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.protocol.HttpContext;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.entities.Subsegment;
-
 /*
  * @deprecated Apache 4.3
  *
- * Wraps and overrides {@code org.apache.http.impl.client.DefaultHttpClient}'s execute() methods. Accesses the global recorder upon each invocation to generate {@code Segment}s.
+ * Wraps and overrides {@code org.apache.http.impl.client.DefaultHttpClient}'s execute() methods. Accesses the global recorder
+ * upon each invocation to generate {@code Segment}s.
  *
- * Only overrides those signatures which directly invoke doExecute. Other execute() signatures are wrappers which call these overriden methods.
+ * Only overrides those signatures which directly invoke doExecute. Other execute() signatures are wrappers which call these
+ * overridden methods.
  *
  */
 @Deprecated
@@ -29,7 +44,8 @@ public class DefaultHttpClient extends org.apache.http.impl.client.DefaultHttpCl
     }
 
     @Override
-    public CloseableHttpResponse execute(HttpHost target, HttpRequest request, HttpContext context) throws IOException, ClientProtocolException {
+    public CloseableHttpResponse execute(
+        HttpHost target, HttpRequest request, HttpContext context) throws IOException, ClientProtocolException {
         Subsegment subsegment = getRecorder().beginSubsegment(target.getHostName());
         try {
             if (null != subsegment) {
@@ -53,7 +69,8 @@ public class DefaultHttpClient extends org.apache.http.impl.client.DefaultHttpCl
     }
 
     @Override
-    public CloseableHttpResponse execute(HttpUriRequest request, HttpContext context) throws IOException, ClientProtocolException {
+    public CloseableHttpResponse execute(
+        HttpUriRequest request, HttpContext context) throws IOException, ClientProtocolException {
         Subsegment subsegment = getRecorder().beginSubsegment(TracedHttpClient.determineTarget(request).getHostName());
         try {
             if (null != subsegment) {

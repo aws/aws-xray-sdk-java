@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.log4j;
 
 import com.amazonaws.xray.AWSXRay;
@@ -15,7 +30,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class Log4JSegmentListenerTest {
-    private final TraceID traceID =  TraceID.fromString("1-1-d0a73661177562839f503b9f");
+    private static final TraceID TRACE_ID =  TraceID.fromString("1-1-d0a73661177562839f503b9f");
     private static final String TRACE_ID_KEY = "AWS-XRAY-TRACE-ID";
 
     @Before
@@ -25,7 +40,10 @@ public class Log4JSegmentListenerTest {
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.any());
         Log4JSegmentListener segmentListener = new Log4JSegmentListener();
 
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSegmentListener(segmentListener).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard()
+                                                        .withEmitter(blankEmitter)
+                                                        .withSegmentListener(segmentListener)
+                                                        .build());
         AWSXRay.clearTraceEntity();
         ThreadContext.clearAll();
     }
@@ -33,39 +51,39 @@ public class Log4JSegmentListenerTest {
     @Test
     public void testDefaultPrefix() {
         Log4JSegmentListener listener = (Log4JSegmentListener) AWSXRay.getGlobalRecorder().getSegmentListeners().get(0);
-        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", traceID);
+        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", TRACE_ID);
 
         listener.onSetEntity(null, seg);
 
-        Assert.assertEquals(TRACE_ID_KEY + ": " + traceID.toString() + "@" + seg.getId(), ThreadContext.get(TRACE_ID_KEY));
+        Assert.assertEquals(TRACE_ID_KEY + ": " + TRACE_ID.toString() + "@" + seg.getId(), ThreadContext.get(TRACE_ID_KEY));
     }
 
     @Test
     public void testSetPrefix() {
         Log4JSegmentListener listener = (Log4JSegmentListener) AWSXRay.getGlobalRecorder().getSegmentListeners().get(0);
         listener.setPrefix("");
-        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", traceID);
+        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", TRACE_ID);
 
         listener.onSetEntity(null, seg);
 
-        Assert.assertEquals(traceID.toString() + "@" + seg.getId(), ThreadContext.get(TRACE_ID_KEY));
+        Assert.assertEquals(TRACE_ID.toString() + "@" + seg.getId(), ThreadContext.get(TRACE_ID_KEY));
     }
 
     @Test
     public void testSegmentInjection() {
         Log4JSegmentListener listener = (Log4JSegmentListener) AWSXRay.getGlobalRecorder().getSegmentListeners().get(0);
         listener.setPrefix("");
-        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", traceID);
+        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", TRACE_ID);
         listener.onSetEntity(null, seg);
 
-        Assert.assertEquals(traceID.toString() + "@" + seg.getId(), ThreadContext.get(TRACE_ID_KEY));
+        Assert.assertEquals(TRACE_ID.toString() + "@" + seg.getId(), ThreadContext.get(TRACE_ID_KEY));
     }
 
     @Test
     public void testUnsampledSegmentInjection() {
         Log4JSegmentListener listener = (Log4JSegmentListener) AWSXRay.getGlobalRecorder().getSegmentListeners().get(0);
         listener.setPrefix("");
-        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", traceID);
+        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", TRACE_ID);
         seg.setSampled(false);
         listener.onSetEntity(null, seg);
 
@@ -76,25 +94,25 @@ public class Log4JSegmentListenerTest {
     public void testSubsegmentInjection() {
         Log4JSegmentListener listener = (Log4JSegmentListener) AWSXRay.getGlobalRecorder().getSegmentListeners().get(0);
         listener.setPrefix("");
-        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", traceID);
+        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", TRACE_ID);
         listener.onSetEntity(null, seg);
         Subsegment sub = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "test", seg);
         listener.onSetEntity(seg, sub);
 
-        Assert.assertEquals(traceID.toString() + "@" + sub.getId(), ThreadContext.get(TRACE_ID_KEY));
+        Assert.assertEquals(TRACE_ID.toString() + "@" + sub.getId(), ThreadContext.get(TRACE_ID_KEY));
     }
 
     @Test
     public void testNestedSubsegmentInjection() {
         Log4JSegmentListener listener = (Log4JSegmentListener) AWSXRay.getGlobalRecorder().getSegmentListeners().get(0);
         listener.setPrefix("");
-        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", traceID);
+        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", TRACE_ID);
         listener.onSetEntity(null, seg);
         Subsegment sub1 = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "test1", seg);
         listener.onSetEntity(seg, sub1);
         Subsegment sub2 = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "test2", seg);
         listener.onSetEntity(sub1, sub2);
 
-        Assert.assertEquals(traceID.toString() + "@" + sub2.getId(), ThreadContext.get(TRACE_ID_KEY));
+        Assert.assertEquals(TRACE_ID.toString() + "@" + sub2.getId(), ThreadContext.get(TRACE_ID_KEY));
     }
 }

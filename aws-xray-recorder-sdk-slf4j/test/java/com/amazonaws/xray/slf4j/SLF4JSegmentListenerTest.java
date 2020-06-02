@@ -8,12 +8,11 @@ import com.amazonaws.xray.entities.SegmentImpl;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.entities.TraceID;
-
-import org.slf4j.MDC;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.MDC;
 
 public class SLF4JSegmentListenerTest {
     private final TraceID traceID =  TraceID.fromString("1-1-d0a73661177562839f503b9f");

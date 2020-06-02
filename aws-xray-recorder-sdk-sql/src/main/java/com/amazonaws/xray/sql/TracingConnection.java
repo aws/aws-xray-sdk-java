@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.sql;
 
 import java.sql.Array;
@@ -29,7 +44,8 @@ public class TracingConnection implements Connection {
 
     /**
      * Call {@code connection = TracingConnection.decorate(connection)} to decorate your {@link Connection} before any calls
-     * to #createStatement, #prepareStatement or #prepareCall in order to have all your SQL queries recorded with an X-Ray Subsegment.
+     * to #createStatement, #prepareStatement or #prepareCall in order to have all your SQL queries recorded with an X-Ray
+     * Subsegment.
      *
      * @param connection the connection to decorate
      * @return a {@link Connection} that traces all SQL queries in X-Ray
@@ -54,7 +70,8 @@ public class TracingConnection implements Connection {
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return TracingStatement.decorateStatement(delegate.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability));
+        return TracingStatement.decorateStatement(
+            delegate.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability));
     }
 
     @Override
@@ -79,12 +96,15 @@ public class TracingConnection implements Connection {
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        return TracingStatement.decoratePreparedStatement(delegate.prepareStatement(sql, resultSetType, resultSetConcurrency), sql);
+        return TracingStatement.decoratePreparedStatement(
+            delegate.prepareStatement(sql, resultSetType, resultSetConcurrency), sql);
     }
 
     @Override
-    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return TracingStatement.decoratePreparedStatement(delegate.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
+    public PreparedStatement prepareStatement(
+        String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+        return TracingStatement.decoratePreparedStatement(
+            delegate.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
     }
 
     @Override
@@ -98,8 +118,10 @@ public class TracingConnection implements Connection {
     }
 
     @Override
-    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return TracingStatement.decorateCallableStatement(delegate.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
+    public CallableStatement prepareCall(
+        String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+        return TracingStatement.decorateCallableStatement(
+            delegate.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability), sql);
     }
 
     /**

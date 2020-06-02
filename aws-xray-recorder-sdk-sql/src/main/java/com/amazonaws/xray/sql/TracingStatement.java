@@ -1,5 +1,23 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.sql;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Namespace;
+import com.amazonaws.xray.entities.Subsegment;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,14 +32,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Namespace;
-import com.amazonaws.xray.entities.Subsegment;
-
+/**
+ * @deprecated For internal use only.
+ */
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
+@Deprecated
 public class TracingStatement {
 
     private static final Log logger = LogFactory.getLog(TracingStatement.class);
@@ -97,7 +115,8 @@ public class TracingStatement {
                 subsegment = createSubsegment();
             }
 
-            logger.debug(String.format("Invoking statement execution with X-Ray tracing. Tracing active: %s", subsegment != null));
+            logger.debug(
+                String.format("Invoking statement execution with X-Ray tracing. Tracing active: %s", subsegment != null));
             try {
                 // execute the query "wrapped" in a XRay Subsegment
                 return method.invoke(delegate, args);
@@ -109,8 +128,7 @@ public class TracingStatement {
                     InvocationTargetException ite = (InvocationTargetException) t;
                     if (ite.getTargetException() != null) {
                         rootThrowable = ite.getTargetException();
-                    }
-                    else if (ite.getCause() != null) {
+                    } else if (ite.getCause() != null) {
                         rootThrowable = ite.getCause();
                     }
                 }
@@ -139,10 +157,11 @@ public class TracingStatement {
                 DatabaseMetaData metadata = connection.getMetaData();
                 String subsegmentName = DEFAULT_DATABASE_NAME;
                 try {
-                    URI normalizedURI = new URI(new URI(metadata.getURL()).getSchemeSpecificPart());
-                    subsegmentName = connection.getCatalog() + "@" + normalizedURI.getHost();
+                    URI normalizedUri = new URI(new URI(metadata.getURL()).getSchemeSpecificPart());
+                    subsegmentName = connection.getCatalog() + "@" + normalizedUri.getHost();
                 } catch (URISyntaxException e) {
-                    logger.warn("Unable to parse database URI. Falling back to default '" + DEFAULT_DATABASE_NAME + "' for subsegment name.", e);
+                    logger.warn("Unable to parse database URI. Falling back to default '" + DEFAULT_DATABASE_NAME
+                                + "' for subsegment name.", e);
                 }
 
                 Subsegment subsegment = AWSXRay.beginSubsegment(subsegmentName);

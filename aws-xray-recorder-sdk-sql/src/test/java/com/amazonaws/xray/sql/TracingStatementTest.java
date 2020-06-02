@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.sql;
 
 import static org.junit.Assert.assertEquals;
@@ -5,6 +20,11 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.entities.Namespace;
+import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.strategy.ContextMissingStrategy;
+import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -14,7 +34,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,12 +41,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Namespace;
-import com.amazonaws.xray.entities.Subsegment;
-import com.amazonaws.xray.strategy.ContextMissingStrategy;
-import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TracingStatementTest {
@@ -44,7 +57,7 @@ public class TracingStatementTest {
     private Statement statement;
     private PreparedStatement preparedStatement;
     private CallableStatement callableStatement;
-    private Map<String, Object> expectedSQLParams;
+    private Map<String, Object> expectedSqlParams;
 
     @Mock
     private Statement delegate;
@@ -76,12 +89,12 @@ public class TracingStatementTest {
         when(metaData.getDriverVersion()).thenReturn(DRIVER_VERSION);
         when(metaData.getDatabaseProductName()).thenReturn(DB_TYPE);
         when(metaData.getDatabaseProductVersion()).thenReturn(DB_VERSION);
-        expectedSQLParams = new HashMap<>();
-        expectedSQLParams.put("url", URL);
-        expectedSQLParams.put("user", USER);
-        expectedSQLParams.put("driver_version", DRIVER_VERSION);
-        expectedSQLParams.put("database_type", DB_TYPE);
-        expectedSQLParams.put("database_version", DB_VERSION);
+        expectedSqlParams = new HashMap<>();
+        expectedSqlParams.put("url", URL);
+        expectedSqlParams.put("user", USER);
+        expectedSqlParams.put("driver_version", DRIVER_VERSION);
+        expectedSqlParams.put("database_type", DB_TYPE);
+        expectedSqlParams.put("database_version", DB_VERSION);
         AWSXRay.beginSegment("foo");
     }
 
@@ -181,7 +194,8 @@ public class TracingStatementTest {
         } catch (Throwable th) {
             assertEquals(exception, th);
         } finally {
-            assertEquals(exception, AWSXRay.getCurrentSegment().getSubsegments().get(0).getCause().getExceptions().get(0).getThrowable());
+            assertEquals(exception, AWSXRay.getCurrentSegment().getSubsegments().get(0).getCause().getExceptions().get(0)
+                                           .getThrowable());
             assertSubsegment();
         }
     }
@@ -196,12 +210,11 @@ public class TracingStatementTest {
         } catch (Throwable th) {
             assertEquals(exception, th);
         } finally {
-            assertEquals(exception, AWSXRay.getCurrentSegment().getSubsegments().get(0).getCause().getExceptions().get(0).getThrowable());
+            assertEquals(exception, AWSXRay.getCurrentSegment().getSubsegments().get(0).getCause().getExceptions().get(0)
+                                           .getThrowable());
             assertSubsegment();
         }
     }
-
-
 
     @Test
     public void testCaptureRuntimeExceptionWithoutSegment() throws Exception {
@@ -250,6 +263,6 @@ public class TracingStatementTest {
         Subsegment subsegment = AWSXRay.getCurrentSegment().getSubsegments().get(0);
         assertEquals(CATALOG + "@" + HOST, subsegment.getName());
         assertEquals(Namespace.REMOTE.toString(), subsegment.getNamespace());
-        assertEquals(expectedSQLParams, subsegment.getSql());
+        assertEquals(expectedSqlParams, subsegment.getSql());
     }
 }

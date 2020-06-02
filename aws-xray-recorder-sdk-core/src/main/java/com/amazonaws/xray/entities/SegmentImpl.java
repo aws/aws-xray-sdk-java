@@ -1,15 +1,28 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.entities;
 
+import com.amazonaws.xray.AWSXRayRecorder;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.amazonaws.xray.AWSXRayRecorder;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class SegmentImpl extends EntityImpl implements Segment {
     private static final Log logger =
@@ -45,7 +58,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
 
     @Override
     public boolean end() {
-        if(getEndTime() < Double.MIN_NORMAL) {
+        if (getEndTime() < Double.MIN_NORMAL) {
             setEndTime(Instant.now().toEpochMilli() / 1000.0d);
         }
 
@@ -124,11 +137,13 @@ public class SegmentImpl extends EntityImpl implements Segment {
         checkAlreadyEmitted();
         service.putAll(all);
     }
+
     @Override
     public void setRuleName(String ruleName) {
         checkAlreadyEmitted();
         if (getAws().get("xray") instanceof Map) {
-            Map<String, Object> a = (HashMap<String, Object>)getAws().get("xray");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> a = (HashMap<String, Object>) getAws().get("xray");
             HashMap<String, Object> referA = new HashMap<String, Object>(a);
             referA.put("rule_name", ruleName);
             this.putAws("xray", referA);

@@ -1,11 +1,23 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.plugins;
 
 import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.utils.ContainerInsightsUtil;
 import com.amazonaws.xray.utils.DockerUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -13,6 +25,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -23,8 +37,9 @@ import java.util.Set;
  *
  */
 public class EKSPlugin implements Plugin {
-    private static final String CI_APPLOG_GROUP_FORMAT="/aws/containerinsights/%s/application";
     public static final String ORIGIN = "AWS::EKS::Container";
+
+    private static final String CI_APPLOG_GROUP_FORMAT = "/aws/containerinsights/%s/application";
     private static final String SERVICE_NAME = "eks";
     private static final String POD_CONTEXT_KEY = "pod";
     private static final String CLUSTER_NAME_KEY = "cluster_name";
@@ -55,7 +70,7 @@ public class EKSPlugin implements Plugin {
 
     @Override
     public Set<AWSLogReference> getLogReferences() {
-        if(logReferences.isEmpty()) {
+        if (logReferences.isEmpty()) {
             populateLogReferences();
         }
 
@@ -69,7 +84,7 @@ public class EKSPlugin implements Plugin {
 
     @Override
     public Map<String, Object> getRuntimeContext() {
-        if(runtimeContext.isEmpty()) {
+        if (runtimeContext.isEmpty()) {
             populateRuntimeContext();
         }
 

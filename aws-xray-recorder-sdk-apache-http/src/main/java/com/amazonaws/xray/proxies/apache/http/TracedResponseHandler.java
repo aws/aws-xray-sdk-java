@@ -1,15 +1,28 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.proxies.apache.http;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Subsegment;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
 
 /**
  * Wraps an instance of {@code org.apache.http.client.ResponseHandler} and adds response information to the current subsegment.
@@ -31,7 +44,7 @@ public class TracedResponseHandler<T> implements ResponseHandler<T> {
         Map<String, Object> responseInformation = new HashMap<>();
 
         int responseCode = response.getStatusLine().getStatusCode();
-        switch (responseCode/100) {
+        switch (responseCode / 100) {
             case 4:
                 subsegment.setError(true);
                 if (429 == responseCode) {
@@ -41,6 +54,7 @@ public class TracedResponseHandler<T> implements ResponseHandler<T> {
             case 5:
                 subsegment.setFault(true);
                 break;
+            default:
         }
         responseInformation.put("status", responseCode);
 

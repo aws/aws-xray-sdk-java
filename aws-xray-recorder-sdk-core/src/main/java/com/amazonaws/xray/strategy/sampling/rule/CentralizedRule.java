@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.strategy.sampling.rule;
 
 import com.amazonaws.services.xray.model.SamplingRule;
@@ -7,14 +22,13 @@ import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import com.amazonaws.xray.strategy.sampling.SamplingResponse;
 import com.amazonaws.xray.strategy.sampling.rand.Rand;
 import com.amazonaws.xray.strategy.sampling.reservoir.CentralizedReservoir;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Represents a customer-defined sampling rule. A rule contains the matchers
@@ -26,10 +40,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * X-Ray.
  */
 public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
-    private static final Log logger =
-            LogFactory.getLog(CentralizedRule.class);
 
     public static final String DEFAULT_RULE_NAME = "Default";
+
+    private static final Log logger =
+            LogFactory.getLog(CentralizedRule.class);
 
     private int priority = 10000; // Default
 
@@ -108,7 +123,8 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
             return false;
         }
 
-        if (rule.getHost() == null || rule.getServiceName() == null || rule.getHTTPMethod() == null || rule.getURLPath() == null || rule.getServiceType() == null) {
+        if (rule.getHost() == null || rule.getServiceName() == null || rule.getHTTPMethod() == null ||
+            rule.getURLPath() == null || rule.getServiceType() == null) {
             logger.error("Detect invalid rule. Please check sampling rule format.");
             return false;
         }
@@ -240,18 +256,30 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         if (!(o instanceof CentralizedRule)) {
             return false;
         }
 
         CentralizedRule that = (CentralizedRule) o;
 
-        if (priority != that.priority) return false;
-        if (Double.compare(that.fixedRate, fixedRate) != 0) return false;
-        if (!name.equals(that.name)) return false;
-        if (!centralizedReservoir.equals(that.centralizedReservoir)) return false;
-        if (!statistics.equals(that.statistics)) return false;
+        if (priority != that.priority) {
+            return false;
+        }
+        if (Double.compare(that.fixedRate, fixedRate) != 0) {
+            return false;
+        }
+        if (!name.equals(that.name)) {
+            return false;
+        }
+        if (!centralizedReservoir.equals(that.centralizedReservoir)) {
+            return false;
+        }
+        if (!statistics.equals(that.statistics)) {
+            return false;
+        }
         return Objects.equals(matchers, that.matchers);
     }
 

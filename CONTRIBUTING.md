@@ -19,6 +19,34 @@ reported the issue. Please try to include as much information as you can. Detail
 * Any modifications you've made relevant to the bug
 * Anything unusual about your environment or deployment
 
+## Working on the SDK
+
+### Things to Know
+
+- The SDK targets Java 8. Currently it is verified to build on JDK 8+ but that may be raised in the future without a 
+major version update.
+
+- [Gradle](https://gradle.org/) is used as the build and dependency management system
+
+### Development Environment Setup Tips
+If you use IntelliJ IDEA, we include some helpful config files that will make your development experience smoother:
+- [intellij-codestyle.xml](https://raw.githubusercontent.com/aws/aws-xray-sdk-java/master/config/idea/intellij-codestyle.xml)
+
+  This will help ensure your code follows our code style guidelines.
+
+- [intellij-copyright-profile.xml](https://raw.githubusercontent.com/aws/aws-xray-sdk-java/master/config/idea/intellij-copyright-profile.xml)
+
+  This automatically inserts the license header to the top of source files that you create.
+
+If you have Checkstyle integrated with your IDE, we also recommend
+configuring it with our
+[Checkstyle config](https://raw.githubusercontent.com/aws/aws-xray-sdk-java/master/config/checkstyle/checkstyle.xml)
+so you can see any violations in line with the code.
+
+### Building
+
+Since the SDK is a normal Gradle project, the usual `./gradlew build` is all you need to build the SDK. To install 
+locally, you can run `./gradlew publishToMavenLocal`.
 
 ## Contributing via Pull Requests
 Contributions via pull requests are much appreciated. Before sending us a pull request, please ensure that:

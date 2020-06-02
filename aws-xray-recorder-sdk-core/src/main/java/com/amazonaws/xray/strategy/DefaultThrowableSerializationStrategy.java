@@ -1,29 +1,44 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.strategy;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.xray.entities.Entity;
+import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.entities.ThrowableDescription;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.xray.entities.Entity;
-import com.amazonaws.xray.entities.Subsegment;
-import com.amazonaws.xray.entities.ThrowableDescription;
-
 /**
  * Default implementation of {@code ThrowableSerializationStrategy}.
- * This class auto-registers the {@code AmazonServiceException} class as a remote exception class if no set of remote exception classes is provided in the constructor.
+ * This class auto-registers the {@code AmazonServiceException} class as a remote exception class if no set of remote exception
+ * classes is provided in the constructor.
  */
 public class DefaultThrowableSerializationStrategy implements ThrowableSerializationStrategy {
     private static final Log logger =
         LogFactory.getLog(DefaultThrowableSerializationStrategy.class);
     private static final int DEFAULT_MAX_STACK_TRACE_LENGTH = 50;
     private static Set<Class<? extends Throwable>> DEFAULT_REMOTE_EXCEPTION_CLASSES = new HashSet<>();
+
     static {
         DEFAULT_REMOTE_EXCEPTION_CLASSES.add(AmazonServiceException.class);
     }
@@ -36,7 +51,8 @@ public class DefaultThrowableSerializationStrategy implements ThrowableSerializa
     }
 
     /**
-     * Constructs a new instance of {@code DefaultThrowableSerializationStrategy}, overriding the max stack trace length default value of 50. Use this constructor to include more or less stack trace
+     * Constructs a new instance of {@code DefaultThrowableSerializationStrategy}, overriding the max stack trace length default
+     * value of 50. Use this constructor to include more or less stack trace
      * information in (sub)segments.
      *
      * @param maxStackTraceLength
@@ -47,21 +63,23 @@ public class DefaultThrowableSerializationStrategy implements ThrowableSerializa
     }
 
     /**
-     * Constructs a new instance of {@code DefaultThrowableSerializationStrategy}, overriding the max stack trace length default value of 50, and overriding the Throwable classes considered 'remote'. Use this constructor to include more or less stack trace
-     * information in (sub)segments.
+     * Constructs a new instance of {@code DefaultThrowableSerializationStrategy}, overriding the max stack trace length default
+     * value of 50, and overriding the Throwable classes considered 'remote'. Use this constructor to include more or less stack
+     * trace information in (sub)segments.
      *
      * @param maxStackTraceLength
      *            the maximum number of stack trace elements to include in a single (sub)segment.
      * @param remoteExceptionClasses
      *            the superclasses which extend {@code Throwable} for which exceptions should be considered remote.
      */
-    public DefaultThrowableSerializationStrategy(int maxStackTraceLength, Set<Class<? extends Throwable>> remoteExceptionClasses) {
+    public DefaultThrowableSerializationStrategy(
+        int maxStackTraceLength, Set<Class<? extends Throwable>> remoteExceptionClasses) {
         this.maxStackTraceLength = maxStackTraceLength;
         this.remoteExceptionClasses = remoteExceptionClasses;
     }
 
     private boolean isRemote(Throwable throwable) {
-        return remoteExceptionClasses.parallelStream().anyMatch( (remoteExceptionClass) -> {
+        return remoteExceptionClasses.parallelStream().anyMatch(remoteExceptionClass -> {
             return remoteExceptionClass.isInstance(throwable);
         });
     }
@@ -109,9 +127,11 @@ public class DefaultThrowableSerializationStrategy implements ThrowableSerializa
         Optional<ThrowableDescription> exceptionReferenced = referenceInChildren(throwable, subsegments);
 
         if (exceptionReferenced.isPresent()) {
-            //already described, we can link to this one by ID. Get the id from the child's Throwabledescription (if it has one). Use the cause otherwise.
+            //already described, we can link to this one by ID. Get the id from the child's Throwabledescription (if it has one).
+            //Use the cause otherwise.
             
-            description.setCause( null == exceptionReferenced.get().getId() ? exceptionReferenced.get().getCause() : exceptionReferenced.get().getId() );
+            description.setCause(null == exceptionReferenced.get().getId() ?
+                                 exceptionReferenced.get().getCause() : exceptionReferenced.get().getId());
             description.setThrowable(throwable);
             result.add(description);
             return result;
@@ -126,7 +146,8 @@ public class DefaultThrowableSerializationStrategy implements ThrowableSerializa
             exceptionReferenced = referenceInChildren(currentNode, subsegments);
 
             if (exceptionReferenced.isPresent()) {
-                description.setCause( null == exceptionReferenced.get().getId() ? exceptionReferenced.get().getCause() : exceptionReferenced.get().getId() );
+                description.setCause(null == exceptionReferenced.get().getId() ?
+                                     exceptionReferenced.get().getCause() : exceptionReferenced.get().getId());
             } else {
                 //Link it, and start a new description
                 String newId = Entity.generateId();

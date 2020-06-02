@@ -1,10 +1,30 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.entities;
 
-
+/**
+ * @deprecated For internal use only.
+ */
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
+@Deprecated
 public class SearchPattern {
 
     /**
-     * Performs a case-insensitive wildcard match against two strings. This method works with pseduo-regex chars; specifically ? and * are supported.
+     * Performs a case-insensitive wildcard match against two strings. This method works with pseduo-regex chars; specifically ?
+     * and * are supported.
      * <ul>
      *   <li>An asterisk (*) represents any combination of characters</li>
      *   <li>A question mark (?) represents any single character</li>
@@ -16,7 +36,7 @@ public class SearchPattern {
      *            the string to compare against the pattern
      * @return whether the text matches the pattern
      */
-    public static boolean wildcardMatch(String pattern, String text){
+    public static boolean wildcardMatch(String pattern, String text) {
         return wildcardMatch(pattern, text, true);
     }
 
@@ -27,16 +47,16 @@ public class SearchPattern {
 
         int patternLength = pattern.length();
         int textLength = text.length();
-        if(patternLength==0) {
-            return textLength==0;
+        if (patternLength == 0) {
+            return textLength == 0;
         }
 
         // Check the special case of a single * pattern, as it's common
-        if(isWildcardGlob(pattern)) {
+        if (isWildcardGlob(pattern)) {
             return true;
         }
 
-        if(caseInsensitive) {
+        if (caseInsensitive) {
             pattern = pattern.toLowerCase();
             text = text.toLowerCase();
         }
@@ -44,7 +64,7 @@ public class SearchPattern {
         // Infix globs are relatively rare, and the below search is expensive especially when
         // Balsa is used a lot. Check for infix globs and, in their absence, do the simple thing
         int indexOfGlob = pattern.indexOf('*');
-        if(indexOfGlob == -1 || indexOfGlob == patternLength-1) {
+        if (indexOfGlob == -1 || indexOfGlob == patternLength - 1) {
             return simpleWildcardMatch(pattern, text);
         }
 
@@ -58,21 +78,21 @@ public class SearchPattern {
          * case '*': since '*' can match any globing, as long as there is a true in res before i
          *   all the res[i+1], res[i+2],...,res[textLength] could be true
         */
-        boolean[] res = new boolean[textLength+1];
+        boolean[] res = new boolean[textLength + 1];
         res[0] = true;
-        for(int j=0;j<patternLength;j++) {
+        for (int j = 0; j < patternLength; j++) {
             char p = pattern.charAt(j);
-            if(p!='*') {
-                for(int i=textLength-1;i>=0;i--) {
+            if (p != '*') {
+                for (int i = textLength - 1; i >= 0; i--) {
                     char t = text.charAt(i);
-                    res[i+1] = res[i] && ( p == '?' || (p == t));
+                    res[i + 1] = res[i] && (p == '?' || (p == t));
                 }
             } else {
                 int i = 0;
-                while( i <= textLength && !res[i] ) {
+                while (i <= textLength && !res[i]) {
                     i++;
                 }
-                for(;i<=textLength;i++) {
+                for (; i <= textLength; i++) {
                     res[i] = true;
                 }
             }
@@ -85,22 +105,22 @@ public class SearchPattern {
         int j = 0;
         int patternLength = pattern.length();
         int textLength = text.length();
-        for(int i = 0; i < patternLength; i++) {
+        for (int i = 0; i < patternLength; i++) {
             char p = pattern.charAt(i);
-            if(p == '*') {
+            if (p == '*') {
                 // Presumption for this method is that globs only occur at end
                 return true;
             } else if (p == '?') {
-                if(j == textLength) {
+                if (j == textLength) {
                     return false; // No character to match
                 }
                 j++;
             } else {
-                if(j >= textLength) {
+                if (j >= textLength) {
                     return false;
                 }
                 char t = text.charAt(j);
-                if(p != t) {
+                if (p != t) {
                     return false;
                 }
                 j++;

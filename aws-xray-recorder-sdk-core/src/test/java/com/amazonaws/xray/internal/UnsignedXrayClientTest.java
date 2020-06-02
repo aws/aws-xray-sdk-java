@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.internal;
 
 import static com.amazonaws.xray.internal.UnsignedXrayClient.OBJECT_MAPPER;
@@ -14,18 +29,16 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.Date;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-
 import com.amazonaws.services.xray.model.GetSamplingRulesRequest;
 import com.amazonaws.services.xray.model.GetSamplingRulesResult;
 import com.amazonaws.services.xray.model.GetSamplingTargetsRequest;
 import com.amazonaws.services.xray.model.GetSamplingTargetsResult;
 import com.amazonaws.services.xray.model.SamplingStatisticsDocument;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import java.util.Date;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class UnsignedXrayClientTest {
 
@@ -66,8 +79,8 @@ public class UnsignedXrayClientTest {
                                                  .withStatus(200)
                                                  .withBody(OBJECT_MAPPER.writeValueAsBytes(expected))));
 
-        GetSamplingTargetsRequest request = new GetSamplingTargetsRequest().
-                withSamplingStatisticsDocuments(new SamplingStatisticsDocument().withClientID("client-id"));
+        GetSamplingTargetsRequest request = new GetSamplingTargetsRequest()
+            .withSamplingStatisticsDocuments(new SamplingStatisticsDocument().withClientID("client-id"));
 
         GetSamplingTargetsResult result = client.getSamplingTargets(request);
 

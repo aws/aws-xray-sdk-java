@@ -1,8 +1,22 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.entities;
 
-import java.util.Map;
-
 import com.amazonaws.xray.exceptions.AlreadyEmittedException;
+import java.util.Map;
 
 public interface Segment extends Entity {
 
@@ -11,82 +25,87 @@ public interface Segment extends Entity {
      *
      * @return true if 1) the reference count is less than or equal to zero and 2) sampled is true
      */
-    public boolean end();
+    boolean end();
 
     /**
      * @return the sampled
      */
-    public boolean isSampled();
+    boolean isSampled();
 
     /**
      * @param sampled
      *            the sampled to set
      *
      * @throws AlreadyEmittedException
-     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the AWSXRayRecorder used to create this entity is configured to throw exceptions
+     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the
+     *             AWSXRayRecorder used to create this entity is configured to throw exceptions
      */
-    public void setSampled(boolean sampled);
+    void setSampled(boolean sampled);
 
     /**
      * @return the resourceArn
      */
-    public String getResourceArn();
+    String getResourceArn();
 
     /**
      * @param resourceArn
      *            the resourceArn to set
      *
      * @throws AlreadyEmittedException
-     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the AWSXRayRecorder used to create this entity is configured to throw exceptions
+     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the
+     *             AWSXRayRecorder used to create this entity is configured to throw exceptions
      */
-    public void setResourceArn(String resourceArn);
+    void setResourceArn(String resourceArn);
 
     /**
      * @return the user
      */
-    public String getUser();
+    String getUser();
 
     /**
      * @param user
      *            the user to set
      *
      * @throws AlreadyEmittedException
-     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the AWSXRayRecorder used to create this entity is configured to throw exceptions
+     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the
+     *             AWSXRayRecorder used to create this entity is configured to throw exceptions
      */
-    public void setUser(String user);
+    void setUser(String user);
 
     /**
      * @return the origin
      */
-    public String getOrigin();
+    String getOrigin();
 
     /**
      * @param origin
      *            the origin to set
      *
      * @throws AlreadyEmittedException
-     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the AWSXRayRecorder used to create this entity is configured to throw exceptions
+     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the
+     *             AWSXRayRecorder used to create this entity is configured to throw exceptions
      */
-    public void setOrigin(String origin);
+    void setOrigin(String origin);
 
     /**
      * @return the service
      */
-    public Map<String, Object> getService();
+    Map<String, Object> getService();
 
     /**
      * @param service
      *            the service to set
      *
      * @throws AlreadyEmittedException
-     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the AWSXRayRecorder used to create this entity is configured to throw exceptions
+     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the
+     *             AWSXRayRecorder used to create this entity is configured to throw exceptions
      */
-    public void setService(Map<String, Object> service);
+    void setService(Map<String, Object> service);
 
     /**
      * @return the annotations
      */
-    public Map<String, Object> getAnnotations();
+    Map<String, Object> getAnnotations();
 
     /**
      * Puts information about this service.
@@ -97,9 +116,10 @@ public interface Segment extends Entity {
      *            the service information
      *
      * @throws AlreadyEmittedException
-     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the AWSXRayRecorder used to create this entity is configured to throw exceptions
+     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the
+     *             AWSXRayRecorder used to create this entity is configured to throw exceptions
      */
-    public void putService(String key, Object object);
+    void putService(String key, Object object);
 
     /**
      * Puts information about this service.
@@ -108,16 +128,17 @@ public interface Segment extends Entity {
      *            the service information to set.
      *
      * @throws AlreadyEmittedException
-     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the AWSXRayRecorder used to create this entity is configured to throw exceptions
+     *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the
+     *             AWSXRayRecorder used to create this entity is configured to throw exceptions
      */
-    public void putAllService(Map<String, Object> all);
+    void putAllService(Map<String, Object> all);
 
-    public void setRuleName(String name);
-
-    @Override
-    public Segment getParentSegment();
+    void setRuleName(String name);
 
     @Override
-    public void close();
+    Segment getParentSegment();
+
+    @Override
+    void close();
 
 }

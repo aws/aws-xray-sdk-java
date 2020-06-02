@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray;
 
 import com.amazonaws.xray.contexts.LambdaSegmentContext;
@@ -55,6 +70,8 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 @PowerMockIgnore("javax.net.ssl.*")
 public class AWSXRayRecorderTest {
 
+    private static final String TRACE_HEADER = "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1";
+
     @Rule
     public EnvironmentVariables environmentVariables = new EnvironmentVariables();
     @Rule
@@ -66,7 +83,11 @@ public class AWSXRayRecorderTest {
         LocalizedSamplingStrategy defaultSamplingStrategy = new LocalizedSamplingStrategy();
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSamplingStrategy(defaultSamplingStrategy).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder
+                                      .standard()
+                                      .withEmitter(blankEmitter)
+                                      .withSamplingStrategy(defaultSamplingStrategy)
+                                      .build());
         AWSXRay.clearTraceEntity();
     }
 
@@ -116,7 +137,7 @@ public class AWSXRayRecorderTest {
         AWSXRay.getTraceEntity();
     }
 
-    @Test(expected=SegmentNotFoundException.class)
+    @Test(expected = SegmentNotFoundException.class)
     public void testBeginSubsegmentOnEmptyThreadThrowsExceptionByDefault() {
         AWSXRay.beginSubsegment("test");
     }
@@ -147,6 +168,7 @@ public class AWSXRayRecorderTest {
         try {
             thread.join();
         } catch (InterruptedException ie) {
+            // Ignore
         }
 
         AWSXRay.endSegment();
@@ -166,6 +188,7 @@ public class AWSXRayRecorderTest {
         try {
             thread.join();
         } catch (InterruptedException ie) {
+            // Ignore
         }
 
         AWSXRay.endSegment();
@@ -186,6 +209,7 @@ public class AWSXRayRecorderTest {
         try {
             thread.join();
         } catch (InterruptedException ie) {
+            // Ignore
         }
 
         AWSXRay.endSubsegment();
@@ -207,6 +231,7 @@ public class AWSXRayRecorderTest {
         try {
             thread.join();
         } catch (InterruptedException ie) {
+            // Ignore
         }
 
         AWSXRay.endSubsegment();
@@ -239,7 +264,7 @@ public class AWSXRayRecorderTest {
         Assert.assertFalse(AWSXRay.getCurrentSubsegmentOptional().isPresent());
     }
 
-    @Test(expected=SegmentNotFoundException.class)
+    @Test(expected = SegmentNotFoundException.class)
     public void testSubsegmentBeginWithoutSegmentContextThrowsException() {
         AWSXRay.beginSubsegment("test");
     }
@@ -295,7 +320,6 @@ public class AWSXRayRecorderTest {
         Mockito.verify(mockEmitter, Mockito.times(0)).sendSegment(Mockito.any());
     }
 
-    private static final String TRACE_HEADER = "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1";
     @Test
     public void testSubsegmentEmittedInLambdaContext() throws JSONException {
         TraceHeader header = TraceHeader.fromString(TRACE_HEADER);
@@ -305,17 +329,21 @@ public class AWSXRayRecorderTest {
 
         Emitter mockEmitter = Mockito.mock(Emitter.class);
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();
-        recorder.createSubsegment("test", () -> {});
+        recorder.createSubsegment("test", () -> {
+        });
 
         ArgumentCaptor<Subsegment> emittedSubsegment = ArgumentCaptor.forClass(Subsegment.class);
         Mockito.verify(mockEmitter, Mockito.times(1)).sendSubsegment(emittedSubsegment.capture());
 
         Subsegment captured = emittedSubsegment.getValue();
 
-        JSONAssert.assertEquals(expectedLambdaSubsegment(header.getRootTraceId(), header.getParentId(), captured.getId(), captured.getStartTime(), captured.getEndTime()).toString(), captured.streamSerialize(), JSONCompareMode.NON_EXTENSIBLE);
+        JSONAssert.assertEquals(expectedLambdaSubsegment(
+            header.getRootTraceId(), header.getParentId(), captured.getId(), captured.getStartTime(),
+            captured.getEndTime()).toString(), captured.streamSerialize(), JSONCompareMode.NON_EXTENSIBLE);
     }
 
-    private ObjectNode expectedLambdaSubsegment(TraceID traceId, String segmentId, String subsegmentId, double startTime, double endTime) {
+    private ObjectNode expectedLambdaSubsegment(
+        TraceID traceId, String segmentId, String subsegmentId, double startTime, double endTime) {
         ObjectNode expected = JsonNodeFactory.instance.objectNode();
         expected.put("name", "test");
         expected.put("type", "subsegment");
@@ -329,12 +357,14 @@ public class AWSXRayRecorderTest {
 
     @Test
     public void testSubsegmentNotEmittedWithoutExceptionInLambdaInitContext() {
-        PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(TraceHeader.fromString(null));
+        PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment"))
+                    .toReturn(TraceHeader.fromString(null));
         PowerMockito.stub(PowerMockito.method(LambdaSegmentContextResolver.class, "getLambdaTaskRoot")).toReturn("/var/task");
 
         Emitter mockEmitter = Mockito.mock(Emitter.class);
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withEmitter(mockEmitter).build();
-        recorder.createSubsegment("test", () -> {});
+        recorder.createSubsegment("test", () -> {
+        });
 
         Mockito.verify(mockEmitter, Mockito.times(0)).sendSubsegment(Mockito.any());
     }
@@ -388,7 +418,7 @@ public class AWSXRayRecorderTest {
 
         List<Subsegment> captured = emittedSubsegments.getAllValues();
 
-        captured.forEach( (capturedSubsegment) -> {
+        captured.forEach((capturedSubsegment) -> {
             Assert.assertEquals(1, capturedSubsegment.getSubsegments().size());
         });
     }
@@ -396,7 +426,8 @@ public class AWSXRayRecorderTest {
     @Test
     public void testContextMissingStrategyOverrideEnvironmentVariable() {
         environmentVariables.set(ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_ENVIRONMENT_VARIABLE_OVERRIDE_KEY, "log_error");
-        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withContextMissingStrategy(new RuntimeErrorContextMissingStrategy()).build();
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withContextMissingStrategy(
+            new RuntimeErrorContextMissingStrategy()).build();
         Assert.assertTrue(recorder.getContextMissingStrategy() instanceof LogErrorContextMissingStrategy);
         environmentVariables.set(ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_ENVIRONMENT_VARIABLE_OVERRIDE_KEY, null);
     }
@@ -404,7 +435,8 @@ public class AWSXRayRecorderTest {
     @Test
     public void testContextMissingStrategyOverrideSystemProperty() {
         System.setProperty(ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_SYSTEM_PROPERTY_OVERRIDE_KEY, "log_error");
-        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withContextMissingStrategy(new RuntimeErrorContextMissingStrategy()).build();
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withContextMissingStrategy(
+            new RuntimeErrorContextMissingStrategy()).build();
         Assert.assertTrue(recorder.getContextMissingStrategy() instanceof LogErrorContextMissingStrategy);
     }
 
@@ -412,12 +444,13 @@ public class AWSXRayRecorderTest {
     public void testContextMissingStrategyOverrideEnvironmentVariableOverridesSystemProperty() {
         environmentVariables.set(ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_ENVIRONMENT_VARIABLE_OVERRIDE_KEY, "log_error");
         System.setProperty(ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_SYSTEM_PROPERTY_OVERRIDE_KEY, "runtime_error");
-        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withContextMissingStrategy(new RuntimeErrorContextMissingStrategy()).build();
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().withContextMissingStrategy(
+            new RuntimeErrorContextMissingStrategy()).build();
         Assert.assertTrue(recorder.getContextMissingStrategy() instanceof LogErrorContextMissingStrategy);
         environmentVariables.set(ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_ENVIRONMENT_VARIABLE_OVERRIDE_KEY, null);
     }
 
-    @Test(expected=AlreadyEmittedException.class)
+    @Test(expected = AlreadyEmittedException.class)
     public void testEmittingSegmentTwiceThrowsSegmentAlreadyEmittedException() {
         Segment s = AWSXRay.beginSegment("test");
         AWSXRay.endSegment();
@@ -425,14 +458,16 @@ public class AWSXRayRecorderTest {
         AWSXRay.endSegment();
     }
 
-	@Test
+    @Test
     public void testSubsegmentFunctionExceptionWhenMissingContextIsLogged() {
         // given
         RuntimeException expectedException = new RuntimeException("To be thrown by function");
-        Function<Subsegment, Void> function = (subsegment) -> {throw expectedException;};
+        Function<Subsegment, Void> function = (subsegment) -> {
+            throw expectedException;
+        };
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-                .withContextMissingStrategy(new LogErrorContextMissingStrategy())
-                .build();
+                                                         .withContextMissingStrategy(new LogErrorContextMissingStrategy())
+                                                         .build();
 
         // when
         try {
@@ -447,10 +482,12 @@ public class AWSXRayRecorderTest {
     public void testSubsegmentConsumerExceptionWhenMissingContextIsLogged() {
         // given
         RuntimeException expectedException = new RuntimeException("To be thrown by consumer");
-        Consumer<Subsegment> consumer = (subsegment) -> {throw expectedException;};
+        Consumer<Subsegment> consumer = (subsegment) -> {
+            throw expectedException;
+        };
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-                .withContextMissingStrategy(new LogErrorContextMissingStrategy())
-                .build();
+                                                         .withContextMissingStrategy(new LogErrorContextMissingStrategy())
+                                                         .build();
 
         // when
         try {
@@ -465,10 +502,12 @@ public class AWSXRayRecorderTest {
     public void testSubsegmentSupplierExceptionWhenMissingContextIsLogged() {
         // given
         RuntimeException expectedException = new RuntimeException("To be thrown by supplier");
-        Supplier<Void> supplier = () -> {throw expectedException;};
+        Supplier<Void> supplier = () -> {
+            throw expectedException;
+        };
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-                .withContextMissingStrategy(new LogErrorContextMissingStrategy())
-                .build();
+                                                         .withContextMissingStrategy(new LogErrorContextMissingStrategy())
+                                                         .build();
 
         // when
         try {
@@ -483,10 +522,12 @@ public class AWSXRayRecorderTest {
     public void testSubsegmentRunnableExceptionWhenMissingContextIsLogged() {
         // given
         RuntimeException expectedException = new RuntimeException("To be thrown by runnable");
-        Runnable runnable = () -> {throw expectedException;};
+        Runnable runnable = () -> {
+            throw expectedException;
+        };
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-                .withContextMissingStrategy(new LogErrorContextMissingStrategy())
-                .build();
+                                                         .withContextMissingStrategy(new LogErrorContextMissingStrategy())
+                                                         .build();
 
         // when
         try {
@@ -528,13 +569,13 @@ public class AWSXRayRecorderTest {
         }
 
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-                .withPlugin(ec2Plugin)
-                .withPlugin(ecsPlugin)
-                .withPlugin(ebPlugin)
-                .withPlugin(eksPlugin)
-                .build();
+                                                         .withPlugin(ec2Plugin)
+                                                         .withPlugin(ecsPlugin)
+                                                         .withPlugin(ebPlugin)
+                                                         .withPlugin(eksPlugin)
+                                                         .build();
 
-       // when
+        // when
         Assert.assertEquals(ElasticBeanstalkPlugin.ORIGIN, recorder.getOrigin());
     }
 
@@ -557,9 +598,9 @@ public class AWSXRayRecorderTest {
         Mockito.doReturn(EKSPlugin.ORIGIN).when(eksPlugin).getOrigin();
 
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-                .withPlugin(eksPlugin)
-                .withPlugin(ecsPlugin)
-                .build();
+                                                         .withPlugin(eksPlugin)
+                                                         .withPlugin(ecsPlugin)
+                                                         .build();
 
         // when
         Assert.assertEquals(EKSPlugin.ORIGIN, recorder.getOrigin());

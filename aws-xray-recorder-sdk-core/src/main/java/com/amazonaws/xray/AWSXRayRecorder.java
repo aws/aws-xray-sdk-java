@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray;
 
 import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
@@ -115,14 +130,18 @@ public class AWSXRayRecorder {
 
         logReferences = new HashSet<>();
 
-        Optional<ContextMissingStrategy> environmentContextMissingStrategy = AWSXRayRecorderBuilder.contextMissingStrategyFromEnvironmentVariable();
-        Optional<ContextMissingStrategy> systemContextMissingStrategy = AWSXRayRecorderBuilder.contextMissingStrategyFromSystemProperty();
+        Optional<ContextMissingStrategy> environmentContextMissingStrategy =
+            AWSXRayRecorderBuilder.contextMissingStrategyFromEnvironmentVariable();
+        Optional<ContextMissingStrategy> systemContextMissingStrategy =
+            AWSXRayRecorderBuilder.contextMissingStrategyFromSystemProperty();
         if (environmentContextMissingStrategy.isPresent()) {
-            logger.info("Overriding contextMissingStrategy. Environment variable " + ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_ENVIRONMENT_VARIABLE_OVERRIDE_KEY + " has value: \""
+            logger.info("Overriding contextMissingStrategy. Environment variable "
+                        + ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_ENVIRONMENT_VARIABLE_OVERRIDE_KEY + " has value: \""
                     + System.getenv(ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_ENVIRONMENT_VARIABLE_OVERRIDE_KEY) + "\".");
             contextMissingStrategy = environmentContextMissingStrategy.get();
         } else if (systemContextMissingStrategy.isPresent()) {
-            logger.info("Overriding contextMissingStrategy. System property " + ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_SYSTEM_PROPERTY_OVERRIDE_KEY + " has value: \""
+            logger.info("Overriding contextMissingStrategy. System property "
+                        + ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_SYSTEM_PROPERTY_OVERRIDE_KEY + " has value: \""
                     + System.getProperty(ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_SYSTEM_PROPERTY_OVERRIDE_KEY) + "\".");
             contextMissingStrategy = systemContextMissingStrategy.get();
         }
@@ -177,7 +196,8 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Begins a segment, passes it to the supplied function, and ends the segment before returning the supplied function's result. Intercepts exceptions, adds them to the segment, and re-throws them.
+     * Begins a segment, passes it to the supplied function, and ends the segment before returning the supplied function's result.
+     * Intercepts exceptions, adds them to the segment, and re-throws them.
      *
      * @param <R>
      *            the type of the value returned by {@code function}
@@ -200,7 +220,8 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Begins a segment and passes it to the supplied consumer, and ends the segment before returning the consumer's result. Intercepts exceptions, adds them to the segment, and re-throws them.
+     * Begins a segment and passes it to the supplied consumer, and ends the segment before returning the consumer's result.
+     * Intercepts exceptions, adds them to the segment, and re-throws them.
      *
      * @param name
      *            the name to use for the created segment
@@ -220,7 +241,8 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Begins a segment, invokes the provided supplier, and ends the segment before returning the supplier's result. Intercepts exceptions, adds them to the segment, and re-throws them.
+     * Begins a segment, invokes the provided supplier, and ends the segment before returning the supplier's result.
+     * Intercepts exceptions, adds them to the segment, and re-throws them.
      *
      * @param <R>
      *            the type of the value returned by {@code supplier}
@@ -243,7 +265,8 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Begins a segment, runs the provided runnable, and ends the segment before returning the supplier's result. Intercepts exceptions, adds them to the segment, and re-throws them.
+     * Begins a segment, runs the provided runnable, and ends the segment before returning the supplier's result.
+     * Intercepts exceptions, adds them to the segment, and re-throws them.
      *
      * @param name
      *            the name to use for the created segment
@@ -264,7 +287,8 @@ public class AWSXRayRecorder {
 
 
     /**
-     * Begins a subsegment, passes it to the supplied function, and ends the subsegment before returning the supplied function's result. Intercepts exceptions, adds them to the subsegment, and re-throws them.
+     * Begins a subsegment, passes it to the supplied function, and ends the subsegment before returning the supplied function's
+     * result. Intercepts exceptions, adds them to the subsegment, and re-throws them.
      *
      * @param <R>
      *            the type of the value returned by {@code function}
@@ -289,7 +313,8 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Begins a subsegment and passes it to the supplied consumer, and ends the subsegment before returning the consumer's result. Intercepts exceptions, adds them to the subsegment, and re-throws them.
+     * Begins a subsegment and passes it to the supplied consumer, and ends the subsegment before returning the consumer's result.
+     * Intercepts exceptions, adds them to the subsegment, and re-throws them.
      *
      * @param name
      *            the name to use for the created subsegment
@@ -311,7 +336,8 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Begins a subsegment, passes it to the provided supplier, and ends the subsegment before returning the supplier's result. Intercepts exceptions, adds them to the subsegment, and re-throws them.
+     * Begins a subsegment, passes it to the provided supplier, and ends the subsegment before returning the supplier's result.
+     * Intercepts exceptions, adds them to the subsegment, and re-throws them.
      *
      * @param <R>
      *            the type of the value returned by {@code function}
@@ -336,7 +362,8 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Begins a subsegment, runs the provided runnable, and ends the subsegment once complete. Intercepts exceptions, adds them to the subsegment, and re-throws them.
+     * Begins a subsegment, runs the provided runnable, and ends the subsegment once complete. Intercepts exceptions, adds them to
+     * the subsegment, and re-throws them.
      *
      * @param name
      *            the name to use for the created subsegment
@@ -390,19 +417,19 @@ public class AWSXRayRecorder {
             return null;
         }
 
-        Entity current;
-        if ((current = getTraceEntity()) != null) {
-            logger.error("Beginning new segment while another segment exists in the segment context. Overwriting current segment named '" + current.getName() + "' to start new segment named '" + segment.getName() + "'.");
+        Entity current = getTraceEntity();
+        if (current != null) {
+            logger.error("Beginning new segment while another segment exists in the segment context. Overwriting current segment "
+                         + "named '" + current.getName() + "' to start new segment named '" + segment.getName() + "'.");
         }
 
         segment.setAws(getAwsRuntimeContext());
-        if (null != getOrigin()){
+        if (null != getOrigin()) {
             segment.setOrigin(getOrigin());
         }
         segment.putAllService(getServiceRuntimeContext());
 
-        if(null != logReferences && !logReferences.isEmpty()) {
-
+        if (null != logReferences && !logReferences.isEmpty()) {
             segment.putAws(CW_LOGS_KEY, logReferences);
         }
 
@@ -428,8 +455,8 @@ public class AWSXRayRecorder {
             context.endSegment(this);
         }
 
-        Entity current;
-        if ((current = getTraceEntity()) != null) {
+        Entity current = getTraceEntity();
+        if (current != null) {
             Segment segment = current.getParentSegment();
             logger.debug("Ending segment named '" + segment.getName() + "'.");
 
@@ -438,7 +465,7 @@ public class AWSXRayRecorder {
                     .filter(Objects::nonNull)
                     .forEach(listener -> listener.beforeEndSegment(segment));
 
-            if(segment.end()) {
+            if (segment.end()) {
                 sendSegment(segment);
             } else {
                 logger.debug("Not emitting segment named '" + segment.getName() + "' as it parents in-progress subsegments.");
@@ -451,7 +478,8 @@ public class AWSXRayRecorder {
 
             clearTraceEntity();
         } else {
-            getContextMissingStrategy().contextMissing("Failed to end segment: segment cannot be found.", SegmentNotFoundException.class);
+            getContextMissingStrategy().contextMissing("Failed to end segment: segment cannot be found.",
+                                                       SegmentNotFoundException.class);
         }
 
     }
@@ -463,14 +491,14 @@ public class AWSXRayRecorder {
      *          the subsegment to close.
      */
     public void endSubsegment(Subsegment subsegment) {
-        if(subsegment == null) {
+        if (subsegment == null) {
             logger.debug("No input subsegment to end. No-op.");
             return;
         }
         boolean rootReady = subsegment.end();
         // First handling the special case where its direct parent is a facade segment
-        if(subsegment.getParent() instanceof FacadeSegment) {
-            if(((FacadeSegment) subsegment.getParent()).isSampled()) {
+        if (subsegment.getParent() instanceof FacadeSegment) {
+            if (((FacadeSegment) subsegment.getParent()).isSampled()) {
                 getEmitter().sendSubsegment(subsegment);
             }
             return;
@@ -493,7 +521,8 @@ public class AWSXRayRecorder {
      *            the name to use for the created subsegment
      * @throws SegmentNotFoundException
      *             if {@code contextMissingStrategy} throws exceptions and no segment is currently in progress
-     * @return the newly created subsegment, or {@code null} if {@code contextMissingStrategy} suppresses and no segment is currently in progress
+     * @return the newly created subsegment, or {@code null} if {@code contextMissingStrategy} suppresses and no segment is
+     * currently in progress
      */
     public Subsegment beginSubsegment(String name) {
         SegmentContext context = getSegmentContext();
@@ -521,7 +550,8 @@ public class AWSXRayRecorder {
     /**
      * @throws SegmentNotFoundException
      *             if {@code contextMissingStrategy} throws exceptions and there is no segment in progress
-     * @return the current segment, or {@code null} if {@code contextMissingStrategy} suppresses exceptions and there is no segment in progress
+     * @return the current segment, or {@code null} if {@code contextMissingStrategy} suppresses exceptions and there is no
+     * segment in progress
      */
     public Segment getCurrentSegment() {
         Optional<Segment> segment = getCurrentSegmentOptional();
@@ -536,7 +566,8 @@ public class AWSXRayRecorder {
      * @return the current segment, or {@code Optional.empty()} if there is no segment
      */
     public Optional<Segment> getCurrentSegmentOptional() {
-        SegmentContext context = segmentContextResolverChain.resolve(); // explicitly do not throw context missing exceptions from optional-returning methods
+        // explicitly do not throw context missing exceptions from optional-returning methods
+        SegmentContext context = segmentContextResolverChain.resolve();
         if (null == context) {
             return Optional.empty();
         }
@@ -555,7 +586,8 @@ public class AWSXRayRecorder {
      *             if {@code contextMissingStrategy} throws exceptions and the segment context cannot be found
      * @throws SubsegmentNotFoundException
      *             if {@code contextMissingStrategy} throws exceptions and the current segment has no subsegments in progress
-     * @return the current subsegment, or {@code null} if {@code contextMissingStrategy} suppresses exceptions and the segment context cannot be found or the segment has no subsegments in progress
+     * @return the current subsegment, or {@code null} if {@code contextMissingStrategy} suppresses exceptions and the segment
+     * context cannot be found or the segment has no subsegments in progress
      */
     public Subsegment getCurrentSubsegment() {
         SegmentContext context = getSegmentContext();
@@ -577,7 +609,8 @@ public class AWSXRayRecorder {
      * @return the current subsegment, or {@code Optional.empty()} if there is no subsegment
      */
     public Optional<Subsegment> getCurrentSubsegmentOptional() {
-        SegmentContext context = segmentContextResolverChain.resolve(); // explicitly do not throw context missing exceptions from optional-returning methods
+        // explicitly do not throw context missing exceptions from optional-returning methods
+        SegmentContext context = segmentContextResolverChain.resolve();
         if (null == context) {
             return Optional.empty();
         }
@@ -631,7 +664,8 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Sets the trace entity value using the implementation provided by the SegmentContext resolved from the segmentContextResolverChain.
+     * Sets the trace entity value using the implementation provided by the SegmentContext resolved from the
+     * segmentContextResolverChain.
      *
      * @param entity
      *            the trace entity to set
@@ -645,7 +679,8 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Gets the current trace entity value using the implementation provided by the SegmentContext resolved from the segmentContextResolverChain.
+     * Gets the current trace entity value using the implementation provided by the SegmentContext resolved from the
+     * segmentContextResolverChain.
      *
      * @return the current trace entity
      */
@@ -658,7 +693,8 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Clears the current trace entity value using the implementation provided by the SegmentContext resolved from the segmentContextResolverChain.
+     * Clears the current trace entity value using the implementation provided by the SegmentContext resolved from the
+     * segmentContextResolverChain.
      *
      */
     public void clearTraceEntity() {
@@ -677,7 +713,7 @@ public class AWSXRayRecorder {
     }
 
     public void addAllLogReferences(Set<AWSLogReference> logReferences) {
-            this.logReferences.addAll(logReferences);
+        this.logReferences.addAll(logReferences);
     }
 
     /**
@@ -749,6 +785,7 @@ public class AWSXRayRecorder {
     public void setContextMissingStrategy(ContextMissingStrategy contextMissingStrategy) {
         this.contextMissingStrategy = contextMissingStrategy;
     }
+
     /**
      * @return the segmentContextResolverChain
      */
@@ -853,7 +890,8 @@ public class AWSXRayRecorder {
      *
      * @throws SegmentNotFoundException
      *             if {@code contextMissingStrategy} throws exceptions and no segment or subsegment is currently in progress
-     * @return the ID of the {@code Segment} or {@code Subsegment} currently in progress, or {@code null} if {@code contextMissingStrategy} suppresses exceptions and no segment or subsegment is currently in progress
+     * @return the ID of the {@code Segment} or {@code Subsegment} currently in progress, or {@code null} if
+     * {@code contextMissingStrategy} suppresses exceptions and no segment or subsegment is currently in progress
      */
     public String currentEntityId() {
         SegmentContext context = getSegmentContext();
@@ -864,7 +902,8 @@ public class AWSXRayRecorder {
         if (null != current) {
             return current.getId();
         } else {
-            contextMissingStrategy.contextMissing("Failed to get current entity ID: segment or subsegment cannot be found.", SegmentNotFoundException.class);
+            contextMissingStrategy.contextMissing("Failed to get current entity ID: segment or subsegment cannot be found.",
+                                                  SegmentNotFoundException.class);
             return null;
         }
     }
@@ -873,7 +912,8 @@ public class AWSXRayRecorder {
      *
      * @throws SegmentNotFoundException
      *             if {@code contextMissingStrategy} throws exceptions and no segment or subsegment is currently in progress
-     * @return the trace ID of the {@code Segment} currently in progress, or {@code null} if {@code contextMissingStrategy} suppresses exceptions and no segment or subsegment is currently in progress
+     * @return the trace ID of the {@code Segment} currently in progress, or {@code null} if {@code contextMissingStrategy}
+     * suppresses exceptions and no segment or subsegment is currently in progress
      */
     public TraceID currentTraceId() {
         SegmentContext context = getSegmentContext();
@@ -884,7 +924,8 @@ public class AWSXRayRecorder {
         if (null != current) {
             return current.getParentSegment().getTraceId();
         } else {
-            contextMissingStrategy.contextMissing("Failed to get current trace ID: segment cannot be found.", SegmentNotFoundException.class);
+            contextMissingStrategy.contextMissing("Failed to get current trace ID: segment cannot be found.",
+                                                  SegmentNotFoundException.class);
             return null;
         }
     }
@@ -893,8 +934,9 @@ public class AWSXRayRecorder {
      *
      * @throws SegmentNotFoundException
      *             if {@code contextMissingStrategy} throws exceptions and no segment or subsegment is currently in progress
-     * @return the trace ID of the {@code Segment} currently in progress and the ID of the {@code Segment} or {@code Subsegment} in progress, joined with {@code @},
-     *             or {@code null} if {@code contextMissingStrategy} suppresses exceptions and no segment or subsegment is currently in progress
+     * @return the trace ID of the {@code Segment} currently in progress and the ID of the {@code Segment} or {@code Subsegment}
+     * in progress, joined with {@code @}, or {@code null} if {@code contextMissingStrategy} suppresses exceptions and no segment
+     * or subsegment is currently in progress
      */
     public String currentFormattedId() {
         SegmentContext context = getSegmentContext();
@@ -907,7 +949,8 @@ public class AWSXRayRecorder {
             String entityId = current.getId();
             return traceId.toString() + "@" + entityId;
         } else {
-            contextMissingStrategy.contextMissing("Failed to get current formatted ID: segment cannot be found.", SegmentNotFoundException.class);
+            contextMissingStrategy.contextMissing("Failed to get current formatted ID: segment cannot be found.",
+                                                  SegmentNotFoundException.class);
             return null;
         }
     }

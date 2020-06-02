@@ -1,17 +1,32 @@
-package com.amazonaws.xray;
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
 
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+package com.amazonaws.xray;
 
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceID;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
- * Static helper class which holds reference to a global client and provides a static interface for invoking methods on the client.
+ * Static helper class which holds reference to a global client and provides a static interface for invoking methods on the
+ * client.
  */
 public class AWSXRay {
 
@@ -104,7 +119,9 @@ public class AWSXRay {
         return globalRecorder.currentTraceId();
     }
 
-    public static String currentFormattedId() { return globalRecorder.currentFormattedId(); }
+    public static String currentFormattedId() {
+        return globalRecorder.currentFormattedId();
+    }
 
     public static Segment getCurrentSegment() {
         return globalRecorder.getCurrentSegment();

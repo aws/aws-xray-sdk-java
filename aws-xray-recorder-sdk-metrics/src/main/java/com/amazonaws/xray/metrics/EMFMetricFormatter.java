@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.metrics;
 
 import com.amazonaws.xray.entities.Segment;
@@ -31,13 +46,21 @@ import org.apache.commons.logging.LogFactory;
  *      <li><u>OkRate:</u> 1 if no other statuses are set, zero otherwise.</li>
  *  </ul>
  *
- * <p>Rate metrics above may be used with the CloudWatch AVG statistic to get a percentage of requests in a category or may be used as a SUM.
- * COUNT of Latency represents the total count of invocations of this segment.</p>
+ * <p>Rate metrics above may be used with the CloudWatch AVG statistic to get a percentage of requests in a category or may be
+ * used as a SUM. COUNT of Latency represents the total count of invocations of this segment.</p>
  */
 public class EMFMetricFormatter implements MetricFormatter {
 
     private static final Log logger = LogFactory.getLog(EMFMetricFormatter.class);
-    private static final String EMF_FORMAT="{\"Timestamp\":%d,\"log_group_name\":\"ServiceMetricsSDK\",\"CloudWatchMetrics\":[{\"Metrics\":[{\"Name\":\"ErrorRate\",\"Unit\":\"None\"},{\"Name\":\"FaultRate\",\"Unit\":\"None\"},{\"Name\":\"ThrottleRate\",\"Unit\":\"None\"},{\"Name\":\"OkRate\",\"Unit\":\"None\"},{\"Name\":\"Latency\",\"Unit\":\"Milliseconds\"}],\"Namespace\":\"ServiceMetrics/SDK\",\"Dimensions\":[[\"ServiceType\",\"ServiceName\"]]}],\"Latency\":%.3f,\"ErrorRate\":%d,\"FaultRate\":%d,\"ThrottleRate\":%d,\"OkRate\":%d,\"TraceId\":\"%s\",\"ServiceType\":\"%s\",\"ServiceName\":\"%s\",\"Version\":\"0\"}";
+    private static final String EMF_FORMAT = "{\"Timestamp\":%d,\"log_group_name\":\"ServiceMetricsSDK\",\"CloudWatchMetrics\":"
+                                           + "[{\"Metrics\":[{\"Name\":\"ErrorRate\",\"Unit\":\"None\"},{\"Name\":\"FaultRate\","
+                                           + "\"Unit\":\"None\"},{\"Name\":\"ThrottleRate\",\"Unit\":\"None\"},"
+                                           + "{\"Name\":\"OkRate\",\"Unit\":\"None\"},{\"Name\":\"Latency\","
+                                           + "\"Unit\":\"Milliseconds\"}],\"Namespace\":\"ServiceMetrics/SDK\","
+                                           + "\"Dimensions\":[[\"ServiceType\",\"ServiceName\"]]}],\"Latency\":%.3f,"
+                                           + "\"ErrorRate\":%d,\"FaultRate\":%d,\"ThrottleRate\":%d,\"OkRate\":%d,"
+                                           + "\"TraceId\":\"%s\",\"ServiceType\":\"%s\",\"ServiceName\":\"%s\","
+                                           + "\"Version\":\"0\"}";
 
     @Override
     public String formatSegment(final Segment segment) {
@@ -60,7 +83,7 @@ public class EMFMetricFormatter implements MetricFormatter {
                 segment.getOrigin(),
                 segment.getName());
 
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("Formatted segment " + segment.getName() + " as EMF: " + json);
         }
 

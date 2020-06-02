@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.strategy;
 
 import com.amazonaws.xray.emitters.Emitter;
@@ -12,7 +27,7 @@ public interface StreamingStrategy {
      *            the segment to inspect
      * @return true if the segment should be streaming.
      */
-    public boolean requiresStreaming(Segment segment);
+    boolean requiresStreaming(Segment segment);
 
 
     /**
@@ -23,5 +38,5 @@ public interface StreamingStrategy {
      * @param emitter
      *            the emitter to send the child subsegments to
      */
-    public void streamSome(Entity entity, Emitter emitter);
+    void streamSome(Entity entity, Emitter emitter);
 }

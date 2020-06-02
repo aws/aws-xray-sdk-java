@@ -1,25 +1,28 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
+import com.amazonaws.xray.contexts.SegmentContextResolverChain;
+import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.listeners.SegmentListener;
 import com.amazonaws.xray.plugins.EC2Plugin;
 import com.amazonaws.xray.plugins.ECSPlugin;
 import com.amazonaws.xray.plugins.EKSPlugin;
 import com.amazonaws.xray.plugins.ElasticBeanstalkPlugin;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.amazonaws.xray.contexts.SegmentContextResolverChain;
-import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.plugins.Plugin;
 import com.amazonaws.xray.strategy.ContextMissingStrategy;
 import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
@@ -29,10 +32,30 @@ import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.StreamingStrategy;
 import com.amazonaws.xray.strategy.ThrowableSerializationStrategy;
 import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class AWSXRayRecorderBuilder {
     private static final Log logger =
         LogFactory.getLog(AWSXRayRecorderBuilder.class);
+
+    private static final Map<String, Integer> ORIGIN_PRIORITY;
+
+    static {
+        ORIGIN_PRIORITY = new HashMap<>();
+        ORIGIN_PRIORITY.put(ElasticBeanstalkPlugin.ORIGIN, 0);
+        ORIGIN_PRIORITY.put(EKSPlugin.ORIGIN, 1);
+        ORIGIN_PRIORITY.put(ECSPlugin.ORIGIN, 2);
+        ORIGIN_PRIORITY.put(EC2Plugin.ORIGIN, 3);
+    }
 
     private final Collection<Plugin> plugins;
 
@@ -47,15 +70,6 @@ public class AWSXRayRecorderBuilder {
     private Emitter emitter;
 
     private final Collection<SegmentListener> segmentListeners;
-    private static final Map<String, Integer> originPriority;
-
-    static {
-        originPriority = new HashMap<>();
-        originPriority.put(ElasticBeanstalkPlugin.ORIGIN, 0);
-        originPriority.put(EKSPlugin.ORIGIN, 1);
-        originPriority.put(ECSPlugin.ORIGIN, 2);
-        originPriority.put(EC2Plugin.ORIGIN, 3);
-    }
 
     private AWSXRayRecorderBuilder() {
         plugins = new HashSet<>();
@@ -63,12 +77,14 @@ public class AWSXRayRecorderBuilder {
     }
 
     public static Optional<ContextMissingStrategy> contextMissingStrategyFromEnvironmentVariable() {
-        String contextMissingStrategyOverrideValue = System.getenv(ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_ENVIRONMENT_VARIABLE_OVERRIDE_KEY);
+        String contextMissingStrategyOverrideValue = System.getenv(
+            ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_ENVIRONMENT_VARIABLE_OVERRIDE_KEY);
         return getContextMissingStrategy(contextMissingStrategyOverrideValue);
     }
 
     public static Optional<ContextMissingStrategy> contextMissingStrategyFromSystemProperty() {
-        String contextMissingStrategyOverrideValue = System.getProperty(ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_SYSTEM_PROPERTY_OVERRIDE_KEY);
+        String contextMissingStrategyOverrideValue = System.getProperty(
+            ContextMissingStrategy.CONTEXT_MISSING_STRATEGY_SYSTEM_PROPERTY_OVERRIDE_KEY);
         return getContextMissingStrategy(contextMissingStrategyOverrideValue);
     }
 
@@ -93,14 +109,17 @@ public class AWSXRayRecorderBuilder {
     }
 
     /**
-     * @return An instance of {@code AWSXRayRecorder} using the {@link com.amazonaws.xray.strategy.sampling.DefaultSamplingStrategy}, {@link com.amazonaws.xray.strategy.DefaultPrioritizationStrategy}, along with other default strategies and settings.
+     * @return An instance of {@code AWSXRayRecorder} using the
+     * {@link com.amazonaws.xray.strategy.sampling.DefaultSamplingStrategy},
+     * {@link com.amazonaws.xray.strategy.DefaultPrioritizationStrategy}, along with other default strategies and settings.
      */
     public static AWSXRayRecorder defaultRecorder() {
         return standard().build();
     }
 
     /**
-     * Adds a plugin to the list of plugins which the builder will execute at build time. This method is execution-order sensitive. Values overriden by plugins later in the list will be kept (e.g. origin).
+     * Adds a plugin to the list of plugins which the builder will execute at build time. This method is execution-order
+     * sensitive. Values overriden by plugins later in the list will be kept (e.g. origin).
      *
      * @param plugin
      * the plugin to add
@@ -127,7 +146,8 @@ public class AWSXRayRecorderBuilder {
         return this;
     }
 
-    public AWSXRayRecorderBuilder withThrowableSerializationStrategy(ThrowableSerializationStrategy throwableSerializationStrategy) {
+    public AWSXRayRecorderBuilder withThrowableSerializationStrategy(
+        ThrowableSerializationStrategy throwableSerializationStrategy) {
         this.throwableSerializationStrategy = throwableSerializationStrategy;
         return this;
     }
@@ -156,11 +176,15 @@ public class AWSXRayRecorderBuilder {
     }
 
     /**
-     * Prepares this builder to build an instance of {@code AWSXRayRecorder} with the provided context missing strategy. This value will be overriden at {@code build()} time if either the environment
-     * variable with key {@code AWS_XRAY_CONTEXT_MISSING} or system property with key {@code com.amazonaws.xray.strategy.contextMissingStrategy} are set to a valid value.
+     * Prepares this builder to build an instance of {@code AWSXRayRecorder} with the provided context missing strategy. This
+     * value will be overriden at {@code build()} time if either the environment variable with key
+     * {@code AWS_XRAY_CONTEXT_MISSING} or system property with key {@code com.amazonaws.xray.strategy.contextMissingStrategy} are
+     * set to a valid value.
      *
      * @param contextMissingStrategy
-     *            the context missing strategy to be used if both the environment variable with key {@code AWS_XRAY_CONTEXT_MISSING} or system property with key {@code com.amazonaws.xray.strategy.contextMissingStrategy} are not set to a valid value
+     *            the context missing strategy to be used if both the environment variable with key
+     *            {@code AWS_XRAY_CONTEXT_MISSING} or system property with key
+     *            {@code com.amazonaws.xray.strategy.contextMissingStrategy} are not set to a valid value
      * @return
      *            the builder instance, for chaining
      * @see ContextMissingStrategy
@@ -171,8 +195,8 @@ public class AWSXRayRecorderBuilder {
     }
 
     /**
-     * Adds all implemented plugins to the builder instance rather than requiring them to be individually added. The recorder will only reflect metadata from
-     * plugins that are enabled, which is checked in the build method below.
+     * Adds all implemented plugins to the builder instance rather than requiring them to be individually added. The recorder will
+     * only reflect metadata from plugins that are enabled, which is checked in the build method below.
      *
      * @return
      * The builder instance, for chaining
@@ -205,7 +229,9 @@ public class AWSXRayRecorderBuilder {
         if (null != throwableSerializationStrategy) {
             client.setThrowableSerializationStrategy(throwableSerializationStrategy);
         }
-        if (null != contextMissingStrategy && !AWSXRayRecorderBuilder.contextMissingStrategyFromEnvironmentVariable().isPresent() && !AWSXRayRecorderBuilder.contextMissingStrategyFromSystemProperty().isPresent()) {
+        if (null != contextMissingStrategy &&
+            !AWSXRayRecorderBuilder.contextMissingStrategyFromEnvironmentVariable().isPresent() &&
+            !AWSXRayRecorderBuilder.contextMissingStrategyFromSystemProperty().isPresent()) {
             client.setContextMissingStrategy(contextMissingStrategy);
         }
         if (null != segmentContextResolverChain) {
@@ -229,31 +255,36 @@ public class AWSXRayRecorderBuilder {
                     client.putRuntimeContext(plugin.getServiceName(), runtimeContext);
 
                     /**
-                     * Given several enabled plugins, the recorder should resolve a single one that's most representative of this environment
+                     * Given several enabled plugins, the recorder should resolve a single one that's most representative of this
+                     * environment
                      * Resolution order: EB > EKS > ECS > EC2
-                     * EKS > ECS because the ECS plugin checks for an environment variable whereas the EKS plugin checks for a kubernetes authentication file, which is a stronger enable condition
+                     * EKS > ECS because the ECS plugin checks for an environment variable whereas the EKS plugin checks for a
+                     * kubernetes authentication file, which is a stronger enable condition
                      */
-                    if (client.getOrigin() == null || originPriority.get(plugin.getOrigin()) < originPriority.get(client.getOrigin())) {
+                    if (client.getOrigin() == null ||
+                        ORIGIN_PRIORITY.get(plugin.getOrigin()) < ORIGIN_PRIORITY.get(client.getOrigin())) {
                         client.setOrigin(plugin.getOrigin());
                     }
                 } else {
-                    logger.warn(plugin.getClass().getName() + " plugin returned empty runtime context data. The recorder will not be setting segment origin or runtime context values from this plugin.");
+                    logger.warn(plugin.getClass().getName() + " plugin returned empty runtime context data. The recorder will "
+                                + "not be setting segment origin or runtime context values from this plugin.");
                 }
             } catch (Exception e) {
-                logger.warn("Failed to get runtime context from "+plugin.getClass().getName()+".", e);
+                logger.warn("Failed to get runtime context from " + plugin.getClass().getName() + ".", e);
             }
 
             try {
                 Set<AWSLogReference> logReferences = plugin.getLogReferences();
-                if(Objects.nonNull(logReferences)) {
+                if (Objects.nonNull(logReferences)) {
                     if (!logReferences.isEmpty()) {
                         client.addAllLogReferences(logReferences);
                     } else {
-                        logger.warn(plugin.getClass().getName() + " plugin returned empty Log References. The recorder will not reflect the logs from this plugin.");
+                        logger.warn(plugin.getClass().getName() + " plugin returned empty Log References. The recorder will not "
+                                    + "reflect the logs from this plugin.");
                     }
                 }
             } catch (Exception e) {
-                logger.warn("Failed to get log references from "+plugin.getClass().getName()+".", e);
+                logger.warn("Failed to get log references from " + plugin.getClass().getName() + ".", e);
             }
         });
 

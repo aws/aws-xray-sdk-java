@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.strategy.sampling.manifest;
 
 import com.amazonaws.services.xray.model.SamplingRule;
@@ -5,16 +20,15 @@ import com.amazonaws.services.xray.model.SamplingStatisticsDocument;
 import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import com.amazonaws.xray.strategy.sampling.rand.RandImpl;
 import com.amazonaws.xray.strategy.sampling.rule.CentralizedRule;
-import org.junit.Assert;
-import org.junit.Test;
-import org.powermock.reflect.Whitebox;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.Assert;
+import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 
 public class CentralizedManifestTest {
 
@@ -64,28 +78,28 @@ public class CentralizedManifestTest {
         CentralizedManifest manifest = new CentralizedManifest();
 
         SamplingRule r1 = new SamplingRule()
-                .withRuleName("r1")
-                .withPriority(10)
-                .withReservoirSize(20)
-                .withFixedRate(0.05)
-                .withHost("*")
-                .withServiceName("*")
-                .withHTTPMethod("*")
-                .withURLPath("*")
-                .withResourceARN("*")
-                .withServiceType("*");
+            .withRuleName("r1")
+            .withPriority(10)
+            .withReservoirSize(20)
+            .withFixedRate(0.05)
+            .withHost("*")
+            .withServiceName("*")
+            .withHTTPMethod("*")
+            .withURLPath("*")
+            .withResourceARN("*")
+            .withServiceType("*");
 
         manifest.putRules(Arrays.asList(r1), now);
 
         SamplingRequest req = new SamplingRequest(
-                "privileged",
-                "resourceARN",
-                "service",
-                "host",
-                "method",
-                "url",
-                "serviceType",
-                null
+            "privileged",
+            "resourceARN",
+            "service",
+            "host",
+            "method",
+            "url",
+            "serviceType",
+            null
         );
 
         Assert.assertEquals("r1", manifest.match(req, now).sample(now).getRuleName().get());
@@ -98,22 +112,22 @@ public class CentralizedManifestTest {
         CentralizedManifest manifest = new CentralizedManifest();
 
         SamplingRule r2 = new SamplingRule()
-                .withRuleName(CentralizedRule.DEFAULT_RULE_NAME)
-                .withReservoirSize(20)
-                .withFixedRate(0.05);
+            .withRuleName(CentralizedRule.DEFAULT_RULE_NAME)
+            .withReservoirSize(20)
+            .withFixedRate(0.05);
 
         manifest.putRules(Arrays.asList(rule("r1"), r2), now);
 
         // Request that matches against the default rule
         SamplingRequest req = new SamplingRequest(
-                "privileged",
-                "resourceARN",
-                "service",
-                "host",
-                "method",
-                "url",
-                "serviceType",
-                null
+            "privileged",
+            "resourceARN",
+            "service",
+            "host",
+            "method",
+            "url",
+            "serviceType",
+            null
         );
 
         Assert.assertEquals(CentralizedRule.DEFAULT_RULE_NAME, manifest.match(req, now).sample(now).getRuleName().get());
@@ -127,28 +141,28 @@ public class CentralizedManifestTest {
 
         // Liberal sampling rule
         SamplingRule r1 = new SamplingRule()
-                .withRuleName("r1")
-                .withPriority(10)
-                .withReservoirSize(20)
-                .withFixedRate(0.05)
-                .withHost("*")
-                .withServiceName("*")
-                .withHTTPMethod("*")
-                .withURLPath("*")
-                .withResourceARN("*")
-                .withServiceType("*");
+            .withRuleName("r1")
+            .withPriority(10)
+            .withReservoirSize(20)
+            .withFixedRate(0.05)
+            .withHost("*")
+            .withServiceName("*")
+            .withHTTPMethod("*")
+            .withURLPath("*")
+            .withResourceARN("*")
+            .withServiceType("*");
 
         manifest.putRules(Arrays.asList(r1), now);
 
         SamplingRequest req = new SamplingRequest(
-                "privileged",
-                "resourceARN",
-                "service",
-                "host",
-                "method",
-                "url",
-                "serviceType",
-                null
+            "privileged",
+            "resourceARN",
+            "service",
+            "host",
+            "method",
+            "url",
+            "serviceType",
+            null
         );
 
         Assert.assertEquals("r1", manifest.match(req, now).sample(now).getRuleName().get());
@@ -211,9 +225,9 @@ public class CentralizedManifestTest {
         CentralizedManifest m = new CentralizedManifest();
 
         SamplingRule r2 = new SamplingRule()
-                .withRuleName(CentralizedRule.DEFAULT_RULE_NAME)
-                .withReservoirSize(20)
-                .withFixedRate(0.05);
+            .withRuleName(CentralizedRule.DEFAULT_RULE_NAME)
+            .withReservoirSize(20)
+            .withFixedRate(0.05);
 
         m.putRules(Arrays.asList(rule("r1"), r2), Instant.now());
 
@@ -225,9 +239,9 @@ public class CentralizedManifestTest {
         CentralizedManifest m = new CentralizedManifest();
 
         SamplingRule r1 = new SamplingRule()
-                .withRuleName(CentralizedRule.DEFAULT_RULE_NAME)
-                .withReservoirSize(20)
-                .withFixedRate(0.05);
+            .withRuleName(CentralizedRule.DEFAULT_RULE_NAME)
+            .withReservoirSize(20)
+            .withFixedRate(0.05);
 
         m.putRules(Arrays.asList(r1), Instant.now());
 
@@ -240,9 +254,9 @@ public class CentralizedManifestTest {
 
         CentralizedManifest m = new CentralizedManifest();
         m.putRules(Arrays.asList(
-                rule("r1"),
-                rule("r2"),
-                rule(CentralizedRule.DEFAULT_RULE_NAME)
+            rule("r1"),
+            rule("r2"),
+            rule(CentralizedRule.DEFAULT_RULE_NAME)
         ), now);
 
         Map<String, CentralizedRule> rules = Whitebox.getInternalState(m, "rules", CentralizedManifest.class);
@@ -262,8 +276,8 @@ public class CentralizedManifestTest {
 
         CentralizedManifest m = new CentralizedManifest();
         m.putRules(Arrays.asList(
-                rule("r1"),
-                rule("r2")
+            rule("r1"),
+            rule("r2")
         ), now);
 
         Map<String, CentralizedRule> rules = Whitebox.getInternalState(m, "rules", CentralizedManifest.class);
@@ -299,18 +313,18 @@ public class CentralizedManifestTest {
     }
 
     private SamplingRule rule(String ruleName) {
-         SamplingRule r = new SamplingRule()
-                .withRuleName(ruleName)
-                .withPriority(10)
-                .withReservoirSize(20)
-                .withFixedRate(0.05)
-                .withHost("*")
-                .withServiceName("s2")
-                .withHTTPMethod("POST")
-                .withURLPath("/foo")
-                .withResourceARN("arn2");
+        SamplingRule r = new SamplingRule()
+            .withRuleName(ruleName)
+            .withPriority(10)
+            .withReservoirSize(20)
+            .withFixedRate(0.05)
+            .withHost("*")
+            .withServiceName("s2")
+            .withHTTPMethod("POST")
+            .withURLPath("/foo")
+            .withResourceARN("arn2");
 
-         return r;
+        return r;
     }
 
 }

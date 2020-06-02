@@ -1,12 +1,26 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.metrics;
 
 import com.amazonaws.xray.entities.FacadeSegment;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.listeners.SegmentListener;
+import java.net.SocketException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.net.SocketException;
 
 /**
  * Listener that extracts metrics from Segments and emits them to CloudWatch using a structured log mechanism.
@@ -26,7 +40,7 @@ public class MetricsSegmentListener implements SegmentListener {
     public MetricsSegmentListener() {
         String awsEnv = System.getenv(AWS_EXECUTION_ENV_NAME);
         try {
-            if(awsEnv != null && awsEnv.contains(AWS_LAMBDA_PREFIX)) {
+            if (awsEnv != null && awsEnv.contains(AWS_LAMBDA_PREFIX)) {
                 // Metrics are not supported on Lambda as the root Segment is managed by Lambda and not this SDK.
                 logger.info("Metric emissions is not supported on Lambda.");
             } else {
@@ -41,7 +55,7 @@ public class MetricsSegmentListener implements SegmentListener {
 
     @Override
     public void afterEndSegment(final Segment segment) {
-        if(segment != null && !(segment instanceof FacadeSegment)) {
+        if (segment != null && !(segment instanceof FacadeSegment)) {
             emitter.emitMetric(segment);
         }
     }

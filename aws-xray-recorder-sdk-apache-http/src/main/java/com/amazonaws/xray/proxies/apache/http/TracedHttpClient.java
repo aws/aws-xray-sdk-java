@@ -1,11 +1,32 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.proxies.apache.http;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.entities.Namespace;
+import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.entities.TraceHeader;
+import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.ClientProtocolException;
@@ -17,14 +38,6 @@ import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
-
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.entities.Namespace;
-import com.amazonaws.xray.entities.Segment;
-import com.amazonaws.xray.entities.Subsegment;
-import com.amazonaws.xray.entities.TraceHeader;
-import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 
 @SuppressWarnings("deprecation")
 public class TracedHttpClient extends CloseableHttpClient {
@@ -63,12 +76,12 @@ public class TracedHttpClient extends CloseableHttpClient {
         // Otherwise, the null target is detected in the director.
         HttpHost target = null;
 
-        final URI requestURI = request.getURI();
-        if (requestURI.isAbsolute()) {
-            target = URIUtils.extractHost(requestURI);
+        final URI requestUri = request.getURI();
+        if (requestUri.isAbsolute()) {
+            target = URIUtils.extractHost(requestUri);
             if (target == null) {
                 throw new ClientProtocolException("URI does not specify a valid host name: "
-                        + requestURI);
+                        + requestUri);
             }
         }
         return target;
@@ -82,11 +95,11 @@ public class TracedHttpClient extends CloseableHttpClient {
         String uri = request.getRequestLine().getUri();
 
         try {
-            URI requestURI = new URI(uri);
-            if (requestURI.isAbsolute()) {
-                return requestURI.toString();
+            URI requestUri = new URI(uri);
+            if (requestUri.isAbsolute()) {
+                return requestUri.toString();
             }
-        } catch (URISyntaxException ex){
+        } catch (URISyntaxException ex) {
             // Not a valid URI
         }
 
@@ -274,9 +287,11 @@ public class TracedHttpClient extends CloseableHttpClient {
     }
 
     @Override
-    protected CloseableHttpResponse doExecute(HttpHost httpHost, HttpRequest httpRequest, HttpContext httpContext) throws IOException, ClientProtocolException {
-        return wrappedClient.execute(httpHost, httpRequest, httpContext); // gross hack to call the wrappedClient's doExecute...
-                                                                          // see line 67 of Apache's CloseableHttpClient
+    protected CloseableHttpResponse doExecute(
+        HttpHost httpHost, HttpRequest httpRequest, HttpContext httpContext) throws IOException, ClientProtocolException {
+        // gross hack to call the wrappedClient's doExecute...
+        // see line 67 of Apache's CloseableHttpClient
+        return wrappedClient.execute(httpHost, httpRequest, httpContext);
     }
 
 }

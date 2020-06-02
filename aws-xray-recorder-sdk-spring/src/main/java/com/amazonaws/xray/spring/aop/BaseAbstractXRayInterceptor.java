@@ -1,20 +1,34 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.spring.aop;
+
+import static com.amazonaws.xray.AWSXRay.getCurrentSegmentOptional;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.strategy.ContextMissingStrategy;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
-
-import java.util.Map;
-import java.util.Optional;
-
-import static com.amazonaws.xray.AWSXRay.getCurrentSegmentOptional;
 
 
 /**
@@ -52,7 +66,7 @@ public abstract class BaseAbstractXRayInterceptor {
     protected Object processXRayTrace(ProceedingJoinPoint pjp) throws Throwable {
         try {
             Subsegment subsegment = AWSXRay.beginSubsegment(pjp.getSignature().getName());
-            if(subsegment != null) {
+            if (subsegment != null) {
                 subsegment.setMetadata(generateMetadata(pjp, subsegment));
             }
             return XRayInterceptorUtils.conditionalProceed(pjp);

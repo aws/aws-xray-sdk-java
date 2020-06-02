@@ -1,25 +1,49 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.entities;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class TraceHeader {
     public static final String HEADER_KEY = "X-Amzn-Trace-Id";
 
+    private static final String DELIMITER = ";";
+    private static final char EQUALS = '=';
+
+    private static final String ROOT_PREFIX = "Root=";
+    private static final String PARENT_PREFIX = "Parent=";
+    private static final String SAMPLED_PREFIX = "Sampled=";
+    private static final String SELF_PREFIX = "Self=";
+
+    private static final String MALFORMED_ERROR_MESSAGE = "Malformed TraceHeader String input.";
+
     private static final Log logger =
         LogFactory.getLog(TraceHeader.class);
 
-    public static enum SampleDecision {
+    public enum SampleDecision {
         SAMPLED("Sampled=1"), NOT_SAMPLED("Sampled=0"), UNKNOWN(""), REQUESTED("Sampled=?");
 
         private String value;
 
-        private SampleDecision(String value) {
+        SampleDecision(String value) {
             this.value = value;
         }
 
@@ -40,15 +64,24 @@ public class TraceHeader {
         }
     }
 
+    private TraceID rootTraceId;
+    private String parentId;
+    private SampleDecision sampled;
+
+    private Map<String, String> additionalParams = new ConcurrentHashMap<>();
+
     public TraceHeader() {
         this(null, null, SampleDecision.UNKNOWN);
     }
+
     public TraceHeader(TraceID rootTraceId) {
         this(rootTraceId, null, SampleDecision.UNKNOWN);
     }
+
     public TraceHeader(TraceID rootTraceId, String parentId) {
         this(rootTraceId, parentId, SampleDecision.UNKNOWN);
     }
+
     public TraceHeader(TraceID rootTraceId, String parentId, SampleDecision sampled) {
         this.rootTraceId = rootTraceId;
         this.parentId = parentId;
@@ -57,20 +90,6 @@ public class TraceHeader {
             throw new IllegalArgumentException("Sample decision can not be null.");
         }
     }
-
-    private static final String DELIMITER = ";";
-    private static final char EQUALS = '=';
-
-    private static final String ROOT_PREFIX = "Root=";
-    private static final String PARENT_PREFIX = "Parent=";
-    private static final String SAMPLED_PREFIX = "Sampled=";
-    private static final String SELF_PREFIX = "Self=";
-
-    private TraceID rootTraceId;
-    private String parentId;
-    private SampleDecision sampled;
-
-    private Map<String, String> additionalParams = new ConcurrentHashMap<>();
 
     /**
      * Creates a TraceHeader object from a String. Note that this will silently ignore any "Self=" trace ids injected from ALB.
@@ -83,7 +102,7 @@ public class TraceHeader {
         TraceHeader traceHeader = new TraceHeader();
         if (null != string) {
             String[] parts = string.split(";");
-            for(String part : parts) {
+            for (String part : parts) {
                 String trimmedPart = part.trim();
                 String value = valueFromKeyEqualsValue(trimmedPart);
                 if (trimmedPart.startsWith(ROOT_PREFIX)) {
@@ -102,8 +121,6 @@ public class TraceHeader {
         }
         return traceHeader;
     }
-
-    private static String MALFORMED_ERROR_MESSAGE = "Malformed TraceHeader String input.";
 
     private static String keyFromKeyEqualsValue(String keyEqualsValue) {
         int equalsIndex = keyEqualsValue.indexOf(EQUALS);
@@ -142,7 +159,7 @@ public class TraceHeader {
         if (null != sampled) {
             parts.add(sampled.toString());
         }
-        additionalParams.forEach( (key,value) -> {
+        additionalParams.forEach((key, value) -> {
             parts.add(key + EQUALS + value);
         });
         return String.join(DELIMITER, parts);

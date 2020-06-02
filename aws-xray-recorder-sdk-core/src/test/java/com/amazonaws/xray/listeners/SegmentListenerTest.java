@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.listeners;
 
 import com.amazonaws.xray.AWSXRay;
@@ -19,13 +34,19 @@ public class SegmentListenerTest {
         }
 
         @Override
-        public void onBeginSubsegment(Subsegment subsegment) { subsegment.putAnnotation("subAnnotation1", "began"); }
+        public void onBeginSubsegment(Subsegment subsegment) {
+            subsegment.putAnnotation("subAnnotation1", "began");
+        }
 
         @Override
-        public void beforeEndSegment(Segment segment) { segment.putAnnotation("endTest", "isPresent"); }
+        public void beforeEndSegment(Segment segment) {
+            segment.putAnnotation("endTest", "isPresent");
+        }
 
         @Override
-        public void beforeEndSubsegment(Subsegment subsegment) { subsegment.putAnnotation("subAnnotation2", "ended"); }
+        public void beforeEndSubsegment(Subsegment subsegment) {
+            subsegment.putAnnotation("subAnnotation2", "ended");
+        }
     }
 
     class SecondSegmentListener implements SegmentListener {
@@ -33,7 +54,9 @@ public class SegmentListenerTest {
         private int testVal2 = 0;
 
         @Override
-        public void onBeginSegment(Segment segment) { testVal = 1; }
+        public void onBeginSegment(Segment segment) {
+            testVal = 1;
+        }
 
         @Override
         public void beforeEndSegment(Segment segment) {
@@ -43,7 +66,10 @@ public class SegmentListenerTest {
         public int getTestVal() {
             return testVal;
         }
-        public int getTestVal2() { return testVal2; }
+
+        public int getTestVal2() {
+            return testVal2;
+        }
     }
 
     @Before
@@ -53,7 +79,10 @@ public class SegmentListenerTest {
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.any());
         CustomSegmentListener segmentListener = new CustomSegmentListener();
 
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSegmentListener(segmentListener).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard()
+                                                        .withEmitter(blankEmitter)
+                                                        .withSegmentListener(segmentListener)
+                                                        .build());
         AWSXRay.clearTraceEntity();
     }
 
