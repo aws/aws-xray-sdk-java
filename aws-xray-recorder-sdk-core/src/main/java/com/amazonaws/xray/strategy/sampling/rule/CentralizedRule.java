@@ -174,6 +174,7 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
         }
     }
 
+    @Override
     public SamplingResponse sample(Instant now) {
         SamplingResponse res = new SamplingResponse(name);
         double rn = rand.next();
@@ -235,6 +236,7 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
         return res;
     }
 
+    @Override
     public int compareTo(CentralizedRule other) {
         lock.readLock().lock();
         try {

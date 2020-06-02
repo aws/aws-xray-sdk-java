@@ -25,8 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Default implementation of {@code ThrowableSerializationStrategy}.
@@ -34,8 +32,6 @@ import org.apache.commons.logging.LogFactory;
  * classes is provided in the constructor.
  */
 public class DefaultThrowableSerializationStrategy implements ThrowableSerializationStrategy {
-    private static final Log logger =
-        LogFactory.getLog(DefaultThrowableSerializationStrategy.class);
     private static final int DEFAULT_MAX_STACK_TRACE_LENGTH = 50;
     private static Set<Class<? extends Throwable>> DEFAULT_REMOTE_EXCEPTION_CLASSES = new HashSet<>();
 

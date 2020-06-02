@@ -23,11 +23,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,46 +96,46 @@ public class TracingConnectionTest {
 
     @Test
     public void testCreateStatement() throws Exception {
-        assertTrue(connection.createStatement() instanceof Statement);
+        assertTrue(connection.createStatement() != null);
         verify(delegate).createStatement();
 
-        assertTrue(connection.createStatement(2, 3) instanceof Statement);
+        assertTrue(connection.createStatement(2, 3) != null);
         verify(delegate).createStatement(2, 3);
 
-        assertTrue(connection.createStatement(2, 3, 4) instanceof Statement);
+        assertTrue(connection.createStatement(2, 3, 4) != null);
         verify(delegate).createStatement(2, 3, 4);
     }
 
     @Test
     public void testPrepareStatement() throws Exception {
-        assertTrue(connection.prepareStatement("foo") instanceof PreparedStatement);
+        assertTrue(connection.prepareStatement("foo") != null);
         verify(delegate).prepareStatement("foo");
 
-        assertTrue(connection.prepareStatement("foo", 2) instanceof PreparedStatement);
+        assertTrue(connection.prepareStatement("foo", 2) != null);
         verify(delegate).prepareStatement("foo", 2);
 
-        assertTrue(connection.prepareStatement("foo", new int[]{2, 3}) instanceof PreparedStatement);
+        assertTrue(connection.prepareStatement("foo", new int[] {2, 3}) != null);
         verify(delegate).prepareStatement("foo", new int[]{2, 3});
 
-        assertTrue(connection.prepareStatement("foo", new String[]{"bar", "baz"}) instanceof PreparedStatement);
+        assertTrue(connection.prepareStatement("foo", new String[] {"bar", "baz"}) != null);
         verify(delegate).prepareStatement("foo", new String[]{"bar", "baz"});
 
-        assertTrue(connection.prepareStatement("foo", 2, 3) instanceof PreparedStatement);
+        assertTrue(connection.prepareStatement("foo", 2, 3) != null);
         verify(delegate).prepareStatement("foo", 2, 3);
 
-        assertTrue(connection.prepareStatement("foo", 2, 3, 4) instanceof PreparedStatement);
+        assertTrue(connection.prepareStatement("foo", 2, 3, 4) != null);
         verify(delegate).prepareStatement("foo", 2, 3, 4);
     }
 
     @Test
     public void testPrepareCall() throws Exception {
-        assertTrue(connection.prepareCall("foo") instanceof CallableStatement);
+        assertTrue(connection.prepareCall("foo") != null);
         verify(delegate).prepareCall("foo");
 
-        assertTrue(connection.prepareCall("foo", 2, 3) instanceof CallableStatement);
+        assertTrue(connection.prepareCall("foo", 2, 3) != null);
         verify(delegate).prepareCall("foo", 2, 3);
 
-        assertTrue(connection.prepareCall("foo", 2, 3, 4) instanceof CallableStatement);
+        assertTrue(connection.prepareCall("foo", 2, 3, 4) != null);
         verify(delegate).prepareCall("foo", 2, 3, 4);
     }
 }

@@ -100,6 +100,9 @@ public class TracingStatement {
         private static final String DATABASE_VERSION = "database_version";
 
         private final Statement delegate;
+
+        // TODO: https://github.com/aws/aws-xray-sdk-java/issues/28
+        @SuppressWarnings("UnusedVariable")
         private final String sql;
 
         TracingStatementHandler(Statement statement, String sql) {
@@ -107,6 +110,7 @@ public class TracingStatement {
             this.sql = sql;
         }
 
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             Subsegment subsegment = null;
 

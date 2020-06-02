@@ -42,12 +42,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.json.JSONException;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,10 +76,22 @@ public class AWSXRayRecorderTest {
 
     private static final String TRACE_HEADER = "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1";
 
+    private static ExecutorService threadExecutor;
+
     @Rule
     public EnvironmentVariables environmentVariables = new EnvironmentVariables();
     @Rule
     public RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
+
+    @BeforeClass
+    public static void startExecutor() {
+        threadExecutor = Executors.newSingleThreadExecutor();
+    }
+
+    @AfterClass
+    public static void stopExecutor() {
+        threadExecutor.shutdown();
+    }
 
     @Before
     public void setupAWSXRay() {
@@ -155,84 +171,52 @@ public class AWSXRayRecorderTest {
     }
 
     @Test
-    public void testInjectThreadLocalInjectsCurrentSegment() {
+    public void testInjectThreadLocalInjectsCurrentSegment() throws Exception {
         Segment segment = AWSXRay.beginSegment("test");
 
-        Thread thread = new Thread() {
-            public void run() {
-                AWSXRay.injectThreadLocal(segment);
-                Assert.assertEquals(segment, AWSXRay.getThreadLocal());
-            }
-        };
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException ie) {
-            // Ignore
-        }
+        threadExecutor.submit(() -> {
+            AWSXRay.injectThreadLocal(segment);
+            Assert.assertEquals(segment, AWSXRay.getThreadLocal());
+        }).get();
 
         AWSXRay.endSegment();
     }
 
     @Test
-    public void testSetTraceEntityInjectsCurrentSegment() {
+    public void testSetTraceEntityInjectsCurrentSegment() throws Exception {
         Segment segment = AWSXRay.beginSegment("test");
 
-        Thread thread = new Thread() {
-            public void run() {
-                AWSXRay.setTraceEntity(segment);
-                Assert.assertEquals(segment, AWSXRay.getTraceEntity());
-            }
-        };
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException ie) {
-            // Ignore
-        }
+        threadExecutor.submit(() -> {
+            AWSXRay.setTraceEntity(segment);
+            Assert.assertEquals(segment, AWSXRay.getTraceEntity());
+        }).get();
 
         AWSXRay.endSegment();
     }
 
     @Test
-    public void testInjectThreadLocalInjectsCurrentSubsegment() {
+    public void testInjectThreadLocalInjectsCurrentSubsegment() throws Exception {
         AWSXRay.beginSegment("test");
         Subsegment subsegment = AWSXRay.beginSubsegment("test");
 
-        Thread thread = new Thread() {
-            public void run() {
-                AWSXRay.injectThreadLocal(subsegment);
-                Assert.assertEquals(subsegment, AWSXRay.getThreadLocal());
-            }
-        };
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException ie) {
-            // Ignore
-        }
+        threadExecutor.submit(() -> {
+            AWSXRay.injectThreadLocal(subsegment);
+            Assert.assertEquals(subsegment, AWSXRay.getThreadLocal());
+        }).get();
 
         AWSXRay.endSubsegment();
         AWSXRay.endSegment();
     }
 
     @Test
-    public void testSetTraceEntityInjectsCurrentSubsegment() {
+    public void testSetTraceEntityInjectsCurrentSubsegment() throws Exception {
         AWSXRay.beginSegment("test");
         Subsegment subsegment = AWSXRay.beginSubsegment("test");
 
-        Thread thread = new Thread() {
-            public void run() {
-                AWSXRay.setTraceEntity(subsegment);
-                Assert.assertEquals(subsegment, AWSXRay.getThreadLocal());
-            }
-        };
-        thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException ie) {
-            // Ignore
-        }
+        threadExecutor.submit(() -> {
+            AWSXRay.setTraceEntity(subsegment);
+            Assert.assertEquals(subsegment, AWSXRay.getThreadLocal());
+        }).get();
 
         AWSXRay.endSubsegment();
         AWSXRay.endSegment();

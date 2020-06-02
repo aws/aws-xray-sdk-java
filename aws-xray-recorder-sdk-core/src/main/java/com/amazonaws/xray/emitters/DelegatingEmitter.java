@@ -24,7 +24,7 @@ import com.amazonaws.xray.entities.Subsegment;
  * An {@link Emitter} which delegates all calls to another {@link Emitter}.
  * Extend from this class to customize when segments and subsegments are sent.
  *
- * <p>For example, {@code
+ * <pre>{@code
  * class CircuitBreakingEmitter extends DelegatingEmitter {
  *
  *     private final CircuitBreaker circuitBreaker;
@@ -34,7 +34,7 @@ import com.amazonaws.xray.entities.Subsegment;
  *         circuitBreaker = CircuitBreaker.create();
  *     }
  *
- *     @Override
+ *     {@literal @}Override
  *     public boolean sendSegment(Segment segment) {
  *         if (circuitBreaker.isOpen()) {
  *             return super.sendSegment(segment);
@@ -42,7 +42,7 @@ import com.amazonaws.xray.entities.Subsegment;
  *         return false;
  *     }
  * }
- * }
+ * }</pre>
  */
 public class DelegatingEmitter extends Emitter {
 

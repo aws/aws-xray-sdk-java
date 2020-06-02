@@ -93,6 +93,7 @@ public class EC2Plugin implements Plugin {
         runtimeContext.put("ami_id", metadata.get(EC2MetadataFetcher.EC2Metadata.AMI_ID));
     }
 
+    @Override
     public Map<String, Object> getRuntimeContext() {
         populateRuntimeContext();
         return runtimeContext;
@@ -144,6 +145,7 @@ public class EC2Plugin implements Plugin {
      *
      * @return Set of AWS log references used by CloudWatch agent. The ARN of these log references is not available at this time.
      */
+    @Override
     public Set<AWSLogReference> getLogReferences() {
         if (logReferences.isEmpty()) {
             populateLogReferences();

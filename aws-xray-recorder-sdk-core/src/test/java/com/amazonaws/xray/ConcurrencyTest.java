@@ -21,7 +21,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -47,7 +46,7 @@ public class ConcurrencyTest {
         ExecutorService pool = Executors.newFixedThreadPool(10);
         CountDownLatch latch = new CountDownLatch(100);
         for (int i = 0; i < 100; i++) {
-            pool.submit(() -> {
+            pool.execute(() -> {
                 try {
                     AWSXRay.createSegment("Segment", (segment) -> {
                         AWSXRay.createSubsegment("Subsegment", (subsegment) -> {
@@ -63,8 +62,6 @@ public class ConcurrencyTest {
         }
         try {
             latch.await(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Assert.fail("Concurrent segment creation failed.");
         } finally {
             pool.shutdownNow();
         }

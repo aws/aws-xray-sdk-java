@@ -81,6 +81,7 @@ public class ECSPlugin implements Plugin {
         }
     }
 
+    @Override
     public Map<String, Object> getRuntimeContext() {
         populateRuntimeContext();
         return runtimeContext;

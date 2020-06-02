@@ -52,6 +52,7 @@ import org.apache.commons.logging.LogFactory;
 public class EMFMetricFormatter implements MetricFormatter {
 
     private static final Log logger = LogFactory.getLog(EMFMetricFormatter.class);
+
     private static final String EMF_FORMAT = "{\"Timestamp\":%d,\"log_group_name\":\"ServiceMetricsSDK\",\"CloudWatchMetrics\":"
                                            + "[{\"Metrics\":[{\"Name\":\"ErrorRate\",\"Unit\":\"None\"},{\"Name\":\"FaultRate\","
                                            + "\"Unit\":\"None\"},{\"Name\":\"ThrottleRate\",\"Unit\":\"None\"},"
@@ -70,7 +71,7 @@ public class EMFMetricFormatter implements MetricFormatter {
         int okRate = (errorRate + faultRate + throttleRate) > 0 ? 0 : 1;
         double duration = (segment.getEndTime() - segment.getStartTime()) * 1000;
 
-        long endTimeMillis = new Double(segment.getEndTime() * 1000).longValue();
+        long endTimeMillis = (long) (segment.getEndTime() * 1000);
 
         String json = String.format(EMF_FORMAT,
                 endTimeMillis,

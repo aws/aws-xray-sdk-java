@@ -22,6 +22,7 @@ import com.amazonaws.xray.entities.Subsegment;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,7 +81,7 @@ public class UDPEmitter extends Emitter {
         if (logger.isDebugEnabled()) {
             logger.debug(segment.prettySerialize());
         }
-        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(), segment);
+        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(StandardCharsets.UTF_8), segment);
     }
 
     /**
@@ -93,7 +94,8 @@ public class UDPEmitter extends Emitter {
         if (logger.isDebugEnabled()) {
             logger.debug(subsegment.prettyStreamSerialize());
         }
-        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + subsegment.streamSerialize()).getBytes(), subsegment);
+        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + subsegment.streamSerialize()).getBytes(StandardCharsets.UTF_8),
+                        subsegment);
     }
 
     private boolean sendData(byte[] data, Entity entity) {

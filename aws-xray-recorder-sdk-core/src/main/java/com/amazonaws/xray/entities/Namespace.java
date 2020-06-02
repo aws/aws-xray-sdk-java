@@ -18,7 +18,7 @@ package com.amazonaws.xray.entities;
 public enum Namespace {
     REMOTE("remote"), AWS("aws");
 
-    private String value;
+    private final String value;
 
     Namespace(String value) {
         this.value = value;

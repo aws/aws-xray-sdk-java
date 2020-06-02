@@ -180,7 +180,7 @@ public class AWSXRay {
     }
 
     /**
-     * @deprecated use {@link #sendSubsegment()} instead
+     * @deprecated use {@link #sendSubsegment(Subsegment)} instead
      */
     @Deprecated
     public static boolean sendSubegment(Subsegment subsegment) {

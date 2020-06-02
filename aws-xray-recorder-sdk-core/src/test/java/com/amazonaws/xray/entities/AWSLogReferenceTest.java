@@ -16,6 +16,7 @@
 package com.amazonaws.xray.entities;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -50,11 +51,13 @@ public class AWSLogReferenceTest {
         differentGroup.setArn("arn:aws:test");
     }
 
+    // Test case for equals.
+    @SuppressWarnings("SelfEquals")
     @Test
     public void testEqualityPositive() {
-        assertEquals(true, referenceA.equals(referenceB));
-        assertEquals(true, referenceB.equals(referenceA));
-        assertEquals(true, referenceA.equals(referenceA));
+        assertTrue(referenceA.equals(referenceB));
+        assertTrue(referenceB.equals(referenceA));
+        assertTrue(referenceA.equals(referenceA));
     }
 
     @Test

@@ -26,7 +26,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.protocol.HttpContext;
 
-/*
+/**
  * @deprecated Apache 4.3
  *
  * Wraps and overrides {@code org.apache.http.impl.client.DefaultHttpClient}'s execute() methods. Accesses the global recorder

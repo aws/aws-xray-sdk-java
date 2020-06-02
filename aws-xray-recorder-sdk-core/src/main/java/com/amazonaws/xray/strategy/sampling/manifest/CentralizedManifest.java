@@ -30,12 +30,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class CentralizedManifest implements Manifest {
-    private static final Log logger =
-            LogFactory.getLog(CentralizedManifest.class);
 
     private static final long TTL = 3600; // Seconds
 
@@ -73,6 +69,7 @@ public class CentralizedManifest implements Manifest {
         return rules.size();
     }
 
+    @Override
     public Rule match(SamplingRequest req, Instant now) {
         for (CentralizedRule r : rules.values()) {
             if (!r.match(req)) {

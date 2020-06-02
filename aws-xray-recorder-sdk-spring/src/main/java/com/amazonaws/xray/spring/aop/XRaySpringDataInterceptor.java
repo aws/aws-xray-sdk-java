@@ -47,6 +47,8 @@ public class XRaySpringDataInterceptor {
         }
     }
 
+    // TODO(anuraaga): Pretty sure a no-op Pointcut is safe to remove but not sure, magic can be tricky to reason about.
+    @SuppressWarnings("UnusedMethod")
     @Pointcut("execution(public !void java.sql.Statement.execute*(java.lang.String))")
     private void queryExecution() {
     }

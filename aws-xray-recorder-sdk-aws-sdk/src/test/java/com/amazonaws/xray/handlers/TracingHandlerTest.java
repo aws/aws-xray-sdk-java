@@ -24,7 +24,6 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.lambda.model.InvokeRequest;
-import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.sns.AmazonSNS;
@@ -110,7 +109,7 @@ public class TracingHandlerTest {
 
         InvokeRequest request = new InvokeRequest();
         request.setFunctionName("testFunctionName");
-        InvokeResult r = lambda.invoke(request);
+        lambda.invoke(request);
 
         Assert.assertEquals(1, segment.getSubsegments().size());
         Assert.assertEquals("Invoke", segment.getSubsegments().get(0).getAws().get("operation"));
@@ -246,6 +245,6 @@ public class TracingHandlerTest {
         // Test logic
         InvokeRequest request = new InvokeRequest();
         request.setFunctionName("testFunctionName");
-        InvokeResult r = lambda.invoke(request);
+        lambda.invoke(request);
     }
 }

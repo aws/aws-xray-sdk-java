@@ -94,7 +94,8 @@ public abstract class EntityImpl implements Entity {
 
     private String namespace;
 
-    private List<Subsegment> subsegments;
+    // TODO(anuraaga): Check final for other variables, for now this is most important since it's also a lock.
+    private final List<Subsegment> subsegments;
 
     private Cause cause;
     private Map<String, Object> http;
@@ -148,6 +149,8 @@ public abstract class EntityImpl implements Entity {
     // default constructor for Jackson, so it can understand the default values to compare when using the Include.NON_DEFAULT
     // annotation.
     protected EntityImpl() {
+        // TODO(anuraaga): Check this is working as intended, empty lists are currently serialized.
+        subsegments = null;
     }
 
     protected EntityImpl(AWSXRayRecorder creator, String name) {
@@ -342,6 +345,7 @@ public abstract class EntityImpl implements Entity {
     /**
      * @return the creator
      */
+    @Override
     public AWSXRayRecorder getCreator() {
         return creator;
     }
@@ -349,6 +353,7 @@ public abstract class EntityImpl implements Entity {
     /**
      * @param creator the creator to set
      */
+    @Override
     public void setCreator(AWSXRayRecorder creator) {
         checkAlreadyEmitted();
         this.creator = creator;
@@ -404,6 +409,7 @@ public abstract class EntityImpl implements Entity {
 
 
     @JsonIgnore
+    @Override
     public abstract Segment getParentSegment();
 
     @Override

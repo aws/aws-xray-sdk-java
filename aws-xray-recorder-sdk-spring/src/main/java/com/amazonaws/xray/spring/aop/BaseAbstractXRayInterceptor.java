@@ -15,15 +15,9 @@
 
 package com.amazonaws.xray.spring.aop;
 
-import static com.amazonaws.xray.AWSXRay.getCurrentSegmentOptional;
-
 import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
-import com.amazonaws.xray.exceptions.SegmentNotFoundException;
-import com.amazonaws.xray.strategy.ContextMissingStrategy;
 import java.util.Map;
-import java.util.Optional;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -38,20 +32,6 @@ import org.aspectj.lang.annotation.Pointcut;
 public abstract class BaseAbstractXRayInterceptor {
 
     private static final Log logger = LogFactory.getLog(BaseAbstractXRayInterceptor.class);
-
-    private static ContextMissingStrategy getContextMissingStrategy() {
-        return AWSXRay.getGlobalRecorder().getContextMissingStrategy();
-    }
-
-    private static Segment getCurrentSegment() {
-        Optional<Segment> segment = getCurrentSegmentOptional();
-        if (segment.isPresent()) {
-            return segment.get();
-        }
-        ContextMissingStrategy contextMissingStrategy = getContextMissingStrategy();
-        contextMissingStrategy.contextMissing("No segment in progress.", SegmentNotFoundException.class);
-        return null;
-    }
 
     /**
      * @param pjp the proceeding join point
