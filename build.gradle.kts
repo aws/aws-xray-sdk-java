@@ -68,7 +68,7 @@ allprojects {
 
         dependencies {
             add("errorprone", "com.google.errorprone:error_prone_core:2.4.0")
-            if (!JavaVersion.current().isJava9Compatible()) {
+            if (!JavaVersion.current().isJava9Compatible) {
                 add("errorproneJavac", "com.google.errorprone:javac:9+181-r4173-1")
             }
 
