@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -42,6 +43,7 @@ public class TargetPoller {
     private final Clock clock;
     private final ScheduledExecutorService executor;
 
+    @Nullable
     private volatile ScheduledFuture<?> pollFuture;
 
     /**
@@ -74,7 +76,9 @@ public class TargetPoller {
     }
 
     public void shutdown() {
-        pollFuture.cancel(true);
+        if (pollFuture != null) {
+            pollFuture.cancel(true);
+        }
         executor.shutdownNow();
     }
 
