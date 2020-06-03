@@ -186,12 +186,12 @@ public class TracingStatementTest {
 
     @Test
     public void testCaptureRuntimeException() throws Exception {
-        Throwable exception = new RuntimeException("foo");
+        RuntimeException exception = new RuntimeException("foo");
         when(delegate.execute(SQL)).thenThrow(exception);
         try {
             statement.execute(SQL);
             fail("Expected exception is not thrown");
-        } catch (Throwable th) {
+        } catch (RuntimeException th) {
             assertEquals(exception, th);
         } finally {
             assertEquals(exception, AWSXRay.getCurrentSegment().getSubsegments().get(0).getCause().getExceptions().get(0)
@@ -202,12 +202,12 @@ public class TracingStatementTest {
 
     @Test
     public void testCaptureSqlException() throws Exception {
-        Throwable exception = new SQLException("foo");
+        SQLException exception = new SQLException("foo");
         when(delegate.execute(SQL)).thenThrow(exception);
         try {
             statement.execute(SQL);
             fail("Expected exception is not thrown");
-        } catch (Throwable th) {
+        } catch (SQLException th) {
             assertEquals(exception, th);
         } finally {
             assertEquals(exception, AWSXRay.getCurrentSegment().getSubsegments().get(0).getCause().getExceptions().get(0)
@@ -221,12 +221,12 @@ public class TracingStatementTest {
         ContextMissingStrategy oldStrategy = AWSXRay.getGlobalRecorder().getContextMissingStrategy();
         AWSXRay.getGlobalRecorder().setContextMissingStrategy(new IgnoreErrorContextMissingStrategy());
         try {
-            Throwable exception = new RuntimeException("foo");
+            RuntimeException exception = new RuntimeException("foo");
             when(delegate.execute(SQL)).thenThrow(exception);
             try {
                 statement.execute(SQL);
                 fail("Expected exception is not thrown");
-            } catch (Throwable th) {
+            } catch (RuntimeException th) {
                 assertEquals(exception, th);
             }
         } finally {
@@ -239,12 +239,12 @@ public class TracingStatementTest {
         ContextMissingStrategy oldStrategy = AWSXRay.getGlobalRecorder().getContextMissingStrategy();
         AWSXRay.getGlobalRecorder().setContextMissingStrategy(new IgnoreErrorContextMissingStrategy());
         try {
-            Throwable exception = new SQLException("foo");
+            SQLException exception = new SQLException("foo");
             when(delegate.execute(SQL)).thenThrow(exception);
             try {
                 statement.execute(SQL);
                 fail("Expected exception is not thrown");
-            } catch (Throwable th) {
+            } catch (SQLException th) {
                 assertEquals(exception, th);
             }
         } finally {

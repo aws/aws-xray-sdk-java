@@ -36,7 +36,7 @@ import org.mockito.Mockito;
 
 public class CustomSegmentContextTest {
 
-    class GlobalMapSegmentContext implements SegmentContext {
+    static class GlobalMapSegmentContext implements SegmentContext {
 
         private Map<Long, Entity> map = new HashMap<>();
 
@@ -86,7 +86,7 @@ public class CustomSegmentContextTest {
         }
     }
 
-    class GlobalMapSegmentContextResolver implements SegmentContextResolver {
+    static class GlobalMapSegmentContextResolver implements SegmentContextResolver {
 
         private GlobalMapSegmentContext gmsc = new GlobalMapSegmentContext();
 
@@ -121,7 +121,7 @@ public class CustomSegmentContextTest {
 
         List<Integer> list = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
-            list.add(new Integer(i));
+            list.add(i);
         }
 
         list.parallelStream().forEach(e -> {

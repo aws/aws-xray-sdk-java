@@ -19,9 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -61,7 +62,6 @@ public class ContainerInsightsUtil {
     private static final String K8S_URL = "https://kubernetes.default.svc";
     private static final String CI_CONFIGMAP_PATH = "/api/v1/namespaces/amazon-cloudwatch/configmaps/cluster-info";
     private static final String AUTH_HEADER_NAME = "Authorization";
-    private static final String AUTH_HEADER_TEMPLATE = "Bearer %s";
     private static final int HTTP_TIMEOUT = 5;
 
     private static final Log logger = LogFactory.getLog(ContainerInsightsUtil.class);
@@ -116,8 +116,8 @@ public class ContainerInsightsUtil {
         KeyStore k8sTrustStore = getK8sKeystore();
         try {
             if (k8sTrustStore != null) {
-                TrustManagerFactory trustManagerFactory = null;
-                trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                TrustManagerFactory trustManagerFactory =
+                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                 trustManagerFactory.init(k8sTrustStore);
                 TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
                 if (trustManagers != null) {
@@ -187,8 +187,8 @@ public class ContainerInsightsUtil {
 
         try {
             File tokenFile = Paths.get(K8S_CRED_FOLDER, K8S_CRED_TOKEN_SUFFIX).toFile();
-            tokenReader = new BufferedReader(new FileReader(tokenFile));
-            return String.format(AUTH_HEADER_TEMPLATE, tokenReader.readLine());
+            tokenReader = new BufferedReader(new InputStreamReader(new FileInputStream(tokenFile), StandardCharsets.UTF_8));
+            return String.format("Bearer %s", tokenReader.readLine());
         } catch (IOException e) {
             logger.warn("Unable to read K8s credential file.", e);
         } finally {

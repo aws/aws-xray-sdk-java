@@ -105,6 +105,7 @@ public interface Segment extends Entity {
     /**
      * @return the annotations
      */
+    @Override
     Map<String, Object> getAnnotations();
 
     /**

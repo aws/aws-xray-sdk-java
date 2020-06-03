@@ -27,7 +27,9 @@ import java.time.Clock;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -40,6 +42,9 @@ public class TargetPoller {
     private final CentralizedManifest manifest;
     private final Clock clock;
     private final ScheduledExecutorService executor;
+
+    @Nullable
+    private volatile ScheduledFuture<?> pollFuture;
 
     /**
      * @deprecated Use {@link #TargetPoller(UnsignedXrayClient, CentralizedManifest, Clock)}.
@@ -57,7 +62,7 @@ public class TargetPoller {
     }
 
     public void start() {
-        executor.scheduleAtFixedRate(() -> {
+        pollFuture = executor.scheduleAtFixedRate(() -> {
             try {
                 pollManifest();
             } catch (Throwable t) {
@@ -71,6 +76,9 @@ public class TargetPoller {
     }
 
     public void shutdown() {
+        if (pollFuture != null) {
+            pollFuture.cancel(true);
+        }
         executor.shutdownNow();
     }
 

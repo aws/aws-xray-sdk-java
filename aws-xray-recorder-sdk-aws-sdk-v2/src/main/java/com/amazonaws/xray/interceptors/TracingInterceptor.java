@@ -222,7 +222,7 @@ public class TracingInterceptor implements ExecutionInterceptor {
         AWSXRayRecorder recorder = getRecorder();
         Entity origin = recorder.getTraceEntity();
 
-        Subsegment subsegment = recorder.beginSubsegment(executionAttributes.getAttribute((SdkExecutionAttribute.SERVICE_NAME)));
+        Subsegment subsegment = recorder.beginSubsegment(executionAttributes.getAttribute(SdkExecutionAttribute.SERVICE_NAME));
         if (subsegment == null) {
             return;
         }
@@ -277,6 +277,7 @@ public class TracingInterceptor implements ExecutionInterceptor {
         awsProperties.put(EntityDataKeys.AWS.RETRIES_KEY, retryCount + 1);
     }
 
+    @Override
     public void afterExecution(Context.AfterExecution context, ExecutionAttributes executionAttributes) {
         Subsegment subsegment = executionAttributes.getAttribute(entityKey);
         if (subsegment == null) {
@@ -378,13 +379,13 @@ public class TracingInterceptor implements ExecutionInterceptor {
         if (exception != null) {
             requestId = extractRequestIdFromThrowable(exception);
         }
-        if (requestId == null || requestId == UNKNOWN_REQUEST_ID) {
+        if (requestId == null || requestId.equals(UNKNOWN_REQUEST_ID)) {
             requestId = extractRequestIdFromResponse(response);
         }
-        if (requestId == null || requestId == UNKNOWN_REQUEST_ID) {
+        if (requestId == null || requestId.equals(UNKNOWN_REQUEST_ID)) {
             requestId = extractRequestIdFromHttp(httpResponse);
         }
-        if (requestId != null && requestId != UNKNOWN_REQUEST_ID) {
+        if (requestId != null && !requestId.equals(UNKNOWN_REQUEST_ID)) {
             subsegment.putAws(EntityDataKeys.AWS.REQUEST_ID_KEY, requestId);
         }
     }

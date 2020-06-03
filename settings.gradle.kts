@@ -1,6 +1,7 @@
 pluginManagement {
     plugins {
         id("com.github.hierynomus.license") version "0.15.0"
+        id("net.ltgt.errorprone") version "1.2.1"
     }
 }
 

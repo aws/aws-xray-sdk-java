@@ -31,17 +31,20 @@ public interface Subsegment extends Entity {
     /**
      * @return the namespace
      */
+    @Override
     String getNamespace();
 
     /**
      * @param namespace
      *            the namespace to set
      */
+    @Override
     void setNamespace(String namespace);
 
     /**
      * @return the parentSegment
      */
+    @Override
     Segment getParentSegment();
 
     /**

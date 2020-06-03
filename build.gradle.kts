@@ -1,9 +1,13 @@
+import net.ltgt.gradle.errorprone.errorprone
+
 // import nl.javadude.gradle.plugins.license.LicenseExtension
 
+
+plugins {
 // TODO(anuraaga): Enable license check
-// plugins {
 //     id("com.github.hierynomus.license") apply false
-// }
+    id("net.ltgt.errorprone") apply false
+}
 
 allprojects {
     group = "com.amazonaws"
@@ -42,6 +46,7 @@ allprojects {
 
     plugins.withId("java-library") {
         plugins.apply("checkstyle")
+        plugins.apply("net.ltgt.errorprone")
 
         configure<JavaPluginExtension> {
             sourceCompatibility = JavaVersion.VERSION_1_8
@@ -62,6 +67,11 @@ allprojects {
         }
 
         dependencies {
+            add("errorprone", "com.google.errorprone:error_prone_core:2.4.0")
+            if (!JavaVersion.current().isJava9Compatible) {
+                add("errorproneJavac", "com.google.errorprone:javac:9+181-r4173-1")
+            }
+
             configurations.configureEach {
                 if (isCanBeResolved && !isCanBeConsumed) {
                     add(name, platform(project(":dependencyManagement")))
@@ -70,6 +80,39 @@ allprojects {
         }
 
         tasks {
+            withType<JavaCompile> {
+                options.errorprone {
+                    error(
+                            "AssertionFailureIgnored",
+                            "BadInstanceof",
+                            "BoxedPrimitiveConstructor",
+                            "CatchFail",
+                            "DefaultCharset",
+                            "InheritDoc",
+                            "MathAbsoluteRandom",
+                            "MissingOverride",
+                            "UnnecessaryParentheses"
+                    )
+
+                    // TODO(anuraaga): These will improve the Javadoc but punt for now since it's a lot of work and not
+                    // as important as code checks.
+                    disable(
+                            "EmptyBlockTag",
+                            "MissingSummary"
+                    )
+
+                    // TODO(anuraaga): We don't have a dependency on Guava or similar so for now disable this. At least
+                    // hot code paths should not be calling split though and we would probably re-enable it and suppress
+                    // when needed instead.
+                    disable(
+                            "StringSplitter"
+                    )
+
+                    // TODO(anuraaga): We have Date in some APIs, revisit this separately.
+                    disable("JdkObsolete")
+                }
+            }
+
             named<Javadoc>("javadoc") {
                 val options = options as StandardJavadocDocletOptions
 

@@ -92,7 +92,6 @@ public class TracingInterceptor extends JdbcInterceptor {
 
     public Object createStatement(Object proxy, Method method, Object[] args, Object statementObject) {
         try {
-            Object result = null;
             String name = method.getName();
             String sql = null;
             Constructor<?> constructor = null;
@@ -132,8 +131,7 @@ public class TracingInterceptor extends JdbcInterceptor {
             }
 
             logger.debug("Instantiating new statement proxy.");
-            result = constructor.newInstance(new TracingStatementProxy(statementObject, sql, hostname, additionalParams));
-            return result;
+            return constructor.newInstance(new TracingStatementProxy(statementObject, sql, hostname, additionalParams));
         } catch (SQLException | InstantiationException | IllegalAccessException | InvocationTargetException
             | NoSuchMethodException e) {
             logger.warn("Unable to create statement proxy for tracing.", e);
@@ -241,7 +239,7 @@ public class TracingInterceptor extends JdbcInterceptor {
     protected boolean isMemberOf(String[] names, Method method) {
         boolean member = false;
         final String name = method.getName();
-        for (int i = 0; (!member) && i < names.length; i++) {
+        for (int i = 0; !member && i < names.length; i++) {
             member = compare(names[i], name);
         }
         return member;

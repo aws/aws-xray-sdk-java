@@ -15,6 +15,8 @@
 
 package com.amazonaws.xray.javax.servlet;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
@@ -131,8 +133,7 @@ public class AWSXRayServletFilterTest {
         AWSXRayServletFilter servletFilter = new AWSXRayServletFilter("test");
 
         AsyncContext asyncContext = Mockito.mock(AsyncContext.class);
-        AWSXRayRecorder customRecorder = getMockRecorder();
-        Mockito.spy(customRecorder);
+        AWSXRayRecorder customRecorder = Mockito.spy(getMockRecorder());
         AWSXRay.setGlobalRecorder(customRecorder);
 
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
@@ -160,8 +161,7 @@ public class AWSXRayServletFilterTest {
 
     @Test
     public void testServletUsesPassedInRecorder() throws IOException, ServletException {
-        AWSXRayRecorder customRecorder = getMockRecorder();
-        Mockito.spy(customRecorder);
+        AWSXRayRecorder customRecorder = Mockito.spy(getMockRecorder());
         AWSXRayServletFilter servletFilter = new AWSXRayServletFilter(new FixedSegmentNamingStrategy("test"), customRecorder);
 
         AsyncContext asyncContext = Mockito.mock(AsyncContext.class);
@@ -306,11 +306,8 @@ public class AWSXRayServletFilterTest {
         Error ourError = new StackOverflowError("Test");
         Mockito.doThrow(ourError).when(chain).doFilter(Mockito.any(), Mockito.any());
 
-        try {
-            servletFilter.doFilter(request, response, chain);
-        } catch (Error e) {
-            Assert.assertEquals(ourError, e);
-        }
+        assertThatThrownBy(() -> servletFilter.doFilter(request, response, chain)).isEqualTo(ourError);
+
         ArgumentCaptor<Segment> emittedSegment = ArgumentCaptor.forClass(Segment.class);
         Mockito.verify(AWSXRay.getGlobalRecorder().getEmitter(), Mockito.times(1)).sendSegment(emittedSegment.capture());
         Segment segment = emittedSegment.getValue();
@@ -336,11 +333,9 @@ public class AWSXRayServletFilterTest {
         Exception ourException = new RuntimeException("Test");
         Mockito.doThrow(ourException).when(chain).doFilter(Mockito.any(), Mockito.any());
 
-        try {
-            servletFilter.doFilter(request, response, chain);
-        } catch (Exception e) {
-            Assert.assertEquals(ourException, e);
-        }
+
+        assertThatThrownBy(() -> servletFilter.doFilter(request, response, chain)).isEqualTo(ourException);
+
         ArgumentCaptor<Segment> emittedSegment = ArgumentCaptor.forClass(Segment.class);
         Mockito.verify(AWSXRay.getGlobalRecorder().getEmitter(), Mockito.times(1)).sendSegment(emittedSegment.capture());
         Segment segment = emittedSegment.getValue();

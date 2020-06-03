@@ -15,6 +15,8 @@
 
 package com.amazonaws.xray.utils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -25,36 +27,36 @@ public class ByteUtilsTest {
     @Test
     public void testHexString() {
         byte[] zeroArray = new byte[16];
-        assert ByteUtils.byteArrayToHexString(zeroArray).contentEquals("00000000000000000000000000000000");
+        assertThat(ByteUtils.byteArrayToHexString(zeroArray)).isEqualTo("00000000000000000000000000000000");
 
         byte[] emptyArray = {};
-        assert ByteUtils.byteArrayToHexString(emptyArray).contentEquals("");
+        assertThat(ByteUtils.byteArrayToHexString(emptyArray)).isEqualTo("");
 
         byte[] zeroByte = {(byte) 0x00};
-        assert ByteUtils.byteArrayToHexString(zeroByte).contentEquals("00");
+        assertThat(ByteUtils.byteArrayToHexString(zeroByte)).isEqualTo("00");
 
         byte[] fullByte = {(byte) 0xFF};
-        assert ByteUtils.byteArrayToHexString(fullByte).contentEquals("FF");
+        assertThat(ByteUtils.byteArrayToHexString(fullByte)).isEqualTo("FF");
 
         byte[] leadingZero = {(byte) 0x0F};
-        assert ByteUtils.byteArrayToHexString(leadingZero).contentEquals("0F");
+        assertThat(ByteUtils.byteArrayToHexString(leadingZero)).isEqualTo("0F");
 
         byte[] longLeadingZero = {(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x11};
-        assert ByteUtils.byteArrayToHexString(longLeadingZero).contentEquals("00000000000011");
+        assertThat(ByteUtils.byteArrayToHexString(longLeadingZero)).isEqualTo("00000000000011");
 
         byte[] trailingZero = {(byte) 0x11, (byte) 0x00};
-        assert ByteUtils.byteArrayToHexString(trailingZero).contentEquals("1100");
+        assertThat(ByteUtils.byteArrayToHexString(trailingZero)).isEqualTo("1100");
 
         byte[] longTrailingZero = new byte[16];
         longTrailingZero[0] = (byte) 0xFF;
-        assert ByteUtils.byteArrayToHexString(longTrailingZero).contentEquals("FF000000000000000000000000000000");
+        assertThat(ByteUtils.byteArrayToHexString(longTrailingZero)).isEqualTo("FF000000000000000000000000000000");
 
         byte[] basicArray =
             {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0xFF, (byte) 0xF0, (byte) 0x0F, (byte) 0xFF};
-        assert ByteUtils.byteArrayToHexString(basicArray).contentEquals("FFFFFF00FFF00FFF");
+        assertThat(ByteUtils.byteArrayToHexString(basicArray)).isEqualTo("FFFFFF00FFF00FFF");
 
         byte[] basicVariedArray =
             {(byte) 0x82, (byte) 0xF2, (byte) 0xAB, (byte) 0xA4, (byte) 0xDE, (byte) 0x15, (byte) 0x19, (byte) 0x11};
-        assert ByteUtils.byteArrayToHexString(basicVariedArray).contentEquals("82F2ABA4DE151911");
+        assertThat(ByteUtils.byteArrayToHexString(basicVariedArray)).isEqualTo("82F2ABA4DE151911");
     }
 }

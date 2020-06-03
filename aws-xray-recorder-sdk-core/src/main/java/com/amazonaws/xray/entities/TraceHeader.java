@@ -41,7 +41,7 @@ public class TraceHeader {
     public enum SampleDecision {
         SAMPLED("Sampled=1"), NOT_SAMPLED("Sampled=0"), UNKNOWN(""), REQUESTED("Sampled=?");
 
-        private String value;
+        private final String value;
 
         SampleDecision(String value) {
             this.value = value;

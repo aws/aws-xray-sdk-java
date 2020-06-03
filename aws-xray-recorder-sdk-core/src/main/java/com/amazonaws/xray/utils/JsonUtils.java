@@ -65,7 +65,7 @@ public class JsonUtils {
             JsonNode stringNode = field.get(fieldName);
 
             // Check if fieldName is present and a valid string
-            if (stringNode != null && stringNode.textValue() != "") {
+            if (stringNode != null && !stringNode.textValue().isEmpty()) {
                 retList.add(stringNode.textValue());
             }
         });

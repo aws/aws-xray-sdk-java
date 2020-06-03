@@ -17,8 +17,6 @@ package com.amazonaws.xray.proxies.apache.http;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 /**
@@ -26,7 +24,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
  * wrapping the usual CloseableHttpClient result. Uses the global recorder by default, with an option to provide an alternative.
  */
 public class HttpClientBuilder extends org.apache.http.impl.client.HttpClientBuilder {
-    private static final Log logger = LogFactory.getLog(HttpClientBuilder.class);
 
     private AWSXRayRecorder recorder;
 

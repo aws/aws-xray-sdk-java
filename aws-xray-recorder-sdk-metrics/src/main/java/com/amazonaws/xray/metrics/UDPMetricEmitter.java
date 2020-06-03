@@ -22,6 +22,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -58,7 +59,7 @@ public class UDPMetricEmitter implements MetricEmitter {
     public void emitMetric(final Segment segment) {
         String formattedMetric = formatter.formatSegment(segment);
         DatagramPacket packet = new DatagramPacket(sendBuffer, BUFFER_SIZE, address);
-        packet.setData(formattedMetric.getBytes());
+        packet.setData(formattedMetric.getBytes(StandardCharsets.UTF_8));
         try {
             socket.send(packet);
         } catch (IOException e) {

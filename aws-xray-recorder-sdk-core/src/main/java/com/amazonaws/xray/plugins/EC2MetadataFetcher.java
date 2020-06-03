@@ -104,7 +104,7 @@ class EC2MetadataFetcher {
                         parser.skipChildren();
                 }
                 if (result.size() == EC2Metadata.values().length) {
-                    return result;
+                    return Collections.unmodifiableMap(result);
                 }
             }
         } catch (IOException e) {
@@ -114,7 +114,7 @@ class EC2MetadataFetcher {
 
         // Getting here means the document didn't have all the metadata fields we wanted.
         logger.warn("Identity document missing metadata: " + identity);
-        return result;
+        return Collections.unmodifiableMap(result);
     }
 
     private String fetchToken() {

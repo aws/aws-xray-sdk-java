@@ -191,6 +191,7 @@ public class DummySubsegment implements Subsegment {
     /**
      * @return the creator
      */
+    @Override
     public AWSXRayRecorder getCreator() {
         return creator;
     }
@@ -198,6 +199,7 @@ public class DummySubsegment implements Subsegment {
     /**
      * @param creator the creator to set
      */
+    @Override
     public void setCreator(AWSXRayRecorder creator) {
         this.creator = creator;
     }
@@ -302,6 +304,7 @@ public class DummySubsegment implements Subsegment {
         return parentSegment;
     }
 
+    @Override
     public void close() {
     }
 

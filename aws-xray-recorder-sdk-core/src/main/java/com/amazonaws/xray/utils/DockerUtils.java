@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -73,7 +74,7 @@ public class DockerUtils {
             BufferedReader reader = null;
             try {
                 inputStream = new FileInputStream(procFile);
-                reader = new BufferedReader(new InputStreamReader(inputStream));
+                reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
                 String line;
                 do {
                     line = reader.readLine();

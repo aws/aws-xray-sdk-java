@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class SegmentListenerTest {
-    class CustomSegmentListener implements SegmentListener {
+    static class CustomSegmentListener implements SegmentListener {
 
         @Override
         public void onBeginSegment(Segment segment) {
@@ -49,7 +49,7 @@ public class SegmentListenerTest {
         }
     }
 
-    class SecondSegmentListener implements SegmentListener {
+    static class SecondSegmentListener implements SegmentListener {
         private int testVal = 0;
         private int testVal2 = 0;
 

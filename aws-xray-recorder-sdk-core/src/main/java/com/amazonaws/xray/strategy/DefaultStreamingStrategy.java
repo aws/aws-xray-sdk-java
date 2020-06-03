@@ -20,19 +20,14 @@ import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import java.util.ArrayList;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class DefaultStreamingStrategy implements StreamingStrategy {
-    private static final Log logger = LogFactory.getLog(DefaultStreamingStrategy.class);
 
     private static final int DEFAULT_MAX_SEGMENT_SIZE = 100;
 
     private final int maxSegmentSize;
 
     /**
-     * {@inheritDoc}
-     *
      * Constructs an instance of DefaultStreamingStrategy using the default {@code maxSegmentSize} of 100.
      *
      */

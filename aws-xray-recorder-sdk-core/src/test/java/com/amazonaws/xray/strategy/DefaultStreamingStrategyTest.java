@@ -132,7 +132,6 @@ public class DefaultStreamingStrategyTest {
 
     @Test
     public void testMultithreadedStreamSome() {
-        TraceID traceId = new TraceID();
         DefaultStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy(1);
 
         Segment segment = AWSXRay.beginSegment("big");

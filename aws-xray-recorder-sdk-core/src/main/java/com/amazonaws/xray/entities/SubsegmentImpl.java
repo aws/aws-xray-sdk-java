@@ -132,6 +132,7 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
         return ret;
     }
 
+    @Override
     public void close() {
         getCreator().endSubsegment();
     }

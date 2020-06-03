@@ -210,7 +210,7 @@ public class CentralizedRuleTest {
 
         // Assert snapshot contains expected statistics
         Assert.assertEquals("r1", snapshot.getRuleName());
-        Assert.assertEquals(new Date(TimeUnit.SECONDS.toMillis(1500000000)), snapshot.getTimestamp());
+        Assert.assertEquals(TimeUnit.SECONDS.toMillis(1500000000), snapshot.getTimestamp().toInstant().toEpochMilli());
         Assert.assertEquals(1, snapshot.getRequestCount().intValue());
         Assert.assertEquals(1, snapshot.getSampledCount().intValue());
         Assert.assertEquals(0, snapshot.getBorrowCount().intValue());

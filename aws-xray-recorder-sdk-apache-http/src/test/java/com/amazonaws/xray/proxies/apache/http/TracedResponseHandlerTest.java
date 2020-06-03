@@ -81,7 +81,8 @@ public class TracedResponseHandlerTest {
         Assert.assertFalse(subsegment.isThrottle());
     }
 
-    private class NoOpResponseHandler implements ResponseHandler<String> {
+    private static class NoOpResponseHandler implements ResponseHandler<String> {
+        @Override
         public String handleResponse(HttpResponse response) {
             return "no-op";
         }

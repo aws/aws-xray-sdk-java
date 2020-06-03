@@ -37,7 +37,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class BaseAbstractXRayInterceptorTest {
 
-    class ImplementedXRayInterceptor extends BaseAbstractXRayInterceptor {
+    static class ImplementedXRayInterceptor extends BaseAbstractXRayInterceptor {
         @Override
         protected void xrayEnabledClasses() {
         }
