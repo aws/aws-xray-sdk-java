@@ -24,7 +24,6 @@ public class TraceID {
 
     private static final char VERSION = '1';
     private static final char DELIMITER = '-';
-    private static final String HEX_PREFIX = "0x";
 
     private BigInteger number;
     private long startTime;
@@ -39,13 +38,38 @@ public class TraceID {
     }
 
     public static TraceID fromString(String string) {
+        string = string.trim();
         TraceID traceId = new TraceID();
-        String[] parts = string.trim().split(DELIMITER + "");
 
-        if (parts.length >= 3) {
-            traceId.setStartTime(Long.decode(HEX_PREFIX + parts[1]));
-            traceId.setNumber(new BigInteger(parts[2], 16));
+        long startTime = 0;
+        BigInteger number = null;
+
+        int delimiterIndex;
+
+        // Skip version number
+        delimiterIndex = string.indexOf(DELIMITER);
+        if (delimiterIndex < 0) {
+            return traceId;
         }
+
+        int valueStartIndex = delimiterIndex + 1;
+        delimiterIndex = string.indexOf(DELIMITER, valueStartIndex);
+        if (delimiterIndex < 0) {
+            return traceId;
+        } else {
+            startTime = Long.valueOf(string.substring(valueStartIndex, delimiterIndex), 16);
+        }
+
+        valueStartIndex = delimiterIndex + 1;
+        delimiterIndex = string.indexOf(DELIMITER, valueStartIndex);
+        if (delimiterIndex < 0) {
+            // End of string
+            delimiterIndex = string.length();
+        }
+        number = new BigInteger(string.substring(valueStartIndex, delimiterIndex), 16);
+
+        traceId.setStartTime(startTime);
+        traceId.setNumber(number);
 
         return traceId;
     }
