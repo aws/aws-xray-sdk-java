@@ -100,46 +100,44 @@ public class TraceHeader {
      */
     public static TraceHeader fromString(String string) {
         TraceHeader traceHeader = new TraceHeader();
-        if (null != string) {
-            String[] parts = string.split(";");
-            for (String part : parts) {
-                String trimmedPart = part.trim();
-                String value = valueFromKeyEqualsValue(trimmedPart);
-                if (trimmedPart.startsWith(ROOT_PREFIX)) {
-                    traceHeader.setRootTraceId(TraceID.fromString(value));
-                } else if (trimmedPart.startsWith(PARENT_PREFIX)) {
-                    traceHeader.setParentId(value);
-                } else if (trimmedPart.startsWith(SAMPLED_PREFIX)) {
-                    traceHeader.setSampled(SampleDecision.fromString(trimmedPart));
-                } else if (!trimmedPart.startsWith(SELF_PREFIX)) {
-                    String key = keyFromKeyEqualsValue(trimmedPart);
-                    if (null != key && null != value) {
-                        traceHeader.putAdditionalParam(key, value);
-                    }
-                }
+
+        if (string == null) {
+            return traceHeader;
+        }
+
+        int pos = 0;
+        while (pos < string.length()) {
+            int delimiterIndex = string.indexOf(';', pos);
+            final String part;
+            if (delimiterIndex >= 0) {
+                part = string.substring(pos, delimiterIndex);
+                pos = delimiterIndex + 1;
+            } else {
+                // Last part.
+                part = string.substring(pos);
+                pos = string.length();
+            }
+            String trimmedPart = part.trim();
+            int equalsIndex = trimmedPart.indexOf('=');
+            if (equalsIndex < 0) {
+                logger.error(MALFORMED_ERROR_MESSAGE);
+                continue;
+            }
+
+            String value = trimmedPart.substring(equalsIndex + 1);
+
+            if (trimmedPart.startsWith(ROOT_PREFIX)) {
+                traceHeader.setRootTraceId(TraceID.fromString(value));
+            } else if (trimmedPart.startsWith(PARENT_PREFIX)) {
+                traceHeader.setParentId(value);
+            } else if (trimmedPart.startsWith(SAMPLED_PREFIX)) {
+                traceHeader.setSampled(SampleDecision.fromString(trimmedPart));
+            } else if (!trimmedPart.startsWith(SELF_PREFIX)) {
+                String key = trimmedPart.substring(0, equalsIndex);
+                traceHeader.putAdditionalParam(key, value);
             }
         }
         return traceHeader;
-    }
-
-    private static String keyFromKeyEqualsValue(String keyEqualsValue) {
-        int equalsIndex = keyEqualsValue.indexOf(EQUALS);
-        if (-1 != equalsIndex) {
-            return keyEqualsValue.substring(0, equalsIndex);
-        } else {
-            logger.error(MALFORMED_ERROR_MESSAGE);
-            return null;
-        }
-    }
-
-    private static String valueFromKeyEqualsValue(String keyEqualsValue) {
-        int equalsIndex = keyEqualsValue.indexOf(EQUALS);
-        if (-1 != equalsIndex) {
-            return keyEqualsValue.substring(equalsIndex + 1);
-        } else {
-            logger.error(MALFORMED_ERROR_MESSAGE);
-            return null;
-        }
     }
 
     /**
