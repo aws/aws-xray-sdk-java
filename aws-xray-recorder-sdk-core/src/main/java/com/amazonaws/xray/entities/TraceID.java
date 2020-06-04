@@ -41,8 +41,7 @@ public class TraceID {
         string = string.trim();
         TraceID traceId = new TraceID();
 
-        long startTime = 0;
-        BigInteger number = null;
+        long startTime;
 
         int delimiterIndex;
 
@@ -66,10 +65,9 @@ public class TraceID {
             // End of string
             delimiterIndex = string.length();
         }
-        number = new BigInteger(string.substring(valueStartIndex, delimiterIndex), 16);
 
+        traceId.setNumber(new BigInteger(string.substring(valueStartIndex, delimiterIndex), 16));
         traceId.setStartTime(startTime);
-        traceId.setNumber(number);
 
         return traceId;
     }
