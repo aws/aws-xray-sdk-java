@@ -1,11 +1,10 @@
 import net.ltgt.gradle.errorprone.errorprone
 
-// import nl.javadude.gradle.plugins.license.LicenseExtension
+import nl.javadude.gradle.plugins.license.LicenseExtension
 
 
 plugins {
-// TODO(anuraaga): Enable license check
-//     id("com.github.hierynomus.license") apply false
+    id("com.github.hierynomus.license") apply false
     id("net.ltgt.errorprone") apply false
 }
 
@@ -17,32 +16,32 @@ allprojects {
         mavenLocal()
     }
 
-//    plugins.apply("com.github.hierynomus.license")
-//    configure<LicenseExtension> {
-//        header = file("${rootProject.projectDir}/config/license/header.txt")
-//
-//        headerDefinitions {
-//            // Same as SLASHSTAR_STYLE but with newline at end to match published IntelliJ copyright style.
-//            register("JAVA_STYLE") {
-//                // Adds the ending newline.
-//                endLine   = " */\n"
-//
-//                // All other config copied from here
-//                // https://github.com/mycila/license-maven-plugin/blob/bdef2dca8f27af4f3134e03de0aa72d8d0863f99/license-maven-plugin/src/main/java/com/mycila/maven/plugin/license/header/HeaderType.java#L45
-//                firstLine = "/*"
-//                beforeEachLine = " * "
-//                firstLineDetectionPattern = "(\\s|\\t)*/\\*.*$"
-//                lastLineDetectionPattern  = ".*\\*/(\\s|\\t)*$"
-//                allowBlankLines = false
-//                isMultiline = false
-//                padLines = false
-//            }
-//        }
-//
-//        mapping("java", "JAVA_STYLE")
-//
-//        exclude("**/*.json")
-//    }
+    plugins.apply("com.github.hierynomus.license")
+    configure<LicenseExtension> {
+        header = file("${rootProject.projectDir}/config/license/header.txt")
+
+        headerDefinitions {
+            // Same as SLASHSTAR_STYLE but with newline at end to match published IntelliJ copyright style.
+            register("JAVA_STYLE") {
+                // Adds the ending newline.
+                endLine   = " */\n"
+
+                // All other config copied from here
+                // https://github.com/mycila/license-maven-plugin/blob/bdef2dca8f27af4f3134e03de0aa72d8d0863f99/license-maven-plugin/src/main/java/com/mycila/maven/plugin/license/header/HeaderType.java#L45
+                firstLine = "/*"
+                beforeEachLine = " * "
+                firstLineDetectionPattern = "(\\s|\\t)*/\\*.*$"
+                lastLineDetectionPattern  = ".*\\*/(\\s|\\t)*$"
+                allowBlankLines = false
+                isMultiline = false
+                padLines = false
+            }
+        }
+
+        mapping("java", "JAVA_STYLE")
+
+        exclude("**/*.json")
+    }
 
     plugins.withId("java-library") {
         plugins.apply("checkstyle")
