@@ -114,7 +114,7 @@ public class UnsignedXrayClient {
 
         try (OutputStream outputStream = connection.getOutputStream()) {
             OBJECT_MAPPER.writeValue(outputStream, request);
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             throw new XrayClientException("Could not serialize and send request.", e);
         }
 
