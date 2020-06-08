@@ -39,7 +39,7 @@ public class DummySubsegment implements Subsegment {
     private Segment parentSegment;
 
     public DummySubsegment(AWSXRayRecorder creator) {
-        this(creator, new TraceID());
+        this(creator, TraceID.create());
     }
 
     public DummySubsegment(AWSXRayRecorder creator, TraceID traceId) {
