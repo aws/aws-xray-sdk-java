@@ -22,7 +22,7 @@ import java.util.Objects;
 
 public class TraceID {
 
-    private static final char TRACE_ID_LENGTH = 35;
+    private static final int TRACE_ID_LENGTH = 35;
     private static final int TRACE_ID_DELIMITER_INDEX_1 = 1;
     private static final int TRACE_ID_DELIMITER_INDEX_2 = 10;
 
