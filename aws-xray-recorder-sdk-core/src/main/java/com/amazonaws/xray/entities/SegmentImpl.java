@@ -39,7 +39,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
     } // default constructor for jackson
 
     public SegmentImpl(AWSXRayRecorder creator, String name) {
-        this(creator, name, new TraceID());
+        this(creator, name, TraceID.create());
     }
 
     public SegmentImpl(AWSXRayRecorder creator, String name, TraceID traceId) {

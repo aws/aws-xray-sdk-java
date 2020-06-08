@@ -301,7 +301,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         HttpServletRequest httpServletRequest = castServletRequest(request);
         if (null == httpServletRequest) {
             logger.warn("Null value for incoming HttpServletRequest. Beginning DummySegment.");
-            return recorder.beginDummySegment(new TraceID());
+            return recorder.beginDummySegment(TraceID.create());
         }
 
         Optional<TraceHeader> incomingHeader = getTraceHeader(httpServletRequest);
@@ -321,7 +321,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
 
         TraceID traceId = incomingHeader.isPresent() ? incomingHeader.get().getRootTraceId() : null;
         if (null == traceId) {
-            traceId = new TraceID();
+            traceId = TraceID.create();
         }
 
         String parentId = incomingHeader.isPresent() ? incomingHeader.get().getParentId() : null;

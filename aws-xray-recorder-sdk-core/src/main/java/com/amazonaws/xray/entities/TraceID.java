@@ -22,54 +22,77 @@ import java.util.Objects;
 
 public class TraceID {
 
+    private static final int TRACE_ID_LENGTH = 35;
+    private static final int TRACE_ID_DELIMITER_INDEX_1 = 1;
+    private static final int TRACE_ID_DELIMITER_INDEX_2 = 10;
+
     private static final char VERSION = '1';
     private static final char DELIMITER = '-';
 
     private BigInteger number;
     private long startTime;
 
+    /**
+     * @deprecated Use {@link #create()}.
+     */
+    @Deprecated
     public TraceID() {
         this(Instant.now().getEpochSecond());
     }
 
+    /**
+     * @deprecated Use {@link #create()}.
+     */
+    @Deprecated
     public TraceID(long startTime) {
         number = new BigInteger(96, ThreadLocalStorage.getRandom());
         this.startTime = startTime;
     }
 
-    public static TraceID fromString(String string) {
-        string = string.trim();
-        TraceID traceId = new TraceID();
+    private TraceID(long startTime, BigInteger number) {
+        this.startTime = startTime;
+        this.number = number;
+    }
 
-        long startTime;
+    /**
+     * Returns a new {@link TraceID} which represents the start of a new trace.
+     */
+    public static TraceID create() {
+        return new TraceID();
+    }
 
-        int delimiterIndex;
+    /**
+     * Returns the {@link TraceID} parsed out of the {@link String}. If the parse fails, a new {@link TraceID} will be returned,
+     * effectively restarting the trace.
+     */
+    public static TraceID fromString(String xrayTraceId) {
+        xrayTraceId = xrayTraceId.trim();
 
-        // Skip version number
-        delimiterIndex = string.indexOf(DELIMITER);
-        if (delimiterIndex < 0) {
-            return traceId;
+        if (xrayTraceId.length() != TRACE_ID_LENGTH) {
+            return TraceID.create();
         }
 
-        int valueStartIndex = delimiterIndex + 1;
-        delimiterIndex = string.indexOf(DELIMITER, valueStartIndex);
-        if (delimiterIndex < 0) {
-            return traceId;
-        } else {
-            startTime = Long.valueOf(string.substring(valueStartIndex, delimiterIndex), 16);
+        // Check version trace id version
+        if (xrayTraceId.charAt(0) != VERSION) {
+            return TraceID.create();
         }
 
-        valueStartIndex = delimiterIndex + 1;
-        delimiterIndex = string.indexOf(DELIMITER, valueStartIndex);
-        if (delimiterIndex < 0) {
-            // End of string
-            delimiterIndex = string.length();
+        // Check delimiters
+        if (xrayTraceId.charAt(TRACE_ID_DELIMITER_INDEX_1) != DELIMITER
+            || xrayTraceId.charAt(TRACE_ID_DELIMITER_INDEX_2) != DELIMITER) {
+            return TraceID.create();
         }
 
-        traceId.setNumber(new BigInteger(string.substring(valueStartIndex, delimiterIndex), 16));
-        traceId.setStartTime(startTime);
+        String startTimePart = xrayTraceId.substring(TRACE_ID_DELIMITER_INDEX_1 + 1, TRACE_ID_DELIMITER_INDEX_2);
+        String randomPart = xrayTraceId.substring(TRACE_ID_DELIMITER_INDEX_2 + 1, TRACE_ID_LENGTH);
 
-        return traceId;
+        final TraceID result;
+        try {
+            result = new TraceID(Long.valueOf(startTimePart, 16), new BigInteger(randomPart, 16));
+        } catch (NumberFormatException e) {
+            return TraceID.create();
+        }
+        return result;
     }
 
     @Override
@@ -90,7 +113,10 @@ public class TraceID {
 
     /**
      * @param number the number to set
+     *
+     * @deprecated TraceID is effectively immutable and this will be removed
      */
+    @Deprecated
     public void setNumber(BigInteger number) {
         this.number = number;
     }
@@ -104,7 +130,10 @@ public class TraceID {
 
     /**
      * @param startTime the startTime to set
+     *
+     * @deprecated TraceID is effectively immutable and this will be removed
      */
+    @Deprecated
     public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
