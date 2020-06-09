@@ -1,5 +1,37 @@
 # Change Log
 
+## 2.6.0 - 2020-06-10
+- Added calls to X-Ray daemon for rules/targets with a simple JDK-based client
+[PR 145](https://github.com/aws/aws-xray-sdk-java/pull/145)
+- Added a public API for creating Emitter without exposing implementation details
+[PR 146](https://github.com/aws/aws-xray-sdk-java/pull/146)
+- Exposed sampling manifest URL for testing
+[PR 149](https://github.com/aws/aws-xray-sdk-java/pull/149)
+- Added utility executors for context propagation
+[PR 150](https://github.com/aws/aws-xray-sdk-java/pull/150)
+- Modified exception handling in UDPEmitter
+[PR 151](https://github.com/aws/aws-xray-sdk-java/issues/151)
+- Added gradle build configuration
+[PR 153](https://github.com/aws/aws-xray-sdk-java/pull/153)
+- Added more safety in UnsignedXrayClient
+[PR 154](https://github.com/aws/aws-xray-sdk-java/pull/154)
+- Added IMDSv2 Support
+[PR 155](https://github.com/aws/aws-xray-sdk-java/pull/155)
+- Applied checkstyle and prepare for license header check
+[PR 156](https://github.com/aws/aws-xray-sdk-java/pull/156)
+- Added error-prone plugin
+[PR 157](https://github.com/aws/aws-xray-sdk-java/pull/157)
+- Enable license plugin
+[PR 158](https://github.com/aws/aws-xray-sdk-java/pull/158)
+- Avoid String.split when parsing header to reduce garbage generation
+[PR 160](https://github.com/aws/aws-xray-sdk-java/pull/160)
+- Modified support for allocate new traceID when traceID parse fail
+[PR 161](https://github.com/aws/aws-xray-sdk-java/pull/161)
+- Use singleton SecureRandom
+[PR 162](https://github.com/aws/aws-xray-sdk-java/pull/162)
+- Update JMH version
+[PR 164](https://github.com/aws/aws-xray-sdk-java/pull/164)
+
 ## 2.5.0 - 2020-05-11
 - Added Spring interceptor without Spring data dependency
 [PR 115](https://github.com/aws/aws-xray-sdk-java/pull/115)
