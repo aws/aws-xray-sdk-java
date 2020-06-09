@@ -25,6 +25,8 @@ import java.security.SecureRandom;
 @Deprecated
 public class ThreadLocalStorage {
 
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     static class LocalEntity extends ThreadLocal<Entity> {
         @Override
         protected Entity initialValue() {
@@ -32,15 +34,7 @@ public class ThreadLocalStorage {
         }
     }
 
-    static class LocalSecureRandom extends ThreadLocal<SecureRandom> {
-        @Override
-        protected SecureRandom initialValue() {
-            return new SecureRandom();
-        }
-    }
-
     private static final LocalEntity CURRENT_ENTITY = new LocalEntity();
-    private static final LocalSecureRandom CURRENT_RANDOM = new LocalSecureRandom();
 
     public static Entity get() {
         return CURRENT_ENTITY.get();
@@ -63,6 +57,6 @@ public class ThreadLocalStorage {
     }
 
     public static SecureRandom getRandom() {
-        return CURRENT_RANDOM.get();
+        return SECURE_RANDOM;
     }
 }
