@@ -1,11 +1,12 @@
 import net.ltgt.gradle.errorprone.errorprone
 
 import nl.javadude.gradle.plugins.license.LicenseExtension
-
+import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 
 plugins {
     id("com.github.hierynomus.license") apply false
     id("net.ltgt.errorprone") apply false
+    id("org.checkerframework") apply false
 }
 
 allprojects {
@@ -46,6 +47,7 @@ allprojects {
     plugins.withId("java-library") {
         plugins.apply("checkstyle")
         plugins.apply("net.ltgt.errorprone")
+        plugins.apply("org.checkerframework")
 
         configure<JavaPluginExtension> {
             sourceCompatibility = JavaVersion.VERSION_1_8
@@ -63,6 +65,10 @@ allprojects {
                     output.dir(mapOf("builtBy" to "generateProperties"), propertiesDir)
                 }
             }
+        }
+
+        configure<CheckerFrameworkExtension> {
+            checkers = listOf("org.checkerframework.checker.nullness.NullnessChecker")
         }
 
         dependencies {
