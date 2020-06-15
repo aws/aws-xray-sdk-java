@@ -81,6 +81,11 @@ allprojects {
         }
 
         dependencies {
+            add("compileOnly", "org.checkerframework:checker-qual:3.4.1")
+            add("testCompileOnly", "org.checkerframework:checker-qual:3.4.1")
+            add("checkerFramework", "org.checkerframework:checker:3.4.1")
+
+
             add("errorprone", "com.google.errorprone:error_prone_core:2.4.0")
             if (!JavaVersion.current().isJava9Compatible) {
                 add("errorproneJavac", "com.google.errorprone:javac:9+181-r4173-1")
