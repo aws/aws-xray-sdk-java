@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -163,7 +164,7 @@ public class EC2Plugin implements Plugin {
      * Determine equality of plugins using origin to uniquely identify them
      */
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (!(o instanceof Plugin)) { return false; }
         return this.getOrigin().equals(((Plugin) o).getOrigin());
     }

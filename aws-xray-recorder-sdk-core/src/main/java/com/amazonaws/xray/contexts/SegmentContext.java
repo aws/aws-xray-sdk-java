@@ -21,6 +21,7 @@ import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -38,6 +39,7 @@ public interface SegmentContext {
     default void endSegment(AWSXRayRecorder recorder) {
     }
 
+    @Nullable
     default Entity getTraceEntity() {
         return ThreadLocalStorage.get();
     }
@@ -61,6 +63,7 @@ public interface SegmentContext {
         ThreadLocalStorage.clear();
     }
 
+    @Nullable
     Subsegment beginSubsegment(AWSXRayRecorder recorder, String name);
 
     void endSubsegment(AWSXRayRecorder recorder);

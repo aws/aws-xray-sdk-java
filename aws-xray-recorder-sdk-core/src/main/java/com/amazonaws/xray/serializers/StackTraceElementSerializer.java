@@ -30,7 +30,12 @@ public class StackTraceElementSerializer extends JsonSerializer<StackTraceElemen
     public void serialize(
         StackTraceElement element, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("path", element.getFileName());
+        String filename = element.getFileName();
+        if (filename != null) {
+            jsonGenerator.writeStringField("path", filename);
+        } else {
+            jsonGenerator.writeNullField("path");
+        }
         jsonGenerator.writeNumberField("line", element.getLineNumber());
         jsonGenerator.writeStringField("label", element.getClassName() + "." + element.getMethodName());
         jsonGenerator.writeEndObject();

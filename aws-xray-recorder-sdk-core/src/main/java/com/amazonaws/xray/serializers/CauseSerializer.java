@@ -24,8 +24,14 @@ import java.io.IOException;
 
 public class CauseSerializer extends JsonSerializer<Cause> {
 
-    private JsonSerializer<Object> objectSerializer;
+    private final JsonSerializer<Object> objectSerializer;
 
+    /**
+     * @deprecated Use {@link #CauseSerializer(JsonSerializer)}.
+     */
+    @Deprecated
+    // This constructor that is breaking our nullness requirements shouldn't be used and will be deleted.
+    @SuppressWarnings("nullness")
     public CauseSerializer() {
         this(null);
     }
@@ -38,7 +44,7 @@ public class CauseSerializer extends JsonSerializer<Cause> {
     public void serialize(Cause cause, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         if (!cause.getExceptions().isEmpty()) {
             ThrowableDescription first = cause.getExceptions().get(0);
-            if (null == first.getId() && null != first.getCause()) {
+            if (first.getId() == null && first.getCause() != null) {
                 jsonGenerator.writeString(first.getCause());
                 return;
             }
@@ -48,7 +54,7 @@ public class CauseSerializer extends JsonSerializer<Cause> {
 
     @Override
     public boolean isEmpty(SerializerProvider serializerProvider, Cause cause) {
-        return null == cause || (cause.getExceptions().isEmpty() && null == cause.getId() && null == cause.getMessage());
+        return cause == null || (cause.getExceptions().isEmpty() && cause.getId() == null && cause.getMessage() == null);
     }
 
 }

@@ -36,7 +36,7 @@ public class ThreadLocalSegmentContext implements SegmentContext {
     @Override
     public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
         Entity current = getTraceEntity();
-        if (null == current) {
+        if (current == null) {
             recorder.getContextMissingStrategy().contextMissing("Failed to begin subsegment named '" + name
                                                                 + "': segment cannot be found.", SegmentNotFoundException.class);
             return null;
@@ -44,7 +44,7 @@ public class ThreadLocalSegmentContext implements SegmentContext {
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);
         }
-        Segment parentSegment = getTraceEntity().getParentSegment();
+        Segment parentSegment = current.getParentSegment();
         Subsegment subsegment = new SubsegmentImpl(recorder, name, parentSegment);
         subsegment.setParent(current);
         current.addSubsegment(subsegment);

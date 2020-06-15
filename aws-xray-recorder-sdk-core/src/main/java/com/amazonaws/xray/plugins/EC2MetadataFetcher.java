@@ -53,7 +53,7 @@ class EC2MetadataFetcher {
     private final URL tokenUrl;
 
     EC2MetadataFetcher() {
-        this(System.getenv("IMDS_ENDPOINT") != null ? System.getenv("IMDS_ENDPOINT") : DEFAULT_IMDS_ENDPOINT);
+        this(getEndpoint());
     }
 
     EC2MetadataFetcher(String endpoint) {
@@ -196,4 +196,8 @@ class EC2MetadataFetcher {
         }
     }
 
+    private static String getEndpoint() {
+        String endpointFromEnv = System.getenv("IMDS_ENDPOINT");
+        return endpointFromEnv != null ? endpointFromEnv :  DEFAULT_IMDS_ENDPOINT;
+    }
 }

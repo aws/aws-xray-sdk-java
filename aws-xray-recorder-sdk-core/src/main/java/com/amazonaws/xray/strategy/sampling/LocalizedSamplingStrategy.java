@@ -34,8 +34,16 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
     private static final Log logger =
         LogFactory.getLog(LocalizedSamplingStrategy.class);
 
-    private static final URL DEFAULT_RULES =
-        LocalizedSamplingStrategy.class.getResource("/com/amazonaws/xray/strategy/sampling/DefaultSamplingRules.json");
+    private static final URL DEFAULT_RULES;
+    static {
+        URL defaultRules =
+            LocalizedSamplingStrategy.class.getResource("/com/amazonaws/xray/strategy/sampling/DefaultSamplingRules.json");
+        if (defaultRules == null) {
+            throw new IllegalStateException("Could not find DefaultSamplingRules.json on the classpath. This is a packaging bug "
+                                            + "- did you correctly shade this library?");
+        }
+        DEFAULT_RULES = defaultRules;
+    }
 
     private static final ObjectMapper MAPPER =
         new ObjectMapper()

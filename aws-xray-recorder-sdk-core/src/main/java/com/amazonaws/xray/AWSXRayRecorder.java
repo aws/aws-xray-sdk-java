@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -56,8 +57,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 public class AWSXRayRecorder {
 
@@ -70,36 +73,42 @@ public class AWSXRayRecorder {
     private static final String CW_LOGS_KEY = "cloudwatch_logs";
 
 
-    private static Map<String, Object> SDK_VERSION_INFORMATION;
-    private static Map<String, Object> RUNTIME_INFORMATION;
+    private static final Map<String, Object> SDK_VERSION_INFORMATION;
+    private static final Map<String, Object> RUNTIME_INFORMATION;
 
     static {
-        SDK_VERSION_INFORMATION = new HashMap<String, Object>();
-        RUNTIME_INFORMATION = new HashMap<String, Object>();
-        InputStream propertiesStream = AWSXRayRecorder.class.getResourceAsStream(PROPERTIES_LOCATION);
+        Map<String, Object> sdkVersioninformation = new HashMap<>();
+        Map<String, Object> runtimeInformation = new HashMap<>();
+
         Properties properties = new Properties();
-        try {
-            properties.load(propertiesStream);
-        } catch (IOException | IllegalArgumentException | NullPointerException e) {
-            logger.warn("Unable to detect SDK version.", e);
+        InputStream propertiesStream = AWSXRayRecorder.class.getResourceAsStream(PROPERTIES_LOCATION);
+        if (propertiesStream != null) {
+            try {
+                properties.load(propertiesStream);
+            } catch (IOException | IllegalArgumentException e) {
+                logger.warn("Unable to detect SDK version.", e);
+            }
+        } else {
+            logger.warn("SDK properties file not found.");
         }
-        String sdkVersion = DEFAULT_SDK_VERSION;
-        if (null != properties.getProperty(SDK_VERSION_KEY)) {
-            sdkVersion = properties.getProperty(SDK_VERSION_KEY);
-        }
-        SDK_VERSION_INFORMATION.put("sdk", SDK);
-        SDK_VERSION_INFORMATION.put("sdk_version", sdkVersion);
+
+        sdkVersioninformation.put("sdk", SDK);
+        String sdkVersion = properties.getProperty(SDK_VERSION_KEY, DEFAULT_SDK_VERSION);
+        sdkVersioninformation.put("sdk_version", sdkVersion);
 
 
         String javaVersion = System.getProperty("java.version");
-        if (null != javaVersion) {
-            RUNTIME_INFORMATION.put("runtime_version", javaVersion);
+        if (javaVersion != null) {
+            runtimeInformation.put("runtime_version", javaVersion);
         }
 
         String javaVmName = System.getProperty("java.vm.name");
-        if (null != javaVmName) {
-            RUNTIME_INFORMATION.put("runtime", System.getProperty("java.vm.name"));
+        if (javaVmName != null) {
+            runtimeInformation.put("runtime", javaVmName);
         }
+
+        SDK_VERSION_INFORMATION = Collections.unmodifiableMap(sdkVersioninformation);
+        RUNTIME_INFORMATION = Collections.unmodifiableMap(runtimeInformation);
     }
 
     private SamplingStrategy samplingStrategy;
@@ -112,13 +121,13 @@ public class AWSXRayRecorder {
 
     private Emitter emitter;
 
-    private ArrayList<SegmentListener> segmentListeners;
+    private final ArrayList<SegmentListener> segmentListeners;
 
-    private Map<String, Object> awsRuntimeContext;
-    private Map<String, Object> serviceRuntimeContext;
-    private Set<AWSLogReference> logReferences;
+    private final Map<String, Object> awsRuntimeContext;
+    private final Map<String, Object> serviceRuntimeContext;
+    private final Set<AWSLogReference> logReferences;
 
-
+    @MonotonicNonNull
     private String origin;
 
     public AWSXRayRecorder() {
@@ -173,6 +182,7 @@ public class AWSXRayRecorder {
      * @return
      *  true if the segment was emitted succesfully.
      */
+    @Nullable
     public boolean sendSegment(Segment segment) {
         if (segment.isSampled()) {
             return emitter.sendSegment(segment);
@@ -188,6 +198,7 @@ public class AWSXRayRecorder {
      * @return
      *  true if the subsegment was emitted succesfully.
      */
+    @Nullable
     public boolean sendSubsegment(Subsegment subsegment) {
         if (subsegment.getParentSegment().isSampled()) {
             return emitter.sendSubsegment(subsegment);
@@ -207,6 +218,7 @@ public class AWSXRayRecorder {
      *            the function to invoke
      * @return the value returned by the supplied function
      */
+    @Nullable
     public <R> R createSegment(String name, Function<Segment, R> function) {
         Segment segment = beginSegment(name);
         try {
@@ -252,6 +264,7 @@ public class AWSXRayRecorder {
      *            the supplier to invoke
      * @return the value returned by the provided supplier
      */
+    @Nullable
     public <R> R createSegment(String name, Supplier<R> supplier) {
         Segment segment = beginSegment(name);
         try {
@@ -298,6 +311,7 @@ public class AWSXRayRecorder {
      *            the function to invoke
      * @return the value returned by the supplied function
      */
+    @Nullable
     public <R> R createSubsegment(String name, Function<Subsegment, R> function) {
         Subsegment subsegment = beginSubsegment(name);
         try {
@@ -347,6 +361,7 @@ public class AWSXRayRecorder {
      *            the supplier to invoke
      * @return the value returned by the provided supplier
      */
+    @Nullable
     public <R> R createSubsegment(String name, Supplier<R> supplier) {
         Subsegment subsegment = beginSubsegment(name);
         try {
@@ -384,10 +399,12 @@ public class AWSXRayRecorder {
         }
     }
 
+    @Nullable
     public Segment beginSegment(String name) {
         return beginSegment(new SegmentImpl(this, name));
     }
 
+    @Nullable
     public Segment beginSegment(String name, TraceID traceId, String parentId) {
         Segment segment = new SegmentImpl(this, name, traceId);
         segment.setParentId(parentId);
@@ -399,21 +416,25 @@ public class AWSXRayRecorder {
      *
      * @return the newly created {@code DummySegment}.
      */
+    @Nullable
     public Segment beginDummySegment() {
         return beginSegment(new DummySegment(this));
     }
 
+    @Nullable
     public Segment beginDummySegment(String name, TraceID traceId) {
         return beginSegment(new DummySegment(this, name, traceId));
     }
 
+    @Nullable
     public Segment beginDummySegment(TraceID traceId) {
         return beginSegment(new DummySegment(this, traceId));
     }
 
+    @Nullable
     private Segment beginSegment(Segment segment) {
         SegmentContext context = getSegmentContext();
-        if (null == context) {
+        if (context == null) {
             return null;
         }
 
@@ -424,12 +445,12 @@ public class AWSXRayRecorder {
         }
 
         segment.setAws(getAwsRuntimeContext());
-        if (null != getOrigin()) {
-            segment.setOrigin(getOrigin());
+        if (origin != null) {
+            segment.setOrigin(origin);
         }
         segment.putAllService(getServiceRuntimeContext());
 
-        if (null != logReferences && !logReferences.isEmpty()) {
+        if (logReferences != null && !logReferences.isEmpty()) {
             segment.putAws(CW_LOGS_KEY, logReferences);
         }
 
@@ -524,9 +545,10 @@ public class AWSXRayRecorder {
      * @return the newly created subsegment, or {@code null} if {@code contextMissingStrategy} suppresses and no segment is
      * currently in progress
      */
+    @Nullable
     public Subsegment beginSubsegment(String name) {
         SegmentContext context = getSegmentContext();
-        if (null != context) {
+        if (context != null) {
             return segmentContextResolverChain.resolve().beginSubsegment(this, name);
         }
         return null;
@@ -893,13 +915,14 @@ public class AWSXRayRecorder {
      * @return the ID of the {@code Segment} or {@code Subsegment} currently in progress, or {@code null} if
      * {@code contextMissingStrategy} suppresses exceptions and no segment or subsegment is currently in progress
      */
+    @Nullable
     public String currentEntityId() {
         SegmentContext context = getSegmentContext();
-        if (null == context) {
+        if (context == null) {
             return null;
         }
         Entity current = context.getTraceEntity();
-        if (null != current) {
+        if (current != null) {
             return current.getId();
         } else {
             contextMissingStrategy.contextMissing("Failed to get current entity ID: segment or subsegment cannot be found.",
@@ -915,13 +938,14 @@ public class AWSXRayRecorder {
      * @return the trace ID of the {@code Segment} currently in progress, or {@code null} if {@code contextMissingStrategy}
      * suppresses exceptions and no segment or subsegment is currently in progress
      */
+    @Nullable
     public TraceID currentTraceId() {
         SegmentContext context = getSegmentContext();
-        if (null == context) {
+        if (context == null) {
             return null;
         }
         Entity current = context.getTraceEntity();
-        if (null != current) {
+        if (current != null) {
             return current.getParentSegment().getTraceId();
         } else {
             contextMissingStrategy.contextMissing("Failed to get current trace ID: segment cannot be found.",

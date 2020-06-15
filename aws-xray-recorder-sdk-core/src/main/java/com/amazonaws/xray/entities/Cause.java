@@ -38,7 +38,7 @@ public class Cause {
 
     private Collection<String> paths;
 
-    private List<ThrowableDescription> exceptions;
+    private final List<ThrowableDescription> exceptions;
 
     public Cause() {
         //id = Entity.generateId();

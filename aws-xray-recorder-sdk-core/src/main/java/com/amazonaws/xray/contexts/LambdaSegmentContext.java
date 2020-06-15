@@ -54,8 +54,8 @@ public class LambdaSegmentContext implements SegmentContext {
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);
         }
-        if (null == getTraceEntity()) { // First subsgment of a subsegment branch.
-            Segment parentSegment = null;
+        if (getTraceEntity() == null) { // First subsgment of a subsegment branch.
+            final Segment parentSegment;
             if (LambdaSegmentContext.isInitializing(LambdaSegmentContext.getTraceHeaderFromEnvironment())) {
                 logger.warn(LAMBDA_TRACE_HEADER_KEY + " is missing a trace ID, parent ID, or sampling decision. Subsegment "
                             + name + " discarded.");

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -47,9 +48,9 @@ public class EKSPlugin implements Plugin {
     private static final Log logger = LogFactory.getLog(EKSPlugin.class);
 
     private String clusterName;
-    private Map<String, Object> runtimeContext;
-    private Set<AWSLogReference> logReferences;
-    private DockerUtils dockerUtils;
+    private final Map<String, Object> runtimeContext;
+    private final Set<AWSLogReference> logReferences;
+    private final DockerUtils dockerUtils;
 
     public EKSPlugin() {
         this(ContainerInsightsUtil.getClusterName());
@@ -131,19 +132,19 @@ public class EKSPlugin implements Plugin {
         return ORIGIN;
     }
 
-    @Override
     /**
      * Determine equality of plugins using origin to uniquely identify them
      */
-    public boolean equals(Object o) {
+    @Override
+    public boolean equals(@Nullable Object o) {
         if (!(o instanceof Plugin)) { return false; }
         return this.getOrigin().equals(((Plugin) o).getOrigin());
     }
 
-    @Override
     /**
      * Hash plugin object using origin to uniquely identify them
      */
+    @Override
     public int hashCode() {
         return this.getOrigin().hashCode();
     }

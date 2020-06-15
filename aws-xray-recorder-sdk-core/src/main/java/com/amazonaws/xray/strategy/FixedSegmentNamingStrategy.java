@@ -19,24 +19,27 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * @deprecated Use {@link SegmentNamingStrategy#fixed(String)}.
+ */
+@Deprecated
 public class FixedSegmentNamingStrategy implements SegmentNamingStrategy {
     private static final Log logger =
         LogFactory.getLog(FixedSegmentNamingStrategy.class);
 
-    private String fixedName;
+    private final String fixedName;
 
     /**
-     *
-     *
-     * @param fixedName
-     *  the fixed name to use for all segments generated for incoming requests. This will be overriden by the value of the
-     *  {@code AWS_XRAY_TRACING_NAME} environment variable or {@code com.amazonaws.xray.strategy.tracingName} system property,
-     *  if either are set to a non-empty value.
+     * @deprecated Use {@link SegmentNamingStrategy#fixed(String)}.
      */
-    public FixedSegmentNamingStrategy(String fixedName) {
-        this.fixedName = fixedName;
+    // Instance method is called before the class is initialized. This can cause undefined behavior, e.g., if getOverrideName
+    // accesses fixedName. This class doesn't really need to be exposed to users so we suppress for now and will clean up after
+    // hiding.
+    @SuppressWarnings("nullness")
+    @Deprecated
+    public FixedSegmentNamingStrategy(String name) {
         String overrideName = getOverrideName();
-        if (null != overrideName) {
+        if (overrideName != null) {
             this.fixedName = overrideName;
             if (logger.isInfoEnabled()) {
                 logger.info("Environment variable " + NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY + " or system property "
@@ -44,6 +47,8 @@ public class FixedSegmentNamingStrategy implements SegmentNamingStrategy {
                             + " set. Overriding FixedSegmentNamingStrategy constructor argument. Segments generated with this "
                             + "strategy will be named: " + this.fixedName + ".");
             }
+        } else {
+            this.fixedName = name;
         }
     }
 

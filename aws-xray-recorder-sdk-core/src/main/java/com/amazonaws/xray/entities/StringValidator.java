@@ -15,6 +15,8 @@
 
 package com.amazonaws.xray.entities;
 
+import javax.annotation.Nullable;
+
 /**
  * @deprecated For internal use only.
  */
@@ -22,16 +24,16 @@ package com.amazonaws.xray.entities;
 @Deprecated
 public class StringValidator {
 
-    public static boolean isNotNullOrBlank(String string) {
-        return null != string && !string.trim().isEmpty();
+    public static boolean isNotNullOrBlank(@Nullable String string) {
+        return string != null && !string.trim().isEmpty();
     }
 
-    public static boolean isNullOrBlank(String string) {
-        return null == string || string.trim().isEmpty();
+    public static boolean isNullOrBlank(@Nullable String string) {
+        return string == null || string.trim().isEmpty();
     }
 
-    public static void throwIfNullOrBlank(String string, String validationErrorMessage) {
-        if (null == string || string.trim().isEmpty()) {
+    public static void throwIfNullOrBlank(@Nullable String string, String validationErrorMessage) {
+        if (string == null || string.trim().isEmpty()) {
             throw new RuntimeException(validationErrorMessage);
         }
     }

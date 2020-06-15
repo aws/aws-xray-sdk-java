@@ -18,7 +18,7 @@ package com.amazonaws.xray.entities;
 import com.amazonaws.xray.ThreadLocalStorage;
 import java.math.BigInteger;
 import java.time.Instant;
-import java.util.Objects;
+import javax.annotation.Nullable;
 
 public class TraceID {
 
@@ -117,8 +117,10 @@ public class TraceID {
      * @deprecated TraceID is effectively immutable and this will be removed
      */
     @Deprecated
-    public void setNumber(BigInteger number) {
-        this.number = number;
+    public void setNumber(@Nullable BigInteger number) {
+        if (number != null) {
+            this.number = number;
+        }
     }
 
     /**
@@ -147,7 +149,7 @@ public class TraceID {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
@@ -155,6 +157,6 @@ public class TraceID {
             return false;
         }
         TraceID other = (TraceID) obj;
-        return Objects.equals(number, other.number) && startTime == other.startTime;
+        return number.equals(other.number) && startTime == other.startTime;
     }
 }

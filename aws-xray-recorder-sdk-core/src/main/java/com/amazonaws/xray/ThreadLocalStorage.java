@@ -17,6 +17,7 @@ package com.amazonaws.xray;
 
 import com.amazonaws.xray.entities.Entity;
 import java.security.SecureRandom;
+import javax.annotation.Nullable;
 
 /**
  * @deprecated For internal use only.
@@ -36,6 +37,7 @@ public class ThreadLocalStorage {
 
     private static final LocalEntity CURRENT_ENTITY = new LocalEntity();
 
+    @Nullable
     public static Entity get() {
         return CURRENT_ENTITY.get();
     }

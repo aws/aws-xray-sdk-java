@@ -21,12 +21,16 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * @deprecated Use {@link SegmentNamingStrategy#dynamic(String)}.
+ */
+@Deprecated
 public class DynamicSegmentNamingStrategy implements SegmentNamingStrategy {
     private static final Log logger =
         LogFactory.getLog(DynamicSegmentNamingStrategy.class);
 
-    private String recognizedHosts;
-    private String fallbackName;
+    private final String recognizedHosts;
+    private final String fallbackName;
 
     /**
      * Creates an instance of {@code DynamicSegmentNamingStrategy} with the provided {@code fallbackName} and a
@@ -36,7 +40,10 @@ public class DynamicSegmentNamingStrategy implements SegmentNamingStrategy {
      *  the fallback segment name used when no host header is included in the incoming request. This will be overriden by the
      *  value of the {@code AWS_XRAY_TRACING_NAME} environment variable or {@code com.amazonaws.xray.strategy.tracingName} system
      *  property, if either are set to a non-empty value.
+     *
+     * @deprecated Use {@link SegmentNamingStrategy#dynamic(String)}.
      */
+    @Deprecated
     public DynamicSegmentNamingStrategy(String fallbackName) {
         this(fallbackName, "*");
     }
@@ -52,11 +59,17 @@ public class DynamicSegmentNamingStrategy implements SegmentNamingStrategy {
      * @param recognizedHosts
      *  the pattern to match the incoming host header value against. This pattern is compared against the incoming host header
      *  using the {@link com.amazonaws.xray.entities.SearchPattern#wildcardMatch(String, String)} method.
+     *
+     * @deprecated Use {@link SegmentNamingStrategy#dynamic(String, String)}.
      */
+    // Instance method is called before the class is initialized. This can cause undefined behavior, e.g., if getOverrideName
+    // accesses fallbackName. This class doesn't really need to be exposed to users so we suppress for now and will clean up after
+    // hiding.
+    @SuppressWarnings("nullness")
+    @Deprecated
     public DynamicSegmentNamingStrategy(String fallbackName, String recognizedHosts) {
-        this.fallbackName = fallbackName;
         String overrideName = getOverrideName();
-        if (null != overrideName) {
+        if (overrideName != null) {
             this.fallbackName = getOverrideName();
             if (logger.isInfoEnabled()) {
                 logger.info("Environment variable " + NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY + " or system property "
@@ -65,6 +78,8 @@ public class DynamicSegmentNamingStrategy implements SegmentNamingStrategy {
                             + "strategy will be named: " + this.fallbackName
                             + " when the host header is unavilable or does not match the provided recognizedHosts pattern.");
             }
+        } else {
+            this.fallbackName = fallbackName;
         }
 
         this.recognizedHosts = recognizedHosts;

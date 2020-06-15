@@ -25,8 +25,10 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Utility class to get metadata for dockerized containers
@@ -37,6 +39,7 @@ public class DockerUtils {
     private static final String CGROUP_PATH = "/proc/self/cgroup";
     private static final int CONTAINER_ID_LENGTH = 64;
 
+    @MonotonicNonNull
     private URL cgroupLocation;
 
     public DockerUtils() {
@@ -58,10 +61,13 @@ public class DockerUtils {
      * @throws IOException if the file cannot be read
      * @return the untruncated Docker container ID, or null if it can't be read
      */
+    @Nullable
     public String getContainerId() throws IOException {
-        File procFile;
+        if (cgroupLocation == null) {
+            return null;
+        }
 
-        if (cgroupLocation == null) { return null; }
+        final File procFile;
         try {
             procFile = new File(cgroupLocation.toURI());
         } catch (URISyntaxException e) {
@@ -70,11 +76,8 @@ public class DockerUtils {
         }
 
         if (procFile.exists()) {
-            InputStream inputStream = null;
-            BufferedReader reader = null;
-            try {
-                inputStream = new FileInputStream(procFile);
-                reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+            try (InputStream inputStream = new FileInputStream(procFile);
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                 String line;
                 do {
                     line = reader.readLine();
@@ -86,13 +89,6 @@ public class DockerUtils {
                         return line.substring(line.length() - CONTAINER_ID_LENGTH);
                     }
                 } while (line != null);
-            } finally {
-                if (reader != null) {
-                    reader.close();
-                }
-                if (inputStream != null) {
-                    inputStream.close();
-                }
             }
         } else {
             logger.warn("Failed to read container ID because " + cgroupLocation.toString() + " does not exist.");
