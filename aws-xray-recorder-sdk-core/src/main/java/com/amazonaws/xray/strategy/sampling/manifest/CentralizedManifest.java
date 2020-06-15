@@ -30,8 +30,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class CentralizedManifest implements Manifest {
 
@@ -56,6 +56,7 @@ public class CentralizedManifest implements Manifest {
         return rules;
     }
 
+    @Nullable
     public CentralizedRule getDefaultRule() {
         return defaultRule;
     }

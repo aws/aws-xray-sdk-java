@@ -19,6 +19,7 @@ import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import java.util.Map;
 import java.util.concurrent.atomic.LongAdder;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class FacadeSegment extends EntityImpl implements Segment {
 
@@ -31,12 +32,20 @@ public class FacadeSegment extends EntityImpl implements Segment {
 
     protected Map<String, Object> service;
 
-    private boolean sampled;
+    private final boolean sampled;
 
-    public FacadeSegment(AWSXRayRecorder recorder, TraceID traceId, String id, SampleDecision sampleDecision) {
+    // TODO(anuraaga): Refactor the entity relationship. There isn't a great reason to use a type hierarchy for data classes and
+    // it makes the code to hard to reason about e.g., nullness.
+    @SuppressWarnings("nullness")
+    public FacadeSegment(
+        AWSXRayRecorder recorder, @Nullable TraceID traceId, @Nullable String id, @Nullable SampleDecision sampleDecision) {
         super(recorder, "facade");
-        super.setTraceId(traceId);
-        super.setId(id);
+        if (traceId != null) {
+            super.setTraceId(traceId);
+        }
+        if (id != null) {
+            super.setId(id);
+        }
         this.sampled = (SampleDecision.SAMPLED == sampleDecision);
     }
 
@@ -299,7 +308,7 @@ public class FacadeSegment extends EntityImpl implements Segment {
      * @throws UnsupportedOperationException in all cases
      */
     @Override
-    public void setTraceId(TraceID traceId) {
+    public void setTraceId(@Nullable TraceID traceId) {
         throw new UnsupportedOperationException(MUTATION_UNSUPPORTED_MESSAGE);
     }
 
@@ -308,7 +317,7 @@ public class FacadeSegment extends EntityImpl implements Segment {
      * @throws UnsupportedOperationException in all cases
      */
     @Override
-    public void setParentId(String parentId) {
+    public void setParentId(@Nullable String parentId) {
         throw new UnsupportedOperationException(MUTATION_UNSUPPORTED_MESSAGE);
     }
 

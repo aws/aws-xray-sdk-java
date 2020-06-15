@@ -15,6 +15,8 @@
 
 package com.amazonaws.xray.utils;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 @SuppressWarnings("checkstyle:HideUtilityClassConstructor")
 public class ByteUtils {
     static final String HEXES = "0123456789ABCDEF";
@@ -26,6 +28,7 @@ public class ByteUtils {
      * @param raw - Byte array
      * @return String - Hexadecimal representation of the byte array.
      */
+    @Nullable
     public static String byteArrayToHexString(byte[] raw) {
         if (raw == null) {
             return null;

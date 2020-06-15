@@ -17,7 +17,7 @@ package com.amazonaws.xray;
 
 import com.amazonaws.xray.entities.Entity;
 import java.security.SecureRandom;
-import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * @deprecated For internal use only.
@@ -28,8 +28,9 @@ public class ThreadLocalStorage {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-    static class LocalEntity extends ThreadLocal<Entity> {
+    static class LocalEntity extends ThreadLocal<@Nullable Entity> {
         @Override
+        @Nullable
         protected Entity initialValue() {
             return null;
         }
@@ -46,7 +47,7 @@ public class ThreadLocalStorage {
         return CURRENT_ENTITY.get() != null;
     }
 
-    public static void set(Entity entity) {
+    public static void set(@Nullable Entity entity) {
         CURRENT_ENTITY.set(entity);
     }
 

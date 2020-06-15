@@ -44,8 +44,9 @@ public class CauseSerializer extends JsonSerializer<Cause> {
     public void serialize(Cause cause, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         if (!cause.getExceptions().isEmpty()) {
             ThrowableDescription first = cause.getExceptions().get(0);
-            if (first.getId() == null && first.getCause() != null) {
-                jsonGenerator.writeString(first.getCause());
+            String causeDescription = first.getCause();
+            if (first.getId() == null && causeDescription != null) {
+                jsonGenerator.writeString(causeDescription);
                 return;
             }
         } 

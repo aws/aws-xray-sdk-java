@@ -28,9 +28,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A plugin, for use with the {@code AWSXRayRecorderBuilder} class, which will add EC2 instance information to segments generated
@@ -55,7 +55,7 @@ public class EC2Plugin implements Plugin {
     private static final String LINUX_ROOT = "/";
     private static final String LINUX_PATH = "opt/aws/amazon-cloudwatch-agent/etc/log-config.json";
 
-    private final Map<String, Object> runtimeContext;
+    private final Map<String, @Nullable Object> runtimeContext;
 
     private final Set<AWSLogReference> logReferences;
 
@@ -95,7 +95,7 @@ public class EC2Plugin implements Plugin {
     }
 
     @Override
-    public Map<String, Object> getRuntimeContext() {
+    public Map<String, @Nullable Object> getRuntimeContext() {
         populateRuntimeContext();
         return runtimeContext;
     }

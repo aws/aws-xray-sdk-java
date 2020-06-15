@@ -33,15 +33,17 @@ import com.amazonaws.xray.strategy.StreamingStrategy;
 import com.amazonaws.xray.strategy.ThrowableSerializationStrategy;
 import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class AWSXRayRecorderBuilder {
     private static final Log logger =
@@ -50,26 +52,34 @@ public class AWSXRayRecorderBuilder {
     private static final Map<String, Integer> ORIGIN_PRIORITY;
 
     static {
-        ORIGIN_PRIORITY = new HashMap<>();
-        ORIGIN_PRIORITY.put(ElasticBeanstalkPlugin.ORIGIN, 0);
-        ORIGIN_PRIORITY.put(EKSPlugin.ORIGIN, 1);
-        ORIGIN_PRIORITY.put(ECSPlugin.ORIGIN, 2);
-        ORIGIN_PRIORITY.put(EC2Plugin.ORIGIN, 3);
+        HashMap<String, Integer> originPriority = new HashMap<>();
+        originPriority.put(ElasticBeanstalkPlugin.ORIGIN, 0);
+        originPriority.put(EKSPlugin.ORIGIN, 1);
+        originPriority.put(ECSPlugin.ORIGIN, 2);
+        originPriority.put(EC2Plugin.ORIGIN, 3);
+        ORIGIN_PRIORITY = Collections.unmodifiableMap(originPriority);
     }
 
-    private final Collection<Plugin> plugins;
+    private final Set<Plugin> plugins;
+    private final List<SegmentListener> segmentListeners;
 
+    @Nullable
     private SamplingStrategy samplingStrategy;
+    @Nullable
     private StreamingStrategy streamingStrategy;
+    @Nullable
     private PrioritizationStrategy prioritizationStrategy;
+    @Nullable
     private ThrowableSerializationStrategy throwableSerializationStrategy;
+    @Nullable
     private ContextMissingStrategy contextMissingStrategy;
 
+    @Nullable
     private SegmentContextResolverChain segmentContextResolverChain;
 
+    @Nullable
     private Emitter emitter;
 
-    private final Collection<SegmentListener> segmentListeners;
 
     private AWSXRayRecorderBuilder() {
         plugins = new HashSet<>();
@@ -88,8 +98,9 @@ public class AWSXRayRecorderBuilder {
         return getContextMissingStrategy(contextMissingStrategyOverrideValue);
     }
 
-    private static Optional<ContextMissingStrategy> getContextMissingStrategy(String contextMissingStrategyOverrideValue) {
-        if (null != contextMissingStrategyOverrideValue) {
+    private static Optional<ContextMissingStrategy> getContextMissingStrategy(
+        @Nullable String contextMissingStrategyOverrideValue) {
+        if (contextMissingStrategyOverrideValue != null) {
             if (contextMissingStrategyOverrideValue.equalsIgnoreCase(LogErrorContextMissingStrategy.OVERRIDE_VALUE)) {
                 return Optional.of(new LogErrorContextMissingStrategy());
             } else if (contextMissingStrategyOverrideValue.equalsIgnoreCase(RuntimeErrorContextMissingStrategy.OVERRIDE_VALUE)) {
@@ -217,28 +228,29 @@ public class AWSXRayRecorderBuilder {
     public AWSXRayRecorder build() {
         AWSXRayRecorder client = new AWSXRayRecorder();
 
-        if (null != samplingStrategy) {
+        if (samplingStrategy != null) {
             client.setSamplingStrategy(samplingStrategy);
         }
-        if (null != streamingStrategy) {
+        if (streamingStrategy != null) {
             client.setStreamingStrategy(streamingStrategy);
         }
-        if (null != prioritizationStrategy) {
+        if (prioritizationStrategy != null) {
             client.setPrioritizationStrategy(prioritizationStrategy);
         }
-        if (null != throwableSerializationStrategy) {
+        if (throwableSerializationStrategy != null) {
             client.setThrowableSerializationStrategy(throwableSerializationStrategy);
         }
-        if (null != contextMissingStrategy &&
+        ContextMissingStrategy contextMissingStrategy = this.contextMissingStrategy;
+        if (contextMissingStrategy != null &&
             !AWSXRayRecorderBuilder.contextMissingStrategyFromEnvironmentVariable().isPresent() &&
             !AWSXRayRecorderBuilder.contextMissingStrategyFromSystemProperty().isPresent()) {
             client.setContextMissingStrategy(contextMissingStrategy);
         }
-        if (null != segmentContextResolverChain) {
+        if (segmentContextResolverChain != null) {
             client.setSegmentContextResolverChain(segmentContextResolverChain);
         }
 
-        if (null != emitter) {
+        if (emitter != null) {
             client.setEmitter(emitter);
         }
 
@@ -250,7 +262,7 @@ public class AWSXRayRecorderBuilder {
             logger.info("Collecting trace metadata from " + plugin.getClass().getName() + ".");
 
             try {
-                Map<String, Object> runtimeContext = plugin.getRuntimeContext();
+                Map<String, @Nullable Object> runtimeContext = plugin.getRuntimeContext();
                 if (!runtimeContext.isEmpty()) {
                     client.putRuntimeContext(plugin.getServiceName(), runtimeContext);
 
@@ -261,8 +273,10 @@ public class AWSXRayRecorderBuilder {
                      * EKS > ECS because the ECS plugin checks for an environment variable whereas the EKS plugin checks for a
                      * kubernetes authentication file, which is a stronger enable condition
                      */
-                    if (client.getOrigin() == null ||
-                        ORIGIN_PRIORITY.get(plugin.getOrigin()) < ORIGIN_PRIORITY.get(client.getOrigin())) {
+                    String clientOrigin = client.getOrigin();
+                    if (clientOrigin == null ||
+                        ORIGIN_PRIORITY.getOrDefault(plugin.getOrigin(), 0) <
+                        ORIGIN_PRIORITY.getOrDefault(clientOrigin, 0)) {
                         client.setOrigin(plugin.getOrigin());
                     }
                 } else {

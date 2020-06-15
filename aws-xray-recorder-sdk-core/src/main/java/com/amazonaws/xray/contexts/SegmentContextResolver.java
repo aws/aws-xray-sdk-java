@@ -15,6 +15,9 @@
 
 package com.amazonaws.xray.contexts;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 public interface SegmentContextResolver {
+    @Nullable
     SegmentContext resolve();
 }

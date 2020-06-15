@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class DummySegment implements Segment {
     private Cause cause = new Cause();
@@ -229,7 +230,7 @@ public class DummySegment implements Segment {
     }
 
     @Override
-    public void setParentId(String parentId) {
+    public void setParentId(@Nullable String parentId) {
     }
 
     @Override

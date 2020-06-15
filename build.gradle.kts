@@ -69,6 +69,15 @@ allprojects {
 
         configure<CheckerFrameworkExtension> {
             checkers = listOf("org.checkerframework.checker.nullness.NullnessChecker")
+
+            extraJavacArgs = listOf(
+                    "-AsuppressWarnings=type.anno.before.modifier"
+            )
+
+            excludeTests = true
+
+            // TODO(anuraaga): Enable on all projects.
+            skipCheckerFramework = project.name != "aws-xray-recorder-sdk-core"
         }
 
         dependencies {

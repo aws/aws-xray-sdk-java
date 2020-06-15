@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class DaemonConfiguration {
 
@@ -46,16 +47,18 @@ public class DaemonConfiguration {
     @Deprecated
     public InetSocketAddress address = new InetSocketAddress(InetAddress.getLoopbackAddress(), DEFAULT_PORT);
 
+    // TODO(anuraaga): Refactor to make the address initialization not rely on an uninitialized object.
+    @SuppressWarnings("nullness:method.invocation.invalid")
     public DaemonConfiguration() {
         String environmentAddress = System.getenv(DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY);
         String systemAddress = System.getProperty(DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY);
 
         if (setUDPAndTCPAddress(environmentAddress)) {
             logger.info(String.format("Environment variable %s is set. Emitting to daemon on address %s.",
-                                      DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY, getUDPAddress()));
+                                      DAEMON_ADDRESS_ENVIRONMENT_VARIABLE_KEY, getUdpAddress(address)));
         } else if (setUDPAndTCPAddress(systemAddress)) {
             logger.info(String.format("System property %s is set. Emitting to daemon on address %s.",
-                                      DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY, getUDPAddress()));
+                                      DAEMON_ADDRESS_SYSTEM_PROPERTY_KEY, getUdpAddress(address)));
         }
     }
 
@@ -90,11 +93,11 @@ public class DaemonConfiguration {
      *      A notation of '127.0.0.1:2000' or 'tcp:127.0.0.1:2000 udp:127.0.0.2:2001' are both acceptable. The former one means
      *      UDP and TCP are running at the same address.
      */
-    public boolean setUDPAndTCPAddress(String addr) {
+    public boolean setUDPAndTCPAddress(@Nullable String addr) {
         return setUDPAndTCPAddress(addr, true);
     }
 
-    private boolean setUDPAndTCPAddress(String addr, boolean ignoreInvalid) {
+    private boolean setUDPAndTCPAddress(@Nullable String addr, boolean ignoreInvalid) {
         boolean result = false;
         try {
             result = processAddress(addr);
@@ -135,6 +138,10 @@ public class DaemonConfiguration {
     }
 
     public String getUDPAddress() {
+        return getUdpAddress(address);
+    }
+
+    private static String getUdpAddress(InetSocketAddress address) {
         return address.getHostString() + ":" + String.valueOf(address.getPort());
     }
 
@@ -150,7 +157,7 @@ public class DaemonConfiguration {
         return  "http://" + getTCPAddress();
     }
 
-    private boolean processAddress(String addr) {
+    private boolean processAddress(@Nullable String addr) {
         if (StringValidator.isNullOrBlank(addr)) {
             return false;
         }
@@ -177,11 +184,16 @@ public class DaemonConfiguration {
                 return false;
             }
 
-            Map<String, String[]> mapping = new HashMap<String, String[]>();
+            Map<String, String[]> mapping = new HashMap<>();
             mapping.put(part1[0], part1);
             mapping.put(part2[0], part2);
             String[] tcpInfo = mapping.get("tcp");
             String[] udpInfo = mapping.get("udp");
+            if (tcpInfo == null || udpInfo == null) {
+                logger.error("Invalid value for agent address: " + splitStr[0] + " and " + splitStr[1]
+                             + ". Value must be of form \"tcp:ip_address:port udp:ip_address:port\".");
+                return false;
+            }
 
             setTCPAddress(tcpInfo[1] + ":" + tcpInfo[2]);
             setUDPAddress(udpInfo[1] + ":" + udpInfo[2]);

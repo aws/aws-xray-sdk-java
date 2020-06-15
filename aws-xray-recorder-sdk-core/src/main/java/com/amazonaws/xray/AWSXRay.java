@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Static helper class which holds reference to a global client and provides a static interface for invoking methods on the
@@ -57,11 +57,11 @@ public class AWSXRay {
     }
 
     @Nullable
-    public static <R> R createSegment(String name, Function<Segment, R> function) {
+    public static <R> R createSegment(String name, Function<@Nullable Segment, @Nullable R> function) {
         return globalRecorder.createSegment(name, function);
     }
 
-    public static void createSegment(String name, Consumer<Segment> consumer) {
+    public static void createSegment(String name, Consumer<@Nullable Segment> consumer) {
         globalRecorder.createSegment(name, consumer);
     }
 
@@ -75,11 +75,11 @@ public class AWSXRay {
     }
 
     @Nullable
-    public static <R> R createSubsegment(String name, Function<Subsegment, R> function) {
+    public static <R> R createSubsegment(String name, Function<@Nullable Subsegment, @Nullable R> function) {
         return globalRecorder.createSubsegment(name, function);
     }
 
-    public static void createSubsegment(String name, Consumer<Subsegment> consumer) {
+    public static void createSubsegment(String name, Consumer<@Nullable Subsegment> consumer) {
         globalRecorder.createSubsegment(name, consumer);
     }
 
@@ -130,10 +130,12 @@ public class AWSXRay {
         return globalRecorder.currentTraceId();
     }
 
+    @Nullable
     public static String currentFormattedId() {
         return globalRecorder.currentFormattedId();
     }
 
+    @Nullable
     public static Segment getCurrentSegment() {
         return globalRecorder.getCurrentSegment();
     }
@@ -142,6 +144,7 @@ public class AWSXRay {
         return globalRecorder.getCurrentSegmentOptional();
     }
 
+    @Nullable
     public static Subsegment getCurrentSubsegment() {
         return globalRecorder.getCurrentSubsegment();
     }
@@ -162,6 +165,7 @@ public class AWSXRay {
      * @deprecated use {@link #getTraceEntity()} instead
      */
     @Deprecated
+    @Nullable
     public static Entity getThreadLocal() {
         return globalRecorder.getThreadLocal();
     }
@@ -178,6 +182,7 @@ public class AWSXRay {
         globalRecorder.setTraceEntity(entity);
     }
 
+    @Nullable
     public static Entity getTraceEntity() {
         return globalRecorder.getTraceEntity();
     }

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class ThreadLocalSegmentContext implements SegmentContext {
     private static final Log logger =
@@ -34,6 +35,7 @@ public class ThreadLocalSegmentContext implements SegmentContext {
 
 
     @Override
+    @Nullable
     public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
         Entity current = getTraceEntity();
         if (current == null) {

@@ -19,6 +19,7 @@ import com.amazonaws.xray.entities.AWSLogReference;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface Plugin {
 
@@ -40,7 +41,7 @@ public interface Plugin {
         return true;
     }
 
-    Map<String, Object> getRuntimeContext();
+    Map<String, @Nullable Object> getRuntimeContext();
 
     default Set<AWSLogReference> getLogReferences() {
         return Collections.emptySet();

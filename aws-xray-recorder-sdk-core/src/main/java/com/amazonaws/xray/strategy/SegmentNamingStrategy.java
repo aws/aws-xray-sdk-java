@@ -22,6 +22,18 @@ import javax.servlet.http.HttpServletRequest;
 public interface SegmentNamingStrategy {
 
     /**
+     * Environment variable key used to override the default segment name used by implementors of {@code SegmentNamingStrategy}.
+     * Takes precedence over any system property, web.xml configuration value, or constructor value used for a fixed segment name.
+     */
+    String NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY = "AWS_XRAY_TRACING_NAME";
+
+    /**
+     * System property key used to override the default segment name used by implementors of {@code SegmentNamingStrategy}.
+     * Takes precedence over any web.xml configuration value or constructor value used for a fixed segment name.
+     */
+    String NAME_OVERRIDE_SYSTEM_PROPERTY_KEY = "com.amazonaws.xray.strategy.tracingName";
+
+    /**
      * Returns a {@link SegmentNamingStrategy} that assigns the provided {@code name} to all segments generated for incoming
      * requests. This will be ignored and will use the the value of the {@code AWS_XRAY_TRACING_NAME} environment variable or
      * {@code com.amazonaws.xray.strategy.tracingName} system property if set.
@@ -58,18 +70,6 @@ public interface SegmentNamingStrategy {
     static SegmentNamingStrategy dynamic(String fallbackName, String recognizedHosts) {
         return new DynamicSegmentNamingStrategy(fallbackName, recognizedHosts);
     }
-
-    /**
-     * Environment variable key used to override the default segment name used by implementors of {@code SegmentNamingStrategy}.
-     * Takes precedence over any system property, web.xml configuration value, or constructor value used for a fixed segment name.
-     */
-    String NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY = "AWS_XRAY_TRACING_NAME";
-
-    /**
-     * System property key used to override the default segment name used by implementors of {@code SegmentNamingStrategy}.
-     * Takes precedence over any web.xml configuration value or constructor value used for a fixed segment name.
-     */
-    String NAME_OVERRIDE_SYSTEM_PROPERTY_KEY = "com.amazonaws.xray.strategy.tracingName";
 
     String nameForRequest(HttpServletRequest request);
 

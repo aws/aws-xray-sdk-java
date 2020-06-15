@@ -16,6 +16,7 @@
 package com.amazonaws.xray.entities;
 
 import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 
 /**
  * @deprecated For internal use only.
@@ -24,10 +25,12 @@ import javax.annotation.Nullable;
 @Deprecated
 public class StringValidator {
 
+    @EnsuresNonNullIf(expression = "#1", result = true)
     public static boolean isNotNullOrBlank(@Nullable String string) {
         return string != null && !string.trim().isEmpty();
     }
 
+    @EnsuresNonNullIf(expression = "#1", result = false)
     public static boolean isNullOrBlank(@Nullable String string) {
         return string == null || string.trim().isEmpty();
     }

@@ -22,9 +22,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A plugin, for use with the {@code AWSXRayRecorderBuilder} class, which will add Elastic Beanstalk environment information to
@@ -78,12 +78,12 @@ public class ElasticBeanstalkPlugin implements Plugin {
     }
 
     @Override
-    public Map<String, Object> getRuntimeContext() {
+    public Map<String, @Nullable Object> getRuntimeContext() {
         if (runtimeContext.isEmpty()) {
             populateRuntimeContext();
         }
 
-        return runtimeContext;
+        return (Map<String, @Nullable Object>) runtimeContext;
     }
 
     @Override

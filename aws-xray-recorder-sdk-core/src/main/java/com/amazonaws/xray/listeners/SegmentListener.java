@@ -18,6 +18,7 @@ package com.amazonaws.xray.listeners;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * An interface to intercept lifecycle events, namely the beginning and ending, of segments produced by the AWSXRayRecorder.
@@ -101,7 +102,7 @@ public interface SegmentListener {
      * @param previousEntity
      * @param newEntity
      */
-    default void onSetEntity(Entity previousEntity, Entity newEntity) {
+    default void onSetEntity(@Nullable Entity previousEntity, Entity newEntity) {
 
     }
 

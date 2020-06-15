@@ -61,8 +61,6 @@ public class Matchers {
             if (!SearchPattern.wildcardMatch(a.getValue(), requestAttributes.get(a.getKey()))) {
                 return false;
             }
-
-            continue;
         }
 
         // Missing string parameters from the sampling request are replaced with ""s to ensure they match against *

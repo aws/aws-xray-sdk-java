@@ -16,7 +16,7 @@
 package com.amazonaws.xray.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class ThrowableDescription {
     @Nullable
@@ -34,11 +34,16 @@ public class ThrowableDescription {
     private String cause;
     
     @JsonIgnore
+    @Nullable
     private Throwable throwable;
 
+    // TODO(anuraaga): Investigate why stack is not being treated as nullable
+    @SuppressWarnings("nullness:initialization.fields.uninitialized")
     public ThrowableDescription() {
     }
 
+    // TODO(anuraaga): Investigate why stack is not being treated as nullable
+    @SuppressWarnings("nullness:initialization.fields.uninitialized")
     public ThrowableDescription(Throwable throwable) {
         this.throwable = throwable;
     }
@@ -113,7 +118,7 @@ public class ThrowableDescription {
     /**
      * @param stack the stack to set
      */
-    public void setStack(StackTraceElement[] stack) {
+    public void setStack(@Nullable StackTraceElement[] stack) {
         this.stack = stack;
     }
 

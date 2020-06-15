@@ -17,12 +17,17 @@ package com.amazonaws.xray.strategy.sampling.rule;
 
 import com.amazonaws.xray.entities.SearchPattern;
 import com.amazonaws.xray.strategy.sampling.reservoir.Reservoir;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class SamplingRule {
 
+    @Nullable
     private String host;
+    @Nullable
     private String serviceName;
+    @Nullable
     private String httpMethod;
+    @Nullable
     private String urlPath;
     private int fixedTarget = -1;
     private float rate = -1.0f;
@@ -64,6 +69,7 @@ public class SamplingRule {
     /**
      * @return the serviceName
      */
+    @Nullable
     public String getServiceName() {
         return serviceName;
     }
@@ -79,6 +85,7 @@ public class SamplingRule {
     /**
      * @return the host
      */
+    @Nullable
     public String getHost() {
         return host;
     }
@@ -87,13 +94,14 @@ public class SamplingRule {
      * @param host
      *            the host to set
      */
-    public void setHost(String host) {
+    public void setHost(@Nullable String host) {
         this.host = host;
     }
 
     /**
      * @return the httpMethod
      */
+    @Nullable
     public String getHttpMethod() {
         return httpMethod;
     }
@@ -109,6 +117,7 @@ public class SamplingRule {
     /**
      * @return the urlPath
      */
+    @Nullable
     public String getUrlPath() {
         return urlPath;
     }
@@ -179,9 +188,9 @@ public class SamplingRule {
      * @return whether or not this rule applies to the incoming request
      */
     public boolean appliesTo(String requestHost, String requestPath, String requestMethod) {
-        return (null == requestHost || SearchPattern.wildcardMatch(host, requestHost)) &&
-            (null == requestPath || SearchPattern.wildcardMatch(urlPath, requestPath)) &&
-            (null == requestMethod || SearchPattern.wildcardMatch(httpMethod, requestMethod));
+        return (requestHost == null || SearchPattern.wildcardMatch(host, requestHost)) &&
+               (requestPath == null || SearchPattern.wildcardMatch(urlPath, requestPath)) &&
+               (requestMethod == null || SearchPattern.wildcardMatch(httpMethod, requestMethod));
     }
 
 }

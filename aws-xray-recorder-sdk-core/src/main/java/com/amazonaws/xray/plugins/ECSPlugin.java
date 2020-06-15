@@ -21,9 +21,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A plugin, for use with the {@code AWSXRayRecorderBuilder} class, which will add ECS container information to segments generated
@@ -42,7 +42,7 @@ public class ECSPlugin implements Plugin {
     private static final String HTTP_PREFIX = "http://";
     private static final String CONTAINER_ID_KEY = "containerId";
 
-    private final HashMap<String, Object> runtimeContext;
+    private final HashMap<String, @Nullable Object> runtimeContext;
     private final DockerUtils dockerUtils;
 
     public ECSPlugin() {
@@ -83,7 +83,7 @@ public class ECSPlugin implements Plugin {
     }
 
     @Override
-    public Map<String, Object> getRuntimeContext() {
+    public Map<String, @Nullable Object> getRuntimeContext() {
         populateRuntimeContext();
         return runtimeContext;
     }

@@ -16,6 +16,7 @@
 package com.amazonaws.xray.strategy.sampling;
 
 import java.util.Optional;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Represents the sampling decision output by the sampler. Used by the SDK to
@@ -25,6 +26,7 @@ public class SamplingResponse {
 
     private boolean sampled;
 
+    @Nullable
     private String ruleName;
 
     /**

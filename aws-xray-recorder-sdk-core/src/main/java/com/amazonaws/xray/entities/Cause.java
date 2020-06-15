@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A representation of what issues caused this (sub)segment to include a failure / error. Can include exceptions or references to
@@ -30,12 +31,16 @@ public class Cause {
     private static final Log logger =
         LogFactory.getLog(Cause.class);
 
+    @Nullable
     private String workingDirectory;
 
+    @Nullable
     private String id;
 
+    @Nullable
     private String message;
 
+    @Nullable
     private Collection<String> paths;
 
     private final List<ThrowableDescription> exceptions;
@@ -49,6 +54,7 @@ public class Cause {
     /**
      * @return the workingDirectory
      */
+    @Nullable
     public String getWorkingDirectory() {
         return workingDirectory;
     }
@@ -56,13 +62,14 @@ public class Cause {
     /**
      * @param workingDirectory the workingDirectory to set
      */
-    public void setWorkingDirectory(String workingDirectory) {
+    public void setWorkingDirectory(@Nullable String workingDirectory) {
         this.workingDirectory = workingDirectory;
     }
 
     /**
      * @return the id
      */
+    @Nullable
     public String getId() {
         return id;
     }
@@ -77,6 +84,7 @@ public class Cause {
     /**
      * @return the message
      */
+    @Nullable
     public String getMessage() {
         return message;
     }
@@ -91,6 +99,7 @@ public class Cause {
     /**
      * @return the paths
      */
+    @Nullable
     public Collection<String> getPaths() {
         return paths;
     }

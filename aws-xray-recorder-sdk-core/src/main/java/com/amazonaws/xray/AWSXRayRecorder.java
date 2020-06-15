@@ -57,10 +57,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class AWSXRayRecorder {
 
@@ -182,7 +182,6 @@ public class AWSXRayRecorder {
      * @return
      *  true if the segment was emitted succesfully.
      */
-    @Nullable
     public boolean sendSegment(Segment segment) {
         if (segment.isSampled()) {
             return emitter.sendSegment(segment);
@@ -198,7 +197,6 @@ public class AWSXRayRecorder {
      * @return
      *  true if the subsegment was emitted succesfully.
      */
-    @Nullable
     public boolean sendSubsegment(Subsegment subsegment) {
         if (subsegment.getParentSegment().isSampled()) {
             return emitter.sendSubsegment(subsegment);
@@ -219,12 +217,14 @@ public class AWSXRayRecorder {
      * @return the value returned by the supplied function
      */
     @Nullable
-    public <R> R createSegment(String name, Function<Segment, R> function) {
+    public <R> R createSegment(String name, Function<@Nullable Segment, @Nullable R> function) {
         Segment segment = beginSegment(name);
         try {
             return function.apply(segment);
         } catch (Exception e) {
-            segment.addException(e);
+            if (segment != null) {
+                segment.addException(e);
+            }
             throw e;
         } finally {
             endSegment();
@@ -240,12 +240,14 @@ public class AWSXRayRecorder {
      * @param consumer
      *            the function to invoke
      */
-    public void createSegment(String name, Consumer<Segment> consumer) {
+    public void createSegment(String name, Consumer<@Nullable Segment> consumer) {
         Segment segment = beginSegment(name);
         try {
             consumer.accept(segment);
         } catch (Exception e) {
-            segment.addException(e);
+            if (segment != null) {
+                segment.addException(e);
+            }
             throw e;
         } finally {
             endSegment();
@@ -270,7 +272,9 @@ public class AWSXRayRecorder {
         try {
             return supplier.get();
         } catch (Exception e) {
-            segment.addException(e);
+            if (segment != null) {
+                segment.addException(e);
+            }
             throw e;
         } finally {
             endSegment();
@@ -291,7 +295,9 @@ public class AWSXRayRecorder {
         try {
             runnable.run();
         } catch (Exception e) {
-            segment.addException(e);
+            if (segment != null) {
+                segment.addException(e);
+            }
             throw e;
         } finally {
             endSegment();
@@ -312,7 +318,7 @@ public class AWSXRayRecorder {
      * @return the value returned by the supplied function
      */
     @Nullable
-    public <R> R createSubsegment(String name, Function<Subsegment, R> function) {
+    public <R> R createSubsegment(String name, Function<@Nullable Subsegment, @Nullable R> function) {
         Subsegment subsegment = beginSubsegment(name);
         try {
             return function.apply(subsegment);
@@ -335,7 +341,7 @@ public class AWSXRayRecorder {
      * @param consumer
      *            the function to invoke
      */
-    public void createSubsegment(String name, Consumer<Subsegment> consumer) {
+    public void createSubsegment(String name, Consumer<@Nullable Subsegment> consumer) {
         Subsegment subsegment = beginSubsegment(name);
         try {
             consumer.accept(subsegment);
@@ -405,7 +411,7 @@ public class AWSXRayRecorder {
     }
 
     @Nullable
-    public Segment beginSegment(String name, TraceID traceId, String parentId) {
+    public Segment beginSegment(String name, TraceID traceId, @Nullable String parentId) {
         Segment segment = new SegmentImpl(this, name, traceId);
         segment.setParentId(parentId);
         return beginSegment(segment);
@@ -472,7 +478,7 @@ public class AWSXRayRecorder {
      */
     public void endSegment() {
         SegmentContext context = getSegmentContext();
-        if (null != context) {
+        if (context != null) {
             context.endSegment(this);
         }
 
@@ -547,9 +553,9 @@ public class AWSXRayRecorder {
      */
     @Nullable
     public Subsegment beginSubsegment(String name) {
-        SegmentContext context = getSegmentContext();
+        SegmentContext context = segmentContextResolverChain.resolve();
         if (context != null) {
-            return segmentContextResolverChain.resolve().beginSubsegment(this, name);
+            return context.beginSubsegment(this, name);
         }
         return null;
     }
@@ -563,9 +569,9 @@ public class AWSXRayRecorder {
      *             if {@code contextMissingStrategy} throws exceptions and no subsegment is currently in progress
      */
     public void endSubsegment() {
-        SegmentContext context = getSegmentContext();
-        if (null != context) {
-            segmentContextResolverChain.resolve().endSubsegment(this);
+        SegmentContext context = segmentContextResolverChain.resolve();
+        if (context != null) {
+            context.endSubsegment(this);
         }
     }
 
@@ -575,6 +581,7 @@ public class AWSXRayRecorder {
      * @return the current segment, or {@code null} if {@code contextMissingStrategy} suppresses exceptions and there is no
      * segment in progress
      */
+    @Nullable
     public Segment getCurrentSegment() {
         Optional<Segment> segment = getCurrentSegmentOptional();
         if (segment.isPresent()) {
@@ -611,13 +618,14 @@ public class AWSXRayRecorder {
      * @return the current subsegment, or {@code null} if {@code contextMissingStrategy} suppresses exceptions and the segment
      * context cannot be found or the segment has no subsegments in progress
      */
+    @Nullable
     public Subsegment getCurrentSubsegment() {
         SegmentContext context = getSegmentContext();
-        if (null == context) {
+        if (context == null) {
             return null;
         }
         Entity current = context.getTraceEntity();
-        if (null == current) {
+        if (current == null) {
             contextMissingStrategy.contextMissing("No segment in progress.", SegmentNotFoundException.class);
         } else if (current instanceof Subsegment) {
             return (Subsegment) current;
@@ -664,6 +672,7 @@ public class AWSXRayRecorder {
      * @deprecated use {@link #getTraceEntity()} instead
      */
     @Deprecated
+    @Nullable
     public Entity getThreadLocal() {
         return ThreadLocalStorage.get();
     }
@@ -676,9 +685,10 @@ public class AWSXRayRecorder {
         ThreadLocalStorage.clear();
     }
 
+    @Nullable
     private SegmentContext getSegmentContext() {
         SegmentContext context = segmentContextResolverChain.resolve();
-        if (null == context) {
+        if (context == null) {
             contextMissingStrategy.contextMissing("Segment context not found.", SegmentNotFoundException.class);
             return null;
         }
@@ -692,9 +702,9 @@ public class AWSXRayRecorder {
      * @param entity
      *            the trace entity to set
      */
-    public void setTraceEntity(Entity entity) {
+    public void setTraceEntity(@Nullable Entity entity) {
         SegmentContext context = getSegmentContext();
-        if (null == context) {
+        if (context == null) {
             return;
         }
         context.setTraceEntity(entity);
@@ -706,9 +716,10 @@ public class AWSXRayRecorder {
      *
      * @return the current trace entity
      */
+    @Nullable
     public Entity getTraceEntity() {
         SegmentContext context = getSegmentContext();
-        if (null == context) {
+        if (context == null) {
             return null;
         }
         return context.getTraceEntity();
@@ -721,14 +732,14 @@ public class AWSXRayRecorder {
      */
     public void clearTraceEntity() {
         SegmentContext context = getSegmentContext();
-        if (null == context) {
+        if (context == null) {
             return;
         }
         context.clearTraceEntity();
     }
 
     public void putRuntimeContext(String key, Object value) {
-        if (null == value) {
+        if (value == null) {
             value = "";
         }
         awsRuntimeContext.put(key, value);
@@ -881,6 +892,7 @@ public class AWSXRayRecorder {
     /**
      * @return the origin
      */
+    @Nullable
     public String getOrigin() {
         return origin;
     }
@@ -900,7 +912,7 @@ public class AWSXRayRecorder {
     public boolean forceSamplingOfCurrentSegment() {
         if (samplingStrategy.isForcedSamplingSupported()) {
             Segment segment = getCurrentSegment();
-            if (!segment.isSampled()) {
+            if (segment != null && !segment.isSampled()) {
                 segment.setSampled(true);
                 return true;
             }
@@ -962,13 +974,14 @@ public class AWSXRayRecorder {
      * in progress, joined with {@code @}, or {@code null} if {@code contextMissingStrategy} suppresses exceptions and no segment
      * or subsegment is currently in progress
      */
+    @Nullable
     public String currentFormattedId() {
         SegmentContext context = getSegmentContext();
-        if (null == context) {
+        if (context == null) {
             return null;
         }
         Entity current = context.getTraceEntity();
-        if (null != current) {
+        if (current != null) {
             TraceID traceId = current.getParentSegment().getTraceId();
             String entityId = current.getId();
             return traceId.toString() + "@" + entityId;

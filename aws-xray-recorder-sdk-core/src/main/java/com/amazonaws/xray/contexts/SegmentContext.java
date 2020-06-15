@@ -21,9 +21,9 @@ import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import java.util.Objects;
-import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface SegmentContext {
     /**
@@ -44,7 +44,7 @@ public interface SegmentContext {
         return ThreadLocalStorage.get();
     }
 
-    default void setTraceEntity(Entity entity) {
+    default void setTraceEntity(@Nullable Entity entity) {
         if (entity != null && entity.getCreator() != null) {
             entity.getCreator().getSegmentListeners().stream().filter(Objects::nonNull).forEach(l -> {
                 l.onSetEntity(ThreadLocalStorage.get(), entity);
