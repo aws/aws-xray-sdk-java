@@ -77,7 +77,7 @@ allprojects {
             excludeTests = true
 
             // TODO(anuraaga): Enable on all projects.
-            skipCheckerFramework = project.name != "aws-xray-recorder-sdk-core"
+            skipCheckerFramework = project.name != "aws-xray-recorder-sdk-core" || JavaVersion.current() != JavaVersion.VERSION_11
         }
 
         dependencies {
