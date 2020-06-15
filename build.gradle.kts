@@ -18,7 +18,7 @@ allprojects {
 
     plugins.apply("com.github.hierynomus.license")
     configure<LicenseExtension> {
-        header = file("${rootProject.projectDir}/config/license/header.txt")
+        header = file("${rootProject.projectDir}/code-config/license/header.txt")
 
         headerDefinitions {
             // Same as SLASHSTAR_STYLE but with newline at end to match published IntelliJ copyright style.
@@ -26,7 +26,7 @@ allprojects {
                 // Adds the ending newline.
                 endLine   = " */\n"
 
-                // All other config copied from here
+                // All other code-config copied from here
                 // https://github.com/mycila/license-maven-plugin/blob/bdef2dca8f27af4f3134e03de0aa72d8d0863f99/license-maven-plugin/src/main/java/com/mycila/maven/plugin/license/header/HeaderType.java#L45
                 firstLine = "/*"
                 beforeEachLine = " * "
