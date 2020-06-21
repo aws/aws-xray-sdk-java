@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.6.1 - 2020-06-20
+- Fixed JSON parsing logic for Centralized Sampling
+[PR 171](https://github.com/aws/aws-xray-sdk-java/pull/171)
+
 ## 2.6.0 - 2020-06-10
 - Added calls to X-Ray daemon for rules/targets with a simple JDK-based client
 [PR 145](https://github.com/aws/aws-xray-sdk-java/pull/145)
