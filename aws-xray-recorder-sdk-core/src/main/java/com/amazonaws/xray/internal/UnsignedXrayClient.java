@@ -17,26 +17,35 @@ package com.amazonaws.xray.internal;
 
 import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.AmazonWebServiceResult;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.xray.model.GetSamplingRulesRequest;
 import com.amazonaws.services.xray.model.GetSamplingRulesResult;
 import com.amazonaws.services.xray.model.GetSamplingTargetsRequest;
 import com.amazonaws.services.xray.model.GetSamplingTargetsResult;
 import com.amazonaws.xray.config.DaemonConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import javax.annotation.Nullable;
 
 /**
@@ -47,11 +56,15 @@ import javax.annotation.Nullable;
  */
 public class UnsignedXrayClient {
 
+    private static final PropertyName HTTP_METHOD = PropertyName.construct("HTTPMethod");
+    private static final PropertyName URL_PATH = PropertyName.construct("URLPath");
+
     // Visible for testing
     static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .setSerializationInclusion(Include.NON_EMPTY)
             // Use deprecated field to support older Jackson versions for now.
             .setPropertyNamingStrategy(PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE)
+            .registerModule(new SimpleModule().addDeserializer(Date.class, new FloatDateDeserializer()))
             .setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
                 @Override
                 public boolean hasIgnoreMarker(AnnotatedMember m) {
@@ -63,6 +76,17 @@ public class UnsignedXrayClient {
                         return true;
                     }
                     return super.hasIgnoreMarker(m);
+                }
+
+                @Override
+                public PropertyName findNameForDeserialization(Annotated a) {
+                    if (a.getName().equals("hTTPMethod")) {
+                        return HTTP_METHOD;
+                    }
+                    if (a.getName().equals("uRLPath")) {
+                        return URL_PATH;
+                    }
+                    return super.findNameForDeserialization(a);
                 }
             });
     private static final int TIME_OUT_MILLIS = 2000;
@@ -78,7 +102,7 @@ public class UnsignedXrayClient {
     UnsignedXrayClient(String endpoint) {
         try {
             getSamplingRulesEndpoint = new URL(endpoint + "/GetSamplingRules");
-            getSamplingTargetsEndpoint = new URL(endpoint + "/GetSamplingTargets");
+            getSamplingTargetsEndpoint = new URL(endpoint + "/SamplingTargets");
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Invalid URL: " + endpoint, e);
         }
@@ -165,6 +189,39 @@ public class UnsignedXrayClient {
         int b;
         while ((b = is.read()) != -1) {
             os.write(b);
+        }
+    }
+
+    private static class FloatDateDeserializer extends StdDeserializer<Date> {
+
+        private static final int AWS_DATE_MILLI_SECOND_PRECISION = 3;
+
+        private FloatDateDeserializer() {
+            super(Date.class);
+        }
+
+        @Override
+        public Date deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return parseServiceSpecificDate(p.getText());
+        }
+
+        // Copied from AWS SDK https://github.com/aws/aws-sdk-java/blob/7b1e5b87b0bf03456df9e77716b14731adf9a7a7/aws-java-sdk-core/src/main/java/com/amazonaws/util/DateUtils.java#L239https://github.com/aws/aws-sdk-java/blob/7b1e5b87b0bf03456df9e77716b14731adf9a7a7/aws-java-sdk-core/src/main/java/com/amazonaws/util/DateUtils.java#L239
+        /**
+         * Parses the given date string returned by the AWS service into a Date
+         * object.
+         */
+        private static Date parseServiceSpecificDate(String dateString) {
+            if (dateString == null) {
+                return null;
+            }
+            try {
+                BigDecimal dateValue = new BigDecimal(dateString);
+                return new Date(dateValue.scaleByPowerOfTen(
+                    AWS_DATE_MILLI_SECOND_PRECISION).longValue());
+            } catch (NumberFormatException nfe) {
+                throw new SdkClientException("Unable to parse date : "
+                                             + dateString, nfe);
+            }
         }
     }
 }
