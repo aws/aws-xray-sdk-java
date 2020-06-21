@@ -35,7 +35,6 @@ import com.amazonaws.services.xray.model.GetSamplingTargetsRequest;
 import com.amazonaws.services.xray.model.GetSamplingTargetsResult;
 import com.amazonaws.services.xray.model.SamplingStatisticsDocument;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import java.util.Date;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -44,6 +43,170 @@ public class UnsignedXrayClientTest {
 
     @ClassRule
     public static WireMockClassRule server = new WireMockClassRule(wireMockConfig().dynamicPort());
+
+    private static final String SAMPLING_RULES =
+        "{\n"
+        + "    \"SamplingRuleRecords\": [\n"
+        + "        {\n"
+        + "            \"SamplingRule\": {\n"
+        + "                \"RuleName\": \"Default\",\n"
+        + "                \"RuleARN\": \"arn:aws:xray:us-east-1::sampling-rule/Default\",\n"
+        + "                \"ResourceARN\": \"*\",\n"
+        + "                \"Priority\": 10000,\n"
+        + "                \"FixedRate\": 0.01,\n"
+        + "                \"ReservoirSize\": 0,\n"
+        + "                \"ServiceName\": \"*\",\n"
+        + "                \"ServiceType\": \"*\",\n"
+        + "                \"Host\": \"*\",\n"
+        + "                \"HTTPMethod\": \"*\",\n"
+        + "                \"URLPath\": \"*\",\n"
+        + "                \"Version\": 1,\n"
+        + "                \"Attributes\": {}\n"
+        + "            },\n"
+        + "            \"CreatedAt\": 0.0,\n"
+        + "            \"ModifiedAt\": 1530558121.0\n"
+        + "        },\n"
+        + "        {\n"
+        + "            \"SamplingRule\": {\n"
+        + "                \"RuleName\": \"base-scorekeep\",\n"
+        + "                \"RuleARN\": \"arn:aws:xray:us-east-1::sampling-rule/base-scorekeep\",\n"
+        + "                \"ResourceARN\": \"*\",\n"
+        + "                \"Priority\": 9000,\n"
+        + "                \"FixedRate\": 0.1,\n"
+        + "                \"ReservoirSize\": 2,\n"
+        + "                \"ServiceName\": \"Scorekeep\",\n"
+        + "                \"ServiceType\": \"*\",\n"
+        + "                \"Host\": \"*\",\n"
+        + "                \"HTTPMethod\": \"*\",\n"
+        + "                \"URLPath\": \"*\",\n"
+        + "                \"Version\": 1,\n"
+        + "                \"Attributes\": {}\n"
+        + "            },\n"
+        + "            \"CreatedAt\": 1530573954.0,\n"
+        + "            \"ModifiedAt\": 1530920505.0\n"
+        + "        },\n"
+        + "        {\n"
+        + "            \"SamplingRule\": {\n"
+        + "                \"RuleName\": \"polling-scorekeep\",\n"
+        + "                \"RuleARN\": \"arn:aws:xray:us-east-1::sampling-rule/polling-scorekeep\",\n"
+        + "                \"ResourceARN\": \"*\",\n"
+        + "                \"Priority\": 5000,\n"
+        + "                \"FixedRate\": 0.003,\n"
+        + "                \"ReservoirSize\": 0,\n"
+        + "                \"ServiceName\": \"Scorekeep\",\n"
+        + "                \"ServiceType\": \"*\",\n"
+        + "                \"Host\": \"*\",\n"
+        + "                \"HTTPMethod\": \"GET\",\n"
+        + "                \"URLPath\": \"/api/state/*\",\n"
+        + "                \"Version\": 1,\n"
+        + "                \"Attributes\": {}\n"
+        + "            },\n"
+        + "            \"CreatedAt\": 1530918163.0,\n"
+        + "            \"ModifiedAt\": 1530918163.0\n"
+        + "        }\n"
+        + "    ]\n"
+        + "}{\n"
+        + "    \"SamplingRuleRecords\": [\n"
+        + "        {\n"
+        + "            \"SamplingRule\": {\n"
+        + "                \"RuleName\": \"Default\",\n"
+        + "                \"RuleARN\": \"arn:aws:xray:us-east-1::sampling-rule/Default\",\n"
+        + "                \"ResourceARN\": \"*\",\n"
+        + "                \"Priority\": 10000,\n"
+        + "                \"FixedRate\": 0.01,\n"
+        + "                \"ReservoirSize\": 0,\n"
+        + "                \"ServiceName\": \"*\",\n"
+        + "                \"ServiceType\": \"*\",\n"
+        + "                \"Host\": \"*\",\n"
+        + "                \"HTTPMethod\": \"*\",\n"
+        + "                \"URLPath\": \"*\",\n"
+        + "                \"Version\": 1,\n"
+        + "                \"Attributes\": {}\n"
+        + "            },\n"
+        + "            \"CreatedAt\": 0.0,\n"
+        + "            \"ModifiedAt\": 1530558121.0\n"
+        + "        },\n"
+        + "        {\n"
+        + "            \"SamplingRule\": {\n"
+        + "                \"RuleName\": \"base-scorekeep\",\n"
+        + "                \"RuleARN\": \"arn:aws:xray:us-east-1::sampling-rule/base-scorekeep\",\n"
+        + "                \"ResourceARN\": \"*\",\n"
+        + "                \"Priority\": 9000,\n"
+        + "                \"FixedRate\": 0.1,\n"
+        + "                \"ReservoirSize\": 2,\n"
+        + "                \"ServiceName\": \"Scorekeep\",\n"
+        + "                \"ServiceType\": \"*\",\n"
+        + "                \"Host\": \"*\",\n"
+        + "                \"HTTPMethod\": \"*\",\n"
+        + "                \"URLPath\": \"*\",\n"
+        + "                \"Version\": 1,\n"
+        + "                \"Attributes\": {}\n"
+        + "            },\n"
+        + "            \"CreatedAt\": 1530573954.0,\n"
+        + "            \"ModifiedAt\": 1530920505.0\n"
+        + "        },\n"
+        + "        {\n"
+        + "            \"SamplingRule\": {\n"
+        + "                \"RuleName\": \"polling-scorekeep\",\n"
+        + "                \"RuleARN\": \"arn:aws:xray:us-east-1::sampling-rule/polling-scorekeep\",\n"
+        + "                \"ResourceARN\": \"*\",\n"
+        + "                \"Priority\": 5000,\n"
+        + "                \"FixedRate\": 0.003,\n"
+        + "                \"ReservoirSize\": 0,\n"
+        + "                \"ServiceName\": \"Scorekeep\",\n"
+        + "                \"ServiceType\": \"*\",\n"
+        + "                \"Host\": \"*\",\n"
+        + "                \"HTTPMethod\": \"GET\",\n"
+        + "                \"URLPath\": \"/api/state/*\",\n"
+        + "                \"Version\": 1,\n"
+        + "                \"Attributes\": {}\n"
+        + "            },\n"
+        + "            \"CreatedAt\": 1530918163.0,\n"
+        + "            \"ModifiedAt\": 1530918163.0\n"
+        + "        }\n"
+        + "    ]\n"
+        + "}";
+
+    private static final String SAMPLING_TARGETS =
+        "{\n"
+        + "    \"SamplingTargetDocuments\": [\n"
+        + "        {\n"
+        + "            \"RuleName\": \"base-scorekeep\",\n"
+        + "            \"FixedRate\": 0.1,\n"
+        + "            \"ReservoirQuota\": 2,\n"
+        + "            \"ReservoirQuotaTTL\": 1530923107.0,\n"
+        + "            \"Interval\": 10\n"
+        + "        },\n"
+        + "        {\n"
+        + "            \"RuleName\": \"polling-scorekeep\",\n"
+        + "            \"FixedRate\": 0.003,\n"
+        + "            \"ReservoirQuota\": 0,\n"
+        + "            \"ReservoirQuotaTTL\": 1530923107.0,\n"
+        + "            \"Interval\": 10\n"
+        + "        }\n"
+        + "    ],\n"
+        + "    \"LastRuleModification\": 1530920505.0,\n"
+        + "    \"UnprocessedStatistics\": []\n"
+        + "}{\n"
+        + "    \"SamplingTargetDocuments\": [\n"
+        + "        {\n"
+        + "            \"RuleName\": \"base-scorekeep\",\n"
+        + "            \"FixedRate\": 0.1,\n"
+        + "            \"ReservoirQuota\": 2,\n"
+        + "            \"ReservoirQuotaTTL\": 1530923107.0,\n"
+        + "            \"Interval\": 10\n"
+        + "        },\n"
+        + "        {\n"
+        + "            \"RuleName\": \"polling-scorekeep\",\n"
+        + "            \"FixedRate\": 0.003,\n"
+        + "            \"ReservoirQuota\": 0,\n"
+        + "            \"ReservoirQuotaTTL\": 1530923107.0,\n"
+        + "            \"Interval\": 10\n"
+        + "        }\n"
+        + "    ],\n"
+        + "    \"LastRuleModification\": 1530920505.0,\n"
+        + "    \"UnprocessedStatistics\": []\n"
+        + "}";
 
     private UnsignedXrayClient client;
 
@@ -54,15 +217,13 @@ public class UnsignedXrayClientTest {
 
     @Test
     public void getSamplingRules() throws Exception {
-        GetSamplingRulesResult expected = new GetSamplingRulesResult();
-        expected.setNextToken("nexttoken");
-
         stubFor(any(anyUrl()).willReturn(aResponse()
                                                  .withStatus(200)
-                                                 .withBody(OBJECT_MAPPER.writeValueAsBytes(expected))));
+                                                 .withBody(SAMPLING_RULES)));
 
         GetSamplingRulesResult result = client.getSamplingRules(new GetSamplingRulesRequest());
 
+        GetSamplingRulesResult expected = OBJECT_MAPPER.readValue(SAMPLING_RULES, GetSamplingRulesResult.class);
         assertThat(expected).isEqualTo(result);
 
         verify(postRequestedFor(urlEqualTo("/GetSamplingRules"))
@@ -72,18 +233,16 @@ public class UnsignedXrayClientTest {
 
     @Test
     public void getSamplingTargets() throws Exception {
-        GetSamplingTargetsResult expected = new GetSamplingTargetsResult();
-        expected.setLastRuleModification(new Date(1000));
-
         stubFor(any(anyUrl()).willReturn(aResponse()
                                                  .withStatus(200)
-                                                 .withBody(OBJECT_MAPPER.writeValueAsBytes(expected))));
+                                                 .withBody(SAMPLING_TARGETS)));
 
         GetSamplingTargetsRequest request = new GetSamplingTargetsRequest()
             .withSamplingStatisticsDocuments(new SamplingStatisticsDocument().withClientID("client-id"));
 
         GetSamplingTargetsResult result = client.getSamplingTargets(request);
 
+        GetSamplingTargetsResult expected = OBJECT_MAPPER.readValue(SAMPLING_TARGETS, GetSamplingTargetsResult.class);
         assertThat(expected).isEqualTo(result);
 
         verify(postRequestedFor(urlEqualTo("/GetSamplingTargets"))
