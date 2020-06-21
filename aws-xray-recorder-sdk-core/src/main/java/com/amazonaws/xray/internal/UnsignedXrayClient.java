@@ -102,7 +102,7 @@ public class UnsignedXrayClient {
     UnsignedXrayClient(String endpoint) {
         try {
             getSamplingRulesEndpoint = new URL(endpoint + "/GetSamplingRules");
-            getSamplingTargetsEndpoint = new URL(endpoint + "/GetSamplingTargets");
+            getSamplingTargetsEndpoint = new URL(endpoint + "/SamplingTargets");
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Invalid URL: " + endpoint, e);
         }

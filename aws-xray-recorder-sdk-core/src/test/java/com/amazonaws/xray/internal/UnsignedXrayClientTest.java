@@ -245,7 +245,7 @@ public class UnsignedXrayClientTest {
         GetSamplingTargetsResult expected = OBJECT_MAPPER.readValue(SAMPLING_TARGETS, GetSamplingTargetsResult.class);
         assertThat(expected).isEqualTo(result);
 
-        verify(postRequestedFor(urlEqualTo("/GetSamplingTargets"))
+        verify(postRequestedFor(urlEqualTo("/SamplingTargets"))
                        .withHeader("Content-Type", equalTo("application/json"))
                        .withRequestBody(equalToJson("{"
                                                     + " \"SamplingStatisticsDocuments\": ["
