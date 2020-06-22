@@ -1,7 +1,6 @@
 import net.ltgt.gradle.errorprone.errorprone
-
 import nl.javadude.gradle.plugins.license.LicenseExtension
-
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     id("com.github.hierynomus.license") apply false
@@ -109,6 +108,13 @@ allprojects {
 
                     // TODO(anuraaga): We have Date in some APIs, revisit this separately.
                     disable("JdkObsolete")
+                }
+            }
+
+            withType<Test> {
+                testLogging {
+                    exceptionFormat = TestExceptionFormat.FULL
+                    showStackTraces = true
                 }
             }
 
