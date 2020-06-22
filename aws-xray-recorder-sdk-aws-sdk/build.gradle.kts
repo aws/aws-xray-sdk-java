@@ -10,8 +10,7 @@ dependencies {
 
     api("com.amazonaws:aws-java-sdk:1.11.398")
 
-    testImplementation("junit:junit:4.12")
-    testImplementation("org.mockito:mockito-all:1.10.19")
+    testImplementation("org.powermock:powermock-reflect:2.0.2")
     testImplementation("org.skyscreamer:jsonassert:1.3.0")
 }
 

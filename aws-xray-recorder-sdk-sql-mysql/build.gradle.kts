@@ -6,8 +6,6 @@ plugins {
 dependencies {
     implementation(project(":aws-xray-recorder-sdk-core"))
 
-    testImplementation("junit:junit:4.12")
-
     compileOnly("org.apache.tomcat:tomcat-jdbc:8.0.36")
 }
 

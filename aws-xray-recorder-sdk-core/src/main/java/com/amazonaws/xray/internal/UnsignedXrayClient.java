@@ -46,7 +46,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A simple client for sending API requests via the X-Ray daemon. Requests do not have to be
@@ -211,16 +211,11 @@ public class UnsignedXrayClient {
          * object.
          */
         private static Date parseServiceSpecificDate(String dateString) {
-            if (dateString == null) {
-                return null;
-            }
             try {
                 BigDecimal dateValue = new BigDecimal(dateString);
-                return new Date(dateValue.scaleByPowerOfTen(
-                    AWS_DATE_MILLI_SECOND_PRECISION).longValue());
+                return new Date(dateValue.scaleByPowerOfTen(AWS_DATE_MILLI_SECOND_PRECISION).longValue());
             } catch (NumberFormatException nfe) {
-                throw new SdkClientException("Unable to parse date : "
-                                             + dateString, nfe);
+                throw new SdkClientException("Unable to parse date : " + dateString, nfe);
             }
         }
     }

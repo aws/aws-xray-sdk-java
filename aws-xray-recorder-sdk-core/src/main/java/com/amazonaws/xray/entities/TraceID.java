@@ -18,7 +18,7 @@ package com.amazonaws.xray.entities;
 import com.amazonaws.xray.ThreadLocalStorage;
 import java.math.BigInteger;
 import java.time.Instant;
-import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class TraceID {
 

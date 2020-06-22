@@ -23,6 +23,16 @@ val DEPENDENCY_SETS = listOf(
                 "org.assertj",
                 "3.16.1",
                 listOf("assertj-core")
+        ),
+        DependencySet(
+                "junit",
+                "4.12",
+                listOf("junit")
+        ),
+        DependencySet(
+                "org.mockito",
+                "2.28.2",
+                listOf("mockito-all", "mockito-core")
         )
 )
 

@@ -81,8 +81,12 @@ allprojects {
         }
 
         dependencies {
+            add("testImplementation", "junit:junit")
+            add("testImplementation", "org.assertj:assertj-core")
+            add("testImplementation", "org.mockito:mockito-core")
+
             add("compileOnly", "org.checkerframework:checker-qual:3.4.1")
-            add("testCompileOnly", "org.checkerframework:checker-qual:3.4.1")
+            add("testImplementation", "org.checkerframework:checker-qual:3.4.1")
             add("checkerFramework", "org.checkerframework:checker:3.4.1")
 
 

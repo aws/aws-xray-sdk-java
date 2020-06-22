@@ -15,8 +15,8 @@
 
 package com.amazonaws.xray.entities;
 
-import javax.annotation.Nullable;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * @deprecated For internal use only.

@@ -14,9 +14,6 @@ dependencies {
     implementation("org.springframework:spring-aspects:4.3.12.RELEASE")
 
     compileOnly("org.springframework.data:spring-data-commons:2.0.0.RELEASE")
-
-    testImplementation("junit:junit:4.12")
-    testImplementation("org.mockito:mockito-all:1.10.19")
 }
 
 description = "AWS X-Ray Recorder SDK for Java - Spring Framework Interceptors"
