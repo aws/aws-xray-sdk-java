@@ -42,7 +42,7 @@ public class MetricsDaemonConfigurationTest {
         InetSocketAddress address = config.getAddressForEmitter();
         assertEquals("localhost:25888", config.getUDPAddress());
         assertEquals(25888, address.getPort());
-        assertEquals("localhost", address.getAddress().getHostName());
+        assertEquals("localhost", address.getHostString());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class MetricsDaemonConfigurationTest {
         InetSocketAddress address = config.getAddressForEmitter();
         assertEquals("127.0.0.1:15888", config.getUDPAddress());
         assertEquals(15888, address.getPort());
-        assertEquals("localhost", address.getAddress().getHostName());
+        assertEquals("127.0.0.1", address.getHostString());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class MetricsDaemonConfigurationTest {
         InetSocketAddress address = config.getAddressForEmitter();
         assertEquals("127.0.0.1:16888", config.getUDPAddress());
         assertEquals(16888, address.getPort());
-        assertEquals("localhost", address.getAddress().getHostName());
+        assertEquals("127.0.0.1", address.getHostString());
     }
 
     @Test
@@ -73,7 +73,7 @@ public class MetricsDaemonConfigurationTest {
         InetSocketAddress address = config.getAddressForEmitter();
         assertEquals("127.0.0.1:15888", config.getUDPAddress());
         assertEquals(15888, address.getPort());
-        assertEquals("localhost", address.getAddress().getHostName());
+        assertEquals("127.0.0.1", address.getHostString());
     }
 
     @Test
@@ -85,7 +85,7 @@ public class MetricsDaemonConfigurationTest {
         InetSocketAddress address = config.getAddressForEmitter();
         assertEquals("127.0.0.1:15888", config.getUDPAddress());
         assertEquals(15888, address.getPort());
-        assertEquals("localhost", address.getAddress().getHostName());
+        assertEquals("127.0.0.1", address.getHostString());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class MetricsDaemonConfigurationTest {
         InetSocketAddress address = config.getAddressForEmitter();
         assertEquals("127.0.0.1:15888", config.getUDPAddress());
         assertEquals(15888, address.getPort());
-        assertEquals("localhost", address.getAddress().getHostName());
+        assertEquals("127.0.0.1", address.getHostString());
     }
 
     @Test
@@ -106,6 +106,6 @@ public class MetricsDaemonConfigurationTest {
         InetSocketAddress address = config.getAddressForEmitter();
         assertEquals("127.0.0.1:16888", config.getUDPAddress());
         assertEquals(16888, address.getPort());
-        assertEquals("localhost", address.getAddress().getHostName());
+        assertEquals("127.0.0.1", address.getHostString());
     }
 }
