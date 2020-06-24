@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class CauseSerializer extends JsonSerializer<Cause> {
 
@@ -54,7 +55,7 @@ public class CauseSerializer extends JsonSerializer<Cause> {
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider serializerProvider, Cause cause) {
+    public boolean isEmpty(SerializerProvider serializerProvider, @Nullable Cause cause) {
         return cause == null || (cause.getExceptions().isEmpty() && cause.getId() == null && cause.getMessage() == null);
     }
 
