@@ -219,8 +219,13 @@ allprojects {
 
             repositories {
                 maven {
-                    name = "staging-repo"
-                    url = uri("https://aws.oss.sonatype.org/service/local/staging/deploy/maven2")
+                    val repoUrlBase = "https://aws.oss.sonatype.org/content/repositories"
+                    val isSnapshot = version.toString().endsWith("SNAPSHOT")
+                    url = uri("$repoUrlBase/${if (isSnapshot) "snapshots" else "releases"}")
+                    credentials {
+                        username = "${findProperty("aws.sonatype.username")}"
+                        password = "${findProperty("aws.sonatype.password")}"
+                    }
                 }
             }
         }
