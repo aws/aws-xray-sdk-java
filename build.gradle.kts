@@ -1,7 +1,7 @@
 import net.ltgt.gradle.errorprone.errorprone
-
 import nl.javadude.gradle.plugins.license.LicenseExtension
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     id("com.github.hierynomus.license") apply false
@@ -136,6 +136,13 @@ allprojects {
                 }
             }
 
+            withType<Test> {
+                testLogging {
+                    exceptionFormat = TestExceptionFormat.FULL
+                    showStackTraces = true
+                }
+            }
+
             named<Javadoc>("javadoc") {
                 val options = options as StandardJavadocDocletOptions
 
@@ -219,8 +226,13 @@ allprojects {
 
             repositories {
                 maven {
-                    name = "staging-repo"
-                    url = uri("https://aws.oss.sonatype.org/service/local/staging/deploy/maven2")
+                    val repoUrlBase = "https://aws.oss.sonatype.org/content/repositories"
+                    val isSnapshot = version.toString().endsWith("SNAPSHOT")
+                    url = uri("$repoUrlBase/${if (isSnapshot) "snapshots" else "releases"}")
+                    credentials {
+                        username = "${findProperty("aws.sonatype.username")}"
+                        password = "${findProperty("aws.sonatype.password")}"
+                    }
                 }
             }
         }
