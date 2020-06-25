@@ -41,17 +41,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class AWSXRayServletFilter implements javax.servlet.Filter {
 
     private static final Log logger = LogFactory.getLog(AWSXRayServletFilter.class);
 
+    @Nullable
     private String segmentOverrideName;
+    @Nullable
     private String segmentDefaultName;
 
+    @MonotonicNonNull
     private SegmentNamingStrategy segmentNamingStrategy;
+    @MonotonicNonNull
     private AWSXRayRecorder recorder;
-    private AWSXRayServletAsyncListener listener;
+    private final AWSXRayServletAsyncListener listener;
 
     /**
      * Warning: this no-args constructor should not be used directly. This constructor is made available for use from within
@@ -65,19 +71,28 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         this(new FixedSegmentNamingStrategy(fixedSegmentName));
     }
 
-    public AWSXRayServletFilter(SegmentNamingStrategy segmentNamingStrategy) {
+    public AWSXRayServletFilter(@Nullable SegmentNamingStrategy segmentNamingStrategy) {
         this(segmentNamingStrategy, null);
     }
 
-    public AWSXRayServletFilter(SegmentNamingStrategy segmentNamingStrategy, AWSXRayRecorder recorder) {
-        this.segmentNamingStrategy = segmentNamingStrategy;
-        this.recorder = recorder;
+    // TODO(anuraaga): Better define lifecycle relationship between this listener and the filter.
+    @SuppressWarnings("nullness")
+    public AWSXRayServletFilter(@Nullable SegmentNamingStrategy segmentNamingStrategy, @Nullable AWSXRayRecorder recorder) {
+        // Will be configured by web.xml otherwise.
+        if (segmentNamingStrategy != null) {
+            this.segmentNamingStrategy = segmentNamingStrategy;
+        }
+        // Will be configured by web.xml otherwise.
+        if (recorder != null) {
+            this.recorder = recorder;
+        }
         this.listener = new AWSXRayServletAsyncListener(this, recorder);
     }
 
     /**
      * @return the segmentOverrideName
      */
+    @Nullable
     public String getSegmentOverrideName() {
         return segmentOverrideName;
     }
@@ -93,6 +108,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
     /**
      * @return the segmentDefaultName
      */
+    @Nullable
     public String getSegmentDefaultName() {
         return segmentDefaultName;
     }
@@ -171,16 +187,22 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         try {
             chain.doFilter(request, response);
         } catch (Throwable e) {
-            if (null != segment) {
+            if (segment != null) {
                 segment.addException(e);
             }
             throw e;
         } finally {
             if (request.isAsyncStarted()) {
-                request.setAttribute(AWSXRayServletAsyncListener.ENTITY_ATTRIBUTE_KEY, segment);
+                if (segment != null) {
+                    request.setAttribute(AWSXRayServletAsyncListener.ENTITY_ATTRIBUTE_KEY, segment);
+                } else {
+                    request.removeAttribute(AWSXRayServletAsyncListener.ENTITY_ATTRIBUTE_KEY);
+                }
                 try {
                     request.getAsyncContext().addListener(listener);
-                    recorder.clearTraceEntity();
+                    if (recorder != null) {
+                        recorder.clearTraceEntity();
+                    }
                 } catch (IllegalStateException ise) {
                     // race condition that occurs when async processing finishes before adding the listener
                     postFilter(request, response);
@@ -195,6 +217,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         }
     }
 
+    @Nullable
     private HttpServletRequest castServletRequest(ServletRequest request) {
         try {
             return (HttpServletRequest) request;
@@ -204,6 +227,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         return null;
     }
 
+    @Nullable
     private HttpServletResponse castServletResponse(ServletResponse response) {
         try {
             return (HttpServletResponse) response;
@@ -258,14 +282,13 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
     }
 
     private String getSegmentName(HttpServletRequest httpServletRequest) {
-        try {
-            return segmentNamingStrategy.nameForRequest(httpServletRequest);
-        } catch (NullPointerException npe) {
+        if (segmentNamingStrategy == null) {
             throw new RuntimeException(
                 "The AWSXRayServletFilter requires either a fixedName init-param or an instance of SegmentNamingStrategy. "
                 + "Add an init-param tag to the AWSXRayServletFilter's declaration in web.xml, using param-name: 'fixedName'. "
-                + "Alternatively, pass an instance of SegmentNamingStrategy to the AWSXRayServletFilter constructor.", npe);
+                + "Alternatively, pass an instance of SegmentNamingStrategy to the AWSXRayServletFilter constructor.");
         }
+        return segmentNamingStrategy.nameForRequest(httpServletRequest);
     }
 
     private SamplingResponse fromSamplingStrategy(HttpServletRequest httpServletRequest) {
@@ -295,11 +318,11 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         return recorder;
     }
 
+    @Nullable
     public Segment preFilter(ServletRequest request, ServletResponse response) {
         AWSXRayRecorder recorder = getRecorder();
-        Segment created = null;
         HttpServletRequest httpServletRequest = castServletRequest(request);
-        if (null == httpServletRequest) {
+        if (httpServletRequest == null) {
             logger.warn("Null value for incoming HttpServletRequest. Beginning DummySegment.");
             return recorder.beginDummySegment(TraceID.create());
         }
@@ -326,20 +349,27 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
 
         String parentId = incomingHeader.isPresent() ? incomingHeader.get().getParentId() : null;
 
+        final Segment created;
         if (SampleDecision.SAMPLED.equals(sampleDecision)) {
             created = recorder.beginSegment(getSegmentName(httpServletRequest), traceId, parentId);
-            if (samplingResponse.getRuleName().isPresent()) {
+            if (created != null && samplingResponse.getRuleName().isPresent()) {
                 logger.debug("Sampling strategy decided to use rule named: " + samplingResponse.getRuleName().get() + ".");
                 created.setRuleName(samplingResponse.getRuleName().get());
             }
         } else { //NOT_SAMPLED
             if (samplingStrategy.isForcedSamplingSupported()) {
                 created = recorder.beginSegment(getSegmentName(httpServletRequest), traceId, parentId);
-                created.setSampled(false);
+                if (created != null) {
+                    created.setSampled(false);
+                }
             } else {
                 logger.debug("Creating Dummy Segment");
                 created = recorder.beginDummySegment(getSegmentName(httpServletRequest), traceId);
             }
+        }
+
+        if (created == null) {
+            return null;
         }
 
         Map<String, Object> requestAttributes = new HashMap<String, Object>();
@@ -365,11 +395,11 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         created.putHttp("request", requestAttributes);
 
         HttpServletResponse httpServletResponse = castServletResponse(response);
-        if (null == response) {
+        if (httpServletResponse == null) {
             return created;
         }
 
-        TraceHeader responseHeader = null;
+        final TraceHeader responseHeader;
         if (incomingHeader.isPresent()) {
             // create a new header, and use the incoming header so we know what to do in regards to sending back the sampling
             // decision.

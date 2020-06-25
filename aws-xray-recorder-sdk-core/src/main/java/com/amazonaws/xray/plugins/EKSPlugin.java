@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 
 /**
@@ -46,17 +47,20 @@ public class EKSPlugin implements Plugin {
 
     private static final Log logger = LogFactory.getLog(EKSPlugin.class);
 
+    @Nullable
     private String clusterName;
-    private Map<String, Object> runtimeContext;
-    private Set<AWSLogReference> logReferences;
-    private DockerUtils dockerUtils;
+    private final Map<String, @Nullable Object> runtimeContext;
+    private final Set<AWSLogReference> logReferences;
+    private final DockerUtils dockerUtils;
 
     public EKSPlugin() {
         this(ContainerInsightsUtil.getClusterName());
     }
 
-    public EKSPlugin(final String clusterName) {
-        this.clusterName = clusterName;
+    public EKSPlugin(@Nullable String clusterName) {
+        if (clusterName != null) {
+            this.clusterName = clusterName;
+        }
         this.runtimeContext = new HashMap<>();
         this.logReferences = new HashSet<>();
         this.dockerUtils = new DockerUtils();
@@ -82,7 +86,7 @@ public class EKSPlugin implements Plugin {
     }
 
     @Override
-    public Map<String, Object> getRuntimeContext() {
+    public Map<String, @Nullable Object> getRuntimeContext() {
         if (runtimeContext.isEmpty()) {
             populateRuntimeContext();
         }
@@ -131,19 +135,19 @@ public class EKSPlugin implements Plugin {
         return ORIGIN;
     }
 
-    @Override
     /**
      * Determine equality of plugins using origin to uniquely identify them
      */
-    public boolean equals(Object o) {
+    @Override
+    public boolean equals(@Nullable Object o) {
         if (!(o instanceof Plugin)) { return false; }
         return this.getOrigin().equals(((Plugin) o).getOrigin());
     }
 
-    @Override
     /**
      * Hash plugin object using origin to uniquely identify them
      */
+    @Override
     public int hashCode() {
         return this.getOrigin().hashCode();
     }

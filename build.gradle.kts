@@ -1,10 +1,12 @@
 import net.ltgt.gradle.errorprone.errorprone
 import nl.javadude.gradle.plugins.license.LicenseExtension
+import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     id("com.github.hierynomus.license") apply false
     id("net.ltgt.errorprone") apply false
+    id("org.checkerframework") apply false
 }
 
 allprojects {
@@ -45,6 +47,7 @@ allprojects {
     plugins.withId("java-library") {
         plugins.apply("checkstyle")
         plugins.apply("net.ltgt.errorprone")
+        plugins.apply("org.checkerframework")
 
         configure<JavaPluginExtension> {
             sourceCompatibility = JavaVersion.VERSION_1_8
@@ -64,7 +67,29 @@ allprojects {
             }
         }
 
+        configure<CheckerFrameworkExtension> {
+            checkers = listOf("org.checkerframework.checker.nullness.NullnessChecker")
+
+            extraJavacArgs = listOf(
+                    "-AsuppressWarnings=type.anno.before.modifier"
+            )
+
+            excludeTests = true
+
+            // TODO(anuraaga): Enable on all projects.
+            skipCheckerFramework = project.name != "aws-xray-recorder-sdk-core" || JavaVersion.current() != JavaVersion.VERSION_11
+        }
+
         dependencies {
+            add("testImplementation", "junit:junit")
+            add("testImplementation", "org.assertj:assertj-core")
+            add("testImplementation", "org.mockito:mockito-core")
+
+            add("compileOnly", "org.checkerframework:checker-qual:3.4.1")
+            add("testImplementation", "org.checkerframework:checker-qual:3.4.1")
+            add("checkerFramework", "org.checkerframework:checker:3.4.1")
+
+
             add("errorprone", "com.google.errorprone:error_prone_core:2.4.0")
             if (!JavaVersion.current().isJava9Compatible) {
                 add("errorproneJavac", "com.google.errorprone:javac:9+181-r4173-1")

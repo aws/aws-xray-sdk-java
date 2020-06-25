@@ -18,17 +18,21 @@ package com.amazonaws.xray.strategy.sampling.manifest;
 import com.amazonaws.xray.strategy.sampling.rule.SamplingRule;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class SamplingRuleManifest {
+    @Nullable
     private List<SamplingRule> rules;
 
     @JsonProperty("default") // default is a reserved word
+    @Nullable
     private SamplingRule defaultRule;
     private int version;
 
     /**
      * @return the rules
      */
+    @Nullable
     public List<SamplingRule> getRules() {
         return rules;
     }
@@ -43,6 +47,7 @@ public class SamplingRuleManifest {
     /**
      * @return the defaultRule
      */
+    @Nullable
     public SamplingRule getDefaultRule() {
         return defaultRule;
     }

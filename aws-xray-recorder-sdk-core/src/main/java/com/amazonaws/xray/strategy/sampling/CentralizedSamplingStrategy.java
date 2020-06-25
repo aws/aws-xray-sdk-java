@@ -27,6 +27,7 @@ import java.time.Clock;
 import java.time.Instant;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class CentralizedSamplingStrategy implements SamplingStrategy {
     private static final Log logger = LogFactory.getLog(TargetPoller.class);
@@ -38,7 +39,12 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
         SecureRandom rand = new SecureRandom();
         byte[] bytes = new byte[12];
         rand.nextBytes(bytes);
-        clientID = ByteUtils.byteArrayToHexString(bytes);
+        String clientId = ByteUtils.byteArrayToHexString(bytes);
+        if (clientId == null) {
+            // Satisfy checker framework.
+            throw new IllegalStateException();
+        }
+        clientID = clientId;
     }
 
     private final CentralizedManifest manifest;
@@ -64,6 +70,7 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
         this.targetPoller = new TargetPoller(client, manifest, Clock.systemUTC());
     }
 
+    @Nullable
     public URL getSamplingManifestURL() {
         return this.fallback.getSamplingManifestURL();
     }

@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A plugin, for use with the {@code AWSXRayRecorderBuilder} class, which will add Elastic Beanstalk environment information to
@@ -38,14 +39,14 @@ public class ElasticBeanstalkPlugin implements Plugin {
     private static final Log logger =
         LogFactory.getLog(ElasticBeanstalkPlugin.class);
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private static final String CONF_PATH = "/var/elasticbeanstalk/xray/environment.conf";
     private static final String SERVICE_NAME = "elastic_beanstalk";
 
-    private ObjectMapper objectMapper;
     private Map<String, Object> runtimeContext;
 
     public ElasticBeanstalkPlugin() {
-        objectMapper = new ObjectMapper();
         runtimeContext = new HashMap<>();
     }
 
@@ -69,7 +70,7 @@ public class ElasticBeanstalkPlugin implements Plugin {
         }
         try {
             TypeReference<HashMap<String, Object>> typeReference = new TypeReference<HashMap<String, Object>>() {};
-            runtimeContext = objectMapper.readValue(manifestBytes, typeReference);
+            runtimeContext = OBJECT_MAPPER.readValue(manifestBytes, typeReference);
         } catch (IOException e) {
             logger.warn("Unable to read Beanstalk configuration at path " + CONF_PATH + " : " + e.getMessage());
             return;
@@ -77,12 +78,12 @@ public class ElasticBeanstalkPlugin implements Plugin {
     }
 
     @Override
-    public Map<String, Object> getRuntimeContext() {
+    public Map<String, @Nullable Object> getRuntimeContext() {
         if (runtimeContext.isEmpty()) {
             populateRuntimeContext();
         }
 
-        return runtimeContext;
+        return (Map<String, @Nullable Object>) runtimeContext;
     }
 
     @Override
@@ -90,19 +91,19 @@ public class ElasticBeanstalkPlugin implements Plugin {
         return ORIGIN;
     }
 
-    @Override
     /**
      * Determine equality of plugins using origin to uniquely identify them
      */
-    public boolean equals(Object o) {
+    @Override
+    public boolean equals(@Nullable Object o) {
         if (!(o instanceof Plugin)) { return false; }
         return this.getOrigin().equals(((Plugin) o).getOrigin());
     }
 
-    @Override
     /**
      * Hash plugin object using origin to uniquely identify them
      */
+    @Override
     public int hashCode() {
         return this.getOrigin().hashCode();
     }

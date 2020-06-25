@@ -21,15 +21,20 @@ import com.amazonaws.xray.entities.Entity;
 import java.io.IOException;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 class AWSXRayServletAsyncListener implements AsyncListener {
 
     public static final String ENTITY_ATTRIBUTE_KEY = "com.amazonaws.xray.entities.Entity";
 
+    @Nullable
     private AWSXRayRecorder recorder;
-    private AWSXRayServletFilter filter;
+    private final AWSXRayServletFilter filter;
 
-    AWSXRayServletAsyncListener(AWSXRayServletFilter filter, AWSXRayRecorder recorder) {
+    // TODO(anuraaga): Better define lifecycle relationship between this listener and the filter.
+    @SuppressWarnings("nullness")
+    AWSXRayServletAsyncListener(@UnderInitialization AWSXRayServletFilter filter, @Nullable AWSXRayRecorder recorder) {
         this.filter = filter;
         this.recorder = recorder;
     }

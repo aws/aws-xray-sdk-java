@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Represents the input request to the sampler. Contains attributes relevant to
@@ -31,19 +32,25 @@ public class SamplingRequest {
 
     private String roleArn;
 
+    @Nullable
     private String resourceArn;
 
-    private String service;
+    @Nullable
+    private final String service;
 
-    private String host;
+    @Nullable
+    private final String host;
 
-    private String method;
+    @Nullable
+    private final String method;
 
-    private String url;
+    @Nullable
+    private final String url;
 
+    @Nullable
     private String serviceType;
 
-    private Map<String, String> attributes;
+    private final Map<String, String> attributes;
 
     /**
      * @param roleArn
@@ -68,13 +75,13 @@ public class SamplingRequest {
      */
     public SamplingRequest(
             String roleArn,
-            String resourceArn,
-            String service,
-            String host,
-            String method,
-            String url,
-            String serviceType,
-            Map<String, String> attributes
+            @Nullable String resourceArn,
+            @Nullable String service,
+            @Nullable String host,
+            @Nullable String method,
+            @Nullable String url,
+            @Nullable String serviceType,
+            @Nullable Map<String, String> attributes
     ) {
         Objects.requireNonNull(roleArn, "RoleARN can not be null");
 
@@ -88,12 +95,20 @@ public class SamplingRequest {
         this.attributes = attributes != null ? attributes : Collections.emptyMap();
     }
 
-    public SamplingRequest(String service, String host, String url, String method, String serviceType) {
+    public SamplingRequest(
+        @Nullable String service,
+        @Nullable String host,
+        @Nullable String url,
+        @Nullable String method,
+        @Nullable String serviceType) {
         this.service = service;
         this.host = host;
         this.url = url;
         this.method = method;
         this.serviceType = serviceType;
+
+        roleArn = "";
+        attributes = Collections.emptyMap();
     }
 
     public Optional<String> getAccountId() {

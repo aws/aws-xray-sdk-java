@@ -15,6 +15,9 @@
 
 package com.amazonaws.xray.entities;
 
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * @deprecated For internal use only.
  */
@@ -22,16 +25,18 @@ package com.amazonaws.xray.entities;
 @Deprecated
 public class StringValidator {
 
-    public static boolean isNotNullOrBlank(String string) {
-        return null != string && !string.trim().isEmpty();
+    @EnsuresNonNullIf(expression = "#1", result = true)
+    public static boolean isNotNullOrBlank(@Nullable String string) {
+        return string != null && !string.trim().isEmpty();
     }
 
-    public static boolean isNullOrBlank(String string) {
-        return null == string || string.trim().isEmpty();
+    @EnsuresNonNullIf(expression = "#1", result = false)
+    public static boolean isNullOrBlank(@Nullable String string) {
+        return string == null || string.trim().isEmpty();
     }
 
-    public static void throwIfNullOrBlank(String string, String validationErrorMessage) {
-        if (null == string || string.trim().isEmpty()) {
+    public static void throwIfNullOrBlank(@Nullable String string, String validationErrorMessage) {
+        if (string == null || string.trim().isEmpty()) {
             throw new RuntimeException(validationErrorMessage);
         }
     }

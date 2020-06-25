@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class DummySubsegment implements Subsegment {
 
@@ -210,7 +211,7 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setParentId(String parentId) {
+    public void setParentId(@Nullable String parentId) {
     }
 
     @Override

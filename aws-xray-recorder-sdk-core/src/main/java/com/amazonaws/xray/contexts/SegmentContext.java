@@ -23,6 +23,7 @@ import com.amazonaws.xray.entities.Subsegment;
 import java.util.Objects;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface SegmentContext {
     /**
@@ -38,11 +39,12 @@ public interface SegmentContext {
     default void endSegment(AWSXRayRecorder recorder) {
     }
 
+    @Nullable
     default Entity getTraceEntity() {
         return ThreadLocalStorage.get();
     }
 
-    default void setTraceEntity(Entity entity) {
+    default void setTraceEntity(@Nullable Entity entity) {
         if (entity != null && entity.getCreator() != null) {
             entity.getCreator().getSegmentListeners().stream().filter(Objects::nonNull).forEach(l -> {
                 l.onSetEntity(ThreadLocalStorage.get(), entity);
@@ -61,6 +63,7 @@ public interface SegmentContext {
         ThreadLocalStorage.clear();
     }
 
+    @Nullable
     Subsegment beginSubsegment(AWSXRayRecorder recorder, String name);
 
     void endSubsegment(AWSXRayRecorder recorder);

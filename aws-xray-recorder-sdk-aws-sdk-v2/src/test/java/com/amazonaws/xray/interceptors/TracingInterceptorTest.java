@@ -63,7 +63,6 @@ public class TracingInterceptorTest {
     public void setup() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
-        Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
 
         AWSXRay.setGlobalRecorder(
                 AWSXRayRecorderBuilder.standard()
@@ -102,8 +101,8 @@ public class TracingInterceptorTest {
         SdkAsyncHttpClient mockClient = Mockito.mock(SdkAsyncHttpClient.class);
         Mockito.when(mockClient.execute(Mockito.any(AsyncExecuteRequest.class)))
                .thenAnswer((Answer<CompletableFuture<Void>>) invocationOnMock -> {
-                   SdkAsyncHttpResponseHandler handler =
-                       invocationOnMock.getArgumentAt(0, AsyncExecuteRequest.class).responseHandler();
+                   AsyncExecuteRequest request = invocationOnMock.getArgument(0);
+                   SdkAsyncHttpResponseHandler handler = request.responseHandler();
                    handler.onHeaders(response);
                    handler.onStream(new EmptyPublisher<>());
 

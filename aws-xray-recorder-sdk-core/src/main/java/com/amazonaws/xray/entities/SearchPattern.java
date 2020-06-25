@@ -15,6 +15,8 @@
 
 package com.amazonaws.xray.entities;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * @deprecated For internal use only.
  */
@@ -36,11 +38,11 @@ public class SearchPattern {
      *            the string to compare against the pattern
      * @return whether the text matches the pattern
      */
-    public static boolean wildcardMatch(String pattern, String text) {
+    public static boolean wildcardMatch(@Nullable String pattern, @Nullable String text) {
         return wildcardMatch(pattern, text, true);
     }
 
-    public static boolean wildcardMatch(String pattern, String text, boolean caseInsensitive) {
+    public static boolean wildcardMatch(@Nullable String pattern, @Nullable String text, boolean caseInsensitive) {
         if (pattern == null || text == null) {
             return false;
         }

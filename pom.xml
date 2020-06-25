@@ -71,6 +71,14 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.checkerframework</groupId>
+      <artifactId>checker-qual</artifactId>
+      <version>3.4.1</version>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
   <distributionManagement>
     <repository>
       <id>sonatype-nexus-staging</id>

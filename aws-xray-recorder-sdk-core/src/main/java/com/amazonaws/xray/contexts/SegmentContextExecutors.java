@@ -22,7 +22,7 @@ import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import java.util.concurrent.Executor;
-import javax.annotation.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * {@link Executor}s that will mount a segment before running a command. When switching threads, for example when instrumenting an

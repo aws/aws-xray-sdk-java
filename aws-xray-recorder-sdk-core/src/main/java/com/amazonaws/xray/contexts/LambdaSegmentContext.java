@@ -41,11 +41,16 @@ public class LambdaSegmentContext implements SegmentContext {
     }
 
     private static boolean isInitializing(TraceHeader traceHeader) {
-        return null == traceHeader.getRootTraceId() || null == traceHeader.getSampled() || null == traceHeader.getParentId();
+        return traceHeader.getRootTraceId() == null || traceHeader.getSampled() == null || traceHeader.getParentId() == null;
     }
 
-    private static FacadeSegment newFacadeSegment(AWSXRayRecorder recorder) {
+    private static FacadeSegment newFacadeSegment(AWSXRayRecorder recorder, String name) {
         TraceHeader traceHeader = getTraceHeaderFromEnvironment();
+        if (isInitializing(traceHeader)) {
+            logger.warn(LAMBDA_TRACE_HEADER_KEY + " is missing a trace ID, parent ID, or sampling decision. Subsegment "
+                        + name + " discarded.");
+            return new FacadeSegment(recorder, TraceID.create(), "", SampleDecision.NOT_SAMPLED);
+        }
         return new FacadeSegment(recorder, traceHeader.getRootTraceId(), traceHeader.getParentId(), traceHeader.getSampled());
     }
 
@@ -54,15 +59,9 @@ public class LambdaSegmentContext implements SegmentContext {
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);
         }
-        if (null == getTraceEntity()) { // First subsgment of a subsegment branch.
-            Segment parentSegment = null;
-            if (LambdaSegmentContext.isInitializing(LambdaSegmentContext.getTraceHeaderFromEnvironment())) {
-                logger.warn(LAMBDA_TRACE_HEADER_KEY + " is missing a trace ID, parent ID, or sampling decision. Subsegment "
-                            + name + " discarded.");
-                parentSegment = new FacadeSegment(recorder, TraceID.create(), "", SampleDecision.NOT_SAMPLED);
-            } else {
-                parentSegment = LambdaSegmentContext.newFacadeSegment(recorder);
-            }
+        Entity entity = getTraceEntity();
+        if (entity == null) { // First subsgment of a subsegment branch.
+            Segment parentSegment = newFacadeSegment(recorder, name);
             Subsegment subsegment = new SubsegmentImpl(recorder, name, parentSegment);
             subsegment.setParent(parentSegment);
             // Enable FacadeSegment to keep track of its subsegments for subtree streaming
@@ -70,7 +69,7 @@ public class LambdaSegmentContext implements SegmentContext {
             setTraceEntity(subsegment);
             return subsegment;
         } else { // Continuation of a subsegment branch.
-            Subsegment parentSubsegment = (Subsegment) getTraceEntity();
+            Subsegment parentSubsegment = (Subsegment) entity;
             // Ensure customers have not leaked subsegments across invocations
             TraceID environmentRootTraceId = LambdaSegmentContext.getTraceHeaderFromEnvironment().getRootTraceId();
             if (null != environmentRootTraceId &&

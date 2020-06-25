@@ -21,7 +21,7 @@ import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.ThrowableDescription;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -33,14 +33,11 @@ import java.util.Set;
  */
 public class DefaultThrowableSerializationStrategy implements ThrowableSerializationStrategy {
     private static final int DEFAULT_MAX_STACK_TRACE_LENGTH = 50;
-    private static Set<Class<? extends Throwable>> DEFAULT_REMOTE_EXCEPTION_CLASSES = new HashSet<>();
+    private static final Set<Class<? extends Throwable>> DEFAULT_REMOTE_EXCEPTION_CLASSES =
+        Collections.singleton(AmazonServiceException.class);
 
-    static {
-        DEFAULT_REMOTE_EXCEPTION_CLASSES.add(AmazonServiceException.class);
-    }
-
-    private int maxStackTraceLength;
-    private Set<Class<? extends Throwable>> remoteExceptionClasses = new HashSet<>();
+    private final int maxStackTraceLength;
+    private final Set<Class<? extends Throwable>> remoteExceptionClasses;
 
     public DefaultThrowableSerializationStrategy() {
         this(DEFAULT_MAX_STACK_TRACE_LENGTH);
@@ -95,7 +92,7 @@ public class DefaultThrowableSerializationStrategy implements ThrowableSerializa
         description.setType(throwable.getClass().getName());
 
         StackTraceElement[] stackTrace = throwable.getStackTrace();
-        if (stackTrace.length > maxStackTraceLength) {
+        if (stackTrace != null && stackTrace.length > maxStackTraceLength) {
             description.setStack(Arrays.copyOfRange(stackTrace, 0, maxStackTraceLength));
             description.setTruncated(stackTrace.length - maxStackTraceLength);
         } else {
@@ -103,7 +100,9 @@ public class DefaultThrowableSerializationStrategy implements ThrowableSerializa
         }
         description.setThrowable(throwable);
 
-        if (isRemote(throwable)) { description.setRemote(true); }
+        if (isRemote(throwable)) {
+            description.setRemote(true);
+        }
 
         return description;
     }
@@ -125,9 +124,9 @@ public class DefaultThrowableSerializationStrategy implements ThrowableSerializa
         if (exceptionReferenced.isPresent()) {
             //already described, we can link to this one by ID. Get the id from the child's Throwabledescription (if it has one).
             //Use the cause otherwise.
-            
-            description.setCause(null == exceptionReferenced.get().getId() ?
-                                 exceptionReferenced.get().getCause() : exceptionReferenced.get().getId());
+
+            ThrowableDescription exception = exceptionReferenced.get();
+            description.setCause(exception.getId() != null ? exception.getId() : exception.getCause());
             description.setThrowable(throwable);
             result.add(description);
             return result;

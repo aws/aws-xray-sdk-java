@@ -23,16 +23,19 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class SubsegmentImpl extends EntityImpl implements Subsegment {
     private static final Log logger = LogFactory.getLog(SubsegmentImpl.class);
 
+    @Nullable
     private String namespace;
 
     private Segment parentSegment;
 
     private Set<String> precursorIds;
 
+    @SuppressWarnings("nullness")
     private SubsegmentImpl() {
         super();
     } // default constructor for jackson
@@ -64,6 +67,7 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     }
 
     @Override
+    @Nullable
     public String getNamespace() {
         return namespace;
     }

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A plugin, for use with the {@code AWSXRayRecorderBuilder} class, which will add ECS container information to segments generated
@@ -41,8 +42,8 @@ public class ECSPlugin implements Plugin {
     private static final String HTTP_PREFIX = "http://";
     private static final String CONTAINER_ID_KEY = "containerId";
 
-    private HashMap<String, Object> runtimeContext;
-    private DockerUtils dockerUtils;
+    private final HashMap<String, @Nullable Object> runtimeContext;
+    private final DockerUtils dockerUtils;
 
     public ECSPlugin() {
         runtimeContext = new HashMap<>();
@@ -82,7 +83,7 @@ public class ECSPlugin implements Plugin {
     }
 
     @Override
-    public Map<String, Object> getRuntimeContext() {
+    public Map<String, @Nullable Object> getRuntimeContext() {
         populateRuntimeContext();
         return runtimeContext;
     }
@@ -92,22 +93,20 @@ public class ECSPlugin implements Plugin {
         return ORIGIN;
     }
 
-    @Override
     /**
      * Determine equality of plugins using origin to uniquely identify them
      */
-    public boolean equals(Object o) {
+    @Override
+    public boolean equals(@Nullable Object o) {
         if (!(o instanceof Plugin)) { return false; }
         return this.getOrigin().equals(((Plugin) o).getOrigin());
     }
 
-    @Override
     /**
      * Hash plugin object using origin to uniquely identify them
      */
+    @Override
     public int hashCode() {
         return this.getOrigin().hashCode();
     }
-
-
 }

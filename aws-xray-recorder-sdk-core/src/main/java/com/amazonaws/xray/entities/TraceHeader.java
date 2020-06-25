@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class TraceHeader {
     public static final String HEADER_KEY = "X-Amzn-Trace-Id";
@@ -53,18 +54,18 @@ public class TraceHeader {
         }
 
         public static SampleDecision fromString(String text) {
-            if (null != text) {
-                for (SampleDecision decision : SampleDecision.values()) {
-                    if (decision.toString().equalsIgnoreCase(text)) {
-                        return decision;
-                    }
+            for (SampleDecision decision : SampleDecision.values()) {
+                if (decision.toString().equalsIgnoreCase(text)) {
+                    return decision;
                 }
             }
-            return null;
+            return UNKNOWN;
         }
     }
 
+    @Nullable
     private TraceID rootTraceId;
+    @Nullable
     private String parentId;
     private SampleDecision sampled;
 
@@ -74,19 +75,19 @@ public class TraceHeader {
         this(null, null, SampleDecision.UNKNOWN);
     }
 
-    public TraceHeader(TraceID rootTraceId) {
+    public TraceHeader(@Nullable TraceID rootTraceId) {
         this(rootTraceId, null, SampleDecision.UNKNOWN);
     }
 
-    public TraceHeader(TraceID rootTraceId, String parentId) {
+    public TraceHeader(@Nullable TraceID rootTraceId, @Nullable String parentId) {
         this(rootTraceId, parentId, SampleDecision.UNKNOWN);
     }
 
-    public TraceHeader(TraceID rootTraceId, String parentId, SampleDecision sampled) {
+    public TraceHeader(@Nullable TraceID rootTraceId, @Nullable String parentId, SampleDecision sampled) {
         this.rootTraceId = rootTraceId;
         this.parentId = parentId;
         this.sampled = sampled;
-        if (null == sampled) {
+        if (sampled == null) {
             throw new IllegalArgumentException("Sample decision can not be null.");
         }
     }
@@ -98,7 +99,7 @@ public class TraceHeader {
      *            the string from an incoming trace-id header
      * @return the TraceHeader object
      */
-    public static TraceHeader fromString(String string) {
+    public static TraceHeader fromString(@Nullable String string) {
         TraceHeader traceHeader = new TraceHeader();
 
         if (string == null) {
@@ -148,15 +149,13 @@ public class TraceHeader {
     @Override
     public String toString() {
         List<String> parts = new ArrayList<>();
-        if (null != rootTraceId) {
+        if (rootTraceId != null) {
             parts.add(ROOT_PREFIX + rootTraceId);
         }
         if (StringValidator.isNotNullOrBlank(parentId)) {
             parts.add(PARENT_PREFIX + parentId);
         }
-        if (null != sampled) {
-            parts.add(sampled.toString());
-        }
+        parts.add(sampled.toString());
         additionalParams.forEach((key, value) -> {
             parts.add(key + EQUALS + value);
         });
@@ -166,6 +165,7 @@ public class TraceHeader {
     /**
      * @return the rootTraceId
      */
+    @Nullable
     public TraceID getRootTraceId() {
         return rootTraceId;
     }
@@ -180,6 +180,7 @@ public class TraceHeader {
     /**
      * @return the parentId
      */
+    @Nullable
     public String getParentId() {
         return parentId;
     }
@@ -207,7 +208,7 @@ public class TraceHeader {
      *             if sampled is null
      */
     public void setSampled(SampleDecision sampled) {
-        if (null == sampled) {
+        if (sampled == null) {
             throw new IllegalArgumentException("Sample decision can not be null. Please use SampleDecision.UNKNOWN instead.");
         }
         this.sampled = sampled;

@@ -16,23 +16,34 @@
 package com.amazonaws.xray.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class ThrowableDescription {
+    @Nullable
     private String id;
+    @Nullable
     private String message;
+    @Nullable
     private String type;
     private boolean remote;
+    @Nullable
     private StackTraceElement[] stack;
     private int truncated;
     private int skipped;
+    @Nullable
     private String cause;
     
     @JsonIgnore
+    @Nullable
     private Throwable throwable;
 
+    // TODO(anuraaga): Investigate why stack is not being treated as nullable
+    @SuppressWarnings("nullness:initialization.fields.uninitialized")
     public ThrowableDescription() {
     }
 
+    // TODO(anuraaga): Investigate why stack is not being treated as nullable
+    @SuppressWarnings("nullness:initialization.fields.uninitialized")
     public ThrowableDescription(Throwable throwable) {
         this.throwable = throwable;
     }
@@ -40,6 +51,7 @@ public class ThrowableDescription {
     /**
      * @return the id
      */
+    @Nullable
     public String getId() {
         return id;
     }
@@ -54,6 +66,7 @@ public class ThrowableDescription {
     /**
      * @return the message
      */
+    @Nullable
     public String getMessage() {
         return message;
     }
@@ -61,13 +74,14 @@ public class ThrowableDescription {
     /**
      * @param message the message to set
      */
-    public void setMessage(String message) {
+    public void setMessage(@Nullable String message) {
         this.message = message;
     }
 
     /**
      * @return the type
      */
+    @Nullable
     public String getType() {
         return type;
     }
@@ -96,6 +110,7 @@ public class ThrowableDescription {
     /**
      * @return the stack
      */
+    @Nullable
     public StackTraceElement[] getStack() {
         return stack;
     }
@@ -103,7 +118,7 @@ public class ThrowableDescription {
     /**
      * @param stack the stack to set
      */
-    public void setStack(StackTraceElement[] stack) {
+    public void setStack(@Nullable StackTraceElement[] stack) {
         this.stack = stack;
     }
 
@@ -138,6 +153,7 @@ public class ThrowableDescription {
     /**
      * @return the cause
      */
+    @Nullable
     public String getCause() {
         return cause;
     }
@@ -145,13 +161,14 @@ public class ThrowableDescription {
     /**
      * @param cause the cause to set
      */
-    public void setCause(String cause) {
+    public void setCause(@Nullable String cause) {
         this.cause = cause;
     }
 
     /**
      * @return the throwable
      */
+    @Nullable
     public Throwable getThrowable() {
         return throwable;
     }

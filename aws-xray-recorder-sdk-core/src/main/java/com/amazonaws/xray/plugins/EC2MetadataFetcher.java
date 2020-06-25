@@ -30,9 +30,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 class EC2MetadataFetcher {
     private static final Log logger = LogFactory.getLog(EC2MetadataFetcher.class);
@@ -53,7 +53,7 @@ class EC2MetadataFetcher {
     private final URL tokenUrl;
 
     EC2MetadataFetcher() {
-        this(System.getenv("IMDS_ENDPOINT") != null ? System.getenv("IMDS_ENDPOINT") : DEFAULT_IMDS_ENDPOINT);
+        this(getEndpoint());
     }
 
     EC2MetadataFetcher(String endpoint) {
@@ -196,4 +196,8 @@ class EC2MetadataFetcher {
         }
     }
 
+    private static String getEndpoint() {
+        String endpointFromEnv = System.getenv("IMDS_ENDPOINT");
+        return endpointFromEnv != null ? endpointFromEnv :  DEFAULT_IMDS_ENDPOINT;
+    }
 }

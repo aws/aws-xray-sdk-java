@@ -21,11 +21,18 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class CauseSerializer extends JsonSerializer<Cause> {
 
-    private JsonSerializer<Object> objectSerializer;
+    private final JsonSerializer<Object> objectSerializer;
 
+    /**
+     * @deprecated Use {@link #CauseSerializer(JsonSerializer)}.
+     */
+    @Deprecated
+    // This constructor that is breaking our nullness requirements shouldn't be used and will be deleted.
+    @SuppressWarnings("nullness")
     public CauseSerializer() {
         this(null);
     }
@@ -38,8 +45,9 @@ public class CauseSerializer extends JsonSerializer<Cause> {
     public void serialize(Cause cause, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         if (!cause.getExceptions().isEmpty()) {
             ThrowableDescription first = cause.getExceptions().get(0);
-            if (null == first.getId() && null != first.getCause()) {
-                jsonGenerator.writeString(first.getCause());
+            String causeDescription = first.getCause();
+            if (first.getId() == null && causeDescription != null) {
+                jsonGenerator.writeString(causeDescription);
                 return;
             }
         } 
@@ -47,8 +55,8 @@ public class CauseSerializer extends JsonSerializer<Cause> {
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider serializerProvider, Cause cause) {
-        return null == cause || (cause.getExceptions().isEmpty() && null == cause.getId() && null == cause.getMessage());
+    public boolean isEmpty(SerializerProvider serializerProvider, @Nullable Cause cause) {
+        return cause == null || (cause.getExceptions().isEmpty() && cause.getId() == null && cause.getMessage() == null);
     }
 
 }

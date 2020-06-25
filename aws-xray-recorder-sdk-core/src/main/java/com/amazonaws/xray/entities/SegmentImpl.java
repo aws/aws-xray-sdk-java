@@ -33,15 +33,21 @@ public class SegmentImpl extends EntityImpl implements Segment {
     @JsonIgnore
     private boolean sampled;
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({ "unused", "nullness" })
     private SegmentImpl() {
         super();
     } // default constructor for jackson
 
+    // TODO(anuraaga): Refactor the entity relationship. There isn't a great reason to use a type hierarchy for data classes and
+    // it makes the code to hard to reason about e.g., nullness.
+    @SuppressWarnings("nullness")
     public SegmentImpl(AWSXRayRecorder creator, String name) {
         this(creator, name, TraceID.create());
     }
 
+    // TODO(anuraaga): Refactor the entity relationship. There isn't a great reason to use a type hierarchy for data classes and
+    // it makes the code to hard to reason about e.g., nullness.
+    @SuppressWarnings("nullness")
     public SegmentImpl(AWSXRayRecorder creator, String name, TraceID traceId) {
         super(creator, name);
         setTraceId(traceId);
@@ -139,7 +145,10 @@ public class SegmentImpl extends EntityImpl implements Segment {
         if (getAws().get("xray") instanceof Map) {
             @SuppressWarnings("unchecked")
             Map<String, Object> a = (HashMap<String, Object>) getAws().get("xray");
-            HashMap<String, Object> referA = new HashMap<String, Object>(a);
+            HashMap<String, Object> referA = new HashMap<>();
+            if (a != null) {
+                referA.putAll(a);
+            }
             referA.put("rule_name", ruleName);
             this.putAws("xray", referA);
         }

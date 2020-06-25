@@ -16,6 +16,7 @@
 package com.amazonaws.xray.entities;
 
 import java.util.Set;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 
 public interface Subsegment extends Entity {
@@ -32,6 +33,7 @@ public interface Subsegment extends Entity {
      * @return the namespace
      */
     @Override
+    @Nullable
     String getNamespace();
 
     /**

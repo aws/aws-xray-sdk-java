@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class LambdaSegmentContextResolver implements SegmentContextResolver {
     private static final Log logger = LogFactory.getLog(LambdaSegmentContextResolver.class);
@@ -36,7 +37,10 @@ public class LambdaSegmentContextResolver implements SegmentContextResolver {
             boolean success = true;
             long now = System.currentTimeMillis();
             File f = new File(SDK_INITIALIZED_FILE_LOCATION);
-            f.getParentFile().mkdirs();
+            File dir = f.getParentFile();
+            if (dir != null) {
+                dir.mkdirs();
+            }
             try {
                 OutputStream out = new FileOutputStream(f);
                 out.close();
@@ -50,11 +54,13 @@ public class LambdaSegmentContextResolver implements SegmentContextResolver {
         }
     }
 
+    @Nullable
     private static String getLambdaTaskRoot() {
         return System.getenv(LambdaSegmentContextResolver.LAMBDA_TASK_ROOT_KEY);
     }
 
     @Override
+    @Nullable
     public SegmentContext resolve() {
         String lambdaTaskRootValue = LambdaSegmentContextResolver.getLambdaTaskRoot();
         if (StringValidator.isNotNullOrBlank(lambdaTaskRootValue)) {

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface Entity extends AutoCloseable {
 
@@ -121,6 +122,7 @@ public interface Entity extends AutoCloseable {
     /**
      * @return the namespace
      */
+    @Nullable
     String getNamespace();
 
     /**
@@ -304,6 +306,7 @@ public interface Entity extends AutoCloseable {
     /**
      * @return the parentId
      */
+    @Nullable
     String getParentId();
 
     /**
@@ -315,7 +318,7 @@ public interface Entity extends AutoCloseable {
      *             AWSXRayRecorder used to create this entity is configured to throw exceptions
      *
      */
-    void setParentId(String parentId);
+    void setParentId(@Nullable String parentId);
 
     /**
      * @return the creator

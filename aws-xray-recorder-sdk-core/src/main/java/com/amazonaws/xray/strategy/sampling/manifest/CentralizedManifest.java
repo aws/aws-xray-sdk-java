@@ -30,6 +30,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class CentralizedManifest implements Manifest {
 
@@ -39,6 +41,7 @@ public class CentralizedManifest implements Manifest {
     private volatile LinkedHashMap<String, CentralizedRule> rules;
 
     // Customer default rule that matches against everything.
+    @MonotonicNonNull
     private volatile CentralizedRule defaultRule;
 
     // Timestamp of last known valid refresh. Kept volatile for swapping with new timestamp on refresh.
@@ -53,6 +56,7 @@ public class CentralizedManifest implements Manifest {
         return rules;
     }
 
+    @Nullable
     public CentralizedRule getDefaultRule() {
         return defaultRule;
     }
@@ -70,6 +74,8 @@ public class CentralizedManifest implements Manifest {
     }
 
     @Override
+    // TODO(anuraaga): It seems like this should never return null, check where defaultRule is guaranteed to be present and remove
+    @Nullable
     public Rule match(SamplingRequest req, Instant now) {
         for (CentralizedRule r : rules.values()) {
             if (!r.match(req)) {
@@ -79,12 +85,7 @@ public class CentralizedManifest implements Manifest {
             return r;
         }
 
-        CentralizedRule r = defaultRule;
-        if (r != null) {
-            return r;
-        }
-
-        return null;
+        return defaultRule;
     }
 
     public void putRules(List<SamplingRule> inputs, Instant now) {
@@ -177,11 +178,8 @@ public class CentralizedManifest implements Manifest {
             if (i.getRuleName().equals(CentralizedRule.DEFAULT_RULE_NAME)) {
                 continue;
             }
-            CentralizedRule r;
-
-            if (old.containsKey(i.getRuleName())) {
-                r = old.get(i.getRuleName());
-            } else {
+            CentralizedRule r = old.get(i.getRuleName());
+            if (r == null) {
                 r = new CentralizedRule(i, new RandImpl());
             }
 

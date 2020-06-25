@@ -46,6 +46,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Utility class for querying configuration information from ContainerInsights enabled Kubernetes clusters.
@@ -71,13 +72,15 @@ public class ContainerInsightsUtil {
      *
      * @return the name
      */
+    @Nullable
     public static String getClusterName() {
         if (isK8s()) {
             CloseableHttpClient client = getHttpClient();
             HttpGet getRequest = new HttpGet(K8S_URL + CI_CONFIGMAP_PATH);
 
-            if (getK8sCredentialHeader() != null) {
-                getRequest.setHeader(AUTH_HEADER_NAME, getK8sCredentialHeader());
+            String k8sCredentialHeader = getK8sCredentialHeader();
+            if (k8sCredentialHeader != null) {
+                getRequest.setHeader(AUTH_HEADER_NAME, k8sCredentialHeader);
             }
 
             try {
@@ -137,6 +140,7 @@ public class ContainerInsightsUtil {
         return HttpClientBuilder.create().setDefaultRequestConfig(config).build();
     }
 
+    @Nullable
     private static KeyStore getK8sKeystore() {
 
         InputStream certificateFile = null;
@@ -181,6 +185,7 @@ public class ContainerInsightsUtil {
         }
     }
 
+    @Nullable
     private static String getK8sCredentialHeader() {
 
         BufferedReader tokenReader = null;

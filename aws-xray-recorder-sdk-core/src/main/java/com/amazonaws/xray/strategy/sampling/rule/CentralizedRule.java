@@ -29,6 +29,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Represents a customer-defined sampling rule. A rule contains the matchers
@@ -49,19 +50,20 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
     private int priority = 10000; // Default
 
     // Rule Name identifying this rule.
-    private String name;
+    private final String name;
 
-    private CentralizedReservoir centralizedReservoir;
+    private final CentralizedReservoir centralizedReservoir;
     private double fixedRate;
 
-    private Statistics statistics;
+    private final Statistics statistics;
 
     // Null for customer default rule.
+    @Nullable
     private Matchers matchers;
 
-    private Rand rand;
+    private final Rand rand;
 
-    private ReadWriteLock lock;
+    private final ReadWriteLock lock;
 
     public CentralizedRule(SamplingRule input, Rand rand) {
         this.name = input.getRuleName();
@@ -257,7 +259,7 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) {
             return true;
         }

@@ -18,7 +18,9 @@ package com.amazonaws.xray.strategy.sampling.manifest;
 import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import com.amazonaws.xray.strategy.sampling.rule.Rule;
 import java.time.Instant;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface Manifest {
+    @Nullable
     Rule match(SamplingRequest req, Instant now);
 }

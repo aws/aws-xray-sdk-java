@@ -18,6 +18,7 @@ package com.amazonaws.xray.contexts;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class SegmentContextResolverChain implements ResolverChain<SegmentContext> {
 
@@ -28,10 +29,11 @@ public class SegmentContextResolverChain implements ResolverChain<SegmentContext
     }
 
     @Override
+    @Nullable
     public SegmentContext resolve() {
-        Optional<SegmentContextResolver> firstResolver = resolvers.stream().filter(resolver -> {
-            return null != resolver.resolve();
-        }).findFirst();
+        Optional<SegmentContextResolver> firstResolver = resolvers.stream()
+                                                                  .filter(resolver -> resolver.resolve() != null)
+                                                                  .findFirst();
 
         if (firstResolver.isPresent()) {
             return firstResolver.get().resolve();

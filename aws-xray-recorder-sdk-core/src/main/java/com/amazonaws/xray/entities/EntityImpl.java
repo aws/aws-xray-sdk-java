@@ -42,6 +42,8 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * The base class from which {@code Segment} and {@code Subsegment} extend.
@@ -73,6 +75,7 @@ public abstract class EntityImpl implements Entity {
 
     private String name;
     private String id;
+    @Nullable
     private String parentId;
     private double startTime;
 
@@ -92,6 +95,7 @@ public abstract class EntityImpl implements Entity {
     @JsonInclude(Include.NON_DEFAULT)
     private boolean inProgress;
 
+    @Nullable
     private String namespace;
 
     // TODO(anuraaga): Check final for other variables, for now this is most important since it's also a lock.
@@ -148,11 +152,15 @@ public abstract class EntityImpl implements Entity {
 
     // default constructor for Jackson, so it can understand the default values to compare when using the Include.NON_DEFAULT
     // annotation.
+    @SuppressWarnings("nullness")
     protected EntityImpl() {
         // TODO(anuraaga): Check this is working as intended, empty lists are currently serialized.
         subsegments = null;
     }
 
+    // TODO(anuraaga): Refactor the entity relationship. There isn't a great reason to use a type hierarchy for data classes and
+    // it makes the code to hard to reason about e.g., nullness.
+    @SuppressWarnings("nullness")
     protected EntityImpl(AWSXRayRecorder creator, String name) {
         StringValidator.throwIfNullOrBlank(name, "(Sub)segment name cannot be null or blank.");
         validateNotNull(creator);
@@ -250,6 +258,7 @@ public abstract class EntityImpl implements Entity {
     }
 
     @Override
+    @Nullable
     public String getNamespace() {
         return namespace;
     }
@@ -391,18 +400,20 @@ public abstract class EntityImpl implements Entity {
     }
 
     @Override
+    @EnsuresNonNull("this.traceId")
     public void setTraceId(TraceID traceId) {
         checkAlreadyEmitted();
         this.traceId = traceId;
     }
 
     @Override
+    @Nullable
     public String getParentId() {
         return parentId;
     }
 
     @Override
-    public void setParentId(String parentId) {
+    public void setParentId(@Nullable String parentId) {
         checkAlreadyEmitted();
         this.parentId = parentId;
     }
