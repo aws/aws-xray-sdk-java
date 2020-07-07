@@ -171,6 +171,10 @@ allprojects {
     }
 
     plugins.withId("maven-publish") {
+        plugins.apply("signing")
+
+        val isSnapshot = version.toString().endsWith("SNAPSHOT")
+
         configure<PublishingExtension> {
             publications {
                 register<MavenPublication>("maven") {
@@ -227,7 +231,6 @@ allprojects {
             repositories {
                 maven {
                     val repoUrlBase = "https://aws.oss.sonatype.org/content/repositories"
-                    val isSnapshot = version.toString().endsWith("SNAPSHOT")
                     url = uri("$repoUrlBase/${if (isSnapshot) "snapshots" else "releases"}")
                     credentials {
                         username = "${findProperty("aws.sonatype.username")}"
@@ -235,6 +238,15 @@ allprojects {
                     }
                 }
             }
+        }
+
+        tasks.withType<Sign>().configureEach {
+            onlyIf { !isSnapshot }
+        }
+
+        configure<SigningExtension> {
+            useGpgCmd()
+            sign(the<PublishingExtension>().publications["maven"])
         }
     }
 }
