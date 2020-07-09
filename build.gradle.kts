@@ -7,6 +7,28 @@ plugins {
     id("com.github.hierynomus.license") apply false
     id("net.ltgt.errorprone") apply false
     id("org.checkerframework") apply false
+
+    id("org.ajoberstar.grgit")
+    id("org.ajoberstar.reckon")
+}
+
+reckon {
+    scopeFromProp()
+    snapshotFromProp()
+}
+
+val prepareRelease = tasks.register("prepareRelease") {
+    doLast {
+        val readmeText = file("README.md").readText()
+        val updatedText = readmeText.replace("<version>[^<]+<\\/version>".toRegex(), "<version>${project.version}</version>")
+        file("README.md").writeText(updatedText)
+
+        grgit.commit(mapOf("message" to "Releasing ${project.version}", "all" to true))
+    }
+}
+
+val release = tasks.register("release") {
+    dependsOn(prepareRelease)
 }
 
 allprojects {
@@ -172,6 +194,19 @@ allprojects {
 
     plugins.withId("maven-publish") {
         plugins.apply("signing")
+
+        prepareRelease.configure {
+            dependsOn(tasks.named("build"))
+        }
+
+        val publish = tasks.named("publish")
+        publish.configure {
+            mustRunAfter(prepareRelease)
+        }
+
+        release.configure {
+            dependsOn(publish)
+        }
 
         val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
