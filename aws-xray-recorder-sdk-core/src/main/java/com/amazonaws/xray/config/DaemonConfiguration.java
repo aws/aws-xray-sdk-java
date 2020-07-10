@@ -101,6 +101,11 @@ public class DaemonConfiguration {
         boolean result = false;
         try {
             result = processAddress(addr);
+
+            if (!result) {
+                throw new IllegalArgumentException("Invalid value for agent address: " + addr
+                    + ". Value must be of form \"ip_address:port\" or \"tcp:ip_address:port udp:ip_address:port\".");
+            }
         } catch (SecurityException | IllegalArgumentException e) {
             if (ignoreInvalid) {
                 return result;
