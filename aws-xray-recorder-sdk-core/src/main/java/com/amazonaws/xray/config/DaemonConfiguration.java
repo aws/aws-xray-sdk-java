@@ -98,23 +98,16 @@ public class DaemonConfiguration {
     }
 
     private boolean setUDPAndTCPAddress(@Nullable String addr, boolean ignoreInvalid) {
-        boolean result = false;
         try {
-            result = processAddress(addr);
-
-            if (!result) {
-                throw new IllegalArgumentException("Invalid value for agent address: " + addr
-                    + ". Value must be of form \"ip_address:port\" or \"tcp:ip_address:port udp:ip_address:port\".");
-            }
+            processAddress(addr);
+            return true;
         } catch (SecurityException | IllegalArgumentException e) {
             if (ignoreInvalid) {
-                return result;
+                return false;
             } else {
                 throw e;
             }
         }
-
-        return result;
     }
 
     public void setTCPAddress(String addr) {
@@ -162,31 +155,26 @@ public class DaemonConfiguration {
         return  "http://" + getTCPAddress();
     }
 
-    private boolean processAddress(@Nullable String addr) {
+    private void processAddress(@Nullable String addr) {
         if (StringValidator.isNullOrBlank(addr)) {
-            return false;
+            throw new IllegalArgumentException("Cannot set null daemon address. Value must be of form \"ip_address:port\".");
         }
 
         String[] splitStr = addr.split("\\s+");
         if (splitStr.length > 2) {
-            logger.error("Invalid value for agent address: " + addr
+            throw new IllegalArgumentException("Invalid value for agent address: " + addr
                          + ". Value must be of form \"ip_address:port\" or \"tcp:ip_address:port udp:ip_address:port\".");
-            return false;
         }
 
         if (splitStr.length == 1) {
             setTCPAddress(addr);
             setUDPAddress(addr);
-            return true;
-        }
-
-        if (splitStr.length == 2) {
+        } else if (splitStr.length == 2) {
             String[] part1 = splitStr[0].split(":");
             String[] part2 = splitStr[1].split(":");
             if (part1.length != 3 && part2.length != 3) {
-                logger.error("Invalid value for agent address: " + splitStr[0] + " and " + splitStr[1]
+                throw new IllegalArgumentException("Invalid value for agent address: " + splitStr[0] + " and " + splitStr[1]
                              + ". Value must be of form \"tcp:ip_address:port udp:ip_address:port\".");
-                return false;
             }
 
             Map<String, String[]> mapping = new HashMap<>();
@@ -195,17 +183,15 @@ public class DaemonConfiguration {
             String[] tcpInfo = mapping.get("tcp");
             String[] udpInfo = mapping.get("udp");
             if (tcpInfo == null || udpInfo == null) {
-                logger.error("Invalid value for agent address: " + splitStr[0] + " and " + splitStr[1]
+                throw new IllegalArgumentException("Invalid value for agent address: " + splitStr[0] + " and " + splitStr[1]
                              + ". Value must be of form \"tcp:ip_address:port udp:ip_address:port\".");
-                return false;
             }
 
             setTCPAddress(tcpInfo[1] + ":" + tcpInfo[2]);
             setUDPAddress(udpInfo[1] + ":" + udpInfo[2]);
-
-            return true;
+        } else {
+            throw new IllegalArgumentException("Invalid value for agent address: " + addr
+                    + ". Value must be of form \"ip_address:port\" or \"tcp:ip_address:port udp:ip_address:port\".");
         }
-
-        return false;
     }
 }
