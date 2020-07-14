@@ -534,12 +534,12 @@ public class AWSXRayRecorder {
      */
     public Subsegment beginSubsegment(String name) {
         SegmentContext context = segmentContextResolverChain.resolve();
-        if (context != null) {
+        if (context == null) {
             // No context available, we return a no-op subsegment so user code does not have to work around this. Based on
             // ContextMissingStrategy they will still know about the issue unless they explicitly opt-ed out.
-            return context.beginSubsegment(this, name);
+            return new DummySubsegment(this);
         }
-        return new DummySubsegment(this);
+        return context.beginSubsegment(this, name);
     }
 
     /**
