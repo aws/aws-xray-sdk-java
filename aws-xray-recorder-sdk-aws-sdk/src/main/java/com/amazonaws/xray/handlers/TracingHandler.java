@@ -184,9 +184,6 @@ public class TracingHandler extends RequestHandler2 {
             recorder.setTraceEntity(entityContext);
         }
         Subsegment currentSubsegment = recorder.beginSubsegment(serviceName);
-        if (null == currentSubsegment) {
-            return;
-        }
         currentSubsegment.putAllAws(extractRequestParameters(request));
         currentSubsegment.putAws(EntityDataKeys.AWS.OPERATION_KEY, operationName);
         if (null != accountId) {
@@ -194,7 +191,7 @@ public class TracingHandler extends RequestHandler2 {
         }
         currentSubsegment.setNamespace(Namespace.AWS.toString());
 
-        if (null != recorder.getCurrentSegment()) {
+        if (recorder.getCurrentSegment() != null) {
             TraceHeader header =
                 new TraceHeader(recorder.getCurrentSegment().getTraceId(),
                                 recorder.getCurrentSegment().isSampled() ? currentSubsegment.getId() : null,

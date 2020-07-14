@@ -223,9 +223,6 @@ public class TracingInterceptor implements ExecutionInterceptor {
         Entity origin = recorder.getTraceEntity();
 
         Subsegment subsegment = recorder.beginSubsegment(executionAttributes.getAttribute(SdkExecutionAttribute.SERVICE_NAME));
-        if (subsegment == null) {
-            return;
-        }
         subsegment.setNamespace(Namespace.AWS.toString());
         subsegment.putAws(EntityDataKeys.AWS.OPERATION_KEY,
                           executionAttributes.getAttribute(SdkExecutionAttribute.OPERATION_NAME));

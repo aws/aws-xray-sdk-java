@@ -149,16 +149,13 @@ public class TracedHttpClient extends CloseableHttpClient {
             final HttpRequest request,
             final HttpContext context) throws IOException, ClientProtocolException {
         Subsegment subsegment = recorder.beginSubsegment(target.getHostName());
-        return wrapHttpSupplier(subsegment, () -> {
-            if (null != subsegment) {
+        return wrapHttpSupplier(
+            subsegment, () -> {
                 TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(target, request));
-            }
-            CloseableHttpResponse response = wrappedClient.execute(target, request, context);
-            if (null != subsegment) {
+                CloseableHttpResponse response = wrappedClient.execute(target, request, context);
                 TracedResponseHandler.addResponseInformation(subsegment, response);
-            }
-            return response;
-        });
+                return response;
+            });
     }
 
     @Override
@@ -166,32 +163,26 @@ public class TracedHttpClient extends CloseableHttpClient {
             final HttpUriRequest request,
             final HttpContext context) throws IOException, ClientProtocolException {
         Subsegment subsegment = recorder.beginSubsegment(determineTarget(request).getHostName());
-        return wrapHttpSupplier(subsegment, () -> {
-            if (null != subsegment) {
+        return wrapHttpSupplier(
+            subsegment, () -> {
                 TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(request));
-            }
-            CloseableHttpResponse response = wrappedClient.execute(request, context);
-            if (null != subsegment) {
+                CloseableHttpResponse response = wrappedClient.execute(request, context);
                 TracedResponseHandler.addResponseInformation(subsegment, response);
-            }
-            return response;
-        });
+                return response;
+            });
     }
 
     @Override
     public CloseableHttpResponse execute(
             final HttpUriRequest request) throws IOException, ClientProtocolException {
         Subsegment subsegment = recorder.beginSubsegment(determineTarget(request).getHostName());
-        return wrapHttpSupplier(subsegment, () -> {
-            if (null != subsegment) {
+        return wrapHttpSupplier(
+            subsegment, () -> {
                 TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(request));
-            }
-            CloseableHttpResponse response = wrappedClient.execute(request);
-            if (null != subsegment) {
+                CloseableHttpResponse response = wrappedClient.execute(request);
                 TracedResponseHandler.addResponseInformation(subsegment, response);
-            }
-            return response;
-        });
+                return response;
+            });
     }
 
     @Override
@@ -199,16 +190,13 @@ public class TracedHttpClient extends CloseableHttpClient {
             final HttpHost target,
             final HttpRequest request) throws IOException, ClientProtocolException {
         Subsegment subsegment = recorder.beginSubsegment(target.getHostName());
-        return wrapHttpSupplier(subsegment, () -> {
-            if (null != subsegment) {
+        return wrapHttpSupplier(
+            subsegment, () -> {
                 TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(target, request));
-            }
-            CloseableHttpResponse response = wrappedClient.execute(target, request);
-            if (null != subsegment) {
+                CloseableHttpResponse response = wrappedClient.execute(target, request);
                 TracedResponseHandler.addResponseInformation(subsegment, response);
-            }
-            return response;
-        });
+                return response;
+            });
     }
 
     @Override
@@ -217,12 +205,9 @@ public class TracedHttpClient extends CloseableHttpClient {
             ClientProtocolException {
         Subsegment subsegment = recorder.beginSubsegment(determineTarget(request).getHostName());
         return wrapHttpSupplier(subsegment, () -> {
-            if (null != subsegment) {
-                TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(request));
-            }
+            TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(request));
             TracedResponseHandler<? extends T> wrappedHandler = new TracedResponseHandler<>(responseHandler);
-            T response = wrappedClient.execute(request, wrappedHandler);
-            return response;
+            return wrappedClient.execute(request, wrappedHandler);
         });
     }
 
@@ -231,14 +216,12 @@ public class TracedHttpClient extends CloseableHttpClient {
             final ResponseHandler<? extends T> responseHandler, final HttpContext context)
             throws IOException, ClientProtocolException {
         Subsegment subsegment = recorder.beginSubsegment(determineTarget(request).getHostName());
-        return wrapHttpSupplier(subsegment, () -> {
-            if (null != subsegment) {
+        return wrapHttpSupplier(
+            subsegment, () -> {
                 TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(request));
-            }
-            TracedResponseHandler<? extends T> wrappedHandler = new TracedResponseHandler<>(responseHandler);
-            T response = wrappedClient.execute(request, wrappedHandler, context);
-            return response;
-        });
+                TracedResponseHandler<? extends T> wrappedHandler = new TracedResponseHandler<>(responseHandler);
+                return wrappedClient.execute(request, wrappedHandler, context);
+            });
     }
 
     @Override
@@ -246,14 +229,12 @@ public class TracedHttpClient extends CloseableHttpClient {
             final ResponseHandler<? extends T> responseHandler) throws IOException,
             ClientProtocolException {
         Subsegment subsegment = recorder.beginSubsegment(target.getHostName());
-        return wrapHttpSupplier(subsegment, () -> {
-            if (null != subsegment) {
+        return wrapHttpSupplier(
+            subsegment, () -> {
                 TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(target, request));
-            }
-            TracedResponseHandler<? extends T> wrappedHandler = new TracedResponseHandler<>(responseHandler);
-            T response = wrappedClient.execute(target, request, wrappedHandler);
-            return response;
-        });
+                TracedResponseHandler<? extends T> wrappedHandler = new TracedResponseHandler<>(responseHandler);
+                return wrappedClient.execute(target, request, wrappedHandler);
+            });
     }
 
     @Override
@@ -261,14 +242,12 @@ public class TracedHttpClient extends CloseableHttpClient {
             final ResponseHandler<? extends T> responseHandler, final HttpContext context)
             throws IOException, ClientProtocolException {
         Subsegment subsegment = recorder.beginSubsegment(target.getHostName());
-        return wrapHttpSupplier(subsegment, () -> {
-            if (null != subsegment) {
+        return wrapHttpSupplier(
+            subsegment, () -> {
                 TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(target, request));
-            }
-            TracedResponseHandler<? extends T> wrappedHandler = new TracedResponseHandler<>(responseHandler);
-            T response = wrappedClient.execute(target, request, wrappedHandler, context);
-            return response;
-        });
+                TracedResponseHandler<? extends T> wrappedHandler = new TracedResponseHandler<>(responseHandler);
+                return wrappedClient.execute(target, request, wrappedHandler, context);
+            });
     }
 
     @Override

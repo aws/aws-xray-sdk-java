@@ -63,7 +63,6 @@ public interface SegmentContext {
         ThreadLocalStorage.clear();
     }
 
-    @Nullable
     Subsegment beginSubsegment(AWSXRayRecorder recorder, String name);
 
     void endSubsegment(AWSXRayRecorder recorder);

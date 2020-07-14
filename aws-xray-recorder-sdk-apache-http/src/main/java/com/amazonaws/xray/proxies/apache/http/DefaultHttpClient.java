@@ -48,23 +48,15 @@ public class DefaultHttpClient extends org.apache.http.impl.client.DefaultHttpCl
         HttpHost target, HttpRequest request, HttpContext context) throws IOException, ClientProtocolException {
         Subsegment subsegment = getRecorder().beginSubsegment(target.getHostName());
         try {
-            if (null != subsegment) {
-                TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(target, request));
-            }
+            TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(target, request));
             CloseableHttpResponse response = super.execute(target, request, context);
-            if (null != subsegment) {
-                TracedResponseHandler.addResponseInformation(subsegment, response);
-            }
+            TracedResponseHandler.addResponseInformation(subsegment, response);
             return response;
         } catch (Exception e) {
-            if (null != subsegment) {
-                subsegment.addException(e);
-            }
+            subsegment.addException(e);
             throw e;
         } finally {
-            if (null != subsegment) {
-                getRecorder().endSubsegment();
-            }
+            getRecorder().endSubsegment();
         }
     }
 
@@ -73,23 +65,15 @@ public class DefaultHttpClient extends org.apache.http.impl.client.DefaultHttpCl
         HttpUriRequest request, HttpContext context) throws IOException, ClientProtocolException {
         Subsegment subsegment = getRecorder().beginSubsegment(TracedHttpClient.determineTarget(request).getHostName());
         try {
-            if (null != subsegment) {
-                TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(request));
-            }
+            TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(request));
             CloseableHttpResponse response = super.execute(request, context);
-            if (null != subsegment) {
-                TracedResponseHandler.addResponseInformation(subsegment, response);
-            }
+            TracedResponseHandler.addResponseInformation(subsegment, response);
             return response;
         } catch (Exception e) {
-            if (null != subsegment) {
-                subsegment.addException(e);
-            }
+            subsegment.addException(e);
             throw e;
         } finally {
-            if (null != subsegment) {
-                getRecorder().endSubsegment();
-            }
+            getRecorder().endSubsegment();
         }
     }
 
@@ -97,23 +81,15 @@ public class DefaultHttpClient extends org.apache.http.impl.client.DefaultHttpCl
     public CloseableHttpResponse execute(HttpHost target, HttpRequest request) throws IOException, ClientProtocolException {
         Subsegment subsegment = getRecorder().beginSubsegment(target.getHostName());
         try {
-            if (null != subsegment) {
-                TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(target, request));
-            }
+            TracedHttpClient.addRequestInformation(subsegment, request, TracedHttpClient.getUrl(target, request));
             CloseableHttpResponse response = super.execute(target, request);
-            if (null != subsegment) {
-                TracedResponseHandler.addResponseInformation(subsegment, response);
-            }
+            TracedResponseHandler.addResponseInformation(subsegment, response);
             return response;
         } catch (Exception e) {
-            if (null != subsegment) {
-                subsegment.addException(e);
-            }
+            subsegment.addException(e);
             throw e;
         } finally {
-            if (null != subsegment) {
-                getRecorder().endSubsegment();
-            }
+            getRecorder().endSubsegment();
         }
     }
 
