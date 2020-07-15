@@ -16,6 +16,7 @@
 package com.amazonaws.xray.contexts;
 
 import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.entities.DummySubsegment;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.Objects;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class ThreadLocalSegmentContext implements SegmentContext {
     private static final Log logger =
@@ -35,13 +35,12 @@ public class ThreadLocalSegmentContext implements SegmentContext {
 
 
     @Override
-    @Nullable
     public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
         Entity current = getTraceEntity();
         if (current == null) {
             recorder.getContextMissingStrategy().contextMissing("Failed to begin subsegment named '" + name
                                                                 + "': segment cannot be found.", SegmentNotFoundException.class);
-            return null;
+            return new DummySubsegment(recorder);
         }
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);

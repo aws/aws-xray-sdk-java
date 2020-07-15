@@ -15,8 +15,12 @@
 
 package com.amazonaws.xray;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import com.amazonaws.xray.contexts.LambdaSegmentContext;
 import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
+import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
@@ -443,83 +447,83 @@ public class AWSXRayRecorderTest {
     }
 
     @Test
-    public void testSubsegmentFunctionExceptionWhenMissingContextIsLogged() {
-        // given
-        RuntimeException expectedException = new RuntimeException("To be thrown by function");
-        Function<Subsegment, Void> function = (subsegment) -> {
-            throw expectedException;
-        };
+    public void testBeginSegmentWhenMissingContext() {
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-                                                         .withContextMissingStrategy(new LogErrorContextMissingStrategy())
+                                                         .withSegmentContextResolverChain(new SegmentContextResolverChain())
+                                                         .withContextMissingStrategy(new IgnoreErrorContextMissingStrategy())
                                                          .build();
-
-        // when
-        try {
-            recorder.createSubsegment("test", function);
-            Assert.fail("An exception should have been thrown");
-        } catch (Exception e) {
-            Assert.assertEquals("Function exception was not propagated", expectedException, e);
-        }
+        Segment segment = recorder.beginSegment("hello");
+        assertThat(segment).isNotNull();
+        assertThat(segment.getNamespace()).isEmpty();
+        // No-op
+        segment.setNamespace("foo");
+        assertThat(segment.getNamespace()).isEmpty();
     }
 
     @Test
-    public void testSubsegmentConsumerExceptionWhenMissingContextIsLogged() {
-        // given
-        RuntimeException expectedException = new RuntimeException("To be thrown by consumer");
+    public void testBeginSubsegmentWhenMissingContext() {
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+                                                         .withContextMissingStrategy(new IgnoreErrorContextMissingStrategy())
+                                                         .build();
+        Subsegment subsegment = recorder.beginSubsegment("hello");
+        assertThat(subsegment).isNotNull();
+        assertThat(subsegment.getNamespace()).isEmpty();
+        // No-op
+        subsegment.setNamespace("foo");
+        assertThat(subsegment.getNamespace()).isEmpty();
+    }
+
+    @Test
+    public void testSubsegmentFunctionExceptionWhenMissingContext() {
+        IllegalStateException expectedException = new IllegalStateException("To be thrown by function");
+        Function<Subsegment, Void> function = (subsegment) -> {
+            throw expectedException;
+        };
+
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+                                                         .withContextMissingStrategy(new IgnoreErrorContextMissingStrategy())
+                                                         .build();
+
+        assertThatThrownBy(() -> recorder.createSubsegment("test", function)).isEqualTo(expectedException);
+    }
+
+    @Test
+    public void testSubsegmentConsumerExceptionWhenMissingContext() {
+        IllegalStateException expectedException = new IllegalStateException("To be thrown by consumer");
         Consumer<Subsegment> consumer = (subsegment) -> {
             throw expectedException;
         };
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-                                                         .withContextMissingStrategy(new LogErrorContextMissingStrategy())
+                                                         .withContextMissingStrategy(new IgnoreErrorContextMissingStrategy())
                                                          .build();
 
-        // when
-        try {
-            recorder.createSubsegment("test", consumer);
-            Assert.fail("An exception should have been thrown");
-        } catch (Exception e) {
-            Assert.assertEquals("Consumer exception was not propagated", expectedException, e);
-        }
+        assertThatThrownBy(() -> recorder.createSubsegment("test", consumer)).isEqualTo(expectedException);
     }
 
     @Test
-    public void testSubsegmentSupplierExceptionWhenMissingContextIsLogged() {
-        // given
+    public void testSubsegmentSupplierExceptionWhenMissingContext() {
         RuntimeException expectedException = new RuntimeException("To be thrown by supplier");
         Supplier<Void> supplier = () -> {
             throw expectedException;
         };
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-                                                         .withContextMissingStrategy(new LogErrorContextMissingStrategy())
+                                                         .withContextMissingStrategy(new IgnoreErrorContextMissingStrategy())
                                                          .build();
 
-        // when
-        try {
-            recorder.createSubsegment("test", supplier);
-            Assert.fail("An exception should have been thrown");
-        } catch (Exception e) {
-            Assert.assertEquals("Supplier exception was not propagated", expectedException, e);
-        }
+        assertThatThrownBy(() -> recorder.createSubsegment("test", supplier)).isEqualTo(expectedException);
     }
 
     @Test
-    public void testSubsegmentRunnableExceptionWhenMissingContextIsLogged() {
-        // given
+    public void testSubsegmentRunnableExceptionWhenMissingContext() {
         RuntimeException expectedException = new RuntimeException("To be thrown by runnable");
         Runnable runnable = () -> {
             throw expectedException;
         };
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-                                                         .withContextMissingStrategy(new LogErrorContextMissingStrategy())
+                                                         .withContextMissingStrategy(new IgnoreErrorContextMissingStrategy())
                                                          .build();
 
-        // when
-        try {
-            recorder.createSubsegment("test", runnable);
-            Assert.fail("An exception should have been thrown");
-        } catch (Exception e) {
-            Assert.assertEquals("Runnable exception was not propagated", expectedException, e);
-        }
+        assertThatThrownBy(() -> recorder.createSubsegment("test", runnable)).isEqualTo(expectedException);
     }
 
     @Test

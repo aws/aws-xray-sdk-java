@@ -52,7 +52,7 @@ class AWSXRayServletAsyncListener implements AsyncListener {
         try {
             Entity entity = (Entity) event.getSuppliedRequest().getAttribute(ENTITY_ATTRIBUTE_KEY);
             recorder.setTraceEntity(entity);
-            if (null != event.getThrowable()) {
+            if (event.getThrowable() != null) {
                 entity.addException(event.getThrowable());
             }
             filter.postFilter(event.getSuppliedRequest(), event.getSuppliedResponse());
