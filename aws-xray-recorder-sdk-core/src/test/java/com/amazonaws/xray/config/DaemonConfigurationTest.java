@@ -150,4 +150,10 @@ public class DaemonConfigurationTest {
         DaemonConfiguration config = new DaemonConfiguration();
         config.setDaemonAddress("0.0.0.1");
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testShouldThrowOnReallyInvalidRuntimeConfig() {
+        DaemonConfiguration config = new DaemonConfiguration();
+        config.setDaemonAddress("Not an address");
+    }
 }

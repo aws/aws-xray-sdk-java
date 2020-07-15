@@ -431,8 +431,11 @@ public abstract class EntityImpl implements Entity {
     @Override
     public void addSubsegment(Subsegment subsegment) {
         checkAlreadyEmitted();
-        synchronized (subsegments) {
+        getSubsegmentsLock().lock();
+        try {
             subsegments.add(subsegment);
+        } finally {
+            getSubsegmentsLock().unlock();
         }
     }
 
@@ -440,8 +443,11 @@ public abstract class EntityImpl implements Entity {
     public void addException(Throwable exception) {
         checkAlreadyEmitted();
         setFault(true);
-        synchronized (subsegments) {
+        getSubsegmentsLock().lock();
+        try {
             cause.addExceptions(creator.getThrowableSerializationStrategy().describeInContext(exception, subsegments));
+        } finally {
+            getSubsegmentsLock().unlock();
         }
     }
 
@@ -606,8 +612,11 @@ public abstract class EntityImpl implements Entity {
 
     @Override
     public void removeSubsegment(Subsegment subsegment) {
-        synchronized (subsegments) {
-            getSubsegments().remove(subsegment);
+        getSubsegmentsLock().lock();
+        try {
+            subsegments.remove(subsegment);
+        } finally {
+            getSubsegmentsLock().unlock();
         }
         getParentSegment().getTotalSize().decrement();
     }
