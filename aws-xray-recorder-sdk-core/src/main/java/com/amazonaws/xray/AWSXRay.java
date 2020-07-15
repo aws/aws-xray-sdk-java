@@ -102,9 +102,13 @@ public class AWSXRay {
         return globalRecorder.beginSegment(name, traceId, parentId);
     }
 
+    /**
+     * @deprecated Use {@code AWSXray.getGlobalRecorder().beginNoOpSegment() }.
+     */
+    @Deprecated
     @Nullable
     public static Segment beginDummySegment() {
-        return globalRecorder.beginDummySegment();
+        return globalRecorder.beginNoOpSegment();
     }
 
     public static void endSegment() {

@@ -31,7 +31,16 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+@BenchmarkMode(Mode.All)
+@Measurement(iterations = 5, time = 1)
+@Warmup(iterations = 10, time = 1)
+@Fork(3)
+@OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class AWSXRayRecorderBenchmark {
     private static final String SEGMENT_NAME = "BENCHMARK_SEGMENT";
     private static final String SUBSEGMENT_NAME = "BENCHMARK_SUBSEGMENT";
@@ -88,9 +97,7 @@ public class AWSXRayRecorderBenchmark {
 
         @Setup(Level.Invocation)
         public void setupContext() {
-            recorder.beginDummySegment();
-
-            // Doesn't look like dummy subsegment API is available in the recorder?
+            recorder.beginNoOpSegment();
             recorder.beginSubsegment(SUBSEGMENT_NAME);
         }
     }
@@ -111,56 +118,30 @@ public class AWSXRayRecorderBenchmark {
     }
 
     // Begin segment; this is the case when the decision is to sample.
-    @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public Segment beginSegmentBenchmark(RecorderState state) {
         return state.recorder.beginSegment(SEGMENT_NAME);
     }
 
     // Begin Dummy Segment; this is the case when the sampling decision is to not sample
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public Segment beginDummySegmentBenchmark(RecorderState state) {
-        return state.recorder.beginDummySegment();
+        return state.recorder.beginNoOpSegment();
     }
 
     // End segment for segments that are not sampled (dummy segments).
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public void endDummySegmentBenchmark(DummyPopulatedRecorderState state) {
         state.recorder.endSegment();
     }
 
     // End segment for segments that are sampled.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public void endSegmentBenchmark(SegmentNoChildRecorderState state) {
         state.recorder.endSegment();
     }
 
     // End segment and child segment for a context which has a prepopulated segment and child subsegment.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public void endSegmentWithChildBenchmark(PopulatedRecorderState state) {
         state.recorder.endSubsegment();
         state.recorder.endSegment();
@@ -168,22 +149,12 @@ public class AWSXRayRecorderBenchmark {
 
     // End segment for a context which has only a prepopulated segment.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public void endSegmentNoChildBenchmark(SegmentNoChildRecorderState state) {
         state.recorder.endSegment();
     }
 
     // Begin a segment and end the segment; usually in the case when the sampling decision is true.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public void beginEndSegmentBenchmark(RecorderState state) {
         state.recorder.beginSegment(SEGMENT_NAME);
         state.recorder.endSegment();
@@ -191,56 +162,31 @@ public class AWSXRayRecorderBenchmark {
 
     // Begin a segment and end the segment; usually in the case when the sampling decision is false.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public void beginEndDummySegmentBenchmark(RecorderState state) {
-        state.recorder.beginDummySegment();
+        state.recorder.beginNoOpSegment();
         state.recorder.endSegment();
     }
 
     // Begin a segment in a context that has a segment already where sampling occurs.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public Subsegment beginSubsegmentBenchmark(SegmentNoChildRecorderState state) {
         return state.recorder.beginSubsegment(SUBSEGMENT_NAME);
     }
 
     // Begin a subsegment in a context that has a segment where the sampling decision is false.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public Subsegment beginSubsegmentDummyParentBenchmark(DummyPopulatedRecorderState state) {
         return state.recorder.beginSubsegment(SUBSEGMENT_NAME);
     }
 
     // End subsegment for subsegments that are not sampled.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public void endSubsegmentDummyParentBenchmark(DummyPopulatedRecorderState state) {
         state.recorder.endSubsegment();
     }
 
     // End segment for segments that are sampled
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public void endSubsegmentBenchmark(PopulatedRecorderState state) {
         state.recorder.endSubsegment();
     }
@@ -248,11 +194,6 @@ public class AWSXRayRecorderBenchmark {
     // Begin a segment, begin a subsegment, end the subsegment, and end the segment,
     // where the sampling decision is to true.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public void beginEndSegmentSubsegmentBenchmark(RecorderState state) {
         state.recorder.beginSegment(SEGMENT_NAME);
         state.recorder.beginSubsegment(SUBSEGMENT_NAME);
@@ -263,13 +204,8 @@ public class AWSXRayRecorderBenchmark {
     // Begin a segment, begin a subsegment, end the subsegment, and end the segment,
     // where the sampling decision is not true (and a parent dummy segment is generated).
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public void beginEndDummySegmentSubsegmentBenchmark(RecorderState state) {
-        state.recorder.beginDummySegment();
+        state.recorder.beginNoOpSegment();
         state.recorder.beginSubsegment(SUBSEGMENT_NAME);
         state.recorder.endSubsegment();
         state.recorder.endSegment();
@@ -278,11 +214,6 @@ public class AWSXRayRecorderBenchmark {
     // Get Segment benchmark
     // We have to make sure the state that we choose has an entity already populated.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public Segment getSegmentBenchmark(PopulatedRecorderState state) {
         return state.recorder.getCurrentSegment();
     }
@@ -290,12 +221,17 @@ public class AWSXRayRecorderBenchmark {
     // Get Subsegment benchmark.
     // We have to make sure the context has a subsegment present.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public Subsegment getSubsegmentBenchmark(PopulatedRecorderState state) {
         return state.recorder.getCurrentSubsegment();
+    }
+
+    // Convenience main entry-point
+    public static void main(String[] args) throws RunnerException {
+        Options opt = new OptionsBuilder()
+            .addProfiler("gc")
+            .include(".*" + AWSXRayRecorderBenchmark.class.getSimpleName() + ".*Dummy.*")
+            .build();
+
+        new Runner(opt).run();
     }
 }

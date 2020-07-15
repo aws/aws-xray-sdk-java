@@ -15,11 +15,16 @@
 
 package com.amazonaws.xray.entities;
 
+import com.amazonaws.xray.AWSXRayRecorder;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-
 public interface Subsegment extends Entity {
+
+    static Subsegment noOp(Segment parent, AWSXRayRecorder recorder) {
+        return new NoOpSubSegment(parent, recorder);
+    }
+
     /**
      * Ends the subsegment. Sets the end time to the current time. Sets inProgress to false. Decrements its parent segment's
      * segment-reference counter.

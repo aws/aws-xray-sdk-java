@@ -62,7 +62,9 @@ public class LambdaSegmentContext implements SegmentContext {
         Entity entity = getTraceEntity();
         if (entity == null) { // First subsgment of a subsegment branch.
             Segment parentSegment = newFacadeSegment(recorder, name);
-            Subsegment subsegment = new SubsegmentImpl(recorder, name, parentSegment);
+            Subsegment subsegment = parentSegment.isRecording()
+                                    ? new SubsegmentImpl(recorder, name, parentSegment)
+                                    : Subsegment.noOp(parentSegment, recorder);
             subsegment.setParent(parentSegment);
             // Enable FacadeSegment to keep track of its subsegments for subtree streaming
             parentSegment.addSubsegment(subsegment);
@@ -77,7 +79,10 @@ public class LambdaSegmentContext implements SegmentContext {
                 clearTraceEntity();
                 return beginSubsegment(recorder, name);
             }
-            Subsegment subsegment = new SubsegmentImpl(recorder, name, parentSubsegment.getParentSegment());
+            Segment parentSegment = parentSubsegment.getParentSegment();
+            Subsegment subsegment = parentSegment.isRecording()
+                                    ? new SubsegmentImpl(recorder, name, parentSegment)
+                                    : Subsegment.noOp(parentSegment, recorder);
             subsegment.setParent(parentSubsegment);
             parentSubsegment.addSubsegment(subsegment);
             setTraceEntity(subsegment);

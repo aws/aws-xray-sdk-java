@@ -47,7 +47,8 @@ public class ThreadLocalSegmentContext implements SegmentContext {
             logger.debug("Beginning subsegment named: " + name);
         }
         Segment parentSegment = current.getParentSegment();
-        Subsegment subsegment = new SubsegmentImpl(recorder, name, parentSegment);
+        Subsegment subsegment = parentSegment.isRecording()
+                                ? new SubsegmentImpl(recorder, name, parentSegment) : Subsegment.noOp(parentSegment, recorder);
         subsegment.setParent(current);
         current.addSubsegment(subsegment);
         setTraceEntity(subsegment);

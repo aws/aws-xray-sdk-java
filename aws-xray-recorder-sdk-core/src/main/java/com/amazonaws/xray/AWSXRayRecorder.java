@@ -21,7 +21,6 @@ import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.contexts.ThreadLocalSegmentContextResolver;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.AWSLogReference;
-import com.amazonaws.xray.entities.DummySegment;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.FacadeSegment;
 import com.amazonaws.xray.entities.Segment;
@@ -418,23 +417,52 @@ public class AWSXRayRecorder {
     }
 
     /**
+     * Sets the current {@link Segment} to a no-op which will not record any information or be emitted. An invalid {@link TraceID}
+     * will be propagated downstream.
+     */
+    @Nullable
+    public Segment beginNoOpSegment() {
+        return beginSegment(Segment.noOp(TraceID.invalid(), this));
+    }
+
+    /**
+     * Sets the current {@link Segment} to a no-op which will not record any information or be emitted. The provided
+     * {@link TraceID} will be propagated downstream.
+     */
+    @Nullable
+    public Segment beginNoOpSegment(TraceID traceID) {
+        return beginSegment(Segment.noOp(traceID, this));
+    }
+
+    /**
      * Sets the current segment to a new instance of {@code DummySegment}.
      *
      * @return the newly created {@code DummySegment}.
+     *
+     * @deprecated Use {@link #beginNoOpSegment()}.
      */
+    @Deprecated
     @Nullable
     public Segment beginDummySegment() {
-        return beginSegment(new DummySegment(this));
+        return beginNoOpSegment();
     }
 
+    /**
+     * @deprecated Use {@link #beginNoOpSegment(TraceID)}.
+     */
+    @Deprecated
     @Nullable
     public Segment beginDummySegment(String name, TraceID traceId) {
-        return beginSegment(new DummySegment(this, name, traceId));
+        return beginNoOpSegment(traceId);
     }
 
+    /**
+     * @deprecated Use {@link #beginNoOpSegment(TraceID)}.
+     */
+    @Deprecated
     @Nullable
     public Segment beginDummySegment(TraceID traceId) {
-        return beginSegment(new DummySegment(this, traceId));
+        return beginNoOpSegment(traceId);
     }
 
     @Nullable

@@ -73,6 +73,11 @@ public class SegmentImpl extends EntityImpl implements Segment {
     }
 
     @Override
+    public boolean isRecording() {
+        return true;
+    }
+
+    @Override
     public boolean isSampled() {
         return sampled;
     }

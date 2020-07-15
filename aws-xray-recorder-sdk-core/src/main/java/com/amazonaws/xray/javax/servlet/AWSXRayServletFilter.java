@@ -324,7 +324,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         HttpServletRequest httpServletRequest = castServletRequest(request);
         if (httpServletRequest == null) {
             logger.warn("Null value for incoming HttpServletRequest. Beginning DummySegment.");
-            return recorder.beginDummySegment(TraceID.create());
+            return recorder.beginNoOpSegment();
         }
 
         Optional<TraceHeader> incomingHeader = getTraceHeader(httpServletRequest);
@@ -342,29 +342,39 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
             sampleDecision = getSampleDecision(samplingResponse);
         }
 
-        TraceID traceId = incomingHeader.isPresent() ? incomingHeader.get().getRootTraceId() : null;
-        if (null == traceId) {
-            traceId = TraceID.create();
+        final TraceID traceId;
+        final String parentId;
+        if (incomingHeader.isPresent()) {
+            TraceHeader header = incomingHeader.get();
+            traceId = header.getRootTraceId();
+            parentId = header.getParentId();
+        } else {
+            traceId = null;
+            parentId = null;
         }
-
-        String parentId = incomingHeader.isPresent() ? incomingHeader.get().getParentId() : null;
 
         final Segment created;
         if (SampleDecision.SAMPLED.equals(sampleDecision)) {
-            created = recorder.beginSegment(getSegmentName(httpServletRequest), traceId, parentId);
+            String segmentName = getSegmentName(httpServletRequest);
+            created = traceId != null
+                      ? recorder.beginSegment(segmentName, traceId, parentId)
+                      : recorder.beginSegment(segmentName);
             if (created != null && samplingResponse.getRuleName().isPresent()) {
                 logger.debug("Sampling strategy decided to use rule named: " + samplingResponse.getRuleName().get() + ".");
                 created.setRuleName(samplingResponse.getRuleName().get());
             }
         } else { //NOT_SAMPLED
+            String segmentName = getSegmentName(httpServletRequest);
             if (samplingStrategy.isForcedSamplingSupported()) {
-                created = recorder.beginSegment(getSegmentName(httpServletRequest), traceId, parentId);
+                created = traceId != null
+                          ? recorder.beginSegment(segmentName, traceId, parentId)
+                          : recorder.beginSegment(segmentName);
                 if (created != null) {
                     created.setSampled(false);
                 }
             } else {
                 logger.debug("Creating Dummy Segment");
-                created = recorder.beginDummySegment(getSegmentName(httpServletRequest), traceId);
+                created = traceId != null ? recorder.beginNoOpSegment(traceId) : recorder.beginNoOpSegment();
             }
         }
 

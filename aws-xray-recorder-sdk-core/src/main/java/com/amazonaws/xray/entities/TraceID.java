@@ -22,37 +22,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class TraceID {
 
-    private static final int TRACE_ID_LENGTH = 35;
-    private static final int TRACE_ID_DELIMITER_INDEX_1 = 1;
-    private static final int TRACE_ID_DELIMITER_INDEX_2 = 10;
-
-    private static final char VERSION = '1';
-    private static final char DELIMITER = '-';
-
-    private BigInteger number;
-    private long startTime;
-
-    /**
-     * @deprecated Use {@link #create()}.
-     */
-    @Deprecated
-    public TraceID() {
-        this(Instant.now().getEpochSecond());
-    }
-
-    /**
-     * @deprecated Use {@link #create()}.
-     */
-    @Deprecated
-    public TraceID(long startTime) {
-        number = new BigInteger(96, ThreadLocalStorage.getRandom());
-        this.startTime = startTime;
-    }
-
-    private TraceID(long startTime, BigInteger number) {
-        this.startTime = startTime;
-        this.number = number;
-    }
+    private static final TraceID INVALID = new TraceID(0, BigInteger.ZERO);
 
     /**
      * Returns a new {@link TraceID} which represents the start of a new trace.
@@ -93,6 +63,46 @@ public class TraceID {
             return TraceID.create();
         }
         return result;
+    }
+
+    /**
+     * Returns an invalid {@link TraceID} which can be used when an ID is needed outside the context of a trace, for example for
+     * an unsampled segment.
+     */
+    public static TraceID invalid() {
+        return INVALID;
+    }
+
+    private static final int TRACE_ID_LENGTH = 35;
+    private static final int TRACE_ID_DELIMITER_INDEX_1 = 1;
+    private static final int TRACE_ID_DELIMITER_INDEX_2 = 10;
+
+    private static final char VERSION = '1';
+    private static final char DELIMITER = '-';
+
+    private BigInteger number;
+    private long startTime;
+
+    /**
+     * @deprecated Use {@link #create()}.
+     */
+    @Deprecated
+    public TraceID() {
+        this(Instant.now().getEpochSecond());
+    }
+
+    /**
+     * @deprecated Use {@link #create()}.
+     */
+    @Deprecated
+    public TraceID(long startTime) {
+        number = new BigInteger(96, ThreadLocalStorage.getRandom());
+        this.startTime = startTime;
+    }
+
+    private TraceID(long startTime, BigInteger number) {
+        this.startTime = startTime;
+        this.number = number;
     }
 
     @Override
