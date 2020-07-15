@@ -352,9 +352,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         } else { //NOT_SAMPLED
             if (samplingStrategy.isForcedSamplingSupported()) {
                 created = recorder.beginSegment(getSegmentName(httpServletRequest), traceId, parentId);
-                if (created != null) {
-                    created.setSampled(false);
-                }
+                created.setSampled(false);
             } else {
                 logger.debug("Creating Dummy Segment");
                 created = recorder.beginDummySegment(getSegmentName(httpServletRequest), traceId);
