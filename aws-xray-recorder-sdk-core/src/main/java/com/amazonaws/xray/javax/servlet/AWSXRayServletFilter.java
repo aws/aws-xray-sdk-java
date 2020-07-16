@@ -342,15 +342,12 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
             sampleDecision = getSampleDecision(samplingResponse);
         }
 
-        final TraceID traceId;
-        final String parentId;
+        TraceID traceId = null;
+        String parentId = null;
         if (incomingHeader.isPresent()) {
             TraceHeader header = incomingHeader.get();
             traceId = header.getRootTraceId();
             parentId = header.getParentId();
-        } else {
-            traceId = null;
-            parentId = null;
         }
 
         final Segment created;

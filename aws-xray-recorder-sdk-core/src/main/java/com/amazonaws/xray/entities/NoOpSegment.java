@@ -138,7 +138,7 @@ class NoOpSegment implements Segment {
     }
 
     @Override
-    public @Nullable String getNamespace() {
+    public String getNamespace() {
         return "";
     }
 

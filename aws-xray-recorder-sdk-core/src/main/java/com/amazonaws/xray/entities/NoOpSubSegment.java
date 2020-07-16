@@ -89,7 +89,7 @@ class NoOpSubSegment implements Subsegment {
     }
 
     @Override
-    public @Nullable String getNamespace() {
+    public String getNamespace() {
         return "";
     }
 
