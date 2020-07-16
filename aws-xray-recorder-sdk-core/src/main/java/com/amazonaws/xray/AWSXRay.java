@@ -57,11 +57,11 @@ public class AWSXRay {
     }
 
     @Nullable
-    public static <R> R createSegment(String name, Function<@Nullable Segment, @Nullable R> function) {
+    public static <R> R createSegment(String name, Function<Segment, @Nullable R> function) {
         return globalRecorder.createSegment(name, function);
     }
 
-    public static void createSegment(String name, Consumer<@Nullable Segment> consumer) {
+    public static void createSegment(String name, Consumer<Segment> consumer) {
         globalRecorder.createSegment(name, consumer);
     }
 
@@ -75,11 +75,11 @@ public class AWSXRay {
     }
 
     @Nullable
-    public static <R> R createSubsegment(String name, Function<@Nullable Subsegment, @Nullable R> function) {
+    public static <R> R createSubsegment(String name, Function<Subsegment, @Nullable R> function) {
         return globalRecorder.createSubsegment(name, function);
     }
 
-    public static void createSubsegment(String name, Consumer<@Nullable Subsegment> consumer) {
+    public static void createSubsegment(String name, Consumer<Subsegment> consumer) {
         globalRecorder.createSubsegment(name, consumer);
     }
 
@@ -92,12 +92,10 @@ public class AWSXRay {
         globalRecorder.createSubsegment(name, runnable);
     }
 
-    @Nullable
     public static Segment beginSegment(String name) {
         return globalRecorder.beginSegment(name);
     }
 
-    @Nullable
     public static Segment beginSegment(String name, TraceID traceId, String parentId) {
         return globalRecorder.beginSegment(name, traceId, parentId);
     }
@@ -106,7 +104,6 @@ public class AWSXRay {
      * @deprecated Use {@code AWSXray.getGlobalRecorder().beginNoOpSegment() }.
      */
     @Deprecated
-    @Nullable
     public static Segment beginDummySegment() {
         return globalRecorder.beginNoOpSegment();
     }
@@ -115,7 +112,6 @@ public class AWSXRay {
         globalRecorder.endSegment();
     }
 
-    @Nullable
     public static Subsegment beginSubsegment(String name) {
         return globalRecorder.beginSubsegment(name);
     }

@@ -187,17 +187,11 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         try {
             chain.doFilter(request, response);
         } catch (Throwable e) {
-            if (segment != null) {
-                segment.addException(e);
-            }
+            segment.addException(e);
             throw e;
         } finally {
             if (request.isAsyncStarted()) {
-                if (segment != null) {
-                    request.setAttribute(AWSXRayServletAsyncListener.ENTITY_ATTRIBUTE_KEY, segment);
-                } else {
-                    request.removeAttribute(AWSXRayServletAsyncListener.ENTITY_ATTRIBUTE_KEY);
-                }
+                request.setAttribute(AWSXRayServletAsyncListener.ENTITY_ATTRIBUTE_KEY, segment);
                 try {
                     request.getAsyncContext().addListener(listener);
                     if (recorder != null) {
@@ -318,7 +312,6 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         return recorder;
     }
 
-    @Nullable
     public Segment preFilter(ServletRequest request, ServletResponse response) {
         AWSXRayRecorder recorder = getRecorder();
         HttpServletRequest httpServletRequest = castServletRequest(request);
@@ -356,7 +349,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
             created = traceId != null
                       ? recorder.beginSegment(segmentName, traceId, parentId)
                       : recorder.beginSegment(segmentName);
-            if (created != null && samplingResponse.getRuleName().isPresent()) {
+            if (samplingResponse.getRuleName().isPresent()) {
                 logger.debug("Sampling strategy decided to use rule named: " + samplingResponse.getRuleName().get() + ".");
                 created.setRuleName(samplingResponse.getRuleName().get());
             }
@@ -366,17 +359,11 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
                 created = traceId != null
                           ? recorder.beginSegment(segmentName, traceId, parentId)
                           : recorder.beginSegment(segmentName);
-                if (created != null) {
-                    created.setSampled(false);
-                }
+                created.setSampled(false);
             } else {
                 logger.debug("Creating Dummy Segment");
                 created = traceId != null ? recorder.beginNoOpSegment(traceId) : recorder.beginNoOpSegment();
             }
-        }
-
-        if (created == null) {
-            return null;
         }
 
         Map<String, Object> requestAttributes = new HashMap<String, Object>();

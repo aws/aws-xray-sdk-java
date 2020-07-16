@@ -21,6 +21,7 @@ import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.contexts.ThreadLocalSegmentContextResolver;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.AWSLogReference;
+import com.amazonaws.xray.entities.DummySubsegment;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.FacadeSegment;
 import com.amazonaws.xray.entities.Segment;
@@ -216,14 +217,12 @@ public class AWSXRayRecorder {
      * @return the value returned by the supplied function
      */
     @Nullable
-    public <R> R createSegment(String name, Function<@Nullable Segment, @Nullable R> function) {
+    public <R> R createSegment(String name, Function<Segment, @Nullable R> function) {
         Segment segment = beginSegment(name);
         try {
             return function.apply(segment);
         } catch (Exception e) {
-            if (segment != null) {
-                segment.addException(e);
-            }
+            segment.addException(e);
             throw e;
         } finally {
             endSegment();
@@ -239,14 +238,12 @@ public class AWSXRayRecorder {
      * @param consumer
      *            the function to invoke
      */
-    public void createSegment(String name, Consumer<@Nullable Segment> consumer) {
+    public void createSegment(String name, Consumer<Segment> consumer) {
         Segment segment = beginSegment(name);
         try {
             consumer.accept(segment);
         } catch (Exception e) {
-            if (segment != null) {
-                segment.addException(e);
-            }
+            segment.addException(e);
             throw e;
         } finally {
             endSegment();
@@ -271,9 +268,7 @@ public class AWSXRayRecorder {
         try {
             return supplier.get();
         } catch (Exception e) {
-            if (segment != null) {
-                segment.addException(e);
-            }
+            segment.addException(e);
             throw e;
         } finally {
             endSegment();
@@ -294,9 +289,7 @@ public class AWSXRayRecorder {
         try {
             runnable.run();
         } catch (Exception e) {
-            if (segment != null) {
-                segment.addException(e);
-            }
+            segment.addException(e);
             throw e;
         } finally {
             endSegment();
@@ -317,14 +310,12 @@ public class AWSXRayRecorder {
      * @return the value returned by the supplied function
      */
     @Nullable
-    public <R> R createSubsegment(String name, Function<@Nullable Subsegment, @Nullable R> function) {
+    public <R> R createSubsegment(String name, Function<Subsegment, @Nullable R> function) {
         Subsegment subsegment = beginSubsegment(name);
         try {
             return function.apply(subsegment);
         } catch (Exception e) {
-            if (subsegment != null) {
-                subsegment.addException(e);
-            }
+            subsegment.addException(e);
             throw e;
         } finally {
             endSubsegment();
@@ -340,14 +331,12 @@ public class AWSXRayRecorder {
      * @param consumer
      *            the function to invoke
      */
-    public void createSubsegment(String name, Consumer<@Nullable Subsegment> consumer) {
+    public void createSubsegment(String name, Consumer<Subsegment> consumer) {
         Subsegment subsegment = beginSubsegment(name);
         try {
             consumer.accept(subsegment);
         } catch (Exception e) {
-            if (subsegment != null) {
-                subsegment.addException(e);
-            }
+            subsegment.addException(e);
             throw e;
         } finally {
             endSubsegment();
@@ -372,9 +361,7 @@ public class AWSXRayRecorder {
         try {
             return supplier.get();
         } catch (Exception e) {
-            if (subsegment != null) {
-                subsegment.addException(e);
-            }
+            subsegment.addException(e);
             throw e;
         } finally {
             endSubsegment();
@@ -395,21 +382,17 @@ public class AWSXRayRecorder {
         try {
             runnable.run();
         } catch (Exception e) {
-            if (subsegment != null) {
-                subsegment.addException(e);
-            }
+            subsegment.addException(e);
             throw e;
         } finally {
             endSubsegment();
         }
     }
 
-    @Nullable
     public Segment beginSegment(String name) {
         return beginSegment(new SegmentImpl(this, name));
     }
 
-    @Nullable
     public Segment beginSegment(String name, TraceID traceId, @Nullable String parentId) {
         Segment segment = new SegmentImpl(this, name, traceId);
         segment.setParentId(parentId);
@@ -420,7 +403,6 @@ public class AWSXRayRecorder {
      * Sets the current {@link Segment} to a no-op which will not record any information or be emitted. An invalid {@link TraceID}
      * will be propagated downstream.
      */
-    @Nullable
     public Segment beginNoOpSegment() {
         return beginSegment(Segment.noOp(TraceID.invalid(), this));
     }
@@ -429,7 +411,6 @@ public class AWSXRayRecorder {
      * Sets the current {@link Segment} to a no-op which will not record any information or be emitted. The provided
      * {@link TraceID} will be propagated downstream.
      */
-    @Nullable
     public Segment beginNoOpSegment(TraceID traceID) {
         return beginSegment(Segment.noOp(traceID, this));
     }
@@ -442,7 +423,6 @@ public class AWSXRayRecorder {
      * @deprecated Use {@link #beginNoOpSegment()}.
      */
     @Deprecated
-    @Nullable
     public Segment beginDummySegment() {
         return beginNoOpSegment();
     }
@@ -451,7 +431,6 @@ public class AWSXRayRecorder {
      * @deprecated Use {@link #beginNoOpSegment(TraceID)}.
      */
     @Deprecated
-    @Nullable
     public Segment beginDummySegment(String name, TraceID traceId) {
         return beginNoOpSegment(traceId);
     }
@@ -460,16 +439,16 @@ public class AWSXRayRecorder {
      * @deprecated Use {@link #beginNoOpSegment(TraceID)}.
      */
     @Deprecated
-    @Nullable
     public Segment beginDummySegment(TraceID traceId) {
         return beginNoOpSegment(traceId);
     }
 
-    @Nullable
     private Segment beginSegment(Segment segment) {
         SegmentContext context = getSegmentContext();
         if (context == null) {
-            return null;
+            // No context available, we return a no-op segment so user code does not have to work around this. Based on
+            // ContextMissingStrategy they will still know about the issue unless they explicitly opt-ed out.
+            return Segment.noOp(segment.getTraceId(), this);
         }
 
         Entity current = getTraceEntity();
@@ -579,13 +558,14 @@ public class AWSXRayRecorder {
      * @return the newly created subsegment, or {@code null} if {@code contextMissingStrategy} suppresses and no segment is
      * currently in progress
      */
-    @Nullable
     public Subsegment beginSubsegment(String name) {
-        SegmentContext context = segmentContextResolverChain.resolve();
-        if (context != null) {
-            return context.beginSubsegment(this, name);
+        SegmentContext context = getSegmentContext();
+        if (context == null) {
+            // No context available, we return a no-op subsegment so user code does not have to work around this. Based on
+            // ContextMissingStrategy they will still know about the issue unless they explicitly opt-ed out.
+            return new DummySubsegment(this);
         }
-        return null;
+        return context.beginSubsegment(this, name);
     }
 
     /**
