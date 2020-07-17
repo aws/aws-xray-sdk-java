@@ -33,9 +33,6 @@ import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.strategy.FixedSegmentNamingStrategy;
 import com.amazonaws.xray.strategy.SegmentNamingStrategy;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
-import com.amazonaws.xray.strategy.sampling.SamplingRequest;
-import com.amazonaws.xray.strategy.sampling.SamplingResponse;
-import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -273,8 +270,9 @@ public class AWSXRayServletFilterTest {
         assertThat(segment.getParentId()).isEqualTo("1234567890123456");
     }
 
-    private static Segment doSegmentTest(@Nullable String traceHeader, AWSXRayRecorder recorder)
-        throws IOException, ServletException {
+    private static Segment doSegmentTest(
+        @Nullable String traceHeader, AWSXRayRecorder recorder) throws IOException, ServletException {
+
         AWSXRayServletFilter servletFilter = new AWSXRayServletFilter(SegmentNamingStrategy.fixed("test"), recorder);
 
         HttpServletRequest request = mock(HttpServletRequest.class);
