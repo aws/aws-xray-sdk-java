@@ -21,6 +21,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface Subsegment extends Entity {
 
+    static Subsegment noOp(AWSXRayRecorder recorder) {
+        return new NoOpSubSegment(Segment.noOp(TraceID.invalid(), recorder), recorder);
+    }
+
     static Subsegment noOp(Segment parent, AWSXRayRecorder recorder) {
         return new NoOpSubSegment(parent, recorder);
     }

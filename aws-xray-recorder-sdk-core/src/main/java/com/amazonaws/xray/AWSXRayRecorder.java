@@ -21,7 +21,6 @@ import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.contexts.ThreadLocalSegmentContextResolver;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.AWSLogReference;
-import com.amazonaws.xray.entities.DummySubsegment;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.FacadeSegment;
 import com.amazonaws.xray.entities.Segment;
@@ -563,7 +562,7 @@ public class AWSXRayRecorder {
         if (context == null) {
             // No context available, we return a no-op subsegment so user code does not have to work around this. Based on
             // ContextMissingStrategy they will still know about the issue unless they explicitly opt-ed out.
-            return new DummySubsegment(this);
+            return Subsegment.noOp(this);
         }
         return context.beginSubsegment(this, name);
     }

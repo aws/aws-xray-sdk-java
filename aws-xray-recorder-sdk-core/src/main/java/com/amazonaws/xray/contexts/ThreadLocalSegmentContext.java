@@ -16,7 +16,6 @@
 package com.amazonaws.xray.contexts;
 
 import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.entities.DummySubsegment;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
@@ -40,7 +39,7 @@ public class ThreadLocalSegmentContext implements SegmentContext {
         if (current == null) {
             recorder.getContextMissingStrategy().contextMissing("Failed to begin subsegment named '" + name
                                                                 + "': segment cannot be found.", SegmentNotFoundException.class);
-            return new DummySubsegment(recorder);
+            return Subsegment.noOp(recorder);
         }
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);

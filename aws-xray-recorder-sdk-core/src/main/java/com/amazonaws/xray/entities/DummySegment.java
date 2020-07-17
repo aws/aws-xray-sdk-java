@@ -27,7 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
- * @deprecated Use {@link Segment#noOp(AWSXRayRecorder)}.
+ * @deprecated Use {@link Segment#noOp(TraceID, AWSXRayRecorder)}.
  */
 @Deprecated
 public class DummySegment implements Segment {

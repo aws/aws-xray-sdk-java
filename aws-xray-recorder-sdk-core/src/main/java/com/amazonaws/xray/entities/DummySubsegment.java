@@ -26,6 +26,10 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+/**
+ * @deprecated Use {@link Subsegment#noOp(AWSXRayRecorder)}.
+ */
+@Deprecated
 public class DummySubsegment implements Subsegment {
 
     private Cause cause = new Cause();

@@ -316,7 +316,7 @@ public class AWSXRayServletFilter implements javax.servlet.Filter {
         AWSXRayRecorder recorder = getRecorder();
         HttpServletRequest httpServletRequest = castServletRequest(request);
         if (httpServletRequest == null) {
-            logger.warn("Null value for incoming HttpServletRequest. Beginning DummySegment.");
+            logger.warn("Null value for incoming HttpServletRequest. Beginning NoOpSegment.");
             return recorder.beginNoOpSegment();
         }
 

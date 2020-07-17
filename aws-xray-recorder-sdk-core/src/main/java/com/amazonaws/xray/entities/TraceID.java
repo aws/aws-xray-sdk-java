@@ -107,11 +107,21 @@ public class TraceID {
 
     @Override
     public String toString() {
-        String paddedNumber = number.toString(16);
-        while (paddedNumber.length() < 24) {
-            paddedNumber = '0' + paddedNumber;
+        String paddedNumber = padLeft(number.toString(16), 24);
+        String startTime = padLeft(Long.toHexString(this.startTime), 8);
+        return "" + VERSION + DELIMITER + startTime + DELIMITER + paddedNumber;
+    }
+
+    private static String padLeft(String str, int size) {
+        if (str.length() == size) {
+            return str;
         }
-        return "" + VERSION + DELIMITER + Long.toHexString(startTime) + DELIMITER + paddedNumber;
+        StringBuilder padded = new StringBuilder(size);
+        for (int i = str.length(); i < size; i++) {
+            padded.append('0');
+        }
+        padded.append(str);
+        return padded.toString();
     }
 
     /**
