@@ -46,9 +46,12 @@ public class Cause {
     private final List<ThrowableDescription> exceptions;
 
     public Cause() {
-        //id = Entity.generateId();
-        paths = new ArrayList<>();
-        exceptions = new ArrayList<>();
+        this(new ArrayList<>(), new ArrayList<>());
+    }
+
+    Cause(List<String> paths, List<ThrowableDescription> exceptions) {
+        this.paths = paths;
+        this.exceptions = exceptions;
     }
 
     /**

@@ -69,6 +69,11 @@ public class FacadeSegment extends EntityImpl implements Segment {
         throw new UnsupportedOperationException(MUTATION_UNSUPPORTED_MESSAGE);
     }
 
+    @Override
+    public boolean isRecording() {
+        return sampled;
+    }
+
     /**
      * Unsupported as FacadeSegments cannot be mutated.
      * @throws UnsupportedOperationException in all cases

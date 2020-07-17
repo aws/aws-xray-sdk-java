@@ -15,10 +15,16 @@
 
 package com.amazonaws.xray.entities;
 
+import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.exceptions.AlreadyEmittedException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Map;
 
 public interface Segment extends Entity {
+
+    static Segment noOp(TraceID traceId, AWSXRayRecorder recorder) {
+        return new NoOpSegment(traceId, recorder);
+    }
 
     /**
      * Ends the segment. Sets the end time to the current time. Sets inProgress to false.
@@ -26,6 +32,13 @@ public interface Segment extends Entity {
      * @return true if 1) the reference count is less than or equal to zero and 2) sampled is true
      */
     boolean end();
+
+    /**
+     * Returns {@code} if this {@link Segment} is recording events and will be emitted. Any operations on a {@link Segment}
+     * which is not recording are effectively no-op.
+     */
+    @JsonIgnore
+    boolean isRecording();
 
     /**
      * @return the sampled

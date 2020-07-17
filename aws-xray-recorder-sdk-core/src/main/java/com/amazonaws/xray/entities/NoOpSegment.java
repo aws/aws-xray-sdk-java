@@ -16,41 +16,75 @@
 package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-/**
- * @deprecated Use {@link Subsegment#noOp(AWSXRayRecorder)}.
- */
-@Deprecated
-public class DummySubsegment implements Subsegment {
+class NoOpSegment implements Segment {
 
-    private Cause cause = new Cause();
-    private Map<String, Object> map = new ConcurrentHashMap<>();
-    private Map<String, Map<String, Object>> metadataMap = new ConcurrentHashMap<>();
-    private List<Subsegment> list = new ArrayList<>();
-    private Set<String> set = new HashSet<>();
-    private ReentrantLock lock = new ReentrantLock();
+    private final TraceID traceId;
+    private final AWSXRayRecorder creator;
 
-    private AWSXRayRecorder creator;
-    private TraceID traceId;
-    private Segment parentSegment;
-
-    public DummySubsegment(AWSXRayRecorder creator) {
-        this(creator, TraceID.create());
+    NoOpSegment(TraceID traceId, AWSXRayRecorder creator) {
+        this.traceId = traceId;
+        this.creator = creator;
     }
 
-    public DummySubsegment(AWSXRayRecorder creator, TraceID traceId) {
-        this.creator = creator;
-        this.traceId = traceId;
-        this.parentSegment = new DummySegment(creator);
+    @Override
+    public boolean end() {
+        return false;
+    }
+
+    @Override
+    public boolean isRecording() {
+        return false;
+    }
+
+    @Override
+    public boolean isSampled() {
+        return false;
+    }
+
+    @Override
+    public void setSampled(boolean sampled) {
+    }
+
+    @Override
+    public String getResourceArn() {
+        return "";
+    }
+
+    @Override
+    public void setResourceArn(String resourceArn) {
+    }
+
+    @Override
+    public String getUser() {
+        return "";
+    }
+
+    @Override
+    public void setUser(String user) {
+    }
+
+    @Override
+    public String getOrigin() {
+        return "";
+    }
+
+    @Override
+    public void setOrigin(String origin) {
+    }
+
+    @Override
+    public Map<String, Object> getService() {
+        return NoOpMap.get();
+    }
+
+    @Override
+    public void setService(Map<String, Object> service) {
     }
 
     @Override
@@ -113,13 +147,23 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
+    public ReentrantLock getSubsegmentsLock() {
+        return NoOpReentrantLock.get();
+    }
+
+    @Override
+    public void setSubsegmentsLock(ReentrantLock subsegmentsLock) {
+    }
+
+    @Override
     public Cause getCause() {
-        return cause;
+        // It should not be common for this to be called on an unsampled segment so we lazily initialize here.
+        return new Cause(NoOpList.get(), NoOpList.get());
     }
 
     @Override
     public Map<String, Object> getHttp() {
-        return map;
+        return NoOpMap.get();
     }
 
     @Override
@@ -128,7 +172,7 @@ public class DummySubsegment implements Subsegment {
 
     @Override
     public Map<String, Object> getAws() {
-        return map;
+        return NoOpMap.get();
     }
 
     @Override
@@ -137,7 +181,7 @@ public class DummySubsegment implements Subsegment {
 
     @Override
     public Map<String, Object> getSql() {
-        return map;
+        return NoOpMap.get();
     }
 
     @Override
@@ -146,11 +190,16 @@ public class DummySubsegment implements Subsegment {
 
     @Override
     public Map<String, Map<String, Object>> getMetadata() {
-        return metadataMap;
+        return NoOpMap.get();
     }
 
     @Override
     public void setMetadata(Map<String, Map<String, Object>> metadata) {
+    }
+
+    @Override
+    public Map<String, Object> getAnnotations() {
+        return NoOpMap.get();
     }
 
     @Override
@@ -193,25 +242,9 @@ public class DummySubsegment implements Subsegment {
     public void setTraceId(TraceID traceId) {
     }
 
-    /**
-     * @return the creator
-     */
     @Override
-    public AWSXRayRecorder getCreator() {
-        return creator;
-    }
-
-    /**
-     * @param creator the creator to set
-     */
-    @Override
-    public void setCreator(AWSXRayRecorder creator) {
-        this.creator = creator;
-    }
-
-    @Override
-    public String getParentId() {
-        return "";
+    public @Nullable String getParentId() {
+        return null;
     }
 
     @Override
@@ -219,8 +252,34 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
+    public AWSXRayRecorder getCreator() {
+        return creator;
+    }
+
+    @Override
+    public void setCreator(AWSXRayRecorder creator) {
+    }
+
+    @Override
+    public void putService(String key, Object object) {
+    }
+
+    @Override
+    public void putAllService(Map<String, Object> all) {
+    }
+
+    @Override
+    public void setRuleName(String name) {
+    }
+
+    @Override
+    public Segment getParentSegment() {
+        return this;
+    }
+
+    @Override
     public List<Subsegment> getSubsegments() {
-        return list;
+        return NoOpList.get();
     }
 
     @Override
@@ -229,6 +288,26 @@ public class DummySubsegment implements Subsegment {
 
     @Override
     public void addException(Throwable exception) {
+    }
+
+    @Override
+    public int getReferenceCount() {
+        return 0;
+    }
+
+    @Override
+    public LongAdder getTotalSize() {
+        // It should not be common for this to be called on an unsampled segment so we lazily initialize here.
+        return new LongAdder();
+    }
+
+    @Override
+    public void incrementReferenceCount() {
+    }
+
+    @Override
+    public boolean decrementReferenceCount() {
+        return false;
     }
 
     @Override
@@ -276,6 +355,10 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
+    public void removeSubsegment(Subsegment subsegment) {
+    }
+
+    @Override
     public boolean isEmitted() {
         return false;
     }
@@ -295,81 +378,7 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public boolean end() {
-        return false;
-    }
-
-    @Override
-    public Map<String, Object> getAnnotations() {
-        return map;
-    }
-
-    @Override
-    public Segment getParentSegment() {
-        return parentSegment;
-    }
-
-    @Override
     public void close() {
-    }
-
-    @Override
-    public void setParentSegment(Segment parentSegment) {
-    }
-
-    @Override
-    public Set<String> getPrecursorIds() {
-        return set;
-    }
-
-    @Override
-    public void setPrecursorIds(Set<String> precursorIds) {
-    }
-
-    @Override
-    public void addPrecursorId(String precursorId) {
-    }
-
-    @Override
-    public String streamSerialize() {
-        return "";
-    }
-
-    @Override
-    public String prettyStreamSerialize() {
-        return "";
-    }
-
-    @Override
-    public ReentrantLock getSubsegmentsLock() {
-        return lock;
-    }
-
-    @Override
-    public void setSubsegmentsLock(ReentrantLock subsegmentsLock) {
-    }
-
-    @Override
-    public int getReferenceCount() {
-        return 0;
-    }
-
-    @Override
-    public LongAdder getTotalSize() {
-        return parentSegment.getTotalSize();
-    }
-
-    @Override
-    public void incrementReferenceCount() {
-    }
-
-    @Override
-    public boolean decrementReferenceCount() {
-        return false;
-    }
-
-    @Override
-    public void removeSubsegment(Subsegment subsegment) {
     }
 
 }

@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -616,5 +617,212 @@ public class AWSXRayRecorderTest {
         seg.setId(entityId);
 
         Assert.assertEquals(traceId.toString() + "@" + entityId, AWSXRay.currentFormattedId());
+    }
+
+    @Test
+    public void testNoOpSegment() throws Exception {
+        Segment segment = AWSXRay.getGlobalRecorder().beginNoOpSegment();
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("dog", "bark");
+
+        // Semantically relevant
+        assertThat(segment.end()).isFalse();
+        assertThat(segment.isRecording()).isFalse();
+        segment.setSampled(true);
+        assertThat(segment.isSampled()).isFalse();
+
+        // Semantically less relevant, we're mostly concerned with being no-op and avoiding exceptions.
+        segment.setResourceArn("foo");
+        assertThat(segment.getResourceArn()).isEmpty();
+        segment.setUser("foo");
+        assertThat(segment.getUser()).isEmpty();
+        segment.setOrigin("foo");
+        assertThat(segment.getOrigin()).isEmpty();
+        segment.setService(new HashMap<>());
+        segment.getService().put("foo", "bar");
+        segment.putService("cat", "meow");
+        segment.putAllService(map);
+        assertThat(segment.getService()).isEmpty();
+        assertThat(segment.getName()).isEmpty();
+        segment.setId("foo");
+        assertThat(segment.getId()).isEmpty();
+        segment.setStartTime(100);
+        assertThat(segment.getStartTime()).isZero();
+        segment.setEndTime(100);
+        assertThat(segment.getEndTime()).isZero();
+        segment.setFault(true);
+        assertThat(segment.isFault()).isFalse();
+        segment.setError(true);
+        assertThat(segment.isError()).isFalse();
+        segment.setNamespace("foo");
+        assertThat(segment.getNamespace()).isEmpty();
+        segment.setSubsegmentsLock(new ReentrantLock());
+        Thread thread = new Thread(() -> segment.getSubsegmentsLock().lock());
+        thread.start();
+        thread.join();
+        // No-op lock so we can lock again!
+        segment.getSubsegmentsLock().lock();
+        assertThat(segment.getCause()).isNotNull();
+        segment.setHttp(new HashMap<>());
+        segment.getHttp().put("foo", "bar");
+        segment.putHttp("cat", "meow");
+        segment.putAllHttp(map);
+        assertThat(segment.getHttp()).isEmpty();
+        segment.setAws(new HashMap<>());
+        segment.getAws().put("foo", "bar");
+        segment.putAws("cat", "meow");
+        segment.putAllAws(map);
+        assertThat(segment.getAws()).isEmpty();
+        segment.setSql(new HashMap<>());
+        segment.getSql().put("foo", "bar");
+        segment.putSql("cat", "meow");
+        segment.putAllSql(map);
+        assertThat(segment.getSql()).isEmpty();
+        segment.setMetadata(new HashMap<>());
+        segment.getMetadata().put("foo", new HashMap<>());
+        segment.putMetadata("cat", new HashMap<>());
+        segment.putMetadata("animal", "dog", new HashMap<>());
+        assertThat(segment.getMetadata()).isEmpty();
+        segment.setAnnotations(new HashMap<>());
+        segment.getAnnotations().put("foo", "bar");
+        segment.putAnnotation("cat", "meow");
+        segment.putAnnotation("lives", 9);
+        segment.putAnnotation("alive", true);
+        assertThat(segment.getAnnotations()).isEmpty();
+        assertThat(segment.getParent()).isSameAs(segment);
+        segment.setThrottle(true);
+        assertThat(segment.isThrottle()).isFalse();  // Not Full
+        segment.setInProgress(true);
+        assertThat(segment.isInProgress()).isFalse();
+        segment.setTraceId(TraceID.create());
+        assertThat(segment.getTraceId()).isEqualTo(TraceID.invalid());
+        segment.setParentId("foo");
+        assertThat(segment.getParentId()).isNull();
+        segment.setCreator(AWSXRayRecorderBuilder.standard().build());
+        assertThat(segment.getCreator()).isEqualTo(AWSXRay.getGlobalRecorder());
+        segment.setRuleName("foo");
+        assertThat(segment.getParentSegment()).isSameAs(segment);
+        segment.getSubsegments().add(Subsegment.noOp(AWSXRay.getGlobalRecorder()));
+        segment.addSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder()));
+        assertThat(segment.getSubsegments()).isEmpty();
+        segment.addException(new IllegalStateException());
+        assertThat(segment.getReferenceCount()).isZero();
+        assertThat(segment.getTotalSize()).hasValue(0);
+        assertThat(segment.getTotalSize()).hasValue(0);
+        segment.incrementReferenceCount();
+        assertThat(segment.getReferenceCount()).isZero();
+        segment.decrementReferenceCount();
+        assertThat(segment.getReferenceCount()).isZero();
+        segment.removeSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder()));
+        segment.setEmitted(true);
+        assertThat(segment.isEmitted()).isFalse();
+        assertThat(segment.serialize()).isEmpty();
+        assertThat(segment.prettySerialize()).isEmpty();
+        segment.close();
+    }
+
+    @Test
+    public void testNoOpSegmentWithTraceId() {
+        TraceID traceID = TraceID.create();
+        Segment segment = AWSXRay.getGlobalRecorder().beginNoOpSegment(traceID);
+        assertThat(segment.getTraceId()).isEqualTo(traceID);
+    }
+
+    @Test
+    public void testNoOpSubsegment() throws Exception {
+        Subsegment subsegment = Subsegment.noOp(AWSXRay.getGlobalRecorder());
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("dog", "bark");
+
+        // Semantically relevant
+        assertThat(subsegment.end()).isFalse();
+        assertThat(subsegment.getName()).isEmpty();
+        subsegment.setId("foo");
+        assertThat(subsegment.getId()).isEmpty();
+        subsegment.setStartTime(100);
+        assertThat(subsegment.getStartTime()).isZero();
+        subsegment.setEndTime(100);
+        assertThat(subsegment.getEndTime()).isZero();
+        subsegment.setFault(true);
+        assertThat(subsegment.isFault()).isFalse();
+        subsegment.setError(true);
+        assertThat(subsegment.isError()).isFalse();
+        subsegment.setNamespace("foo");
+        assertThat(subsegment.getNamespace()).isEmpty();
+        subsegment.setSubsegmentsLock(new ReentrantLock());
+        Thread thread = new Thread(() -> subsegment.getSubsegmentsLock().lock());
+        thread.start();
+        thread.join();
+        // No-op lock so we can lock again!
+        subsegment.getSubsegmentsLock().lock();
+        assertThat(subsegment.getCause()).isNotNull();
+        subsegment.setHttp(new HashMap<>());
+        subsegment.getHttp().put("foo", "bar");
+        subsegment.putHttp("cat", "meow");
+        subsegment.putAllHttp(map);
+        assertThat(subsegment.getHttp()).isEmpty();
+        subsegment.setAws(new HashMap<>());
+        subsegment.getAws().put("foo", "bar");
+        subsegment.putAws("cat", "meow");
+        subsegment.putAllAws(map);
+        assertThat(subsegment.getAws()).isEmpty();
+        subsegment.setSql(new HashMap<>());
+        subsegment.getSql().put("foo", "bar");
+        subsegment.putSql("cat", "meow");
+        subsegment.putAllSql(map);
+        assertThat(subsegment.getSql()).isEmpty();
+        subsegment.setMetadata(new HashMap<>());
+        subsegment.getMetadata().put("foo", new HashMap<>());
+        subsegment.putMetadata("cat", new HashMap<>());
+        subsegment.putMetadata("animal", "dog", new HashMap<>());
+        assertThat(subsegment.getMetadata()).isEmpty();
+        subsegment.setAnnotations(new HashMap<>());
+        subsegment.getAnnotations().put("foo", "bar");
+        subsegment.putAnnotation("cat", "meow");
+        subsegment.putAnnotation("lives", 9);
+        subsegment.putAnnotation("alive", true);
+        assertThat(subsegment.getAnnotations()).isEmpty();
+        assertThat(subsegment.getParent()).isInstanceOfSatisfying(Segment.class, segment ->
+            assertThat(segment.getTraceId()).isEqualTo(TraceID.invalid()));
+        subsegment.setThrottle(true);
+        assertThat(subsegment.isThrottle()).isFalse();  // Not Full
+        subsegment.setInProgress(true);
+        assertThat(subsegment.isInProgress()).isFalse();
+        subsegment.setTraceId(TraceID.create());
+        assertThat(subsegment.getTraceId()).isEqualTo(TraceID.invalid());
+        subsegment.setParentId("foo");
+        assertThat(subsegment.getParentId()).isNull();
+        subsegment.setCreator(AWSXRayRecorderBuilder.standard().build());
+        assertThat(subsegment.getCreator()).isEqualTo(AWSXRay.getGlobalRecorder());
+        assertThat(subsegment.getParentSegment().getTraceId()).isEqualTo(TraceID.invalid());
+        subsegment.getSubsegments().add(Subsegment.noOp(AWSXRay.getGlobalRecorder()));
+        subsegment.addSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder()));
+        assertThat(subsegment.getSubsegments()).isEmpty();
+        subsegment.addException(new IllegalStateException());
+        assertThat(subsegment.getReferenceCount()).isZero();
+        assertThat(subsegment.getTotalSize()).hasValue(0);
+        assertThat(subsegment.getTotalSize()).hasValue(0);
+        subsegment.incrementReferenceCount();
+        assertThat(subsegment.getReferenceCount()).isZero();
+        subsegment.decrementReferenceCount();
+        assertThat(subsegment.getReferenceCount()).isZero();
+        subsegment.removeSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder()));
+        subsegment.setEmitted(true);
+        assertThat(subsegment.isEmitted()).isFalse();
+        assertThat(subsegment.serialize()).isEmpty();
+        assertThat(subsegment.prettySerialize()).isEmpty();
+        assertThat(subsegment.streamSerialize()).isEmpty();
+        assertThat(subsegment.prettyStreamSerialize()).isEmpty();
+        subsegment.close();
+    }
+
+    @Test
+    public void noOpSubsegmentWithParent() {
+        TraceID traceID = TraceID.create();
+        Segment parent = Segment.noOp(traceID, AWSXRay.getGlobalRecorder());
+        Subsegment subsegment = Subsegment.noOp(parent, AWSXRay.getGlobalRecorder());
+        assertThat(subsegment.getParentSegment().getTraceId()).isEqualTo(traceID);
     }
 }

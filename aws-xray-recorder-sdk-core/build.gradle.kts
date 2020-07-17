@@ -10,7 +10,7 @@ dependencies {
     compileOnly("javax.servlet:javax.servlet-api:3.1.0")
 
     testImplementation("com.github.stefanbirkner:system-rules:1.16.0")
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.26.3")
+    testImplementation("com.github.tomakehurst:wiremock-jre8")
     testImplementation("org.openjdk.jmh:jmh-core:1.19")
     testImplementation("org.powermock:powermock-module-junit4:2.0.7")
     testImplementation("org.powermock:powermock-api-mockito2:2.0.7")

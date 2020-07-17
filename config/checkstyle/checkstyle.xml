@@ -276,7 +276,12 @@
 
         <!-- Class contents must be defined in the order suggested by Sun/Oracle:
              http://www.oracle.com/technetwork/java/javase/documentation/codeconventions-141855.html#1852 -->
-        <module name="DeclarationOrder"/>
+
+        <!--
+         We disable this check to allow better ordering of static factory methods. It's one rule we don't match with upstream SDK.
+         https://github.com/aws/aws-sdk-java-v2/issues/1880
+         -->
+        <!-- <module name="DeclarationOrder"/> -->
 
         <!--&lt;!&ndash; Overloaded methods and constructors must be defined together. &ndash;&gt;-->
         <!--<module name="OverloadMethodsDeclarationOrder">-->

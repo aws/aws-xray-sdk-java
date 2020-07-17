@@ -138,7 +138,10 @@ public interface Entity extends AutoCloseable {
 
     /**
      * @return the subsegmentsLock
+     *
+     * @deprecated This is for internal use of the SDK and will be made private.
      */
+    @Deprecated
     ReentrantLock getSubsegmentsLock();
 
     /**
@@ -149,7 +152,9 @@ public interface Entity extends AutoCloseable {
      *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the
      *             AWSXRayRecorder used to create this entity is configured to throw exceptions
      *
+     * @deprecated This is for internal use of the SDK and will be made private
      */
+    @Deprecated
     void setSubsegmentsLock(ReentrantLock subsegmentsLock);
 
     /**
