@@ -40,5 +40,6 @@ public final class RecyclableBuffers {
         return buffer;
     }
 
-    private RecyclableBuffers() {}
+    private RecyclableBuffers() {
+    }
 }
