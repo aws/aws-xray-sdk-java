@@ -15,6 +15,8 @@
 
 package com.amazonaws.xray.internal;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * {@link ThreadLocal} buffers for use when creating new derived objects such as {@link String}s.
  * These buffers are reused within a single thread - it is _not safe_ to use the buffer to generate
@@ -24,7 +26,7 @@ package com.amazonaws.xray.internal;
  */
 public final class RecyclableBuffers {
 
-    private static final ThreadLocal<StringBuilder> STRING_BUILDER = new ThreadLocal<>();
+    private static final ThreadLocal<@Nullable StringBuilder> STRING_BUILDER = new ThreadLocal<>();
 
     /**
      * A {@link ThreadLocal} {@link StringBuilder}. Take care when filling a large value into this buffer
