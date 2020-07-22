@@ -15,8 +15,7 @@
 
 package com.amazonaws.xray.entities;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.amazonaws.xray.internal.RecyclableBuffers;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
@@ -148,18 +147,19 @@ public class TraceHeader {
      */
     @Override
     public String toString() {
-        List<String> parts = new ArrayList<>();
+        StringBuilder buffer = RecyclableBuffers.stringBuilder();
         if (rootTraceId != null) {
-            parts.add(ROOT_PREFIX + rootTraceId);
+            buffer.append(ROOT_PREFIX).append(rootTraceId).append(DELIMITER);
         }
         if (StringValidator.isNotNullOrBlank(parentId)) {
-            parts.add(PARENT_PREFIX + parentId);
+            buffer.append(PARENT_PREFIX).append(parentId).append(DELIMITER);
         }
-        parts.add(sampled.toString());
+        buffer.append(sampled).append(DELIMITER);
         additionalParams.forEach((key, value) -> {
-            parts.add(key + EQUALS + value);
+            buffer.append(key).append(EQUALS).append(value).append(DELIMITER);
         });
-        return String.join(DELIMITER, parts);
+        buffer.setLength(buffer.length() - DELIMITER.length());
+        return buffer.toString();
     }
 
     /**
