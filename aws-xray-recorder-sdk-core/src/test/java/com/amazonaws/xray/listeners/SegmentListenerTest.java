@@ -20,12 +20,12 @@ import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class SegmentListenerTest {
+class SegmentListenerTest {
     static class CustomSegmentListener implements SegmentListener {
 
         @Override
@@ -63,17 +63,17 @@ public class SegmentListenerTest {
             testVal2 = 1;
         }
 
-        public int getTestVal() {
+        int getTestVal() {
             return testVal;
         }
 
-        public int getTestVal2() {
+        int getTestVal2() {
             return testVal2;
         }
     }
 
-    @Before
-    public void setupAWSXRay() {
+    @BeforeEach
+    void setupAWSXRay() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.any());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.any());
@@ -87,52 +87,52 @@ public class SegmentListenerTest {
     }
 
     @Test
-    public void testOnBeginSegment() {
+    void testOnBeginSegment() {
         Segment test = AWSXRay.beginSegment("test");
         String beginAnnotation = test.getAnnotations().get("beginTest").toString();
 
-        Assert.assertEquals("isPresent", beginAnnotation);
+        Assertions.assertEquals("isPresent", beginAnnotation);
 
         AWSXRay.endSegment();
     }
 
     @Test
-    public void testOnEndSegment() {
+    void testOnEndSegment() {
         Segment test = AWSXRay.beginSegment("test");
         AWSXRay.endSegment();
         String endAnnotation = test.getAnnotations().get("endTest").toString();
 
-        Assert.assertEquals("isPresent", endAnnotation);
+        Assertions.assertEquals("isPresent", endAnnotation);
     }
 
     @Test
-    public void testSubsegmentListeners() {
+    void testSubsegmentListeners() {
         AWSXRay.beginSegment("test");
         Subsegment sub = AWSXRay.beginSubsegment("testSub");
         String beginAnnotation = sub.getAnnotations().get("subAnnotation1").toString();
         AWSXRay.endSubsegment();
         String endAnnotation = sub.getAnnotations().get("subAnnotation2").toString();
 
-        Assert.assertEquals("began", beginAnnotation);
-        Assert.assertEquals("ended", endAnnotation);
+        Assertions.assertEquals("began", beginAnnotation);
+        Assertions.assertEquals("ended", endAnnotation);
     }
 
     @Test
-    public void testMultipleSegmentListeners() {
+    void testMultipleSegmentListeners() {
         SecondSegmentListener secondSegmentListener = new SecondSegmentListener();
         AWSXRay.getGlobalRecorder().addSegmentListener(secondSegmentListener);
         Segment test = AWSXRay.beginSegment("test");
         String beginAnnotation = test.getAnnotations().get("beginTest").toString();
 
 
-        Assert.assertEquals(1, secondSegmentListener.getTestVal());
+        Assertions.assertEquals(1, secondSegmentListener.getTestVal());
 
-        Assert.assertEquals("isPresent", beginAnnotation);
+        Assertions.assertEquals("isPresent", beginAnnotation);
 
         AWSXRay.endSegment();
         String endAnnotation = test.getAnnotations().get("endTest").toString();
 
-        Assert.assertEquals("isPresent", endAnnotation);
-        Assert.assertEquals(1, secondSegmentListener.getTestVal2());
+        Assertions.assertEquals("isPresent", endAnnotation);
+        Assertions.assertEquals(1, secondSegmentListener.getTestVal2());
     }
 }

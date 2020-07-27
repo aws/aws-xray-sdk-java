@@ -21,17 +21,14 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-@FixMethodOrder(MethodSorters.JVM)
-public class ConcurrencyTest {
+class ConcurrencyTest {
 
-    @Before
-    public void setupAWSXRay() {
+    @BeforeEach
+    void setupAWSXRay() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
         LocalizedSamplingStrategy defaultSamplingStrategy = new LocalizedSamplingStrategy();
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
@@ -42,7 +39,7 @@ public class ConcurrencyTest {
     }
 
     @Test
-    public void testManyThreads() throws InterruptedException {
+    void testManyThreads() throws InterruptedException {
         ExecutorService pool = Executors.newFixedThreadPool(10);
         CountDownLatch latch = new CountDownLatch(100);
         for (int i = 0; i < 100; i++) {

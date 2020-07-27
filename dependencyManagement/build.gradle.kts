@@ -5,7 +5,8 @@ plugins {
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
 val DEPENDENCY_BOMS = listOf(
-    "com.fasterxml.jackson:jackson-bom:2.11.0"
+        "com.fasterxml.jackson:jackson-bom:2.11.0",
+        "org.junit:junit-bom:5.6.2"
 )
 
 val DEPENDENCY_SETS = listOf(
@@ -32,7 +33,7 @@ val DEPENDENCY_SETS = listOf(
         DependencySet(
                 "org.mockito",
                 "2.28.2",
-                listOf("mockito-all", "mockito-core")
+                listOf("mockito-all", "mockito-core", "mockito-junit-jupiter")
         )
 )
 

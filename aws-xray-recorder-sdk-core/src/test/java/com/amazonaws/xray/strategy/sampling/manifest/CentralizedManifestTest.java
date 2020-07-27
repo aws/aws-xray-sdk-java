@@ -26,39 +26,39 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
 
-public class CentralizedManifestTest {
+class CentralizedManifestTest {
 
     @Test
-    public void testEmptyManifestSize() {
+    void testEmptyManifestSize() {
         CentralizedManifest manifest = new CentralizedManifest();
-        Assert.assertEquals(0, manifest.size());
+        Assertions.assertEquals(0, manifest.size());
     }
 
     @Test
-    public void testExpirationForNewManifest() {
+    void testExpirationForNewManifest() {
         Instant now = Instant.ofEpochSecond(1500000000);
 
         CentralizedManifest manifest = new CentralizedManifest();
-        Assert.assertTrue(manifest.isExpired(now));
+        Assertions.assertTrue(manifest.isExpired(now));
     }
 
     @Test
-    public void testExpirationForNewlyRefreshedManifest() {
+    void testExpirationForNewlyRefreshedManifest() {
         Instant now = Instant.ofEpochSecond(1500000000);
 
         CentralizedManifest manifest = new CentralizedManifest();
         SamplingRule r1 = rule("r1");
         manifest.putRules(Arrays.asList(r1), now);
 
-        Assert.assertFalse(manifest.isExpired(now));
+        Assertions.assertFalse(manifest.isExpired(now));
     }
 
     @Test
-    public void testExpirationForOldManifest() {
+    void testExpirationForOldManifest() {
         Instant now = Instant.ofEpochSecond(1500000000);
 
         CentralizedManifest manifest = new CentralizedManifest();
@@ -68,11 +68,11 @@ public class CentralizedManifestTest {
         // Increment time to be one second past expiration
         now = Instant.ofEpochSecond(1500003601);
 
-        Assert.assertTrue(manifest.isExpired(now));
+        Assertions.assertTrue(manifest.isExpired(now));
     }
 
     @Test
-    public void testPositiveMatch() {
+    void testPositiveMatch() {
         Instant now = Instant.ofEpochSecond(1500000000);
 
         CentralizedManifest manifest = new CentralizedManifest();
@@ -102,11 +102,11 @@ public class CentralizedManifestTest {
             null
         );
 
-        Assert.assertEquals("r1", manifest.match(req, now).sample(now).getRuleName().get());
+        Assertions.assertEquals("r1", manifest.match(req, now).sample(now).getRuleName().get());
     }
 
     @Test
-    public void testPositiveDefaultRuleMatch() {
+    void testPositiveDefaultRuleMatch() {
         Instant now = Instant.ofEpochSecond(1500000000);
 
         CentralizedManifest manifest = new CentralizedManifest();
@@ -130,11 +130,11 @@ public class CentralizedManifestTest {
             null
         );
 
-        Assert.assertEquals(CentralizedRule.DEFAULT_RULE_NAME, manifest.match(req, now).sample(now).getRuleName().get());
+        Assertions.assertEquals(CentralizedRule.DEFAULT_RULE_NAME, manifest.match(req, now).sample(now).getRuleName().get());
     }
 
     @Test
-    public void testPutRules() {
+    void testPutRules() {
         Instant now = Instant.ofEpochSecond(1500000000);
 
         CentralizedManifest manifest = new CentralizedManifest();
@@ -165,11 +165,11 @@ public class CentralizedManifestTest {
             null
         );
 
-        Assert.assertEquals("r1", manifest.match(req, now).sample(now).getRuleName().get());
+        Assertions.assertEquals("r1", manifest.match(req, now).sample(now).getRuleName().get());
     }
 
     @Test
-    public void testRebuildOnNewRule() {
+    void testRebuildOnNewRule() {
         CentralizedManifest manifest = new CentralizedManifest();
 
         manifest.putRules(Arrays.asList(rule("r1")), Instant.now());
@@ -179,14 +179,14 @@ public class CentralizedManifestTest {
         Map<String, CentralizedRule> rules2 = Whitebox.getInternalState(manifest, "rules", CentralizedManifest.class);
 
         // The map of rules should be rebuilt, resulting in a new object
-        Assert.assertFalse(rules1 == rules2);
+        Assertions.assertFalse(rules1 == rules2);
 
-        Assert.assertEquals(1, rules1.size());
-        Assert.assertEquals(2, rules2.size());
+        Assertions.assertEquals(1, rules1.size());
+        Assertions.assertEquals(2, rules2.size());
     }
 
     @Test
-    public void testPutRulesWithoutRebuild() {
+    void testPutRulesWithoutRebuild() {
         CentralizedManifest manifest = new CentralizedManifest();
 
         manifest.putRules(Arrays.asList(rule("r1")), Instant.now());
@@ -198,11 +198,11 @@ public class CentralizedManifestTest {
         Map<String, CentralizedRule> rules2 = Whitebox.getInternalState(manifest, "rules", CentralizedManifest.class);
 
         // The map of rules should not have been rebuilt
-        Assert.assertTrue(rules1 == rules2);
+        Assertions.assertTrue(rules1 == rules2);
     }
 
     @Test
-    public void testRebuildOnPriorityChange() {
+    void testRebuildOnPriorityChange() {
         CentralizedManifest manifest = new CentralizedManifest();
 
         manifest.putRules(Arrays.asList(rule("r1")), Instant.now());
@@ -214,14 +214,14 @@ public class CentralizedManifestTest {
         Map<String, CentralizedRule> rules2 = Whitebox.getInternalState(manifest, "rules", CentralizedManifest.class);
 
         // The map of rules should be rebuilt, resulting in a new object
-        Assert.assertFalse(rules1 == rules2);
+        Assertions.assertFalse(rules1 == rules2);
 
-        Assert.assertEquals(1, rules1.size());
-        Assert.assertEquals(1, rules2.size());
+        Assertions.assertEquals(1, rules1.size());
+        Assertions.assertEquals(1, rules2.size());
     }
 
     @Test
-    public void testManifestSizeWithDefaultRule() {
+    void testManifestSizeWithDefaultRule() {
         CentralizedManifest m = new CentralizedManifest();
 
         SamplingRule r2 = new SamplingRule()
@@ -231,11 +231,11 @@ public class CentralizedManifestTest {
 
         m.putRules(Arrays.asList(rule("r1"), r2), Instant.now());
 
-        Assert.assertEquals(2, m.size());
+        Assertions.assertEquals(2, m.size());
     }
 
     @Test
-    public void testManifestSizeWithoutDefaultRule() {
+    void testManifestSizeWithoutDefaultRule() {
         CentralizedManifest m = new CentralizedManifest();
 
         SamplingRule r1 = new SamplingRule()
@@ -245,11 +245,11 @@ public class CentralizedManifestTest {
 
         m.putRules(Arrays.asList(r1), Instant.now());
 
-        Assert.assertEquals(1, m.size());
+        Assertions.assertEquals(1, m.size());
     }
 
     @Test
-    public void testSnapshotsWithDefaultRule() {
+    void testSnapshotsWithDefaultRule() {
         Instant now = Instant.ofEpochSecond(1500000000);
 
         CentralizedManifest m = new CentralizedManifest();
@@ -267,11 +267,11 @@ public class CentralizedManifestTest {
 
         List<SamplingStatisticsDocument> snapshots = m.snapshots(now);
 
-        Assert.assertEquals(3, snapshots.size());
+        Assertions.assertEquals(3, snapshots.size());
     }
 
     @Test
-    public void testSnapshotsWithoutDefaultRule() {
+    void testSnapshotsWithoutDefaultRule() {
         Instant now = Instant.ofEpochSecond(1500000000);
 
         CentralizedManifest m = new CentralizedManifest();
@@ -285,11 +285,11 @@ public class CentralizedManifestTest {
 
         List<SamplingStatisticsDocument> snapshots = m.snapshots(now);
 
-        Assert.assertEquals(2, snapshots.size());
+        Assertions.assertEquals(2, snapshots.size());
     }
 
     @Test
-    public void testRebuild() {
+    void testRebuild() {
         Map<String, CentralizedRule> rules = new HashMap<>();
         rules.put("r1", new CentralizedRule(rule("r1").withPriority(11), new RandImpl()));
         rules.put("r2", new CentralizedRule(rule("r2"), new RandImpl()));
@@ -302,14 +302,14 @@ public class CentralizedManifestTest {
         CentralizedManifest m = new CentralizedManifest();
         Map<String, CentralizedRule> rebuiltRules = m.rebuild(rules, inputs);
 
-        Assert.assertEquals(3, rebuiltRules.size());
+        Assertions.assertEquals(3, rebuiltRules.size());
 
         String[] orderedList = new String[3];
         rebuiltRules.keySet().toArray(orderedList);
 
-        Assert.assertEquals("r2", orderedList[0]);
-        Assert.assertEquals("r3", orderedList[1]);
-        Assert.assertEquals("r1", orderedList[2]);
+        Assertions.assertEquals("r2", orderedList[0]);
+        Assertions.assertEquals("r3", orderedList[1]);
+        Assertions.assertEquals("r1", orderedList[2]);
     }
 
     private SamplingRule rule(String ruleName) {

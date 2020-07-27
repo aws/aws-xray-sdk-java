@@ -19,13 +19,13 @@ import com.amazonaws.services.xray.model.SamplingRule;
 import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class MatchersTest {
+class MatchersTest {
 
     @Test
-    public void testSimpleMatch() {
+    void testSimpleMatch() {
         SamplingRule rule = new SamplingRule()
             .withAttributes(null)
             .withHost("192.168.1.1")
@@ -48,11 +48,11 @@ public class MatchersTest {
 
         Matchers m = new Matchers(rule);
 
-        Assert.assertTrue(m.match(req));
+        Assertions.assertTrue(m.match(req));
     }
 
     @Test
-    public void testSimpleMismatch() {
+    void testSimpleMismatch() {
         SamplingRule rule = new SamplingRule()
             .withAttributes(null)
             .withHost("192.168.1.1")
@@ -75,11 +75,11 @@ public class MatchersTest {
 
         Matchers m = new Matchers(rule);
 
-        Assert.assertFalse(m.match(req));
+        Assertions.assertFalse(m.match(req));
     }
 
     @Test
-    public void testFullGlobMatch() {
+    void testFullGlobMatch() {
         Map<String, String> ruleAttributes = new HashMap<>();
         ruleAttributes.put("ip", "*");
         ruleAttributes.put("compression", "*");
@@ -111,11 +111,11 @@ public class MatchersTest {
 
         Matchers m = new Matchers(rule);
 
-        Assert.assertTrue(m.match(req));
+        Assertions.assertTrue(m.match(req));
     }
 
     @Test
-    public void testPartialGlobMatch() {
+    void testPartialGlobMatch() {
         Map<String, String> ruleAttributes = new HashMap<>();
         ruleAttributes.put("ip", "127.*.1");
         ruleAttributes.put("compression", "*");
@@ -147,11 +147,11 @@ public class MatchersTest {
 
         Matchers m = new Matchers(rule);
 
-        Assert.assertTrue(m.match(req));
+        Assertions.assertTrue(m.match(req));
     }
 
     @Test
-    public void testPartialGlobMismatch() {
+    void testPartialGlobMismatch() {
         SamplingRule rule = new SamplingRule()
             .withAttributes(null)
             .withHost("*")
@@ -174,11 +174,11 @@ public class MatchersTest {
 
         Matchers m = new Matchers(rule);
 
-        Assert.assertFalse(m.match(req));
+        Assertions.assertFalse(m.match(req));
     }
 
     @Test
-    public void testPartialAttributeGlobMismatch() {
+    void testPartialAttributeGlobMismatch() {
         Map<String, String> ruleAttributes = new HashMap<>();
         ruleAttributes.put("ip", "127.*.0");
         ruleAttributes.put("compression", "*");
@@ -210,11 +210,11 @@ public class MatchersTest {
 
         Matchers m = new Matchers(rule);
 
-        Assert.assertFalse(m.match(req));
+        Assertions.assertFalse(m.match(req));
     }
 
     @Test
-    public void testPartialRequestMismatch() {
+    void testPartialRequestMismatch() {
         SamplingRule rule = new SamplingRule()
             .withAttributes(null)
             .withHost("192.168.1.1")
@@ -237,7 +237,7 @@ public class MatchersTest {
 
         Matchers m = new Matchers(rule);
 
-        Assert.assertFalse(m.match(req));
+        Assertions.assertFalse(m.match(req));
     }
 
 }

@@ -15,122 +15,119 @@
 
 package com.amazonaws.xray.entities;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Random;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-@FixMethodOrder(MethodSorters.JVM)
-public class SearchPatternTest {
+class SearchPatternTest {
 
     @Test
-    public void testInvalidArgs() {
-        assertFalse(SearchPattern.wildcardMatch(null, ""));
-        assertFalse(SearchPattern.wildcardMatch("", null));
-        assertFalse(SearchPattern.wildcardMatch("", "whatever"));
+    void testInvalidArgs() {
+        Assertions.assertFalse(SearchPattern.wildcardMatch(null, ""));
+        Assertions.assertFalse(SearchPattern.wildcardMatch("", null));
+        Assertions.assertFalse(SearchPattern.wildcardMatch("", "whatever"));
     }
 
     @Test
-    public void testMatchExactPositive() throws Exception {
+    void testMatchExactPositive() throws Exception {
         final String pat = "foo";
         final String str = "foo";
         assertTrue(SearchPattern.wildcardMatch(pat, str));
     }
 
     @Test
-    public void testMatchExactNegative() throws Exception {
+    void testMatchExactNegative() throws Exception {
         final String pat = "foo";
         final String str = "bar";
-        assertFalse(SearchPattern.wildcardMatch(pat, str));
+        Assertions.assertFalse(SearchPattern.wildcardMatch(pat, str));
     }
 
     @Test
-    public void testSingleWildcardPositive() throws Exception {
+    void testSingleWildcardPositive() throws Exception {
         final String pat = "fo?";
         final String str = "foo";
         assertTrue(SearchPattern.wildcardMatch(pat, str));
     }
 
     @Test
-    public void testSingleWildcardNegative() throws Exception {
+    void testSingleWildcardNegative() throws Exception {
         final String pat = "f?o";
         final String str = "boo";
-        assertFalse(SearchPattern.wildcardMatch(pat, str));
+        Assertions.assertFalse(SearchPattern.wildcardMatch(pat, str));
     }
 
     @Test
-    public void testMultipleWildcardPositive() throws Exception {
+    void testMultipleWildcardPositive() throws Exception {
         final String pat = "?o?";
         final String str = "foo";
         assertTrue(SearchPattern.wildcardMatch(pat, str));
     }
 
     @Test
-    public void testMultipleWildcardNegative() throws Exception {
+    void testMultipleWildcardNegative() throws Exception {
         final String pat = "f??";
         final String str = "boo";
-        assertFalse(SearchPattern.wildcardMatch(pat, str));
+        Assertions.assertFalse(SearchPattern.wildcardMatch(pat, str));
     }
 
     @Test
-    public void testGlobPositive() throws Exception {
+    void testGlobPositive() throws Exception {
         final String pat = "*oo";
         final String str = "foo";
         assertTrue(SearchPattern.wildcardMatch(pat, str));
     }
 
     @Test
-    public void testGlobPositiveZeroOrMore() throws Exception {
+    void testGlobPositiveZeroOrMore() throws Exception {
         final String pat = "foo*";
         final String str = "foo";
         assertTrue(SearchPattern.wildcardMatch(pat, str));
     }
 
     @Test
-    public void testGlobNegativeZeroOrMore() throws Exception {
+    void testGlobNegativeZeroOrMore() throws Exception {
         final String pat = "foo*";
         final String str = "fo0";
-        assertFalse(SearchPattern.wildcardMatch(pat, str));
+        Assertions.assertFalse(SearchPattern.wildcardMatch(pat, str));
     }
 
     @Test
-    public void testGlobNegative() throws Exception {
+    void testGlobNegative() throws Exception {
         final String pat = "fo*";
         final String str = "boo";
-        assertFalse(SearchPattern.wildcardMatch(pat, str));
+        Assertions.assertFalse(SearchPattern.wildcardMatch(pat, str));
     }
 
     @Test
-    public void testGlobAndSinglePositive() throws Exception {
+    void testGlobAndSinglePositive() throws Exception {
         final String pat = "*o?";
         final String str = "foo";
         assertTrue(SearchPattern.wildcardMatch(pat, str));
     }
 
     @Test
-    public void testGlobAndSingleNegative() throws Exception {
+    void testGlobAndSingleNegative() throws Exception {
         final String pat = "f?*";
         final String str = "boo";
-        assertFalse(SearchPattern.wildcardMatch(pat, str));
+        Assertions.assertFalse(SearchPattern.wildcardMatch(pat, str));
     }
 
     @Test
-    public void testPureWildcard() throws Exception {
+    void testPureWildcard() throws Exception {
         final String pat = "*";
         final String str = "foo";
         assertTrue(SearchPattern.wildcardMatch(pat, str));
     }
 
     @Test
-    public void exactMatch() throws Exception {
+    void exactMatch() throws Exception {
         assertTrue(SearchPattern.wildcardMatch("6543210", "6543210"));
     }
 
     @Test
-    public void testMisc() throws Exception {
+    void testMisc() throws Exception {
         final String animal1 = "?at";
         final String animal2 = "?o?se";
         final String animal3 = "*s";
@@ -147,36 +144,36 @@ public class SearchPatternTest {
 
         assertTrue(SearchPattern.wildcardMatch(vehicle1, "Jeep"));
         assertTrue(SearchPattern.wildcardMatch(vehicle2, "ford"));
-        assertFalse(SearchPattern.wildcardMatch(vehicle2, "chevy"));
+        Assertions.assertFalse(SearchPattern.wildcardMatch(vehicle2, "chevy"));
         assertTrue(SearchPattern.wildcardMatch("*", "cAr"));
 
         assertTrue(SearchPattern.wildcardMatch("*/foo", "/bar/foo"));
     }
 
     @Test
-    public void testCaseInsensitivity() throws Exception {
+    void testCaseInsensitivity() throws Exception {
         assertTrue(SearchPattern.wildcardMatch("Foo", "Foo", false));
         assertTrue(SearchPattern.wildcardMatch("Foo", "Foo", true));
 
-        assertFalse(SearchPattern.wildcardMatch("Foo", "FOO", false));
+        Assertions.assertFalse(SearchPattern.wildcardMatch("Foo", "FOO", false));
         assertTrue(SearchPattern.wildcardMatch("Foo", "FOO", true));
 
         assertTrue(SearchPattern.wildcardMatch("Fo*", "Foo0", false));
         assertTrue(SearchPattern.wildcardMatch("Fo*", "Foo0", true));
 
-        assertFalse(SearchPattern.wildcardMatch("Fo*", "FOo0", false));
+        Assertions.assertFalse(SearchPattern.wildcardMatch("Fo*", "FOo0", false));
         assertTrue(SearchPattern.wildcardMatch("Fo*", "FOO0", true));
 
         assertTrue(SearchPattern.wildcardMatch("Fo?", "Foo", false));
         assertTrue(SearchPattern.wildcardMatch("Fo?", "Foo", true));
 
-        assertFalse(SearchPattern.wildcardMatch("Fo?", "FOo", false));
+        Assertions.assertFalse(SearchPattern.wildcardMatch("Fo?", "FOo", false));
         assertTrue(SearchPattern.wildcardMatch("Fo?", "FoO", false));
         assertTrue(SearchPattern.wildcardMatch("Fo?", "FOO", true));
     }
 
     @Test
-    public void testLongStrings() throws Exception {
+    void testLongStrings() throws Exception {
         // This blew out the stack on a recursive version of wildcardMatch
         final char[] t = new char[] { 'a', 'b', 'c', 'd' };
         StringBuffer text = new StringBuffer("a");
@@ -192,12 +189,12 @@ public class SearchPatternTest {
     }
 
     @Test
-    public void testNoGlobs() throws Exception {
-        assertFalse(SearchPattern.wildcardMatch("abcd", "abc"));
+    void testNoGlobs() throws Exception {
+        Assertions.assertFalse(SearchPattern.wildcardMatch("abcd", "abc"));
     }
 
     @Test
-    public void testEdgeCaseGlobs() throws Exception {
+    void testEdgeCaseGlobs() throws Exception {
         assertTrue(SearchPattern.wildcardMatch("", ""));
         assertTrue(SearchPattern.wildcardMatch("a", "a"));
         assertTrue(SearchPattern.wildcardMatch("*a", "a"));
@@ -211,13 +208,14 @@ public class SearchPatternTest {
         assertTrue(SearchPattern.wildcardMatch("a*a*", "aba"));
         assertTrue(SearchPattern.wildcardMatch("a*a*", "aaa"));
         assertTrue(SearchPattern.wildcardMatch("a*a*", "aaaaaaaaaaaaaaaaaaaaaaa"));
-        assertTrue(SearchPattern.wildcardMatch("a*b*a*b*a*b*a*b*a*",
-                "akljd9gsdfbkjhaabajkhbbyiaahkjbjhbuykjakjhabkjhbabjhkaabbabbaaakljdfsjklababkjbsdabab"));
-        assertFalse(SearchPattern.wildcardMatch("a*na*ha", "anananahahanahana"));
+        assertTrue(SearchPattern.wildcardMatch(
+            "a*b*a*b*a*b*a*b*a*",
+            "akljd9gsdfbkjhaabajkhbbyiaahkjbjhbuykjakjhabkjhbabjhkaabbabbaaakljdfsjklababkjbsdabab"));
+        Assertions.assertFalse(SearchPattern.wildcardMatch("a*na*ha", "anananahahanahana"));
     }
 
     @Test
-    public void testMultiGlobs() throws Exception {
+    void testMultiGlobs() throws Exception {
 
         // Technically, '**' isn't well defined Balsa, but the wildcardMatch should do the right thing with it.
         assertTrue(SearchPattern.wildcardMatch("*a", "a"));
@@ -232,19 +230,19 @@ public class SearchPatternTest {
         assertTrue(SearchPattern.wildcardMatch("*?", "a"));
         assertTrue(SearchPattern.wildcardMatch("*?", "aa"));
         assertTrue(SearchPattern.wildcardMatch("*??", "aa"));
-        assertFalse(SearchPattern.wildcardMatch("*???", "aa"));
+        Assertions.assertFalse(SearchPattern.wildcardMatch("*???", "aa"));
         assertTrue(SearchPattern.wildcardMatch("*?", "aaa"));
 
         assertTrue(SearchPattern.wildcardMatch("?", "a"));
-        assertFalse(SearchPattern.wildcardMatch("??", "a"));
+        Assertions.assertFalse(SearchPattern.wildcardMatch("??", "a"));
 
         assertTrue(SearchPattern.wildcardMatch("?*", "a"));
         assertTrue(SearchPattern.wildcardMatch("*?", "a"));
-        assertFalse(SearchPattern.wildcardMatch("?*?", "a"));
+        Assertions.assertFalse(SearchPattern.wildcardMatch("?*?", "a"));
         assertTrue(SearchPattern.wildcardMatch("?*?", "aa"));
         assertTrue(SearchPattern.wildcardMatch("*?*", "a"));
 
-        assertFalse(SearchPattern.wildcardMatch("*?*a", "a"));
+        Assertions.assertFalse(SearchPattern.wildcardMatch("*?*a", "a"));
         assertTrue(SearchPattern.wildcardMatch("*?*a*", "ba"));
     }
 }

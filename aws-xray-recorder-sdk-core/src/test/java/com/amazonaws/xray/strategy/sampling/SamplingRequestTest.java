@@ -15,13 +15,13 @@
 
 package com.amazonaws.xray.strategy.sampling;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class SamplingRequestTest {
+class SamplingRequestTest {
 
     @Test
-    public void testSuccessfulAccountIdParsing() {
+    void testSuccessfulAccountIdParsing() {
         SamplingRequest req = new SamplingRequest(
                 "arn:aws:iam::123456789123:role/sample-role",
                 null,
@@ -33,7 +33,7 @@ public class SamplingRequestTest {
                 null
         );
 
-        Assert.assertEquals(req.getAccountId().get(), "123456789123");
+        Assertions.assertEquals(req.getAccountId().get(), "123456789123");
     }
 
 }

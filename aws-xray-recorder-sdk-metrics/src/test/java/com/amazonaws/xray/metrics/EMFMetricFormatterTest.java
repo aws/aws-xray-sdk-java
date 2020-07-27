@@ -15,17 +15,16 @@
 
 package com.amazonaws.xray.metrics;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.TraceID;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class EMFMetricFormatterTest {
+class EMFMetricFormatterTest {
     private static final String TEST_SERVICE = "testService";
     private static final String TEST_ORIGIN = "Test::Origin";
     private static final double START_TIME = 550378800.0d;
@@ -45,8 +44,8 @@ public class EMFMetricFormatterTest {
     private Segment testSegment;
     private EMFMetricFormatter formatter;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
 
 
         TraceID traceId = TraceID.fromString("1-5759e988-bd862e3fe1be46a994272793");
@@ -66,14 +65,14 @@ public class EMFMetricFormatterTest {
 
 
     @Test
-    public void testJsonFormat() {
+    void testJsonFormat() {
         String json = formatter.formatSegment(testSegment);
-        assertEquals(EXPECTED_JSON, json);
+        Assertions.assertEquals(EXPECTED_JSON, json);
     }
 
     @Test
-    public void jsonContainsNoNewlines() {
+    void jsonContainsNoNewlines() {
         String json = formatter.formatSegment(testSegment);
-        assertFalse(json.contains("\n"));
+        Assertions.assertFalse(json.contains("\n"));
     }
 }
