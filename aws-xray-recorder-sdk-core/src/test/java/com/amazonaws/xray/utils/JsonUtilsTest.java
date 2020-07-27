@@ -19,10 +19,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class JsonUtilsTest {
+class JsonUtilsTest {
     private static final String SINGLE_LOG_CONFIG = "[{\"log_group_name\":\"test_group\"}]";
     private static final String MULTI_LOG_CONFIG = "[{\"log_group_name\":\"test_group1\"}, {\"log_group_name\":\"test_group2\"}, "
                                                    + "{\"log_group_name\":\"test_group1\"}]";
@@ -34,33 +34,33 @@ public class JsonUtilsTest {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void testGetLogGroup() throws IOException {
+    void testGetLogGroup() throws IOException {
         JsonNode node = mapper.readTree(SINGLE_LOG_CONFIG);
 
         List<String> groupList = JsonUtils.getMatchingListFromJsonArrayNode(node, LOG_GROUP_NAME);
 
-        Assert.assertEquals(1, groupList.size());
-        Assert.assertEquals("test_group", groupList.get(0));
+        Assertions.assertEquals(1, groupList.size());
+        Assertions.assertEquals("test_group", groupList.get(0));
     }
 
     @Test
-    public void testGetMultipleLogGroups() throws IOException {
+    void testGetMultipleLogGroups() throws IOException {
         JsonNode node = mapper.readTree(MULTI_LOG_CONFIG);
 
         List<String> groupList = JsonUtils.getMatchingListFromJsonArrayNode(node, LOG_GROUP_NAME);
 
-        Assert.assertEquals(3, groupList.size());
-        Assert.assertTrue(groupList.contains("test_group1"));
-        Assert.assertTrue(groupList.contains("test_group2"));
+        Assertions.assertEquals(3, groupList.size());
+        Assertions.assertTrue(groupList.contains("test_group1"));
+        Assertions.assertTrue(groupList.contains("test_group2"));
     }
 
     @Test
-    public void testGetLogGroupWithStreamPresent() throws IOException {
+    void testGetLogGroupWithStreamPresent() throws IOException {
         JsonNode node = mapper.readTree(SINGLE_LOG_CONFIG_WITH_STREAM);
 
         List<String> groupList = JsonUtils.getMatchingListFromJsonArrayNode(node, LOG_GROUP_NAME);
 
-        Assert.assertEquals(1, groupList.size());
-        Assert.assertEquals("test_group", groupList.get(0));
+        Assertions.assertEquals(1, groupList.size());
+        Assertions.assertEquals("test_group", groupList.get(0));
     }
 }

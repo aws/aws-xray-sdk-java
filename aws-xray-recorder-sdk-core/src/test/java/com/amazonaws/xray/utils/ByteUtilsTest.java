@@ -17,15 +17,12 @@ package com.amazonaws.xray.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Test;
 
-@FixMethodOrder(MethodSorters.JVM)
-public class ByteUtilsTest {
+class ByteUtilsTest {
 
     @Test
-    public void testHexString() {
+    void testHexString() {
         byte[] zeroArray = new byte[16];
         assertThat(ByteUtils.byteArrayToHexString(zeroArray)).isEqualTo("00000000000000000000000000000000");
 

@@ -21,12 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.amazonaws.xray.config.DaemonConfiguration;
 import com.amazonaws.xray.entities.DummySegment;
 import java.net.SocketException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class UDPEmitterTest {
+class UDPEmitterTest {
 
     @Test
-    public void testCustomAddress() throws SocketException {
+    void testCustomAddress() throws SocketException {
         String address = "123.4.5.6:1234";
         DaemonConfiguration config = getDaemonConfiguration(address);
 
@@ -37,7 +37,7 @@ public class UDPEmitterTest {
 
 
     @Test
-    public void sendingSegmentShouldNotThrowExceptions() throws SocketException {
+    void sendingSegmentShouldNotThrowExceptions() throws SocketException {
         DaemonConfiguration config = getDaemonConfiguration("__udpemittertest_unresolvable__:1234");
         UDPEmitter emitter = new UDPEmitter(config);
 

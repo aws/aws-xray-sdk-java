@@ -16,13 +16,10 @@
 package com.amazonaws.xray.strategy.sampling;
 
 import com.amazonaws.xray.strategy.sampling.reservoir.Reservoir;
-import org.junit.Assert;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-@FixMethodOrder(MethodSorters.JVM)
-public class CentralizedReservoirTest {
+class CentralizedReservoirTest {
 
     private static final int TEST_TIME = 1500;
 
@@ -45,18 +42,18 @@ public class CentralizedReservoirTest {
     }
 
     @Test
-    public void testOnePerSecond() {
+    void testOnePerSecond() {
         int perSecond = 1;
         int taken = takeOverTime(new Reservoir(perSecond), TEST_TIME);
-        Assert.assertTrue(Math.ceil(TEST_TIME / 1000f) <= taken);
-        Assert.assertTrue(Math.ceil(TEST_TIME / 1000f) + perSecond >= taken);
+        Assertions.assertTrue(Math.ceil(TEST_TIME / 1000f) <= taken);
+        Assertions.assertTrue(Math.ceil(TEST_TIME / 1000f) + perSecond >= taken);
     }
 
     @Test
-    public void testTenPerSecond() {
+    void testTenPerSecond() {
         int perSecond = 10;
         int taken = takeOverTime(new Reservoir(perSecond), TEST_TIME);
-        Assert.assertTrue(Math.ceil(TEST_TIME * perSecond / 1000f) <= taken);
-        Assert.assertTrue(Math.ceil(TEST_TIME * perSecond / 1000f) + perSecond >= taken);
+        Assertions.assertTrue(Math.ceil(TEST_TIME * perSecond / 1000f) <= taken);
+        Assertions.assertTrue(Math.ceil(TEST_TIME * perSecond / 1000f) + perSecond >= taken);
     }
 }

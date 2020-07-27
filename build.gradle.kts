@@ -103,9 +103,14 @@ allprojects {
         }
 
         dependencies {
+            add("testImplementation", "org.junit.jupiter:junit-jupiter-api")
+            add("testRuntimeOnly", "org.junit.jupiter:junit-jupiter-engine")
+            add("testRuntimeOnly", "org.junit.vintage:junit-vintage-engine")
             add("testImplementation", "junit:junit")
+
             add("testImplementation", "org.assertj:assertj-core")
             add("testImplementation", "org.mockito:mockito-core")
+            add("testImplementation", "org.mockito:mockito-junit-jupiter")
 
             add("compileOnly", "org.checkerframework:checker-qual:3.4.1")
             add("testImplementation", "org.checkerframework:checker-qual:3.4.1")
@@ -159,6 +164,8 @@ allprojects {
             }
 
             withType<Test> {
+                useJUnitPlatform()
+
                 testLogging {
                     exceptionFormat = TestExceptionFormat.FULL
                     showStackTraces = true

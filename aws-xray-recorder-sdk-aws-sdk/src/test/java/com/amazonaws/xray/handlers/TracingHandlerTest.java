@@ -50,19 +50,16 @@ import org.apache.http.impl.io.EmptyInputStream;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.protocol.HttpContext;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
 
-@FixMethodOrder(MethodSorters.JVM)
-public class TracingHandlerTest {
+class TracingHandlerTest {
 
-    @Before
-    public void setupAWSXRay() {
+    @BeforeEach
+    void setupAWSXRay() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
@@ -94,7 +91,7 @@ public class TracingHandlerTest {
     }
 
     @Test
-    public void testLambdaInvokeSubsegmentContainsFunctionName() {
+    void testLambdaInvokeSubsegmentContainsFunctionName() {
         // Setup test
         AWSLambda lambda = AWSLambdaClientBuilder
             .standard()
@@ -111,13 +108,13 @@ public class TracingHandlerTest {
         request.setFunctionName("testFunctionName");
         lambda.invoke(request);
 
-        Assert.assertEquals(1, segment.getSubsegments().size());
-        Assert.assertEquals("Invoke", segment.getSubsegments().get(0).getAws().get("operation"));
-        Assert.assertEquals("testFunctionName", segment.getSubsegments().get(0).getAws().get("function_name"));
+        Assertions.assertEquals(1, segment.getSubsegments().size());
+        Assertions.assertEquals("Invoke", segment.getSubsegments().get(0).getAws().get("operation"));
+        Assertions.assertEquals("testFunctionName", segment.getSubsegments().get(0).getAws().get("function_name"));
     }
 
     @Test
-    public void testS3PutObjectSubsegmentContainsBucketName() {
+    void testS3PutObjectSubsegmentContainsBucketName() {
         // Setup test
         AmazonS3 s3 = AmazonS3ClientBuilder
             .standard()
@@ -132,14 +129,14 @@ public class TracingHandlerTest {
         // Test logic 
         Segment segment = AWSXRay.beginSegment("test");
         s3.putObject(bucket, key, "This is a test from java");
-        Assert.assertEquals(1, segment.getSubsegments().size());
-        Assert.assertEquals("PutObject", segment.getSubsegments().get(0).getAws().get("operation"));
-        Assert.assertEquals(bucket, segment.getSubsegments().get(0).getAws().get("bucket_name"));
-        Assert.assertEquals(key, segment.getSubsegments().get(0).getAws().get("key"));
+        Assertions.assertEquals(1, segment.getSubsegments().size());
+        Assertions.assertEquals("PutObject", segment.getSubsegments().get(0).getAws().get("operation"));
+        Assertions.assertEquals(bucket, segment.getSubsegments().get(0).getAws().get("bucket_name"));
+        Assertions.assertEquals(key, segment.getSubsegments().get(0).getAws().get("key"));
     }
 
     @Test
-    public void testS3CopyObjectSubsegmentContainsBucketName() {
+    void testS3CopyObjectSubsegmentContainsBucketName() {
         // Setup test
         final String copyResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                                     "<CopyObjectResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">" +
@@ -161,16 +158,16 @@ public class TracingHandlerTest {
         // Test logic 
         Segment segment = AWSXRay.beginSegment("test");
         s3.copyObject(bucket, key, dstBucket, dstKey);
-        Assert.assertEquals(1, segment.getSubsegments().size());
-        Assert.assertEquals("CopyObject", segment.getSubsegments().get(0).getAws().get("operation"));
-        Assert.assertEquals(bucket, segment.getSubsegments().get(0).getAws().get("source_bucket_name"));
-        Assert.assertEquals(key, segment.getSubsegments().get(0).getAws().get("source_key"));
-        Assert.assertEquals(dstBucket, segment.getSubsegments().get(0).getAws().get("destination_bucket_name"));
-        Assert.assertEquals(dstKey, segment.getSubsegments().get(0).getAws().get("destination_key"));
+        Assertions.assertEquals(1, segment.getSubsegments().size());
+        Assertions.assertEquals("CopyObject", segment.getSubsegments().get(0).getAws().get("operation"));
+        Assertions.assertEquals(bucket, segment.getSubsegments().get(0).getAws().get("source_bucket_name"));
+        Assertions.assertEquals(key, segment.getSubsegments().get(0).getAws().get("source_key"));
+        Assertions.assertEquals(dstBucket, segment.getSubsegments().get(0).getAws().get("destination_bucket_name"));
+        Assertions.assertEquals(dstKey, segment.getSubsegments().get(0).getAws().get("destination_key"));
     }
 
     @Test
-    public void testSNSPublish() {
+    void testSNSPublish() {
         // Setup test
         // reference : https://docs.aws.amazon.com/sns/latest/api/API_Publish.html
         final String publishResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -189,13 +186,13 @@ public class TracingHandlerTest {
         // Test logic 
         Segment segment = AWSXRay.beginSegment("test");
         sns.publish(new PublishRequest(topicArn, "testMessage"));
-        Assert.assertEquals(1, segment.getSubsegments().size());
-        Assert.assertEquals("Publish", segment.getSubsegments().get(0).getAws().get("operation"));
-        Assert.assertEquals(topicArn, segment.getSubsegments().get(0).getAws().get("topic_arn"));
+        Assertions.assertEquals(1, segment.getSubsegments().size());
+        Assertions.assertEquals("Publish", segment.getSubsegments().get(0).getAws().get("operation"));
+        Assertions.assertEquals(topicArn, segment.getSubsegments().get(0).getAws().get("topic_arn"));
     }
 
     @Test
-    public void testShouldNotTraceXRaySamplingOperations() {
+    void testShouldNotTraceXRaySamplingOperations() {
         com.amazonaws.services.xray.AWSXRay xray = AWSXRayClientBuilder
             .standard()
             .withRequestHandlers(new TracingHandler()).withRegion(Regions.US_EAST_1)
@@ -205,14 +202,14 @@ public class TracingHandlerTest {
 
         Segment segment = AWSXRay.beginSegment("test");
         xray.getSamplingRules(new GetSamplingRulesRequest());
-        Assert.assertEquals(0, segment.getSubsegments().size());
+        Assertions.assertEquals(0, segment.getSubsegments().size());
 
         xray.getSamplingTargets(new GetSamplingTargetsRequest());
-        Assert.assertEquals(0, segment.getSubsegments().size());
+        Assertions.assertEquals(0, segment.getSubsegments().size());
     }
 
     @Test
-    public void testShouldNotThrowContextMissingOnXRaySampling() {
+    void testShouldNotThrowContextMissingOnXRaySampling() {
         com.amazonaws.services.xray.AWSXRay xray = AWSXRayClientBuilder
             .standard()
             .withRequestHandlers(new TracingHandler()).withRegion(Regions.US_EAST_1)
@@ -225,7 +222,7 @@ public class TracingHandlerTest {
     }
 
     @Test
-    public void testRaceConditionOnRecorderInitialization() {
+    void testRaceConditionOnRecorderInitialization() {
         AWSXRay.setGlobalRecorder(null);
         // TracingHandler will not have the initialized recorder
         AWSLambda lambda = AWSLambdaClientBuilder
