@@ -28,13 +28,11 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.MockitoAnnotations;
 
 public class SqlSubsegmentsTest {
     private static final String URL = "http://www.foo.com";
@@ -47,17 +45,15 @@ public class SqlSubsegmentsTest {
     private static final String CATALOG = "catalog";
     private Map<String, Object> expectedSqlParams;
 
-    @Rule
-    public MockitoRule rule = MockitoJUnit.rule();
-
     @Mock
     Connection connection;
 
     @Mock
     DatabaseMetaData metaData;
 
-    @Before
-    public void setup() throws SQLException {
+    @BeforeEach
+    void setup() throws SQLException {
+        MockitoAnnotations.initMocks(this);
         when(connection.getMetaData()).thenReturn(metaData);
         when(connection.getCatalog()).thenReturn(CATALOG);
         when(metaData.getURL()).thenReturn(URL);
@@ -69,13 +65,13 @@ public class SqlSubsegmentsTest {
         AWSXRay.beginSegment("test");
     }
 
-    @After
-    public void cleanup() {
+    @AfterEach
+    void cleanup() {
         AWSXRay.clearTraceEntity();
     }
 
     @Test
-    public void testCreateSubsegmentWithoutSql() throws SQLException {
+    void testCreateSubsegmentWithoutSql() throws SQLException {
         expectedSqlParams = new HashMap<>();
         expectedSqlParams.put("url", URL);
         expectedSqlParams.put("user", USER);
@@ -91,7 +87,7 @@ public class SqlSubsegmentsTest {
     }
 
     @Test
-    public void testCreateSubsegmentWithSql() throws SQLException {
+    void testCreateSubsegmentWithSql() throws SQLException {
         expectedSqlParams = new HashMap<>();
         expectedSqlParams.put("url", URL);
         expectedSqlParams.put("user", USER);
