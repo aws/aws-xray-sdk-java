@@ -143,7 +143,7 @@ public class TracingStatement {
 
         private Subsegment createSubsegment() {
             try {
-                return SqlUtils.createSqlSubsegment(delegate.getConnection(), null);
+                return SqlSubsegments.forQuery(delegate.getConnection(), null);
             } catch (SQLException exception) {
                 logger.warn("Failed to create X-Ray subsegment for the statement execution.", exception);
                 return null;

@@ -32,10 +32,10 @@ import org.apache.commons.logging.LogFactory;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
- * Class containing utility methods used by X-Ray's SQL tracing libraries.
+ * Class containing utility method to create fully-populated SQL subsegments.
  */
-public final class SqlUtils {
-    private static final Log logger = LogFactory.getLog(SqlUtils.class);
+public final class SqlSubsegments {
+    private static final Log logger = LogFactory.getLog(SqlSubsegments.class);
 
     // https://docs.aws.amazon.com/xray/latest/devguide/xray-api-segmentdocuments.html#api-segmentdocuments-sql
     private static final String DEFAULT_DATABASE_NAME = "database";
@@ -45,9 +45,6 @@ public final class SqlUtils {
     private static final String DATABASE_TYPE = "database_type";
     private static final String DATABASE_VERSION = "database_version";
     private static final String SANITIZED_QUERY = "sanitized_query";
-
-    private SqlUtils() {
-    }
 
     /**
      * Begins a {@link Subsegment} populated with data provided by the {@link Connection#getMetaData} method. Includes
@@ -59,36 +56,33 @@ public final class SqlUtils {
      * @return the created {@link Subsegment}.
      * @throws SQLException if there is a bad interaction with the {@link Connection}.
      */
-    @Nullable
-    public static Subsegment createSqlSubsegment(Connection connection, @Nullable String query) throws SQLException {
+    public static Subsegment forQuery(Connection connection, @Nullable String query) throws SQLException {
         DatabaseMetaData metadata = connection.getMetaData();
         String subsegmentName = DEFAULT_DATABASE_NAME;
         try {
             URI normalizedUri = new URI(new URI(metadata.getURL()).getSchemeSpecificPart());
             subsegmentName = connection.getCatalog() + "@" + normalizedUri.getHost();
         } catch (URISyntaxException e) {
-            logger.warn("Unable to parse database URI. Falling back to default '" + DEFAULT_DATABASE_NAME
+            logger.debug("Unable to parse database URI. Falling back to default '" + DEFAULT_DATABASE_NAME
                     + "' for subsegment name.", e);
         }
 
         Subsegment subsegment = AWSXRay.beginSubsegment(subsegmentName);
-        if (subsegment == null) {
-            return null;
-        }
 
         subsegment.setNamespace(Namespace.REMOTE.toString());
-        Map<String, Object> sqlParams = new HashMap<>();
-        sqlParams.put(URL, metadata.getURL());
-        sqlParams.put(USER, metadata.getUserName());
-        sqlParams.put(DRIVER_VERSION, metadata.getDriverVersion());
-        sqlParams.put(DATABASE_TYPE, metadata.getDatabaseProductName());
-        sqlParams.put(DATABASE_VERSION, metadata.getDatabaseProductVersion());
+        subsegment.putSql(URL, metadata.getURL());
+        subsegment.putSql(USER, metadata.getUserName());
+        subsegment.putSql(DRIVER_VERSION, metadata.getDriverVersion());
+        subsegment.putSql(DATABASE_TYPE, metadata.getDatabaseProductName());
+        subsegment.putSql(DATABASE_VERSION, metadata.getDatabaseProductVersion());
 
         if (query != null) {
-            sqlParams.put(SANITIZED_QUERY, query);
+            subsegment.putSql(SANITIZED_QUERY, query);
         }
 
-        subsegment.putAllSql(sqlParams);
         return subsegment;
+    }
+
+    private SqlSubsegments() {
     }
 }

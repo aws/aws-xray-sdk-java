@@ -15,7 +15,7 @@
 
 package com.amazonaws.xray.sql;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.xray.AWSXRay;
@@ -30,13 +30,13 @@ import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
-@RunWith(MockitoJUnitRunner.class)
-public class SqlUtilsTest {
+public class SqlSubsegmentsTest {
     private static final String URL = "http://www.foo.com";
     private static final String HOST = "www.foo.com";
     private static final String USER = "user";
@@ -46,6 +46,9 @@ public class SqlUtilsTest {
     private static final String SQL = "sql";
     private static final String CATALOG = "catalog";
     private Map<String, Object> expectedSqlParams;
+
+    @Rule
+    public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock
     Connection connection;
@@ -63,13 +66,6 @@ public class SqlUtilsTest {
         when(metaData.getDatabaseProductName()).thenReturn(DB_TYPE);
         when(metaData.getDatabaseProductVersion()).thenReturn(DB_VERSION);
 
-        expectedSqlParams = new HashMap<>();
-        expectedSqlParams.put("url", URL);
-        expectedSqlParams.put("user", USER);
-        expectedSqlParams.put("driver_version", DRIVER_VERSION);
-        expectedSqlParams.put("database_type", DB_TYPE);
-        expectedSqlParams.put("database_version", DB_VERSION);
-
         AWSXRay.beginSegment("test");
     }
 
@@ -80,20 +76,34 @@ public class SqlUtilsTest {
 
     @Test
     public void testCreateSubsegmentWithoutSql() throws SQLException {
-        Subsegment sub = SqlUtils.createSqlSubsegment(connection, null);
-        verifySqlSubsegment(sub);
+        expectedSqlParams = new HashMap<>();
+        expectedSqlParams.put("url", URL);
+        expectedSqlParams.put("user", USER);
+        expectedSqlParams.put("driver_version", DRIVER_VERSION);
+        expectedSqlParams.put("database_type", DB_TYPE);
+        expectedSqlParams.put("database_version", DB_VERSION);
+
+        Subsegment sub = SqlSubsegments.forQuery(connection, null);
+
+        assertThat(sub.getName()).isEqualTo(CATALOG + "@" + HOST);
+        assertThat(sub.getNamespace()).isEqualTo(Namespace.REMOTE.toString());
+        assertThat(sub.getSql()).containsAllEntriesOf(expectedSqlParams);
     }
 
     @Test
     public void testCreateSubsegmentWithSql() throws SQLException {
-        Subsegment sub = SqlUtils.createSqlSubsegment(connection, SQL);
+        expectedSqlParams = new HashMap<>();
+        expectedSqlParams.put("url", URL);
+        expectedSqlParams.put("user", USER);
+        expectedSqlParams.put("driver_version", DRIVER_VERSION);
+        expectedSqlParams.put("database_type", DB_TYPE);
+        expectedSqlParams.put("database_version", DB_VERSION);
         expectedSqlParams.put("sanitized_query", SQL);
-        verifySqlSubsegment(sub);
-    }
 
-    private void verifySqlSubsegment(Subsegment sub) {
-        assertEquals(CATALOG + "@" + HOST, sub.getName());
-        assertEquals(Namespace.REMOTE.toString(), sub.getNamespace());
-        assertEquals(expectedSqlParams, sub.getSql());
+        Subsegment sub = SqlSubsegments.forQuery(connection, SQL);
+
+        assertThat(sub.getName()).isEqualTo(CATALOG + "@" + HOST);
+        assertThat(sub.getNamespace()).isEqualTo(Namespace.REMOTE.toString());
+        assertThat(sub.getSql()).containsAllEntriesOf(expectedSqlParams);
     }
 }
