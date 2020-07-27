@@ -16,22 +16,15 @@
 package com.amazonaws.xray.sql;
 
 import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.entities.Namespace;
 import com.amazonaws.xray.entities.Subsegment;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -87,17 +80,10 @@ public class TracingStatement {
     }
 
     private static class TracingStatementHandler implements InvocationHandler {
-
-        private static final String DEFAULT_DATABASE_NAME = "database";
         private static final String EXECUTE = "execute";
         private static final String EXECUTE_QUERY = "executeQuery";
         private static final String EXECUTE_UPDATE = "executeUpdate";
         private static final String EXECUTE_BATCH = "executeBatch";
-        private static final String URL = "url";
-        private static final String USER = "user";
-        private static final String DRIVER_VERSION = "driver_version";
-        private static final String DATABASE_TYPE = "database_type";
-        private static final String DATABASE_VERSION = "database_version";
 
         private final Statement delegate;
 
@@ -157,32 +143,7 @@ public class TracingStatement {
 
         private Subsegment createSubsegment() {
             try {
-                Connection connection = delegate.getConnection();
-                DatabaseMetaData metadata = connection.getMetaData();
-                String subsegmentName = DEFAULT_DATABASE_NAME;
-                try {
-                    URI normalizedUri = new URI(new URI(metadata.getURL()).getSchemeSpecificPart());
-                    subsegmentName = connection.getCatalog() + "@" + normalizedUri.getHost();
-                } catch (URISyntaxException e) {
-                    logger.warn("Unable to parse database URI. Falling back to default '" + DEFAULT_DATABASE_NAME
-                                + "' for subsegment name.", e);
-                }
-
-                Subsegment subsegment = AWSXRay.beginSubsegment(subsegmentName);
-                if (subsegment == null) {
-                    return null;
-                }
-
-                subsegment.setNamespace(Namespace.REMOTE.toString());
-                Map<String, Object> sqlParams = new HashMap<>();
-                sqlParams.put(URL, metadata.getURL());
-                sqlParams.put(USER, metadata.getUserName());
-                sqlParams.put(DRIVER_VERSION, metadata.getDriverVersion());
-                sqlParams.put(DATABASE_TYPE, metadata.getDatabaseProductName());
-                sqlParams.put(DATABASE_VERSION, metadata.getDatabaseProductVersion());
-                subsegment.putAllSql(sqlParams);
-
-                return subsegment;
+                return SqlSubsegments.forQuery(delegate.getConnection(), null);
             } catch (SQLException exception) {
                 logger.warn("Failed to create X-Ray subsegment for the statement execution.", exception);
                 return null;
