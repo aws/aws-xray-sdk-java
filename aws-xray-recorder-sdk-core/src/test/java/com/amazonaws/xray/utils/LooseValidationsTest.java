@@ -19,22 +19,22 @@ import static com.amazonaws.xray.utils.LooseValidations.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.amazonaws.xray.utils.LooseValidations.ValidationMode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class LooseValidationsTest {
+class LooseValidationsTest {
 
     @Test
-    public void checkNotNull_notNull() {
+    void checkNotNull_notNull() {
         assertThat(checkNotNull("bar", "foo")).isTrue();
     }
 
     @Test
-    public void checkNotNull_null() {
+    void checkNotNull_null() {
         assertThat(checkNotNull(null, "foo")).isFalse();
     }
 
     @Test
-    public void validationModeParsing() {
+    void validationModeParsing() {
         assertThat(LooseValidations.validationMode("none")).isEqualTo(ValidationMode.NONE);
         assertThat(LooseValidations.validationMode("NONE")).isEqualTo(ValidationMode.NONE);
         assertThat(LooseValidations.validationMode("log")).isEqualTo(ValidationMode.LOG);

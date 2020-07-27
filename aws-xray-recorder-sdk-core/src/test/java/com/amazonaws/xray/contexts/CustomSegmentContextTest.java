@@ -29,12 +29,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class CustomSegmentContextTest {
+class CustomSegmentContextTest {
 
     static class GlobalMapSegmentContext implements SegmentContext {
 
@@ -96,8 +96,8 @@ public class CustomSegmentContextTest {
         }
     }
 
-    @Before
-    public void setupAWSXRay() {
+    @BeforeEach
+    void setupAWSXRay() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
@@ -115,7 +115,7 @@ public class CustomSegmentContextTest {
     }
 
     @Test
-    public void testGlobalMapSegmentContext() {
+    void testGlobalMapSegmentContext() {
         Segment test = AWSXRay.beginSegment("test");
 
 
@@ -130,7 +130,7 @@ public class CustomSegmentContextTest {
             });
         });
 
-        Assert.assertEquals(100, test.getTotalSize().intValue());
+        Assertions.assertEquals(100, test.getTotalSize().intValue());
 
         AWSXRay.endSegment();
     }

@@ -26,18 +26,15 @@ import org.apache.http.HttpVersion;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-@FixMethodOrder(MethodSorters.JVM)
-public class TracedResponseHandlerTest {
+class TracedResponseHandlerTest {
 
-    @Before
-    public void setupAWSXRay() {
+    @BeforeEach
+    void setupAWSXRay() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.anyObject());
@@ -46,39 +43,39 @@ public class TracedResponseHandlerTest {
     }
 
     @Test
-    public void testHandleResponse200SetsNoFlags() {
+    void testHandleResponse200SetsNoFlags() {
         Segment segment = segmentInResponseToCode(200);
         Subsegment subsegment = segment.getSubsegments().get(0);
-        Assert.assertFalse(subsegment.isFault());
-        Assert.assertFalse(subsegment.isError());
-        Assert.assertFalse(subsegment.isThrottle());
+        Assertions.assertFalse(subsegment.isFault());
+        Assertions.assertFalse(subsegment.isError());
+        Assertions.assertFalse(subsegment.isThrottle());
     }
 
     @Test
-    public void testHandleResponse400SetsErrorFlag() {
+    void testHandleResponse400SetsErrorFlag() {
         Segment segment = segmentInResponseToCode(400);
         Subsegment subsegment = segment.getSubsegments().get(0);
-        Assert.assertFalse(subsegment.isFault());
-        Assert.assertTrue(subsegment.isError());
-        Assert.assertFalse(subsegment.isThrottle());
+        Assertions.assertFalse(subsegment.isFault());
+        Assertions.assertTrue(subsegment.isError());
+        Assertions.assertFalse(subsegment.isThrottle());
     }
 
     @Test
-    public void testHandleResponse429SetsErrorAndThrottleFlag() {
+    void testHandleResponse429SetsErrorAndThrottleFlag() {
         Segment segment = segmentInResponseToCode(429);
         Subsegment subsegment = segment.getSubsegments().get(0);
-        Assert.assertFalse(subsegment.isFault());
-        Assert.assertTrue(subsegment.isError());
-        Assert.assertTrue(subsegment.isThrottle());
+        Assertions.assertFalse(subsegment.isFault());
+        Assertions.assertTrue(subsegment.isError());
+        Assertions.assertTrue(subsegment.isThrottle());
     }
 
     @Test
-    public void testHandleResponse500SetsFaultFlag() {
+    void testHandleResponse500SetsFaultFlag() {
         Segment segment = segmentInResponseToCode(500);
         Subsegment subsegment = segment.getSubsegments().get(0);
-        Assert.assertTrue(subsegment.isFault());
-        Assert.assertFalse(subsegment.isError());
-        Assert.assertFalse(subsegment.isThrottle());
+        Assertions.assertTrue(subsegment.isFault());
+        Assertions.assertFalse(subsegment.isError());
+        Assertions.assertFalse(subsegment.isThrottle());
     }
 
     private static class NoOpResponseHandler implements ResponseHandler<String> {

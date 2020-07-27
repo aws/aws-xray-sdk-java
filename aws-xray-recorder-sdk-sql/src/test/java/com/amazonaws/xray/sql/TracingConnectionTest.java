@@ -15,8 +15,6 @@
 
 package com.amazonaws.xray.sql;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -25,15 +23,18 @@ import static org.mockito.Mockito.verify;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TracingConnectionTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class TracingConnectionTest {
 
     private Connection connection;
 
@@ -43,12 +44,11 @@ public class TracingConnectionTest {
     public interface ExtraInterface {
     }
 
-
     @Mock
     private OtherWrapper delegate;
 
     @SuppressWarnings("unchecked")
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         connection = TracingConnection.decorate(delegate);
         doReturn(false).when(delegate).isWrapperFor(any());
@@ -60,13 +60,13 @@ public class TracingConnectionTest {
     }
 
     @Test
-    public void testDecoration() throws SQLException {
-        assertTrue(connection instanceof TracingConnection);
-        assertTrue(connection.isWrapperFor(Connection.class));
-        assertTrue(connection.isWrapperFor(TracingConnection.class));
-        assertTrue(connection.isWrapperFor(OtherWrapper.class));
-        assertTrue(connection.isWrapperFor(ExtraInterface.class));
-        assertFalse(connection.isWrapperFor(Long.class));
+    void testDecoration() throws SQLException {
+        Assertions.assertTrue(connection instanceof TracingConnection);
+        Assertions.assertTrue(connection.isWrapperFor(Connection.class));
+        Assertions.assertTrue(connection.isWrapperFor(TracingConnection.class));
+        Assertions.assertTrue(connection.isWrapperFor(OtherWrapper.class));
+        Assertions.assertTrue(connection.isWrapperFor(ExtraInterface.class));
+        Assertions.assertFalse(connection.isWrapperFor(Long.class));
         verify(delegate, never()).isWrapperFor(Connection.class);
         verify(delegate, never()).isWrapperFor(TracingConnection.class);
         verify(delegate).isWrapperFor(OtherWrapper.class);
@@ -75,18 +75,18 @@ public class TracingConnectionTest {
     }
 
     @Test
-    public void testUnwrap() throws SQLException {
-        Assert.assertSame(connection, connection.unwrap(Connection.class));
-        Assert.assertSame(connection, connection.unwrap(TracingConnection.class));
-        Assert.assertSame(delegate, connection.unwrap(OtherWrapper.class));
-        Assert.assertSame(delegate, connection.unwrap(ExtraInterface.class));
+    void testUnwrap() throws SQLException {
+        Assertions.assertSame(connection, connection.unwrap(Connection.class));
+        Assertions.assertSame(connection, connection.unwrap(TracingConnection.class));
+        Assertions.assertSame(delegate, connection.unwrap(OtherWrapper.class));
+        Assertions.assertSame(delegate, connection.unwrap(ExtraInterface.class));
         boolean exceptionThrown = false;
         try {
             connection.unwrap(Long.class);
         } catch (final SQLException e) {
             exceptionThrown = true;
         }
-        assertTrue(exceptionThrown);
+        Assertions.assertTrue(exceptionThrown);
         verify(delegate, never()).unwrap(Connection.class);
         verify(delegate, never()).unwrap(TracingConnection.class);
         verify(delegate).unwrap(OtherWrapper.class);
@@ -95,47 +95,47 @@ public class TracingConnectionTest {
     }
 
     @Test
-    public void testCreateStatement() throws Exception {
-        assertTrue(connection.createStatement() != null);
+    void testCreateStatement() throws Exception {
+        Assertions.assertTrue(connection.createStatement() != null);
         verify(delegate).createStatement();
 
-        assertTrue(connection.createStatement(2, 3) != null);
+        Assertions.assertTrue(connection.createStatement(2, 3) != null);
         verify(delegate).createStatement(2, 3);
 
-        assertTrue(connection.createStatement(2, 3, 4) != null);
+        Assertions.assertTrue(connection.createStatement(2, 3, 4) != null);
         verify(delegate).createStatement(2, 3, 4);
     }
 
     @Test
-    public void testPrepareStatement() throws Exception {
-        assertTrue(connection.prepareStatement("foo") != null);
+    void testPrepareStatement() throws Exception {
+        Assertions.assertTrue(connection.prepareStatement("foo") != null);
         verify(delegate).prepareStatement("foo");
 
-        assertTrue(connection.prepareStatement("foo", 2) != null);
+        Assertions.assertTrue(connection.prepareStatement("foo", 2) != null);
         verify(delegate).prepareStatement("foo", 2);
 
-        assertTrue(connection.prepareStatement("foo", new int[] {2, 3}) != null);
+        Assertions.assertTrue(connection.prepareStatement("foo", new int[] {2, 3}) != null);
         verify(delegate).prepareStatement("foo", new int[]{2, 3});
 
-        assertTrue(connection.prepareStatement("foo", new String[] {"bar", "baz"}) != null);
+        Assertions.assertTrue(connection.prepareStatement("foo", new String[] {"bar", "baz"}) != null);
         verify(delegate).prepareStatement("foo", new String[]{"bar", "baz"});
 
-        assertTrue(connection.prepareStatement("foo", 2, 3) != null);
+        Assertions.assertTrue(connection.prepareStatement("foo", 2, 3) != null);
         verify(delegate).prepareStatement("foo", 2, 3);
 
-        assertTrue(connection.prepareStatement("foo", 2, 3, 4) != null);
+        Assertions.assertTrue(connection.prepareStatement("foo", 2, 3, 4) != null);
         verify(delegate).prepareStatement("foo", 2, 3, 4);
     }
 
     @Test
-    public void testPrepareCall() throws Exception {
-        assertTrue(connection.prepareCall("foo") != null);
+    void testPrepareCall() throws Exception {
+        Assertions.assertTrue(connection.prepareCall("foo") != null);
         verify(delegate).prepareCall("foo");
 
-        assertTrue(connection.prepareCall("foo", 2, 3) != null);
+        Assertions.assertTrue(connection.prepareCall("foo", 2, 3) != null);
         verify(delegate).prepareCall("foo", 2, 3);
 
-        assertTrue(connection.prepareCall("foo", 2, 3, 4) != null);
+        Assertions.assertTrue(connection.prepareCall("foo", 2, 3, 4) != null);
         verify(delegate).prepareCall("foo", 2, 3, 4);
     }
 }

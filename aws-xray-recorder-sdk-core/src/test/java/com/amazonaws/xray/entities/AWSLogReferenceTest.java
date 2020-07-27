@@ -15,24 +15,19 @@
 
 package com.amazonaws.xray.entities;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
-
-@FixMethodOrder(MethodSorters.JVM)
-public class AWSLogReferenceTest {
+class AWSLogReferenceTest {
 
     AWSLogReference referenceA;
     AWSLogReference referenceB;
     AWSLogReference differentArn;
     AWSLogReference differentGroup;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         referenceA = new AWSLogReference();
         referenceB = new AWSLogReference();
         differentArn = new AWSLogReference();
@@ -54,21 +49,21 @@ public class AWSLogReferenceTest {
     // Test case for equals.
     @SuppressWarnings("SelfEquals")
     @Test
-    public void testEqualityPositive() {
-        assertTrue(referenceA.equals(referenceB));
-        assertTrue(referenceB.equals(referenceA));
-        assertTrue(referenceA.equals(referenceA));
+    void testEqualityPositive() {
+        Assertions.assertTrue(referenceA.equals(referenceB));
+        Assertions.assertTrue(referenceB.equals(referenceA));
+        Assertions.assertTrue(referenceA.equals(referenceA));
     }
 
     @Test
-    public void testEqualityNegativeBecauseArn() {
-        assertEquals(false, referenceA.equals(differentArn));
-        assertEquals(false, differentArn.equals(referenceA));
+    void testEqualityNegativeBecauseArn() {
+        Assertions.assertEquals(false, referenceA.equals(differentArn));
+        Assertions.assertEquals(false, differentArn.equals(referenceA));
     }
 
     @Test
-    public void testEqualityNegativeBecauseGroup() {
-        assertEquals(false, referenceA.equals(differentGroup));
-        assertEquals(false, differentGroup.equals(referenceA));
+    void testEqualityNegativeBecauseGroup() {
+        Assertions.assertEquals(false, referenceA.equals(differentGroup));
+        Assertions.assertEquals(false, differentGroup.equals(referenceA));
     }
 }

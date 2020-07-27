@@ -15,24 +15,20 @@
 
 package com.amazonaws.xray.proxies.apache.http;
 
-import static org.junit.Assert.assertEquals;
-
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.emitters.Emitter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-@FixMethodOrder(MethodSorters.JVM)
-public class HttpClientBuilderTest {
+class HttpClientBuilderTest {
 
-    @Before
-    public void setupAWSXRay() {
+    @BeforeEach
+    void setupAWSXRay() {
         // Prevent accidental publish to Daemon
         Emitter blankEmitter = Mockito.mock(Emitter.class);
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
@@ -42,9 +38,9 @@ public class HttpClientBuilderTest {
     }
 
     @Test
-    public void testConstructorProtected() throws NoSuchMethodException {
+    void testConstructorProtected() throws NoSuchMethodException {
         // Since the constructor is protected and this is in the same package, we have to test this using reflection.
         Constructor clientBuilderConstructor = HttpClientBuilder.class.getDeclaredConstructor();
-        assertEquals(Modifier.PROTECTED, clientBuilderConstructor.getModifiers()); // PROTECTED = 4;
+        Assertions.assertEquals(Modifier.PROTECTED, clientBuilderConstructor.getModifiers()); // PROTECTED = 4;
     }
 }

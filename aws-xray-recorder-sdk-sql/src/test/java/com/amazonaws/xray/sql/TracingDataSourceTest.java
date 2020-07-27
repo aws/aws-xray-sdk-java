@@ -15,8 +15,6 @@
 
 package com.amazonaws.xray.sql;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -25,15 +23,18 @@ import static org.mockito.Mockito.verify;
 
 import java.sql.SQLException;
 import javax.sql.DataSource;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TracingDataSourceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class TracingDataSourceTest {
 
     private DataSource dataSource;
 
@@ -47,7 +48,7 @@ public class TracingDataSourceTest {
     private OtherWrapper delegate;
 
     @SuppressWarnings("unchecked")
-    @Before
+    @BeforeEach
     public void setup() throws SQLException {
         dataSource = TracingDataSource.decorate(delegate);
         doReturn(false).when(delegate).isWrapperFor(any());
@@ -59,13 +60,13 @@ public class TracingDataSourceTest {
     }
 
     @Test
-    public void testDecoration() throws SQLException {
-        assertTrue(dataSource instanceof TracingDataSource);
-        assertTrue(dataSource.isWrapperFor(DataSource.class));
-        assertTrue(dataSource.isWrapperFor(TracingDataSource.class));
-        assertTrue(dataSource.isWrapperFor(OtherWrapper.class));
-        assertTrue(dataSource.isWrapperFor(ExtraInterface.class));
-        assertFalse(dataSource.isWrapperFor(Long.class));
+    void testDecoration() throws SQLException {
+        Assertions.assertTrue(dataSource instanceof TracingDataSource);
+        Assertions.assertTrue(dataSource.isWrapperFor(DataSource.class));
+        Assertions.assertTrue(dataSource.isWrapperFor(TracingDataSource.class));
+        Assertions.assertTrue(dataSource.isWrapperFor(OtherWrapper.class));
+        Assertions.assertTrue(dataSource.isWrapperFor(ExtraInterface.class));
+        Assertions.assertFalse(dataSource.isWrapperFor(Long.class));
         verify(delegate, never()).isWrapperFor(DataSource.class);
         verify(delegate, never()).isWrapperFor(TracingDataSource.class);
         verify(delegate).isWrapperFor(OtherWrapper.class);
@@ -74,18 +75,18 @@ public class TracingDataSourceTest {
     }
 
     @Test
-    public void testUnwrap() throws SQLException {
-        Assert.assertSame(dataSource, dataSource.unwrap(DataSource.class));
-        Assert.assertSame(dataSource, dataSource.unwrap(TracingDataSource.class));
-        Assert.assertSame(delegate, dataSource.unwrap(OtherWrapper.class));
-        Assert.assertSame(delegate, dataSource.unwrap(ExtraInterface.class));
+    void testUnwrap() throws SQLException {
+        Assertions.assertSame(dataSource, dataSource.unwrap(DataSource.class));
+        Assertions.assertSame(dataSource, dataSource.unwrap(TracingDataSource.class));
+        Assertions.assertSame(delegate, dataSource.unwrap(OtherWrapper.class));
+        Assertions.assertSame(delegate, dataSource.unwrap(ExtraInterface.class));
         boolean exceptionThrown = false;
         try {
             dataSource.unwrap(Long.class);
         } catch (final SQLException e) {
             exceptionThrown = true;
         }
-        assertTrue(exceptionThrown);
+        Assertions.assertTrue(exceptionThrown);
         verify(delegate, never()).unwrap(DataSource.class);
         verify(delegate, never()).unwrap(TracingDataSource.class);
         verify(delegate).unwrap(OtherWrapper.class);
@@ -96,11 +97,11 @@ public class TracingDataSourceTest {
     ;
 
     @Test
-    public void testGetConnection() throws Exception {
-        assertTrue(dataSource.getConnection() instanceof TracingConnection);
+    void testGetConnection() throws Exception {
+        Assertions.assertTrue(dataSource.getConnection() instanceof TracingConnection);
         verify(delegate).getConnection();
 
-        assertTrue(dataSource.getConnection("foo", "bar") instanceof TracingConnection);
+        Assertions.assertTrue(dataSource.getConnection("foo", "bar") instanceof TracingConnection);
         verify(delegate).getConnection("foo", "bar");
     }
 }
