@@ -110,7 +110,8 @@ public class SqlSubsegmentsTest {
         Subsegment sub = SqlSubsegments.forQuery(connection, SQL);
 
         assertThat(AWSXRay.getCurrentSubsegment()).isEqualTo(sub);
+        assertThat(sub.getName()).isEqualTo(SqlSubsegments.DEFAULT_DATABASE_NAME);
         assertThat(sub.isInProgress()).isTrue();
-        assertThat(sub.getParentSegment().getSubsegments()).containsOnly(sub);
+        assertThat(sub.getParentSegment().getSubsegments()).contains(sub);
     }
 }

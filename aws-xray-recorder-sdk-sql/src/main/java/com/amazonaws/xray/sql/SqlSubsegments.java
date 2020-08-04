@@ -31,18 +31,46 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Class containing utility method to create fully-populated SQL subsegments.
+ * See https://docs.aws.amazon.com/xray/latest/devguide/xray-api-segmentdocuments.html#api-segmentdocuments-sql
  */
 public final class SqlSubsegments {
     private static final Log logger = LogFactory.getLog(SqlSubsegments.class);
 
-    // https://docs.aws.amazon.com/xray/latest/devguide/xray-api-segmentdocuments.html#api-segmentdocuments-sql
-    private static final String URL = "url";
-    private static final String USER = "user";
+    /**
+     * The URL of the database this query is made on
+     */
+    public static final String URL = "url";
 
+    /**
+     * The database username
+     */
+    public static final String USER = "user";
+
+    /**
+     * The version of the database driver library used for this database
+     */
     public static final String DRIVER_VERSION = "driver_version";
+
+    /**
+     * The type of SQL Database this query is done on, like MySQL or HikariCP
+     */
     public static final String DATABASE_TYPE = "database_type";
+
+    /**
+     * The version of the database product itself, like MySQL 8.0
+     */
     public static final String DATABASE_VERSION = "database_version";
+
+    /**
+     * The SQL query string used in this query. This is not recorded in subsegments by default due to security issues.
+     * SDK users may use this key or {@link #forQuery} to manually record their queries if they wish.
+     * See https://github.com/aws/aws-xray-sdk-java/issues/28
+     */
     public static final String SANITIZED_QUERY = "sanitized_query";
+
+    /**
+     * The fallback name for subsegments representing SQL queries that failed to be named dynamically
+     */
     public static final String DEFAULT_DATABASE_NAME = "database";
 
     /**
