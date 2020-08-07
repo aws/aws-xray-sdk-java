@@ -71,7 +71,7 @@ public class SqlSubsegmentsTest {
     }
 
     @Test
-    void testCreateSubsegmentWithoutSql() throws SQLException {
+    void testCreateSubsegmentWithoutSql() {
         expectedSqlParams = new HashMap<>();
         expectedSqlParams.put("url", URL);
         expectedSqlParams.put("user", USER);
@@ -87,7 +87,7 @@ public class SqlSubsegmentsTest {
     }
 
     @Test
-    void testCreateSubsegmentWithSql() throws SQLException {
+    void testCreateSubsegmentWithSql() {
         expectedSqlParams = new HashMap<>();
         expectedSqlParams.put("url", URL);
         expectedSqlParams.put("user", USER);
@@ -101,5 +101,17 @@ public class SqlSubsegmentsTest {
         assertThat(sub.getName()).isEqualTo(CATALOG + "@" + HOST);
         assertThat(sub.getNamespace()).isEqualTo(Namespace.REMOTE.toString());
         assertThat(sub.getSql()).containsAllEntriesOf(expectedSqlParams);
+    }
+
+    @Test
+    void testCreateSubsegmentWhenConnectionThrowsException() throws SQLException {
+        when(connection.getMetaData()).thenThrow(new SQLException());
+
+        Subsegment sub = SqlSubsegments.forQuery(connection, SQL);
+
+        assertThat(AWSXRay.getCurrentSubsegment()).isEqualTo(sub);
+        assertThat(sub.getName()).isEqualTo(SqlSubsegments.DEFAULT_DATABASE_NAME);
+        assertThat(sub.isInProgress()).isTrue();
+        assertThat(sub.getParentSegment().getSubsegments()).contains(sub);
     }
 }
