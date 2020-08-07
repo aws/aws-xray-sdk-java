@@ -32,7 +32,8 @@ public class LogErrorContextMissingStrategy implements ContextMissingStrategy {
     @Override
     public void contextMissing(String message, Class<? extends RuntimeException> exceptionClass) {
         logger.error("Suppressing AWS X-Ray context missing exception (" + exceptionClass.getSimpleName() + "): " + message);
-        logger.debug(new RuntimeException(message));
+        if (logger.isDebugEnabled()) {
+            logger.debug(new RuntimeException(message));
+        }
     }
-
 }
