@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -46,7 +47,7 @@ class EC2MetadataFetcher {
         AMI_ID,
     }
 
-    private static final int TIMEOUT_MILLIS = 2000;
+    private static final int TIMEOUT_MILLIS = 100;
     private static final String DEFAULT_IMDS_ENDPOINT = "169.254.169.254";
 
     private final URL identityDocumentUrl;
@@ -156,7 +157,11 @@ class EC2MetadataFetcher {
         try {
             responseCode = connection.getResponseCode();
         } catch (Exception e) {
-            logger.warn("Error connecting to IMDS.", e);
+            if (e instanceof SocketTimeoutException) {
+                logger.debug("Timed out trying to connect to IMDS, likely not operating in EC2 environment");
+            } else {
+                logger.warn("Error connecting to IMDS.", e);
+            }
             return "";
         }
 
