@@ -47,7 +47,8 @@ class EC2MetadataFetcher {
         AMI_ID,
     }
 
-    private static final int TIMEOUT_MILLIS = 100;
+    private static final int CONNECT_TIMEOUT_MILLIS = 100;
+    private static final int READ_TIMEOUT_MILLIS = 1000;
     private static final String DEFAULT_IMDS_ENDPOINT = "169.254.169.254";
 
     private final URL identityDocumentUrl;
@@ -143,8 +144,8 @@ class EC2MetadataFetcher {
             return "";
         }
 
-        connection.setConnectTimeout(TIMEOUT_MILLIS);
-        connection.setReadTimeout(TIMEOUT_MILLIS);
+        connection.setConnectTimeout(CONNECT_TIMEOUT_MILLIS);
+        connection.setReadTimeout(READ_TIMEOUT_MILLIS);
 
         if (includeTtl) {
             connection.setRequestProperty("X-aws-ec2-metadata-token-ttl-seconds", "60");
