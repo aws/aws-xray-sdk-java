@@ -53,10 +53,18 @@ public class EKSPlugin implements Plugin {
     private final Set<AWSLogReference> logReferences;
     private final DockerUtils dockerUtils;
 
+    /**
+     * Constructs an empty EKS plugin. The cluster name, along with other metadata, will be retrieved from the
+     * Container Insights endpoint automatically.
+     */
     public EKSPlugin() {
-        this(ContainerInsightsUtil.getClusterName());
+        this(null);
     }
 
+    /**
+     * Constructs an EKS plugin with a given cluster name.
+     * @param clusterName the EKS cluster name
+     */
     public EKSPlugin(@Nullable String clusterName) {
         if (clusterName != null) {
             this.clusterName = clusterName;
