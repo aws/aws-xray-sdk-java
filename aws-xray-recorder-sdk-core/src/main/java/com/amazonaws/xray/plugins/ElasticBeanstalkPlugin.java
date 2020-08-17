@@ -41,7 +41,7 @@ public class ElasticBeanstalkPlugin implements Plugin {
         LogFactory.getLog(ElasticBeanstalkPlugin.class);
 
     @MonotonicNonNull
-    private static ObjectMapper OBJECT_MAPPER;
+    private ObjectMapper OBJECT_MAPPER;
 
     private static final String CONF_PATH = "/var/elasticbeanstalk/xray/environment.conf";
     private static final String SERVICE_NAME = "elastic_beanstalk";
