@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -39,9 +38,6 @@ public class ElasticBeanstalkPlugin implements Plugin {
 
     private static final Log logger =
         LogFactory.getLog(ElasticBeanstalkPlugin.class);
-
-    @MonotonicNonNull
-    private ObjectMapper OBJECT_MAPPER;
 
     private static final String CONF_PATH = "/var/elasticbeanstalk/xray/environment.conf";
     private static final String SERVICE_NAME = "elastic_beanstalk";
@@ -64,11 +60,7 @@ public class ElasticBeanstalkPlugin implements Plugin {
 
     public void populateRuntimeContext() {
         byte[] manifestBytes = new byte[0];
-
-        // lazily initialize for performance on unused plugins
-        if (OBJECT_MAPPER == null) {
-            OBJECT_MAPPER = new ObjectMapper();
-        }
+        ObjectMapper mapper = new ObjectMapper();
 
         try {
             manifestBytes = Files.readAllBytes(Paths.get(CONF_PATH));
@@ -78,7 +70,7 @@ public class ElasticBeanstalkPlugin implements Plugin {
         }
         try {
             TypeReference<HashMap<String, Object>> typeReference = new TypeReference<HashMap<String, Object>>() {};
-            runtimeContext = OBJECT_MAPPER.readValue(manifestBytes, typeReference);
+            runtimeContext = mapper.readValue(manifestBytes, typeReference);
         } catch (IOException e) {
             logger.warn("Unable to read Beanstalk configuration at path " + CONF_PATH + " : " + e.getMessage());
             return;
