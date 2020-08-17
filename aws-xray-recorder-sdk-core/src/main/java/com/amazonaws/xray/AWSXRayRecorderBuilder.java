@@ -293,7 +293,7 @@ public class AWSXRayRecorderBuilder {
                     if (!logReferences.isEmpty()) {
                         client.addAllLogReferences(logReferences);
                     } else {
-                        logger.warn(plugin.getClass().getName() + " plugin returned empty Log References. The recorder will not "
+                        logger.debug(plugin.getClass().getName() + " plugin returned empty Log References. The recorder will not "
                                     + "reflect the logs from this plugin.");
                     }
                 }
