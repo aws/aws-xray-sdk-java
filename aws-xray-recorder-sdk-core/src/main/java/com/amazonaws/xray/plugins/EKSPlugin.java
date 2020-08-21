@@ -43,7 +43,7 @@ public class EKSPlugin implements Plugin {
     private static final String SERVICE_NAME = "eks";
     private static final String POD_CONTEXT_KEY = "pod";
     private static final String CLUSTER_NAME_KEY = "cluster_name";
-    private static final String CONTAINER_ID_KEY = "containerId";
+    private static final String CONTAINER_ID_KEY = "container_id";
 
     private static final Log logger = LogFactory.getLog(EKSPlugin.class);
 

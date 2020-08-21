@@ -40,7 +40,7 @@ public class ECSPlugin implements Plugin {
     private static final String SERVICE_NAME = "ecs";
     private static final String ECS_METADATA_KEY = "ECS_CONTAINER_METADATA_URI";
     private static final String HTTP_PREFIX = "http://";
-    private static final String CONTAINER_ID_KEY = "containerId";
+    private static final String CONTAINER_ID_KEY = "container_id";
 
     private final HashMap<String, @Nullable Object> runtimeContext;
     private final DockerUtils dockerUtils;
