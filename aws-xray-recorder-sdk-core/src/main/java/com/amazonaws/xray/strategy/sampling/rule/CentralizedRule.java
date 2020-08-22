@@ -199,14 +199,18 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
             // Attempt to borrow request
 
             if (centralizedReservoir.isBorrow(now)) {
-                logger.debug("Sampling target has expired for rule " + getName() + ". Burrowing a request.");
+                logger.debug("Sampling target has expired for rule " + getName() + ". Borrowing a request.");
                 statistics.incBorrowed();
                 res.setSampled(true);
 
                 return res;
             }
 
-            logger.debug("Sampling target has expired for rule " + getName() + ". Using fixed rate.");
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Sampling target has expired for rule %s. Using fixed rate of %d percent.",
+                    getName(), (int) (fixedRate*100)));
+            }
+
             // Fallback to bernoulli sampling
             if (random < fixedRate) {
                 statistics.incSampled();

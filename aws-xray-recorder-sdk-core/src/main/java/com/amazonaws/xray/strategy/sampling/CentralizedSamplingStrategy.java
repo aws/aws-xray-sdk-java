@@ -98,8 +98,19 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
             if (!applicable) {
                 continue;
             }
-            logger.debug("Applicable rule:" + rule.getName());
-            return rule.sample(Instant.now());
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Applicable rule:" + rule.getName());
+            }
+
+            SamplingResponse response = rule.sample(Instant.now());
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Segment " + samplingRequest.getService().orElse("") + " has" +
+                    (response.isSampled() ? " " : " NOT ") + "been sampled.");
+            }
+
+            return response;
         }
 
         // Match against default rule

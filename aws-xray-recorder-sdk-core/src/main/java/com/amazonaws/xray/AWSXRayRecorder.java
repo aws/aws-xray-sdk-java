@@ -39,6 +39,8 @@ import com.amazonaws.xray.strategy.PrioritizationStrategy;
 import com.amazonaws.xray.strategy.StreamingStrategy;
 import com.amazonaws.xray.strategy.ThrowableSerializationStrategy;
 import com.amazonaws.xray.strategy.sampling.DefaultSamplingStrategy;
+import com.amazonaws.xray.strategy.sampling.SamplingRequest;
+import com.amazonaws.xray.strategy.sampling.SamplingResponse;
 import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
 import java.io.IOException;
 import java.io.InputStream;
@@ -392,6 +394,23 @@ public class AWSXRayRecorder {
         return beginSegment(new SegmentImpl(this, name));
     }
 
+    /**
+     * Begins a new segment after applying the configured sampling strategy. This method only uses the segment name and origin
+     * (if defined) to compute a sampling decision.
+     *
+     * @param name the segment name, to be used for the sampling decision
+     * @return Returns a proper segment if a sampled decision is made, and a no-op segment otherwise.
+     */
+    public Segment beginSegmentWithSampling(String name) {
+        final SamplingRequest samplingRequest = new SamplingRequest(name, null, null, null, this.origin);
+        final SamplingResponse samplingResponse = this.getSamplingStrategy().shouldTrace(samplingRequest);
+        if (samplingResponse.isSampled()) {
+            return beginSegment(name);
+        }
+
+        return beginNoOpSegment();
+    }
+
     public Segment beginSegment(String name, TraceID traceId, @Nullable String parentId) {
         Segment segment = new SegmentImpl(this, name, traceId);
         segment.setParentId(parentId);
@@ -491,6 +510,13 @@ public class AWSXRayRecorder {
         Entity current = getTraceEntity();
         if (current != null) {
             Segment segment = current.getParentSegment();
+
+            // Return immediately if ending a no-op segment
+            if (!segment.isRecording()) {
+                clearTraceEntity();
+                return;
+            }
+
             logger.debug("Ending segment named '" + segment.getName() + "'.");
 
             segmentListeners
