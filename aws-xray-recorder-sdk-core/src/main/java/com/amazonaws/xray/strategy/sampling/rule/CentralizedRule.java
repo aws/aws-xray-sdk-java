@@ -208,7 +208,7 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
 
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Sampling target has expired for rule %s. Using fixed rate of %d percent.",
-                    getName(), (int) (fixedRate*100)));
+                    getName(), (int) (fixedRate * 100)));
             }
 
             // Fallback to bernoulli sampling
