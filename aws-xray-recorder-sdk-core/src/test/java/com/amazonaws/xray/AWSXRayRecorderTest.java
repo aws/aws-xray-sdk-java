@@ -38,6 +38,9 @@ import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
+import com.amazonaws.xray.strategy.sampling.SamplingRequest;
+import com.amazonaws.xray.strategy.sampling.SamplingResponse;
+import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
@@ -824,5 +827,39 @@ public class AWSXRayRecorderTest {
         Segment parent = Segment.noOp(traceID, AWSXRay.getGlobalRecorder());
         Subsegment subsegment = Subsegment.noOp(parent, AWSXRay.getGlobalRecorder());
         assertThat(subsegment.getParentSegment().getTraceId()).isEqualTo(traceID);
+    }
+
+    @Test
+    public void testBeginSegmentWithSamplingDoesSample() {
+        AWSXRay.getGlobalRecorder().setSamplingStrategy(new TestSamplingStrategy(true));
+
+        Segment segment = AWSXRay.beginSegmentWithSampling("test");
+        assertThat(segment.isSampled()).isTrue();
+    }
+
+    @Test
+    public void testBeginSegmentWithSamplingDoesNotSample() {
+        AWSXRay.getGlobalRecorder().setSamplingStrategy(new TestSamplingStrategy(false));
+
+        Segment segment = AWSXRay.beginSegmentWithSampling("test");
+        assertThat(segment.isSampled()).isFalse();
+    }
+
+    private static class TestSamplingStrategy implements SamplingStrategy {
+        boolean sampled;
+
+        TestSamplingStrategy(boolean sampled) {
+            this.sampled = sampled;
+        }
+
+        @Override
+        public SamplingResponse shouldTrace(SamplingRequest sampleRequest) {
+            return new SamplingResponse(sampled, "rule");
+        }
+
+        @Override
+        public boolean isForcedSamplingSupported() {
+            return false;
+        }
     }
 }

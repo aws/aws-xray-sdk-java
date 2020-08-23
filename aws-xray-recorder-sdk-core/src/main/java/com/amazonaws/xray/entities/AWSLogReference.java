@@ -63,7 +63,6 @@ public class AWSLogReference {
 
     /**
      * Compares ARN and log group between references to determine equality.
-     * @param reference
      * @return
      */
     @Override
