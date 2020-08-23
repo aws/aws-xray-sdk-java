@@ -92,6 +92,10 @@ public class AWSXRay {
         globalRecorder.createSubsegment(name, runnable);
     }
 
+    public static Segment beginSegmentWithSampling(String name) {
+        return globalRecorder.beginSegmentWithSampling(name);
+    }
+
     public static Segment beginSegment(String name) {
         return globalRecorder.beginSegment(name);
     }
