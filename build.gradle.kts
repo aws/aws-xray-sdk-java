@@ -272,8 +272,8 @@ allprojects {
 
             repositories {
                 maven {
-                    val repoUrlBase = "https://aws.oss.sonatype.org/content/repositories"
-                    url = uri("$repoUrlBase/${if (isSnapshot) "snapshots" else "releases"}")
+                    url = uri(if (isSnapshot) "https://aws.oss.sonatype.org/content/repositories/snapshots/"
+                        else "https://aws.oss.sonatype.org/service/local/staging/deploy/maven2")
                     credentials {
                         username = "${findProperty("aws.sonatype.username")}"
                         password = "${findProperty("aws.sonatype.password")}"
