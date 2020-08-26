@@ -30,7 +30,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 @Measurement(iterations = 5, time = 1)
 @Warmup(iterations = 10, time = 1)
-@Fork(3)
+@Fork(1)
 @BenchmarkMode({Mode.Throughput, Mode.SampleTime})
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class TraceHeaderBenchmark {

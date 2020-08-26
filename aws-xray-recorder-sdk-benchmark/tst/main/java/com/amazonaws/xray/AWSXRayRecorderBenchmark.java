@@ -39,7 +39,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @BenchmarkMode({Mode.Throughput, Mode.SampleTime})
 @Measurement(iterations = 5, time = 1)
 @Warmup(iterations = 10, time = 1)
-@Fork(3)
+@Fork(1)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class AWSXRayRecorderBenchmark {
     private static final String SEGMENT_NAME = "BENCHMARK_SEGMENT";

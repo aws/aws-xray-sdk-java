@@ -35,7 +35,7 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 @BenchmarkMode({Mode.Throughput, Mode.SampleTime})
-@Fork(3)
+@Fork(1)
 @Warmup(iterations = 10, time = 1)
 @Measurement(iterations = 5, time = 1)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)

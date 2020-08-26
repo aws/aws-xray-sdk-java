@@ -8,7 +8,8 @@ To run the benchmark, use your favorite shell to go into the directory. Then run
 ```BASH
 git clone https://github.com/aws/aws-xray-sdk-java.git
 cd aws-xray-sdk-java
-./gradlew jmh
+./gradlew jmhJar
+java -jar aws-xray-recorder-sdk-benchmark/build/libs/aws-xray-recorder-sdk-benchmark-<VERSION>-jmh.jar
 ```
 
 You should then start seeing the output of the benchmark:
@@ -39,9 +40,9 @@ You should then start seeing the output of the benchmark:
 
 If you wish to run a specific benchmark, please run the following command:
 ```
-java -jar target/benchmarks.jar <Benchmark_name_here>
+java -jar aws-xray-recorder-sdk-benchmark-<VERSION>-jmh.jar <Benchmark_name_here>
 
-# Example: java -jar target/benchmarks.jar com.amazonaws.xray.AWSXRayRecorderBenchmark.beginDummySegmentBenchmark -w 1 -r 1
+# Example: java -jar aws-xray-recorder-sdk-benchmark-<VERSION>-jmh.jar com.amazonaws.xray.AWSXRayRecorderBenchmark.beginDummySegmentBenchmark
 ```
 
 ## Benchmark Results
