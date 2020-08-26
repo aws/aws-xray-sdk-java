@@ -627,5 +627,4 @@ public abstract class EntityImpl implements Entity {
             throw new NullPointerException();
         }
     }
-
 }
