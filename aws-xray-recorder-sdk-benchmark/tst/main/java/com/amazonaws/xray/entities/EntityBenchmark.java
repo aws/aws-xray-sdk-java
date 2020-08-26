@@ -63,12 +63,12 @@ public class EntityBenchmark {
             theException = new Exception("Test Exception");
         }
 
-        @Setup(Level.Invocation)
+        @Setup(Level.Iteration)
         public void setup() {
             parentSegment = new SegmentImpl(recorder, SEGMENT_NAME);
         }
 
-        @TearDown(Level.Invocation)
+        @TearDown(Level.Iteration)
         public void doTearDown() {
             for (Subsegment subsegment : parentSegment.getSubsegments()) {
                 parentSegment.removeSubsegment(subsegment);

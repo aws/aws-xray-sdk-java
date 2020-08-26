@@ -5,7 +5,15 @@ Benchmarking the Java SDK is necessary to help isolate performance issues and bo
 To run the benchmark, make sure you have Maven and Java 8 or above installed. With Maven, it will download the necessary X-Ray dependencies that the benchmark uses as well as the JMH core and annotation processors that this benchmark uses.
 
 To run the benchmark, use your favorite shell to go into the directory. Then run the following commands:
-```BASH
+```shell script
+git clone https://github.com/aws/aws-xray-sdk-java.git
+cd aws-xray-sdk-java
+./gradlew jmh
+```
+
+Or, alternatively, you can execute the created JAR directly:
+
+```shell script
 git clone https://github.com/aws/aws-xray-sdk-java.git
 cd aws-xray-sdk-java
 ./gradlew jmhJar

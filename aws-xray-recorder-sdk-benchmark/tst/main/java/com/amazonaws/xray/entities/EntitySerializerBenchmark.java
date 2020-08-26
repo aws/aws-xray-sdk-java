@@ -98,7 +98,7 @@ public class EntitySerializerBenchmark {
             recorder = AWSXRayRecorderBuilder.defaultRecorder();
         }
 
-        @Setup(Level.Invocation)
+        @Setup(Level.Iteration)
         public void setup() {
             emptySegment = generateSegmentWithChildren(0);
             oneChildSegment = generateSegmentWithChildren(1);
@@ -107,7 +107,7 @@ public class EntitySerializerBenchmark {
             fourChildSegment = generateSegmentWithChildren(4);
         }
 
-        @TearDown(Level.Invocation)
+        @TearDown(Level.Iteration)
         public void doTearDown() {
             clearSegment(emptySegment);
             clearSegment(oneChildSegment);
@@ -150,14 +150,14 @@ public class EntitySerializerBenchmark {
             recorder = AWSXRayRecorderBuilder.defaultRecorder();
         }
 
-        @Setup(Level.Invocation)
+        @Setup(Level.Iteration)
         public void setup() {
             twoLevelSegment = generateSegmentWithDepth(2);
             threeLevelSegment = generateSegmentWithDepth(3);
             fourLevelSegment = generateSegmentWithDepth(4);
         }
 
-        @TearDown(Level.Invocation)
+        @TearDown(Level.Iteration)
         public void doTearDown() {
             clearSegment(twoLevelSegment);
             clearSegment(threeLevelSegment);
