@@ -5,10 +5,19 @@ Benchmarking the Java SDK is necessary to help isolate performance issues and bo
 To run the benchmark, make sure you have Maven and Java 8 or above installed. With Maven, it will download the necessary X-Ray dependencies that the benchmark uses as well as the JMH core and annotation processors that this benchmark uses.
 
 To run the benchmark, use your favorite shell to go into the directory. Then run the following commands:
-```BASH
-cd aws-xray-sdk-java/aws-xray-recorder-sdk-benchmark/
-mvn clean && mvn package
-java -jar target/benchmark.jar
+```shell script
+git clone https://github.com/aws/aws-xray-sdk-java.git
+cd aws-xray-sdk-java
+./gradlew jmh
+```
+
+Or, alternatively, you can execute the created JAR directly:
+
+```shell script
+git clone https://github.com/aws/aws-xray-sdk-java.git
+cd aws-xray-sdk-java
+./gradlew jmhJar
+java -jar aws-xray-recorder-sdk-benchmark/build/libs/aws-xray-recorder-sdk-benchmark-<VERSION>-jmh.jar
 ```
 
 You should then start seeing the output of the benchmark:
@@ -39,9 +48,9 @@ You should then start seeing the output of the benchmark:
 
 If you wish to run a specific benchmark, please run the following command:
 ```
-java -jar target/benchmarks.jar <Benchmark_name_here>
+java -jar aws-xray-recorder-sdk-benchmark-<VERSION>-jmh.jar <Benchmark_name_here>
 
-# Example: java -jar target/benchmarks.jar com.amazonaws.xray.AWSXRayRecorderBenchmark.beginDummySegmentBenchmark -w 1 -r 1
+# Example: java -jar aws-xray-recorder-sdk-benchmark-<VERSION>-jmh.jar com.amazonaws.xray.AWSXRayRecorderBenchmark.beginDummySegmentBenchmark
 ```
 
 ## Benchmark Results

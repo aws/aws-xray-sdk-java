@@ -35,8 +35,8 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 @Measurement(iterations = 5, time = 1)
 @Warmup(iterations = 10, time = 1)
-@Fork(3)
-@BenchmarkMode(Mode.SampleTime)
+@Fork(1)
+@BenchmarkMode({Mode.Throughput, Mode.SampleTime})
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @Threads(16)
 public class IdsBenchmark {
