@@ -163,6 +163,11 @@ public interface Entity extends AutoCloseable {
     Cause getCause();
 
     /**
+     * Sets the entity's cause
+     */
+    void setCause(Cause cause);
+
+    /**
      * @return the http
      */
     Map<String, Object> getHttp();

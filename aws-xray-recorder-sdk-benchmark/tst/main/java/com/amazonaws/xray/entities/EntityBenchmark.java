@@ -18,6 +18,10 @@ package com.amazonaws.xray.entities;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -25,6 +29,7 @@ import org.openjdk.jmh.annotations.Fork;
 import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OperationsPerInvocation;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
@@ -43,13 +48,24 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class EntityBenchmark {
     public static final String SEGMENT_NAME = "BENCHMARK_SEGMENT";
+    public static final int N_OPERATIONS = 10000;
 
     // Benchmark state that initializes a parent segment to operate on.
     @State(Scope.Thread)
     public static class BenchmarkState {
+        /**
+         * List of segments that we'll perform operations on individually. For consistency, we need a fresh segment
+         * for each invocation in most of these tests, but managing 1 segment at Level.Invocation would cause too
+         * much instability within the tests because of the speed of each invoke. So we artificially lengthen the time of
+         * each invoke by iterating through a large list of segments instead, which makes using Level.Invocation safer.
+         */
+        public List<Segment> segments;
 
-        // Recorder which always chooses to sample.
-        public Segment parentSegment;
+        public Map<String, Object> annotationMap;
+
+        public Map<String, Map<String, Object>> metadataMap;
+
+        public Cause cause;
 
         // X-Ray Recorder
         public AWSXRayRecorder recorder;
@@ -60,18 +76,26 @@ public class EntityBenchmark {
         @Setup(Level.Trial)
         public void setupOnce() throws SocketException {
             recorder = AWSXRayRecorderBuilder.defaultRecorder();
+            segments = new ArrayList<>();
+            annotationMap = new HashMap<>();
+            metadataMap = new HashMap<>();
             theException = new Exception("Test Exception");
+            cause = new Cause();
+
+            for (int i = 0; i < N_OPERATIONS; i++) {
+                segments.add(new SegmentImpl(recorder, SEGMENT_NAME));
+            }
         }
 
-        @Setup(Level.Iteration)
-        public void setup() {
-            parentSegment = new SegmentImpl(recorder, SEGMENT_NAME);
-        }
-
-        @TearDown(Level.Iteration)
+        @TearDown(Level.Invocation)
         public void doTearDown() {
-            for (Subsegment subsegment : parentSegment.getSubsegments()) {
-                parentSegment.removeSubsegment(subsegment);
+            for (Segment segment : segments) {
+                for (Subsegment subsegment : segment.getSubsegments()) {
+                    segment.removeSubsegment(subsegment);
+                }
+                segment.setAnnotations(annotationMap);
+                segment.setMetadata(metadataMap);
+                segment.setCause(new Cause());
             }
         }
     }
@@ -84,27 +108,38 @@ public class EntityBenchmark {
 
     // Construct a subsegment and add it to the parent segment.
     @Benchmark
-    public Subsegment constructSubsegmentPutInSegmentBenchmark(BenchmarkState state) {
-        // TODO: Find a way to create just the subsegment and not force it into the parent segment?
-        return new SubsegmentImpl(state.recorder, SEGMENT_NAME, state.parentSegment);
+    @OperationsPerInvocation(N_OPERATIONS)
+    public void constructSubsegmentPutInSegmentBenchmark(BenchmarkState state) {
+        for (Segment segment : state.segments) {
+            new SubsegmentImpl(state.recorder, SEGMENT_NAME, segment);
+        }
     }
 
     // Add an annotation to a segment
     @Benchmark
+    @OperationsPerInvocation(N_OPERATIONS)
     public void putAnnotationBenchmark(BenchmarkState state) {
-        state.parentSegment.putAnnotation("Key", "Value");
+        for (Segment segment : state.segments) {
+            segment.putAnnotation("Key", "Value");
+        }
     }
 
     // Add metadata to a segment
     @Benchmark
+    @OperationsPerInvocation(N_OPERATIONS)
     public void putMetadataBenchmark(BenchmarkState state) {
-        state.parentSegment.putMetadata("Key", "Value");
+        for (Segment segment : state.segments) {
+            segment.putMetadata("Key", "Value");
+        }
     }
 
     // Add exception into a segment
     @Benchmark
+    @OperationsPerInvocation(N_OPERATIONS)
     public void putExceptionSegmentBenchmark(BenchmarkState state) {
-        state.parentSegment.addException(state.theException);
+        for (Segment segment : state.segments){
+            segment.addException(state.theException);
+        }
     }
 
     // Convenience main entry-point

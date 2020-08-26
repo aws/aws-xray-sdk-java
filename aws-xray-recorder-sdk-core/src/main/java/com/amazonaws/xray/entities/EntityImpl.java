@@ -286,6 +286,12 @@ public abstract class EntityImpl implements Entity {
     }
 
     @Override
+    public void setCause(Cause cause) {
+        checkAlreadyEmitted();
+        this.cause = cause;
+    }
+
+    @Override
     public Map<String, Object> getHttp() {
         return http;
     }
@@ -627,5 +633,4 @@ public abstract class EntityImpl implements Entity {
             throw new NullPointerException();
         }
     }
-
 }
