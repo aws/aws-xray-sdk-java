@@ -2113,7 +2113,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 1055.618 ± 37.425 ns/op</td>
 <td> 1015.217 ±(99.9%) 25.865 ns/op</td>
 <td> 1212.346 ± 44.058 ns/op</td>
-<td> 0.580 ± 0.037 us/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2168,7 +2168,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 1741.153 ± 41.595 ns/op</td>
 <td> 1726.402 ±(99.9%) 37.356 ns/op</td>
 <td> 1882.126 ± 40.828 ns/op</td>
-<td> 1.946 ± 0.108 us/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2179,7 +2179,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 911.156 ± 37.990 ns/op</td>
 <td> 953.963 ±(99.9%) 24.556 ns/op</td>
 <td> 1116.734 ± 43.161 ns/op</td>
-<td> 1.020 ±(99.9%) 0.092 us/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2190,7 +2190,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 941.469 ± 38.485 ns/op</td>
 <td> 1040.476 ±(99.9%) 26.411 ns/op</td>
 <td> 1096.616 ± 42.559 ns/op</td>
-<td> 0.303 ±(99.9%) 0.038 us/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2201,7 +2201,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 623.994 ± 20.051 ns/op</td>
 <td> 649.915 ±(99.9%) 17.886 ns/op</td>
 <td> 686.052 ± 22.659 ns/op</td>
-<td> 0.511 ±(99.9%) 0.040 us/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2212,7 +2212,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 7490.715 ± 51.209 ns/op</td>
 <td> 8142.884 ±(99.9%) 45.146 ns/op</td>
 <td> 7989.832 ± 72.379 ns/op</td>
-<td> 7.773 ±(99.9%) 0.121 us/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2223,7 +2223,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 7233.746 ± 50.534 ns/op</td>
 <td> 7915.172 ±(99.9%) 47.638 ns/op</td>
 <td> 7723.373 ± 43.085 ns/op</td>
-<td> 7.401 ±(99.9%) 0.085 us/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2234,7 +2234,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 9171.063 ± 67.154 ns/op</td>
 <td> 10086.163 ±(99.9%) 40.600 ns/op</td>
 <td> 10085.793 ± 61.679 ns/op</td>
-<td> 9.687 ±(99.9%) 0.114 us/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2245,7 +2245,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 378.912 ± 13.123 ns/op</td>
 <td> 552.085 ±(99.9%) 18.241 ns/op</td>
 <td> 504.454 ± 12.654 ns/op</td>
-<td> 0.367 ±(99.9%) 0.037 us/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2256,7 +2256,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 365.118 ± 10.849 ns/op</td>
 <td> 500.227 ±(99.9%) 22.688 ns/op</td>
 <td> 525.114 ± 16.548 ns/op</td>
-<td> 0.302 ±(99.9%) 0.029 us/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2289,7 +2289,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 1167.917 ± 55.308 ns/op</td>
 <td> 1043.138 ±(99.9%) 43.046 ns/op</td>
 <td> 1063.388 ± 33.487 ns/op</td>
-<td> 1.022 ±(99.9%) 0.059 us/op</td>
+<td> 1.316 ± 0.208 us/op</td>
 </tr>
 <tr>
 
@@ -2300,7 +2300,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 583.289 ± 22.434 ns/op</td>
 <td> 541.791 ±(99.9%) 22.920 ns/op</td>
 <td> 728.920 ± 45.619 ns/op</td>
-<td> 0.694 ±(99.9%) 0.078 us/op</td>
+<td> 0.648 ± 0.020 us/op</td>
 </tr>
 <tr>
 
@@ -2311,7 +2311,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 87.637 ± 7.405 ns/op</td>
 <td> 88.174 ±(99.9%) 8.075 ns/op</td>
 <td> 84.621 ±  3.869 ns/op</td>
-<td> 0.087 ±(99.9%) 0.013 us/op</td>
+<td> 0.141 ± 0.007 us/op</td>
 </tr>
 <tr>
 
@@ -2322,7 +2322,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 831.644 ± 29.341 ns/op</td>
 <td> 793.091 ±(99.9%) 7.267 ns/op</td>
 <td> 831.289 ± 24.478 ns/op</td>
-<td> 0.905 ±(99.9%) 0.056 us/op</td>
+<td> 0.902 ± 0.030 us/op</td>
 </tr>
 <tr>
 
@@ -2333,7 +2333,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 164.430 ± 0.627 ns/op</td>
 <td> 163.341 ±(99.9%) 9.606 ns/op</td>
 <td> 169.080 ± 10.634 ns/op</td>
-<td> 0.163 ±(99.9%) 0.002 us/op</td>
+<td> 0.220 ± 0.013 us/op</td>
 </tr>
 <tr>
 
@@ -2898,7 +2898,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 0.001 ± 0.001 ops/ns</td>
 <td> 0.001 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.001 ± 0.001 ops/ns</td>
-<td> 1.954 ±(99.9%) 0.034 ops/us</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2953,7 +2953,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 0.001 ± 0.001 ops/ns</td>
 <td> 0.001 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.001 ± 0.001 ops/ns</td>
-<td> 0.573 ±(99.9%) 0.003 ops/us</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2964,7 +2964,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 0.001 ± 0.001 ops/ns</td>
 <td> 0.001 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.001 ± 0.001 ops/ns</td>
-<td> 1.140 ±(99.9%) 0.021 ops/us</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2975,7 +2975,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 0.001 ± 0.001 ops/ns</td>
 <td> 0.001 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.001 ± 0.001 ops/ns</td>
-<td> 3.740 ±(99.9%) 0.118 ops/us</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2986,7 +2986,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 0.002 ± 0.001 ops/ns</td>
 <td> 0.002 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.002 ± 0.001 ops/ns</td>
-<td> 2.107 ±(99.9%) 0.049 ops/us</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2997,7 +2997,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
-<td> 0.135 ±(99.9%) 0.001 ops/us</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -3008,7 +3008,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
-<td> 0.134 ±(99.9%) 0.002 ops/us</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -3019,7 +3019,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
-<td> 0.105 ±(99.9%) 0.001 ops/us</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -3030,7 +3030,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 0.003 ± 0.001 ops/ns</td>
 <td> 0.002 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.002 ± 0.001 ops/ns</td>
-<td> 2.813 ±(99.9%) 0.143 ops/us</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -3041,7 +3041,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 0.003 ± 0.001 ops/ns</td>
 <td> 0.002 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.002 ± 0.001 ops/ns</td>
-<td> 3.548 ±(99.9%) 0.073 ops/us</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -3074,7 +3074,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 0.001 ± 0.001 ops/ns</td>
 <td> 0.001 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.001 ± 0.001 ops/ns</td>
-<td> 1.020 ±(99.9%) 0.022 ops/us</td>
+<td> 1.032 ± 0.016 ops/us</td>
 </tr>
 <tr>
 
@@ -3085,7 +3085,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 0.002 ± 0.001 ops/ns</td>
 <td> 0.002 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.002 ± 0.001 ops/ns</td>
-<td> 1.732 ±(99.9%) 0.019 ops/us</td>
+<td> 1.525 ± 0.077 ops/us</td>
 </tr>
 <tr>
 
@@ -3096,7 +3096,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 0.011 ± 0.001 ops/ns</td>
 <td> 0.012 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.012 ± 0.001 ops/ns</td>
-<td> 12.430 ±(99.9%) 0.335 ops/us</td>
+<td> 7.257 ± 0.313 ops/us</td>
 </tr>
 <tr>
 
@@ -3107,7 +3107,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 0.001 ± 0.001 ops/ns</td>
 <td> 0.001 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.001 ± 0.001 ops/ns</td>
-<td> 1.263 ±(99.9%) 0.021 ops/us</td>
+<td> 1.113 ± 0.100 ops/us</td>
 </tr>
 <tr>
 
@@ -3118,7 +3118,7 @@ Note that beginning with version 2.7.x, benchmarks are only ran with the Sample 
 <td> 0.006 ± 0.001 ops/ns</td>
 <td> 0.006 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.006 ± 0.001 ops/ns</td>
-<td> 6.194 ±(99.9%) 0.099 ops/us</td>
+<td> 4.586 ± 0.449 ops/us</td>
 </tr>
 <tr>
 
