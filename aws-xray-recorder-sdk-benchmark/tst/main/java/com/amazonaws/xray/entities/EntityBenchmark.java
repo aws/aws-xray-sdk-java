@@ -52,7 +52,7 @@ public class EntityBenchmark {
 
     // Benchmark state that initializes a parent segment to operate on.
     @State(Scope.Thread)
-    public static class BenchmarkState {
+    public static class MultiSegmentBenchmarkState {
         /**
          * List of segments that we'll perform operations on individually. For consistency, we need a fresh segment
          * for each invocation in most of these tests, but managing 1 segment at Level.Invocation would cause too
@@ -100,6 +100,17 @@ public class EntityBenchmark {
         }
     }
 
+    @State(Scope.Thread)
+    public static class BenchmarkState {
+        // X-Ray Recorder
+        public AWSXRayRecorder recorder;
+
+        @Setup(Level.Trial)
+        public void setupOnce() throws SocketException {
+            recorder = AWSXRayRecorderBuilder.defaultRecorder();
+        }
+    }
+
     // Construct a segment
     @Benchmark
     public Segment constructSegmentBenchmark(BenchmarkState state) {
@@ -109,7 +120,7 @@ public class EntityBenchmark {
     // Construct a subsegment and add it to the parent segment.
     @Benchmark
     @OperationsPerInvocation(N_OPERATIONS)
-    public void constructSubsegmentPutInSegmentBenchmark(BenchmarkState state) {
+    public void constructSubsegmentPutInSegmentBenchmark(MultiSegmentBenchmarkState state) {
         for (Segment segment : state.segments) {
             new SubsegmentImpl(state.recorder, SEGMENT_NAME, segment);
         }
@@ -118,7 +129,7 @@ public class EntityBenchmark {
     // Add an annotation to a segment
     @Benchmark
     @OperationsPerInvocation(N_OPERATIONS)
-    public void putAnnotationBenchmark(BenchmarkState state) {
+    public void putAnnotationBenchmark(MultiSegmentBenchmarkState state) {
         for (Segment segment : state.segments) {
             segment.putAnnotation("Key", "Value");
         }
@@ -127,7 +138,7 @@ public class EntityBenchmark {
     // Add metadata to a segment
     @Benchmark
     @OperationsPerInvocation(N_OPERATIONS)
-    public void putMetadataBenchmark(BenchmarkState state) {
+    public void putMetadataBenchmark(MultiSegmentBenchmarkState state) {
         for (Segment segment : state.segments) {
             segment.putMetadata("Key", "Value");
         }
@@ -136,7 +147,7 @@ public class EntityBenchmark {
     // Add exception into a segment
     @Benchmark
     @OperationsPerInvocation(N_OPERATIONS)
-    public void putExceptionSegmentBenchmark(BenchmarkState state) {
+    public void putExceptionSegmentBenchmark(MultiSegmentBenchmarkState state) {
         for (Segment segment : state.segments){
             segment.addException(state.theException);
         }
