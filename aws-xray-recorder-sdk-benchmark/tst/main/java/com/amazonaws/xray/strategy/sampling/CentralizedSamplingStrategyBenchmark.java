@@ -15,7 +15,6 @@
 
 package com.amazonaws.xray.strategy.sampling;
 
-import com.amazonaws.xray.entities.IdsBenchmark;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -84,7 +83,7 @@ public class CentralizedSamplingStrategyBenchmark {
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
             .addProfiler("gc")
-            .include(".*" + IdsBenchmark.class.getSimpleName())
+            .include(".*" + CentralizedSamplingStrategyBenchmark.class.getSimpleName())
             .build();
 
         new Runner(opt).run();

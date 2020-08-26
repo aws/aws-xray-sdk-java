@@ -15,7 +15,6 @@
 
 package com.amazonaws.xray.strategy.sampling;
 
-import com.amazonaws.xray.entities.IdsBenchmark;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -34,7 +33,7 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-@BenchmarkMode({Mode.Throughput, Mode.AverageTime})
+@BenchmarkMode({Mode.Throughput, Mode.SampleTime})
 @Fork(1)
 @Warmup(iterations = 10, time = 1)
 @Measurement(iterations = 5, time = 1)
@@ -84,7 +83,7 @@ public class LocalizedSamplingStrategyBenchmark {
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
             .addProfiler("gc")
-            .include(".*" + IdsBenchmark.class.getSimpleName())
+            .include(".*" + LocalizedSamplingStrategyBenchmark.class.getSimpleName())
             .build();
 
         new Runner(opt).run();

@@ -111,7 +111,7 @@ public class EntityBenchmark {
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
             .addProfiler("gc")
-            .include(".*" + IdsBenchmark.class.getSimpleName())
+            .include(".*" + EntityBenchmark.class.getSimpleName())
             .build();
 
         new Runner(opt).run();
