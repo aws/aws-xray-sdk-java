@@ -118,6 +118,7 @@ public class AWSXRayRecorderBenchmark {
     }
 
     // Begin segment; this is the case when the decision is to sample.
+    @Benchmark
     public Segment beginSegmentBenchmark(RecorderState state) {
         return state.recorder.beginSegment(SEGMENT_NAME);
     }
