@@ -40,7 +40,7 @@ import org.openjdk.jmh.annotations.Warmup;
 @Fork(3)
 @Warmup(iterations = 10, time = 1)
 @Measurement(iterations = 5, time = 1)
-@OutputTimeUnit(TimeUnit.NANOSECONDS)
+@OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class EntitySerializerBenchmark {
     public static final String SEGMENT_NAME = "BENCHMARK_SEGMENT";
     public static final String SUBSEGMENT_NAME = "BENCHMARK_SUBSEGMENT";

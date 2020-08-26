@@ -40,7 +40,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Fork(3)
 @Warmup(iterations = 10, time = 1)
 @Measurement(iterations = 5, time = 1)
-@OutputTimeUnit(TimeUnit.NANOSECONDS)
+@OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class EntityBenchmark {
     public static final String SEGMENT_NAME = "BENCHMARK_SEGMENT";
 
