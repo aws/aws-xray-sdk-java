@@ -61,12 +61,6 @@ public class EntityBenchmark {
          */
         public List<Segment> segments;
 
-        public Map<String, Object> annotationMap;
-
-        public Map<String, Map<String, Object>> metadataMap;
-
-        public Cause cause;
-
         // X-Ray Recorder
         public AWSXRayRecorder recorder;
 
@@ -76,26 +70,14 @@ public class EntityBenchmark {
         @Setup(Level.Trial)
         public void setupOnce() throws SocketException {
             recorder = AWSXRayRecorderBuilder.defaultRecorder();
-            segments = new ArrayList<>();
-            annotationMap = new HashMap<>();
-            metadataMap = new HashMap<>();
             theException = new Exception("Test Exception");
-            cause = new Cause();
-
-            for (int i = 0; i < N_OPERATIONS; i++) {
-                segments.add(new SegmentImpl(recorder, SEGMENT_NAME));
-            }
         }
 
-        @TearDown(Level.Invocation)
-        public void doTearDown() {
-            for (Segment segment : segments) {
-                for (Subsegment subsegment : segment.getSubsegments()) {
-                    segment.removeSubsegment(subsegment);
-                }
-                segment.setAnnotations(annotationMap);
-                segment.setMetadata(metadataMap);
-                segment.setCause(new Cause());
+        @Setup(Level.Invocation)
+        public void doSetUp() {
+            segments = new ArrayList<>();
+            for (int i = 0; i < N_OPERATIONS; i++) {
+                segments.add(new SegmentImpl(recorder, SEGMENT_NAME));
             }
         }
     }

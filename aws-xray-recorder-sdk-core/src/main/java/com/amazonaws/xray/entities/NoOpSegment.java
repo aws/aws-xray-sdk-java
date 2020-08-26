@@ -162,10 +162,6 @@ class NoOpSegment implements Segment {
     }
 
     @Override
-    public void setCause(Cause cause) {
-    }
-
-    @Override
     public Map<String, Object> getHttp() {
         return NoOpMap.get();
     }
