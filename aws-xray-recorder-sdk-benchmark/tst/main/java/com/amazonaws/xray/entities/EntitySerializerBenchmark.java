@@ -36,6 +36,11 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
+@BenchmarkMode({Mode.Throughput, Mode.SampleTime})
+@Fork(3)
+@Warmup(iterations = 10, time = 1)
+@Measurement(iterations = 5, time = 1)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class EntitySerializerBenchmark {
     public static final String SEGMENT_NAME = "BENCHMARK_SEGMENT";
     public static final String SUBSEGMENT_NAME = "BENCHMARK_SUBSEGMENT";
@@ -181,88 +186,48 @@ public class EntitySerializerBenchmark {
 
     // Serialize a segment with no child subsegments
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public String serializeZeroChildSegment(SingleLevelSegmentState state) {
         return state.emptySegment.serialize();
     }
 
     // Serialize a segment with one child subsegment
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public String serializeOneChildSegment(SingleLevelSegmentState state) {
         return state.oneChildSegment.serialize();
     }
 
     // Serialize a segment with two child subsegments
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public String serializeTwoChildSegment(SingleLevelSegmentState state) {
         return state.twoChildSegment.serialize();
     }
 
     // Serialize a segment with three child subsegments
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public String serializeThreeChildSegment(SingleLevelSegmentState state) {
         return state.threeChildSegment.serialize();
     }
 
     // Serialize a segment with three child subsegments
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public String serializeFourChildSegment(SingleLevelSegmentState state) {
         return state.fourChildSegment.serialize();
     }
 
     // Serialize a segment with two generations of subsegments.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public String serializeTwoGenerationSegment(MultiLevelSegmentState state) {
         return state.twoLevelSegment.serialize();
     }
 
     // Serialize a segment with three generations of subsegments.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public String serializeThreeGenerationSegment(MultiLevelSegmentState state) {
         return state.threeLevelSegment.serialize();
     }
 
     // Serialize a segment with four generations of subsegments.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public String serializeFourGenerationSegment(MultiLevelSegmentState state) {
         return state.fourLevelSegment.serialize();
     }

@@ -15,6 +15,7 @@
 
 package com.amazonaws.xray.strategy.sampling;
 
+import com.amazonaws.xray.entities.IdsBenchmark;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -28,7 +29,16 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+@BenchmarkMode({Mode.Throughput, Mode.AverageTime})
+@Fork(3)
+@Warmup(iterations = 10, time = 1)
+@Measurement(iterations = 5, time = 1)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class LocalizedSamplingStrategyBenchmark {
 
     @State(Scope.Thread)
@@ -60,23 +70,23 @@ public class LocalizedSamplingStrategyBenchmark {
 
     // Benchmark default sampling rules on a sampling Request that matches the rules.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public boolean defaultSamplingRuleBenchmark(DefaultSamplingRulesState state) {
         return state.samplingStrategy.shouldTrace(state.samplingRequest).isSampled();
     }
 
     // Benchmark a no match sampling rule on a sampling request.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public boolean noSampleSamplingBenchmark(NoSampleSamplingRulesState state) {
         return state.samplingStrategy.shouldTrace(state.samplingRequest).isSampled();
+    }
+
+    // Convenience main entry-point
+    public static void main(String[] args) throws RunnerException {
+        Options opt = new OptionsBuilder()
+            .addProfiler("gc")
+            .include(".*" + IdsBenchmark.class.getSimpleName())
+            .build();
+
+        new Runner(opt).run();
     }
 }

@@ -215,6 +215,11 @@ allprojects {
             dependsOn(publish)
         }
 
+        // Disable publishing a bunch of unnecessary Gradle metadata files
+        tasks.withType<GenerateModuleMetadata> {
+            enabled = false
+        }
+
         val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
         configure<PublishingExtension> {

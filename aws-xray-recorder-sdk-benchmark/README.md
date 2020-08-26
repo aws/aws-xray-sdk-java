@@ -6,9 +6,9 @@ To run the benchmark, make sure you have Maven and Java 8 or above installed. Wi
 
 To run the benchmark, use your favorite shell to go into the directory. Then run the following commands:
 ```BASH
-cd aws-xray-sdk-java/aws-xray-recorder-sdk-benchmark/
-mvn clean && mvn package
-java -jar target/benchmark.jar
+git clone https://github.com/aws/aws-xray-sdk-java.git
+cd aws-xray-sdk-java
+./gradlew jmh
 ```
 
 You should then start seeing the output of the benchmark:

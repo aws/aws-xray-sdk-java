@@ -31,7 +31,16 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+@BenchmarkMode({Mode.Throughput, Mode.SampleTime})
+@Fork(3)
+@Warmup(iterations = 10, time = 1)
+@Measurement(iterations = 5, time = 1)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class EntityBenchmark {
     public static final String SEGMENT_NAME = "BENCHMARK_SEGMENT";
 
@@ -69,22 +78,12 @@ public class EntityBenchmark {
 
     // Construct a segment
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public Segment constructSegmentBenchmark(BenchmarkState state) {
         return new SegmentImpl(state.recorder, SEGMENT_NAME);
     }
 
     // Construct a subsegment and add it to the parent segment.
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public Subsegment constructSubsegmentPutInSegmentBenchmark(BenchmarkState state) {
         // TODO: Find a way to create just the subsegment and not force it into the parent segment?
         return new SubsegmentImpl(state.recorder, SEGMENT_NAME, state.parentSegment);
@@ -92,34 +91,29 @@ public class EntityBenchmark {
 
     // Add an annotation to a segment
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public void putAnnotationBenchmark(BenchmarkState state) {
         state.parentSegment.putAnnotation("Key", "Value");
     }
 
     // Add metadata to a segment
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public void putMetadataBenchmark(BenchmarkState state) {
         state.parentSegment.putMetadata("Key", "Value");
     }
 
     // Add exception into a segment
     @Benchmark
-    @BenchmarkMode(Mode.All)
-    @Fork(value=1)
-    @Warmup(iterations = 20)
-    @Measurement(iterations = 20)
-    @OutputTimeUnit(TimeUnit.NANOSECONDS)
     public void putExceptionSegmentBenchmark(BenchmarkState state) {
         state.parentSegment.addException(state.theException);
+    }
+
+    // Convenience main entry-point
+    public static void main(String[] args) throws RunnerException {
+        Options opt = new OptionsBuilder()
+            .addProfiler("gc")
+            .include(".*" + IdsBenchmark.class.getSimpleName())
+            .build();
+
+        new Runner(opt).run();
     }
 }
