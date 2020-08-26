@@ -215,7 +215,7 @@ allprojects {
             dependsOn(publish)
         }
 
-        // Disable publishing a bunch of unnecessary Gradle metadata files
+        // Don't publish Gradle metadata for now until verifying they work well.
         tasks.withType<GenerateModuleMetadata> {
             enabled = false
         }
