@@ -198,6 +198,9 @@ This sums to about **15384.817** nanoseconds (or about **15 microseconds**), rep
 In the latest version of our SDK (2.2.x), the typical request-response lifecycle time is in the order of magnitude of tens of microseconds. This execution time is small when compared to the overhead of network IO. This is a major improvement over version 2.0.x which had the mentioned performance issue. The SDK should now be stable and working as expected as evident with the benchmarking data.
 
 ### Benchmark Data by SDK Version
+
+Note that beginning with version 2.7.x, benchmarks are only ran with the Sample Time and Throughput modes.
+
 #### 1.3.x
 <details><summary>Show</summary>
 <p>
@@ -1372,7 +1375,404 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 </p>
 </details>
 
+### 2.7.x
+<details><summary>Show</summary>
+<p>
+
+```
+Benchmark                                                                                                                   Mode      Cnt       Score   Error   Units
+AWSXRayRecorderBenchmark.beginDummySegmentBenchmark                                                                        thrpt        5       1.954 ± 0.034  ops/us
+AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark                                                                     thrpt        5       1.078 ± 0.007  ops/us
+AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark                                                           thrpt        5       0.579 ± 0.608  ops/us
+AWSXRayRecorderBenchmark.beginEndSegmentBenchmark                                                                          thrpt        5       0.109 ± 0.002  ops/us
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark                                                                thrpt        5       0.081 ± 0.002  ops/us
+AWSXRayRecorderBenchmark.beginSubsegmentBenchmark                                                                          thrpt        5       1.140 ± 0.021  ops/us
+AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark                                                               thrpt        5       3.740 ± 0.118  ops/us
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark                                                                          thrpt        5       2.107 ± 0.049  ops/us
+AWSXRayRecorderBenchmark.endSegmentBenchmark                                                                               thrpt        5       0.135 ± 0.001  ops/us
+AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark                                                                        thrpt        5       0.134 ± 0.002  ops/us
+AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark                                                                      thrpt        5       0.105 ± 0.001  ops/us
+AWSXRayRecorderBenchmark.endSubsegmentBenchmark                                                                            thrpt        5       2.813 ± 0.143  ops/us
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark                                                                 thrpt        5       3.548 ± 0.073  ops/us
+AWSXRayRecorderBenchmark.getSegmentBenchmark                                                                               thrpt        5       4.635 ± 0.169  ops/us
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark                                                                            thrpt        5       5.515 ± 0.224  ops/us
+entities.EntityBenchmark.constructSegmentBenchmark                                                                         thrpt        5       1.020 ± 0.022  ops/us
+entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark                                                          thrpt        5       1.732 ± 0.019  ops/us
+entities.EntityBenchmark.putAnnotationBenchmark                                                                            thrpt        5      12.430 ± 0.335  ops/us
+entities.EntityBenchmark.putExceptionSegmentBenchmark                                                                      thrpt        5       1.263 ± 0.021  ops/us
+entities.EntityBenchmark.putMetadataBenchmark                                                                              thrpt        5       6.194 ± 0.099  ops/us
+entities.EntitySerializerBenchmark.serializeFourChildSegment                                                               thrpt        5       0.093 ± 0.002  ops/us
+entities.EntitySerializerBenchmark.serializeFourGenerationSegment                                                          thrpt        5       0.097 ± 0.002  ops/us
+entities.EntitySerializerBenchmark.serializeOneChildSegment                                                                thrpt        5       0.206 ± 0.003  ops/us
+entities.EntitySerializerBenchmark.serializeThreeChildSegment                                                              thrpt        5       0.115 ± 0.002  ops/us
+entities.EntitySerializerBenchmark.serializeThreeGenerationSegment                                                         thrpt        5       0.115 ± 0.002  ops/us
+entities.EntitySerializerBenchmark.serializeTwoChildSegment                                                                thrpt        5       0.144 ± 0.004  ops/us
+entities.EntitySerializerBenchmark.serializeTwoGenerationSegment                                                           thrpt        5       0.146 ± 0.001  ops/us
+entities.EntitySerializerBenchmark.serializeZeroChildSegment                                                               thrpt        5       0.325 ± 0.007  ops/us
+entities.IdsBenchmark.segmentId_secureRandom                                                                               thrpt        5       2.200 ± 0.101  ops/us
+entities.IdsBenchmark.segmentId_threadLocalRandom                                                                          thrpt        5      15.356 ± 0.379  ops/us
+entities.IdsBenchmark.segmentId_threadLocalSecureRandom                                                                    thrpt        5       2.232 ± 0.108  ops/us
+entities.IdsBenchmark.traceId_secureRandom                                                                                 thrpt        5       2.212 ± 0.125  ops/us
+entities.IdsBenchmark.traceId_threadLocalRandom                                                                            thrpt        5      16.046 ± 0.131  ops/us
+entities.IdsBenchmark.traceId_threadLocalSecureRandom                                                                      thrpt        5       2.205 ± 0.116  ops/us
+entities.TraceHeaderBenchmark.parse                                                                                        thrpt        5       1.958 ± 0.004  ops/us
+entities.TraceHeaderBenchmark.serialize                                                                                    thrpt        5       1.351 ± 0.007  ops/us
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark                                        thrpt        5       9.025 ± 0.018  ops/us
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark                                           thrpt        5       4.731 ± 0.318  ops/us
+strategy.sampling.LocalizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark                                          thrpt        5      14.637 ± 0.294  ops/us
+strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark                                             thrpt        5       6.061 ± 0.073  ops/us
+LocalizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark                                                           sample   121799       0.115 ± 0.004   us/op
+LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark                                                              sample   113776       0.217 ± 0.022   us/op
+AWSXRayRecorderBenchmark.beginDummySegmentBenchmark                                                                       sample   122859       0.580 ± 0.037   us/op
+AWSXRayRecorderBenchmark.beginDummySegmentBenchmark:beginDummySegmentBenchmark·p0.00                                      sample                0.480           us/op
+AWSXRayRecorderBenchmark.beginDummySegmentBenchmark:beginDummySegmentBenchmark·p0.50                                      sample                0.507           us/op
+AWSXRayRecorderBenchmark.beginDummySegmentBenchmark:beginDummySegmentBenchmark·p0.90                                      sample                0.571           us/op
+AWSXRayRecorderBenchmark.beginDummySegmentBenchmark:beginDummySegmentBenchmark·p0.95                                      sample                0.689           us/op
+AWSXRayRecorderBenchmark.beginDummySegmentBenchmark:beginDummySegmentBenchmark·p0.99                                      sample                0.982           us/op
+AWSXRayRecorderBenchmark.beginDummySegmentBenchmark:beginDummySegmentBenchmark·p0.999                                     sample               10.852           us/op
+AWSXRayRecorderBenchmark.beginDummySegmentBenchmark:beginDummySegmentBenchmark·p0.9999                                    sample               35.273           us/op
+AWSXRayRecorderBenchmark.beginDummySegmentBenchmark:beginDummySegmentBenchmark·p1.00                                      sample              628.736           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark                                                                    sample   127963       1.098 ± 0.074   us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark:beginEndDummySegmentBenchmark·p0.00                                sample                0.923           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark:beginEndDummySegmentBenchmark·p0.50                                sample                0.960           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark:beginEndDummySegmentBenchmark·p0.90                                sample                1.056           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark:beginEndDummySegmentBenchmark·p0.95                                sample                1.124           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark:beginEndDummySegmentBenchmark·p0.99                                sample                1.800           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark:beginEndDummySegmentBenchmark·p0.999                               sample               12.065           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark:beginEndDummySegmentBenchmark·p0.9999                              sample              606.036           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentBenchmark:beginEndDummySegmentBenchmark·p1.00                                sample             1570.816           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark                                                          sample   192423       1.476 ± 0.093   us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark:beginEndDummySegmentSubsegmentBenchmark·p0.00            sample                1.294           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark:beginEndDummySegmentSubsegmentBenchmark·p0.50            sample                1.356           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark:beginEndDummySegmentSubsegmentBenchmark·p0.90            sample                1.518           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark:beginEndDummySegmentSubsegmentBenchmark·p0.95            sample                1.578           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark:beginEndDummySegmentSubsegmentBenchmark·p0.99            sample                1.984           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark:beginEndDummySegmentSubsegmentBenchmark·p0.999           sample               12.272           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark:beginEndDummySegmentSubsegmentBenchmark·p0.9999          sample               39.434           us/op
+AWSXRayRecorderBenchmark.beginEndDummySegmentSubsegmentBenchmark:beginEndDummySegmentSubsegmentBenchmark·p1.00            sample             4988.928           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentBenchmark                                                                         sample   132392       9.413 ± 0.120   us/op
+AWSXRayRecorderBenchmark.beginEndSegmentBenchmark:beginEndSegmentBenchmark·p0.00                                          sample                8.208           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentBenchmark:beginEndSegmentBenchmark·p0.50                                          sample                8.768           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentBenchmark:beginEndSegmentBenchmark·p0.90                                          sample                9.072           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentBenchmark:beginEndSegmentBenchmark·p0.95                                          sample                9.312           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentBenchmark:beginEndSegmentBenchmark·p0.99                                          sample               14.689           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentBenchmark:beginEndSegmentBenchmark·p0.999                                         sample               97.486           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentBenchmark:beginEndSegmentBenchmark·p0.9999                                        sample              683.787           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentBenchmark:beginEndSegmentBenchmark·p1.00                                          sample             1036.288           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark                                                               sample   100721      12.491 ± 0.183   us/op
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark:beginEndSegmentSubsegmentBenchmark·p0.00                      sample               10.352           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark:beginEndSegmentSubsegmentBenchmark·p0.50                      sample               11.632           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark:beginEndSegmentSubsegmentBenchmark·p0.90                      sample               12.096           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark:beginEndSegmentSubsegmentBenchmark·p0.95                      sample               12.656           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark:beginEndSegmentSubsegmentBenchmark·p0.99                      sample               21.504           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark:beginEndSegmentSubsegmentBenchmark·p0.999                     sample              101.632           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark:beginEndSegmentSubsegmentBenchmark·p0.9999                    sample              768.654           us/op
+AWSXRayRecorderBenchmark.beginEndSegmentSubsegmentBenchmark:beginEndSegmentSubsegmentBenchmark·p1.00                      sample             2076.672           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentBenchmark                                                                         sample   112252       1.020 ± 0.092   us/op
+AWSXRayRecorderBenchmark.beginSubsegmentBenchmark:beginSubsegmentBenchmark·p0.00                                          sample                0.610           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentBenchmark:beginSubsegmentBenchmark·p0.50                                          sample                0.675           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentBenchmark:beginSubsegmentBenchmark·p0.90                                          sample                0.998           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentBenchmark:beginSubsegmentBenchmark·p0.95                                          sample                1.026           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentBenchmark:beginSubsegmentBenchmark·p0.99                                          sample                1.373           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentBenchmark:beginSubsegmentBenchmark·p0.999                                         sample               12.076           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentBenchmark:beginSubsegmentBenchmark·p0.9999                                        sample              354.304           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentBenchmark:beginSubsegmentBenchmark·p1.00                                          sample              762.880           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark                                                              sample   129232       0.303 ± 0.038   us/op
+AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark:beginSubsegmentDummyParentBenchmark·p0.00                    sample                0.233           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark:beginSubsegmentDummyParentBenchmark·p0.50                    sample                0.258           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark:beginSubsegmentDummyParentBenchmark·p0.90                    sample                0.283           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark:beginSubsegmentDummyParentBenchmark·p0.95                    sample                0.328           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark:beginSubsegmentDummyParentBenchmark·p0.99                    sample                0.481           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark:beginSubsegmentDummyParentBenchmark·p0.999                   sample                1.312           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark:beginSubsegmentDummyParentBenchmark·p0.9999                  sample               22.609           us/op
+AWSXRayRecorderBenchmark.beginSubsegmentDummyParentBenchmark:beginSubsegmentDummyParentBenchmark·p1.00                    sample              697.344           us/op
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark                                                                         sample   113009       0.511 ± 0.040   us/op
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark:endDummySegmentBenchmark·p0.00                                          sample                0.426           us/op
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark:endDummySegmentBenchmark·p0.50                                          sample                0.460           us/op
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark:endDummySegmentBenchmark·p0.90                                          sample                0.509           us/op
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark:endDummySegmentBenchmark·p0.95                                          sample                0.553           us/op
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark:endDummySegmentBenchmark·p0.99                                          sample                0.783           us/op
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark:endDummySegmentBenchmark·p0.999                                         sample                3.417           us/op
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark:endDummySegmentBenchmark·p0.9999                                        sample               16.742           us/op
+AWSXRayRecorderBenchmark.endDummySegmentBenchmark:endDummySegmentBenchmark·p1.00                                          sample              730.112           us/op
+AWSXRayRecorderBenchmark.endSegmentBenchmark                                                                              sample   128502       7.773 ± 0.121   us/op
+AWSXRayRecorderBenchmark.endSegmentBenchmark:endSegmentBenchmark·p0.00                                                    sample                6.760           us/op
+AWSXRayRecorderBenchmark.endSegmentBenchmark:endSegmentBenchmark·p0.50                                                    sample                7.376           us/op
+AWSXRayRecorderBenchmark.endSegmentBenchmark:endSegmentBenchmark·p0.90                                                    sample                7.640           us/op
+AWSXRayRecorderBenchmark.endSegmentBenchmark:endSegmentBenchmark·p0.95                                                    sample                7.848           us/op
+AWSXRayRecorderBenchmark.endSegmentBenchmark:endSegmentBenchmark·p0.99                                                    sample               11.616           us/op
+AWSXRayRecorderBenchmark.endSegmentBenchmark:endSegmentBenchmark·p0.999                                                   sample               25.456           us/op
+AWSXRayRecorderBenchmark.endSegmentBenchmark:endSegmentBenchmark·p0.9999                                                  sample              681.573           us/op
+AWSXRayRecorderBenchmark.endSegmentBenchmark:endSegmentBenchmark·p1.00                                                    sample             2605.056           us/op
+AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark                                                                       sample   133339       7.401 ± 0.085   us/op
+AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark:endSegmentNoChildBenchmark·p0.00                                      sample                6.496           us/op
+AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark:endSegmentNoChildBenchmark·p0.50                                      sample                7.120           us/op
+AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark:endSegmentNoChildBenchmark·p0.90                                      sample                7.376           us/op
+AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark:endSegmentNoChildBenchmark·p0.95                                      sample                7.504           us/op
+AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark:endSegmentNoChildBenchmark·p0.99                                      sample               11.136           us/op
+AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark:endSegmentNoChildBenchmark·p0.999                                     sample               24.469           us/op
+AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark:endSegmentNoChildBenchmark·p0.9999                                    sample              653.994           us/op
+AWSXRayRecorderBenchmark.endSegmentNoChildBenchmark:endSegmentNoChildBenchmark·p1.00                                      sample              819.200           us/op
+AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark                                                                     sample   100476       9.687 ± 0.114   us/op
+AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark:endSegmentWithChildBenchmark·p0.00                                  sample                8.168           us/op
+AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark:endSegmentWithChildBenchmark·p0.50                                  sample                9.264           us/op
+AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark:endSegmentWithChildBenchmark·p0.90                                  sample                9.600           us/op
+AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark:endSegmentWithChildBenchmark·p0.95                                  sample                9.824           us/op
+AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark:endSegmentWithChildBenchmark·p0.99                                  sample               14.736           us/op
+AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark:endSegmentWithChildBenchmark·p0.999                                 sample               29.941           us/op
+AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark:endSegmentWithChildBenchmark·p0.9999                                sample              675.645           us/op
+AWSXRayRecorderBenchmark.endSegmentWithChildBenchmark:endSegmentWithChildBenchmark·p1.00                                  sample              873.472           us/op
+AWSXRayRecorderBenchmark.endSubsegmentBenchmark                                                                           sample   101233       0.367 ± 0.037   us/op
+AWSXRayRecorderBenchmark.endSubsegmentBenchmark:endSubsegmentBenchmark·p0.00                                              sample                0.304           us/op
+AWSXRayRecorderBenchmark.endSubsegmentBenchmark:endSubsegmentBenchmark·p0.50                                              sample                0.327           us/op
+AWSXRayRecorderBenchmark.endSubsegmentBenchmark:endSubsegmentBenchmark·p0.90                                              sample                0.351           us/op
+AWSXRayRecorderBenchmark.endSubsegmentBenchmark:endSubsegmentBenchmark·p0.95                                              sample                0.395           us/op
+AWSXRayRecorderBenchmark.endSubsegmentBenchmark:endSubsegmentBenchmark·p0.99                                              sample                0.584           us/op
+AWSXRayRecorderBenchmark.endSubsegmentBenchmark:endSubsegmentBenchmark·p0.999                                             sample                1.719           us/op
+AWSXRayRecorderBenchmark.endSubsegmentBenchmark:endSubsegmentBenchmark·p0.9999                                            sample               14.188           us/op
+AWSXRayRecorderBenchmark.endSubsegmentBenchmark:endSubsegmentBenchmark·p1.00                                              sample              709.632           us/op
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark                                                                sample   127695       0.302 ± 0.029   us/op
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark:endSubsegmentDummyParentBenchmark·p0.00                        sample                0.248           us/op
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark:endSubsegmentDummyParentBenchmark·p0.50                        sample                0.265           us/op
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark:endSubsegmentDummyParentBenchmark·p0.90                        sample                0.299           us/op
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark:endSubsegmentDummyParentBenchmark·p0.95                        sample                0.347           us/op
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark:endSubsegmentDummyParentBenchmark·p0.99                        sample                0.519           us/op
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark:endSubsegmentDummyParentBenchmark·p0.999                       sample                1.409           us/op
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark:endSubsegmentDummyParentBenchmark·p0.9999                      sample               15.303           us/op
+AWSXRayRecorderBenchmark.endSubsegmentDummyParentBenchmark:endSubsegmentDummyParentBenchmark·p1.00                        sample              702.464           us/op
+AWSXRayRecorderBenchmark.getSegmentBenchmark                                                                              sample   105288       0.215 ± 0.020   us/op
+AWSXRayRecorderBenchmark.getSegmentBenchmark:getSegmentBenchmark·p0.00                                                    sample                0.183           us/op
+AWSXRayRecorderBenchmark.getSegmentBenchmark:getSegmentBenchmark·p0.50                                                    sample                0.200           us/op
+AWSXRayRecorderBenchmark.getSegmentBenchmark:getSegmentBenchmark·p0.90                                                    sample                0.213           us/op
+AWSXRayRecorderBenchmark.getSegmentBenchmark:getSegmentBenchmark·p0.95                                                    sample                0.223           us/op
+AWSXRayRecorderBenchmark.getSegmentBenchmark:getSegmentBenchmark·p0.99                                                    sample                0.355           us/op
+AWSXRayRecorderBenchmark.getSegmentBenchmark:getSegmentBenchmark·p0.999                                                   sample                0.748           us/op
+AWSXRayRecorderBenchmark.getSegmentBenchmark:getSegmentBenchmark·p0.9999                                                  sample               11.031           us/op
+AWSXRayRecorderBenchmark.getSegmentBenchmark:getSegmentBenchmark·p1.00                                                    sample              646.144           us/op
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark                                                                           sample   106797       0.199 ± 0.032   us/op
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark:getSubsegmentBenchmark·p0.00                                              sample                0.160           us/op
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark:getSubsegmentBenchmark·p0.50                                              sample                0.172           us/op
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark:getSubsegmentBenchmark·p0.90                                              sample                0.188           us/op
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark:getSubsegmentBenchmark·p0.95                                              sample                0.195           us/op
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark:getSubsegmentBenchmark·p0.99                                              sample                0.310           us/op
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark:getSubsegmentBenchmark·p0.999                                             sample                0.742           us/op
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark:getSubsegmentBenchmark·p0.9999                                            sample               12.321           us/op
+AWSXRayRecorderBenchmark.getSubsegmentBenchmark:getSubsegmentBenchmark·p1.00                                              sample              609.280           us/op
+entities.EntityBenchmark.constructSegmentBenchmark                                                                        sample   155365       1.022 ± 0.059   us/op
+entities.EntityBenchmark.constructSegmentBenchmark:constructSegmentBenchmark·p0.00                                        sample                0.845           us/op
+entities.EntityBenchmark.constructSegmentBenchmark:constructSegmentBenchmark·p0.50                                        sample                0.881           us/op
+entities.EntityBenchmark.constructSegmentBenchmark:constructSegmentBenchmark·p0.90                                        sample                0.908           us/op
+entities.EntityBenchmark.constructSegmentBenchmark:constructSegmentBenchmark·p0.95                                        sample                0.924           us/op
+entities.EntityBenchmark.constructSegmentBenchmark:constructSegmentBenchmark·p0.99                                        sample                1.166           us/op
+entities.EntityBenchmark.constructSegmentBenchmark:constructSegmentBenchmark·p0.999                                       sample               10.532           us/op
+entities.EntityBenchmark.constructSegmentBenchmark:constructSegmentBenchmark·p0.9999                                      sample              349.421           us/op
+entities.EntityBenchmark.constructSegmentBenchmark:constructSegmentBenchmark·p1.00                                        sample              700.416           us/op
+entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark                                                         sample   117172       0.694 ± 0.078   us/op
+entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark:constructSubsegmentPutInSegmentBenchmark·p0.00          sample                0.373           us/op
+entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark:constructSubsegmentPutInSegmentBenchmark·p0.50          sample                0.404           us/op
+entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark:constructSubsegmentPutInSegmentBenchmark·p0.90          sample                0.731           us/op
+entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark:constructSubsegmentPutInSegmentBenchmark·p0.95          sample                0.746           us/op
+entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark:constructSubsegmentPutInSegmentBenchmark·p0.99          sample                0.983           us/op
+entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark:constructSubsegmentPutInSegmentBenchmark·p0.999         sample               10.413           us/op
+entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark:constructSubsegmentPutInSegmentBenchmark·p0.9999        sample              382.481           us/op
+entities.EntityBenchmark.constructSubsegmentPutInSegmentBenchmark:constructSubsegmentPutInSegmentBenchmark·p1.00          sample              718.848           us/op
+entities.EntityBenchmark.putAnnotationBenchmark                                                                           sample   144149       0.087 ± 0.013   us/op
+entities.EntityBenchmark.putAnnotationBenchmark:putAnnotationBenchmark·p0.00                                              sample                0.075           us/op
+entities.EntityBenchmark.putAnnotationBenchmark:putAnnotationBenchmark·p0.50                                              sample                0.080           us/op
+entities.EntityBenchmark.putAnnotationBenchmark:putAnnotationBenchmark·p0.90                                              sample                0.084           us/op
+entities.EntityBenchmark.putAnnotationBenchmark:putAnnotationBenchmark·p0.95                                              sample                0.090           us/op
+entities.EntityBenchmark.putAnnotationBenchmark:putAnnotationBenchmark·p0.99                                              sample                0.104           us/op
+entities.EntityBenchmark.putAnnotationBenchmark:putAnnotationBenchmark·p0.999                                             sample                0.352           us/op
+entities.EntityBenchmark.putAnnotationBenchmark:putAnnotationBenchmark·p0.9999                                            sample                9.068           us/op
+entities.EntityBenchmark.putAnnotationBenchmark:putAnnotationBenchmark·p1.00                                              sample              588.800           us/op
+entities.EntityBenchmark.putExceptionSegmentBenchmark                                                                     sample   163697       0.905 ± 0.056   us/op
+entities.EntityBenchmark.putExceptionSegmentBenchmark:putExceptionSegmentBenchmark·p0.00                                  sample                0.608           us/op
+entities.EntityBenchmark.putExceptionSegmentBenchmark:putExceptionSegmentBenchmark·p0.50                                  sample                0.656           us/op
+entities.EntityBenchmark.putExceptionSegmentBenchmark:putExceptionSegmentBenchmark·p0.90                                  sample                0.994           us/op
+entities.EntityBenchmark.putExceptionSegmentBenchmark:putExceptionSegmentBenchmark·p0.95                                  sample                1.013           us/op
+entities.EntityBenchmark.putExceptionSegmentBenchmark:putExceptionSegmentBenchmark·p0.99                                  sample                1.462           us/op
+entities.EntityBenchmark.putExceptionSegmentBenchmark:putExceptionSegmentBenchmark·p0.999                                 sample                9.717           us/op
+entities.EntityBenchmark.putExceptionSegmentBenchmark:putExceptionSegmentBenchmark·p0.9999                                sample              350.019           us/op
+entities.EntityBenchmark.putExceptionSegmentBenchmark:putExceptionSegmentBenchmark·p1.00                                  sample              831.488           us/op
+entities.EntityBenchmark.putMetadataBenchmark                                                                             sample   133273       0.163 ± 0.002   us/op
+entities.EntityBenchmark.putMetadataBenchmark:putMetadataBenchmark·p0.00                                                  sample                0.149           us/op
+entities.EntityBenchmark.putMetadataBenchmark:putMetadataBenchmark·p0.50                                                  sample                0.156           us/op
+entities.EntityBenchmark.putMetadataBenchmark:putMetadataBenchmark·p0.90                                                  sample                0.163           us/op
+entities.EntityBenchmark.putMetadataBenchmark:putMetadataBenchmark·p0.95                                                  sample                0.169           us/op
+entities.EntityBenchmark.putMetadataBenchmark:putMetadataBenchmark·p0.99                                                  sample                0.253           us/op
+entities.EntityBenchmark.putMetadataBenchmark:putMetadataBenchmark·p0.999                                                 sample                0.596           us/op
+entities.EntityBenchmark.putMetadataBenchmark:putMetadataBenchmark·p0.9999                                                sample               10.528           us/op
+entities.EntityBenchmark.putMetadataBenchmark:putMetadataBenchmark·p1.00                                                  sample               32.672           us/op
+entities.EntitySerializerBenchmark.serializeFourChildSegment                                                              sample    71532      10.798 ± 0.102   us/op
+entities.EntitySerializerBenchmark.serializeFourChildSegment:serializeFourChildSegment·p0.00                              sample                9.776           us/op
+entities.EntitySerializerBenchmark.serializeFourChildSegment:serializeFourChildSegment·p0.50                              sample               10.528           us/op
+entities.EntitySerializerBenchmark.serializeFourChildSegment:serializeFourChildSegment·p0.90                              sample               10.784           us/op
+entities.EntitySerializerBenchmark.serializeFourChildSegment:serializeFourChildSegment·p0.95                              sample               10.896           us/op
+entities.EntitySerializerBenchmark.serializeFourChildSegment:serializeFourChildSegment·p0.99                              sample               17.760           us/op
+entities.EntitySerializerBenchmark.serializeFourChildSegment:serializeFourChildSegment·p0.999                             sample               26.671           us/op
+entities.EntitySerializerBenchmark.serializeFourChildSegment:serializeFourChildSegment·p0.9999                            sample              687.821           us/op
+entities.EntitySerializerBenchmark.serializeFourChildSegment:serializeFourChildSegment·p1.00                              sample              747.520           us/op
+entities.EntitySerializerBenchmark.serializeFourGenerationSegment                                                         sample    84450      10.456 ± 0.100   us/op
+entities.EntitySerializerBenchmark.serializeFourGenerationSegment:serializeFourGenerationSegment·p0.00                    sample                9.008           us/op
+entities.EntitySerializerBenchmark.serializeFourGenerationSegment:serializeFourGenerationSegment·p0.50                    sample               10.112           us/op
+entities.EntitySerializerBenchmark.serializeFourGenerationSegment:serializeFourGenerationSegment·p0.90                    sample               10.384           us/op
+entities.EntitySerializerBenchmark.serializeFourGenerationSegment:serializeFourGenerationSegment·p0.95                    sample               10.512           us/op
+entities.EntitySerializerBenchmark.serializeFourGenerationSegment:serializeFourGenerationSegment·p0.99                    sample               18.336           us/op
+entities.EntitySerializerBenchmark.serializeFourGenerationSegment:serializeFourGenerationSegment·p0.999                   sample               26.723           us/op
+entities.EntitySerializerBenchmark.serializeFourGenerationSegment:serializeFourGenerationSegment·p0.9999                  sample              675.952           us/op
+entities.EntitySerializerBenchmark.serializeFourGenerationSegment:serializeFourGenerationSegment·p1.00                    sample              755.712           us/op
+entities.EntitySerializerBenchmark.serializeOneChildSegment                                                               sample    83707       5.251 ± 0.104   us/op
+entities.EntitySerializerBenchmark.serializeOneChildSegment:serializeOneChildSegment·p0.00                                sample                4.632           us/op
+entities.EntitySerializerBenchmark.serializeOneChildSegment:serializeOneChildSegment·p0.50                                sample                5.008           us/op
+entities.EntitySerializerBenchmark.serializeOneChildSegment:serializeOneChildSegment·p0.90                                sample                5.152           us/op
+entities.EntitySerializerBenchmark.serializeOneChildSegment:serializeOneChildSegment·p0.95                                sample                5.304           us/op
+entities.EntitySerializerBenchmark.serializeOneChildSegment:serializeOneChildSegment·p0.99                                sample                8.736           us/op
+entities.EntitySerializerBenchmark.serializeOneChildSegment:serializeOneChildSegment·p0.999                               sample               18.153           us/op
+entities.EntitySerializerBenchmark.serializeOneChildSegment:serializeOneChildSegment·p0.9999                              sample              425.968           us/op
+entities.EntitySerializerBenchmark.serializeOneChildSegment:serializeOneChildSegment·p1.00                                sample             1972.224           us/op
+entities.EntitySerializerBenchmark.serializeThreeChildSegment                                                             sample    73812       8.946 ± 0.095   us/op
+entities.EntitySerializerBenchmark.serializeThreeChildSegment:serializeThreeChildSegment·p0.00                            sample                7.896           us/op
+entities.EntitySerializerBenchmark.serializeThreeChildSegment:serializeThreeChildSegment·p0.50                            sample                8.608           us/op
+entities.EntitySerializerBenchmark.serializeThreeChildSegment:serializeThreeChildSegment·p0.90                            sample                8.896           us/op
+entities.EntitySerializerBenchmark.serializeThreeChildSegment:serializeThreeChildSegment·p0.95                            sample                9.056           us/op
+entities.EntitySerializerBenchmark.serializeThreeChildSegment:serializeThreeChildSegment·p0.99                            sample               15.488           us/op
+entities.EntitySerializerBenchmark.serializeThreeChildSegment:serializeThreeChildSegment·p0.999                           sample               24.056           us/op
+entities.EntitySerializerBenchmark.serializeThreeChildSegment:serializeThreeChildSegment·p0.9999                          sample              659.309           us/op
+entities.EntitySerializerBenchmark.serializeThreeChildSegment:serializeThreeChildSegment·p1.00                            sample              765.952           us/op
+entities.EntitySerializerBenchmark.serializeThreeGenerationSegment                                                        sample    89230       8.628 ± 0.077   us/op
+entities.EntitySerializerBenchmark.serializeThreeGenerationSegment:serializeThreeGenerationSegment·p0.00                  sample                7.648           us/op
+entities.EntitySerializerBenchmark.serializeThreeGenerationSegment:serializeThreeGenerationSegment·p0.50                  sample                8.272           us/op
+entities.EntitySerializerBenchmark.serializeThreeGenerationSegment:serializeThreeGenerationSegment·p0.90                  sample                8.544           us/op
+entities.EntitySerializerBenchmark.serializeThreeGenerationSegment:serializeThreeGenerationSegment·p0.95                  sample                8.720           us/op
+entities.EntitySerializerBenchmark.serializeThreeGenerationSegment:serializeThreeGenerationSegment·p0.99                  sample               15.408           us/op
+entities.EntitySerializerBenchmark.serializeThreeGenerationSegment:serializeThreeGenerationSegment·p0.999                 sample               24.042           us/op
+entities.EntitySerializerBenchmark.serializeThreeGenerationSegment:serializeThreeGenerationSegment·p0.9999                sample              658.511           us/op
+entities.EntitySerializerBenchmark.serializeThreeGenerationSegment:serializeThreeGenerationSegment·p1.00                  sample              746.496           us/op
+entities.EntitySerializerBenchmark.serializeTwoChildSegment                                                               sample    78430       7.010 ± 0.099   us/op
+entities.EntitySerializerBenchmark.serializeTwoChildSegment:serializeTwoChildSegment·p0.00                                sample                6.280           us/op
+entities.EntitySerializerBenchmark.serializeTwoChildSegment:serializeTwoChildSegment·p0.50                                sample                6.736           us/op
+entities.EntitySerializerBenchmark.serializeTwoChildSegment:serializeTwoChildSegment·p0.90                                sample                6.968           us/op
+entities.EntitySerializerBenchmark.serializeTwoChildSegment:serializeTwoChildSegment·p0.95                                sample                7.104           us/op
+entities.EntitySerializerBenchmark.serializeTwoChildSegment:serializeTwoChildSegment·p0.99                                sample               12.192           us/op
+entities.EntitySerializerBenchmark.serializeTwoChildSegment:serializeTwoChildSegment·p0.999                               sample               21.120           us/op
+entities.EntitySerializerBenchmark.serializeTwoChildSegment:serializeTwoChildSegment·p0.9999                              sample              655.139           us/op
+entities.EntitySerializerBenchmark.serializeTwoChildSegment:serializeTwoChildSegment·p1.00                                sample             1492.992           us/op
+entities.EntitySerializerBenchmark.serializeTwoGenerationSegment                                                          sample    95466       6.808 ± 0.093   us/op
+entities.EntitySerializerBenchmark.serializeTwoGenerationSegment:serializeTwoGenerationSegment·p0.00                      sample                6.096           us/op
+entities.EntitySerializerBenchmark.serializeTwoGenerationSegment:serializeTwoGenerationSegment·p0.50                      sample                6.552           us/op
+entities.EntitySerializerBenchmark.serializeTwoGenerationSegment:serializeTwoGenerationSegment·p0.90                      sample                6.744           us/op
+entities.EntitySerializerBenchmark.serializeTwoGenerationSegment:serializeTwoGenerationSegment·p0.95                      sample                6.864           us/op
+entities.EntitySerializerBenchmark.serializeTwoGenerationSegment:serializeTwoGenerationSegment·p0.99                      sample               11.648           us/op
+entities.EntitySerializerBenchmark.serializeTwoGenerationSegment:serializeTwoGenerationSegment·p0.999                     sample               21.378           us/op
+entities.EntitySerializerBenchmark.serializeTwoGenerationSegment:serializeTwoGenerationSegment·p0.9999                    sample              667.088           us/op
+entities.EntitySerializerBenchmark.serializeTwoGenerationSegment:serializeTwoGenerationSegment·p1.00                      sample              865.280           us/op
+entities.EntitySerializerBenchmark.serializeZeroChildSegment                                                              sample    91701       3.056 ± 0.063   us/op
+entities.EntitySerializerBenchmark.serializeZeroChildSegment:serializeZeroChildSegment·p0.00                              sample                2.740           us/op
+entities.EntitySerializerBenchmark.serializeZeroChildSegment:serializeZeroChildSegment·p0.50                              sample                2.940           us/op
+entities.EntitySerializerBenchmark.serializeZeroChildSegment:serializeZeroChildSegment·p0.90                              sample                3.036           us/op
+entities.EntitySerializerBenchmark.serializeZeroChildSegment:serializeZeroChildSegment·p0.95                              sample                3.080           us/op
+entities.EntitySerializerBenchmark.serializeZeroChildSegment:serializeZeroChildSegment·p0.99                              sample                4.776           us/op
+entities.EntitySerializerBenchmark.serializeZeroChildSegment:serializeZeroChildSegment·p0.999                             sample               13.989           us/op
+entities.EntitySerializerBenchmark.serializeZeroChildSegment:serializeZeroChildSegment·p0.9999                            sample               38.655           us/op
+entities.EntitySerializerBenchmark.serializeZeroChildSegment:serializeZeroChildSegment·p1.00                              sample              668.672           us/op
+entities.IdsBenchmark.segmentId_secureRandom                                                                              sample  2203805      14.661 ± 1.602   us/op
+entities.IdsBenchmark.segmentId_secureRandom:segmentId_secureRandom·p0.00                                                 sample                0.252           us/op
+entities.IdsBenchmark.segmentId_secureRandom:segmentId_secureRandom·p0.50                                                 sample                0.885           us/op
+entities.IdsBenchmark.segmentId_secureRandom:segmentId_secureRandom·p0.90                                                 sample                0.973           us/op
+entities.IdsBenchmark.segmentId_secureRandom:segmentId_secureRandom·p0.95                                                 sample                1.000           us/op
+entities.IdsBenchmark.segmentId_secureRandom:segmentId_secureRandom·p0.99                                                 sample                1.090           us/op
+entities.IdsBenchmark.segmentId_secureRandom:segmentId_secureRandom·p0.999                                                sample               15.155           us/op
+entities.IdsBenchmark.segmentId_secureRandom:segmentId_secureRandom·p0.9999                                               sample            42270.720           us/op
+entities.IdsBenchmark.segmentId_secureRandom:segmentId_secureRandom·p1.00                                                 sample           104988.672           us/op
+entities.IdsBenchmark.segmentId_threadLocalRandom                                                                         sample  1977464       5.100 ± 0.983   us/op
+entities.IdsBenchmark.segmentId_threadLocalRandom:segmentId_threadLocalRandom·p0.00                                       sample                0.086           us/op
+entities.IdsBenchmark.segmentId_threadLocalRandom:segmentId_threadLocalRandom·p0.50                                       sample                0.171           us/op
+entities.IdsBenchmark.segmentId_threadLocalRandom:segmentId_threadLocalRandom·p0.90                                       sample                0.175           us/op
+entities.IdsBenchmark.segmentId_threadLocalRandom:segmentId_threadLocalRandom·p0.95                                       sample                0.177           us/op
+entities.IdsBenchmark.segmentId_threadLocalRandom:segmentId_threadLocalRandom·p0.99                                       sample                0.193           us/op
+entities.IdsBenchmark.segmentId_threadLocalRandom:segmentId_threadLocalRandom·p0.999                                      sample                0.885           us/op
+entities.IdsBenchmark.segmentId_threadLocalRandom:segmentId_threadLocalRandom·p0.9999                                     sample            25116.901           us/op
+entities.IdsBenchmark.segmentId_threadLocalRandom:segmentId_threadLocalRandom·p1.00                                       sample            84017.152           us/op
+entities.IdsBenchmark.segmentId_threadLocalSecureRandom                                                                   sample  2149356      15.660 ± 1.674   us/op
+entities.IdsBenchmark.segmentId_threadLocalSecureRandom:segmentId_threadLocalSecureRandom·p0.00                           sample                0.251           us/op
+entities.IdsBenchmark.segmentId_threadLocalSecureRandom:segmentId_threadLocalSecureRandom·p0.50                           sample                0.877           us/op
+entities.IdsBenchmark.segmentId_threadLocalSecureRandom:segmentId_threadLocalSecureRandom·p0.90                           sample                0.971           us/op
+entities.IdsBenchmark.segmentId_threadLocalSecureRandom:segmentId_threadLocalSecureRandom·p0.95                           sample                1.002           us/op
+entities.IdsBenchmark.segmentId_threadLocalSecureRandom:segmentId_threadLocalSecureRandom·p0.99                           sample                1.104           us/op
+entities.IdsBenchmark.segmentId_threadLocalSecureRandom:segmentId_threadLocalSecureRandom·p0.999                          sample               32.809           us/op
+entities.IdsBenchmark.segmentId_threadLocalSecureRandom:segmentId_threadLocalSecureRandom·p0.9999                         sample            43126.902           us/op
+entities.IdsBenchmark.segmentId_threadLocalSecureRandom:segmentId_threadLocalSecureRandom·p1.00                           sample            98828.288           us/op
+entities.IdsBenchmark.traceId_secureRandom                                                                                sample  2078810      15.968 ± 1.311   us/op
+entities.IdsBenchmark.traceId_secureRandom:traceId_secureRandom·p0.00                                                     sample                0.153           us/op
+entities.IdsBenchmark.traceId_secureRandom:traceId_secureRandom·p0.50                                                     sample                0.686           us/op
+entities.IdsBenchmark.traceId_secureRandom:traceId_secureRandom·p0.90                                                     sample                1.100           us/op
+entities.IdsBenchmark.traceId_secureRandom:traceId_secureRandom·p0.95                                                     sample                1.132           us/op
+entities.IdsBenchmark.traceId_secureRandom:traceId_secureRandom·p0.99                                                     sample                1.174           us/op
+entities.IdsBenchmark.traceId_secureRandom:traceId_secureRandom·p0.999                                                    sample              671.631           us/op
+entities.IdsBenchmark.traceId_secureRandom:traceId_secureRandom·p0.9999                                                   sample            29527.864           us/op
+entities.IdsBenchmark.traceId_secureRandom:traceId_secureRandom·p1.00                                                     sample            52035.584           us/op
+entities.IdsBenchmark.traceId_threadLocalRandom                                                                           sample  2033263       4.920 ± 0.943   us/op
+entities.IdsBenchmark.traceId_threadLocalRandom:traceId_threadLocalRandom·p0.00                                           sample                0.082           us/op
+entities.IdsBenchmark.traceId_threadLocalRandom:traceId_threadLocalRandom·p0.50                                           sample                0.166           us/op
+entities.IdsBenchmark.traceId_threadLocalRandom:traceId_threadLocalRandom·p0.90                                           sample                0.170           us/op
+entities.IdsBenchmark.traceId_threadLocalRandom:traceId_threadLocalRandom·p0.95                                           sample                0.171           us/op
+entities.IdsBenchmark.traceId_threadLocalRandom:traceId_threadLocalRandom·p0.99                                           sample                0.179           us/op
+entities.IdsBenchmark.traceId_threadLocalRandom:traceId_threadLocalRandom·p0.999                                          sample                0.607           us/op
+entities.IdsBenchmark.traceId_threadLocalRandom:traceId_threadLocalRandom·p0.9999                                         sample            23986.176           us/op
+entities.IdsBenchmark.traceId_threadLocalRandom:traceId_threadLocalRandom·p1.00                                           sample           111935.488           us/op
+entities.IdsBenchmark.traceId_threadLocalSecureRandom                                                                     sample  2131075      15.079 ± 1.278   us/op
+entities.IdsBenchmark.traceId_threadLocalSecureRandom:traceId_threadLocalSecureRandom·p0.00                               sample                0.154           us/op
+entities.IdsBenchmark.traceId_threadLocalSecureRandom:traceId_threadLocalSecureRandom·p0.50                               sample                0.689           us/op
+entities.IdsBenchmark.traceId_threadLocalSecureRandom:traceId_threadLocalSecureRandom·p0.90                               sample                1.100           us/op
+entities.IdsBenchmark.traceId_threadLocalSecureRandom:traceId_threadLocalSecureRandom·p0.95                               sample                1.134           us/op
+entities.IdsBenchmark.traceId_threadLocalSecureRandom:traceId_threadLocalSecureRandom·p0.99                               sample                1.178           us/op
+entities.IdsBenchmark.traceId_threadLocalSecureRandom:traceId_threadLocalSecureRandom·p0.999                              sample              370.176           us/op
+entities.IdsBenchmark.traceId_threadLocalSecureRandom:traceId_threadLocalSecureRandom·p0.9999                             sample            30339.642           us/op
+entities.IdsBenchmark.traceId_threadLocalSecureRandom:traceId_threadLocalSecureRandom·p1.00                               sample            50528.256           us/op
+entities.TraceHeaderBenchmark.parse                                                                                       sample   152668       0.570 ± 0.022   us/op
+entities.TraceHeaderBenchmark.parse:parse·p0.00                                                                           sample                0.502           us/op
+entities.TraceHeaderBenchmark.parse:parse·p0.50                                                                           sample                0.533           us/op
+entities.TraceHeaderBenchmark.parse:parse·p0.90                                                                           sample                0.557           us/op
+entities.TraceHeaderBenchmark.parse:parse·p0.95                                                                           sample                0.573           us/op
+entities.TraceHeaderBenchmark.parse:parse·p0.99                                                                           sample                0.921           us/op
+entities.TraceHeaderBenchmark.parse:parse·p0.999                                                                          sample                4.661           us/op
+entities.TraceHeaderBenchmark.parse:parse·p0.9999                                                                         sample               20.407           us/op
+entities.TraceHeaderBenchmark.parse:parse·p1.00                                                                           sample              583.680           us/op
+entities.TraceHeaderBenchmark.serialize                                                                                   sample   103089       0.968 ± 0.261   us/op
+entities.TraceHeaderBenchmark.serialize:serialize·p0.00                                                                   sample                0.737           us/op
+entities.TraceHeaderBenchmark.serialize:serialize·p0.50                                                                   sample                0.769           us/op
+entities.TraceHeaderBenchmark.serialize:serialize·p0.90                                                                   sample                0.796           us/op
+entities.TraceHeaderBenchmark.serialize:serialize·p0.95                                                                   sample                0.817           us/op
+entities.TraceHeaderBenchmark.serialize:serialize·p0.99                                                                   sample                1.240           us/op
+entities.TraceHeaderBenchmark.serialize:serialize·p0.999                                                                  sample               12.020           us/op
+entities.TraceHeaderBenchmark.serialize:serialize·p0.9999                                                                 sample              559.886           us/op
+entities.TraceHeaderBenchmark.serialize:serialize·p1.00                                                                   sample             7823.360           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark                                       sample   169202       0.162 ± 0.025   us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark:defaultSamplingRuleBenchmark·p0.00    sample                0.136           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark:defaultSamplingRuleBenchmark·p0.50    sample                0.140           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark:defaultSamplingRuleBenchmark·p0.90    sample                0.146           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark:defaultSamplingRuleBenchmark·p0.95    sample                0.154           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark:defaultSamplingRuleBenchmark·p0.99    sample                0.186           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark:defaultSamplingRuleBenchmark·p0.999   sample                0.577           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark:defaultSamplingRuleBenchmark·p0.9999  sample               13.397           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.defaultSamplingRuleBenchmark:defaultSamplingRuleBenchmark·p1.00    sample              700.416           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark                                          sample   180016       0.264 ± 0.016   us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark:noSampleSamplingBenchmark·p0.00          sample                0.233           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark:noSampleSamplingBenchmark·p0.50          sample                0.247           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark:noSampleSamplingBenchmark·p0.90          sample                0.251           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark:noSampleSamplingBenchmark·p0.95          sample                0.256           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark:noSampleSamplingBenchmark·p0.99          sample                0.326           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark:noSampleSamplingBenchmark·p0.999         sample                1.130           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark:noSampleSamplingBenchmark·p0.9999        sample               14.576           us/op
+strategy.sampling.CentralizedSamplingStrategyBenchmark.noSampleSamplingBenchmark:noSampleSamplingBenchmark·p1.00          sample              614.400           us/op
+```
+
+</p>
+</details>
+
 ### Score Comparison By Version
+
+Note that beginning with version 2.7.x, benchmarks are only ran with the Sample Time and Throughput modes.
 
 #### Benchmark Mode: Average Time
 <details><summary>Show</summary>
@@ -1694,7 +2094,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 </p>
 </details>
 
-#### Benchmark Mode: Sample
+#### Benchmark Mode: Sample Time
 <details><summary>Show</summary>
 <p>
 
@@ -1708,6 +2108,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <th>Version 2.4.x</th>
 <th>Version 2.5.x</th>
 <th>Version 2.6.x</th>
+<th>Version 2.7.x</th>
 </tr>
 </thead>
 <tbody>
@@ -1721,6 +2122,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 1055.618 ± 37.425 ns/op</td>
 <td> 1015.217 ±(99.9%) 25.865 ns/op</td>
 <td> 1212.346 ± 44.058 ns/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -1731,6 +2133,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 1718.683 ± 48.921 ns/op</td>
 <td> 1637.734 ±(99.9%) 28.429 ns/op</td>
 <td> 1781.775 ± 36.437 ns/op</td>
+<td> 1.098 ±(99.9%) 0.074 us/op</td>
 </tr>
 <tr>
 
@@ -1741,6 +2144,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 2831.574 ± 60.508 ns/op</td>
 <td> 3010.789 ±(99.9%) 38.928 ns/op</td>
 <td> 3302.058 ± 68.140 ns/op</td>
+<td> 1.476 ±(99.9%) 0.093 us/op</td>
 </tr>
 <tr>
 
@@ -1751,6 +2155,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 9262.353 ± 62.869 ns/op</td>
 <td> 10001.042 ±(99.9%) 68.036 ns/op</td>
 <td> 9660.018 ± 76.900 ns/op</td>
+<td> 9.413 ±(99.9%) 0.120 us/op</td>
 </tr>
 <tr>
 
@@ -1761,6 +2166,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 12068.384 ± 72.265 ns/op</td>
 <td> 13283.377 ±(99.9%) 61.617 ns/op</td>
 <td> 13611.156 ± 88.468 ns/op</td>
+<td> 12.491 ±(99.9%) 0.183 us/op</td>
 </tr>
 <tr>
 
@@ -1771,6 +2177,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 1741.153 ± 41.595 ns/op</td>
 <td> 1726.402 ±(99.9%) 37.356 ns/op</td>
 <td> 1882.126 ± 40.828 ns/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -1781,6 +2188,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 911.156 ± 37.990 ns/op</td>
 <td> 953.963 ±(99.9%) 24.556 ns/op</td>
 <td> 1116.734 ± 43.161 ns/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -1791,6 +2199,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 941.469 ± 38.485 ns/op</td>
 <td> 1040.476 ±(99.9%) 26.411 ns/op</td>
 <td> 1096.616 ± 42.559 ns/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -1801,6 +2210,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 623.994 ± 20.051 ns/op</td>
 <td> 649.915 ±(99.9%) 17.886 ns/op</td>
 <td> 686.052 ± 22.659 ns/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -1811,6 +2221,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 7490.715 ± 51.209 ns/op</td>
 <td> 8142.884 ±(99.9%) 45.146 ns/op</td>
 <td> 7989.832 ± 72.379 ns/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -1821,6 +2232,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 7233.746 ± 50.534 ns/op</td>
 <td> 7915.172 ±(99.9%) 47.638 ns/op</td>
 <td> 7723.373 ± 43.085 ns/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -1831,6 +2243,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 9171.063 ± 67.154 ns/op</td>
 <td> 10086.163 ±(99.9%) 40.600 ns/op</td>
 <td> 10085.793 ± 61.679 ns/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -1841,6 +2254,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 378.912 ± 13.123 ns/op</td>
 <td> 552.085 ±(99.9%) 18.241 ns/op</td>
 <td> 504.454 ± 12.654 ns/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -1851,6 +2265,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 365.118 ± 10.849 ns/op</td>
 <td> 500.227 ±(99.9%) 22.688 ns/op</td>
 <td> 525.114 ± 16.548 ns/op</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -1861,6 +2276,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 209.722 ± 18.189 ns/op</td>
 <td> 216.369 ±(99.9%) 8.575 ns/op</td>
 <td> 219.837 ± 12.489 ns/op</td>
+<td> 0.215 ±(99.9%) 0.020 us/op</td>
 </tr>
 <tr>
 
@@ -1871,6 +2287,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 191.968 ± 0.673 ns/op</td>
 <td> 183.280 ±(99.9%) 17.504 ns/op</td>
 <td> 191.911 ± 11.832 ns/op</td>
+<td> 0.199 ±(99.9%) 0.032 us/op</td>
 </tr>
 <tr>
 
@@ -1881,6 +2298,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 1167.917 ± 55.308 ns/op</td>
 <td> 1043.138 ±(99.9%) 43.046 ns/op</td>
 <td> 1063.388 ± 33.487 ns/op</td>
+<td> 1.316 ± 0.208 us/op</td>
 </tr>
 <tr>
 
@@ -1891,6 +2309,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 583.289 ± 22.434 ns/op</td>
 <td> 541.791 ±(99.9%) 22.920 ns/op</td>
 <td> 728.920 ± 45.619 ns/op</td>
+<td> 0.648 ± 0.020 us/op</td>
 </tr>
 <tr>
 
@@ -1901,6 +2320,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 87.637 ± 7.405 ns/op</td>
 <td> 88.174 ±(99.9%) 8.075 ns/op</td>
 <td> 84.621 ±  3.869 ns/op</td>
+<td> 0.141 ± 0.007 us/op</td>
 </tr>
 <tr>
 
@@ -1911,6 +2331,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 831.644 ± 29.341 ns/op</td>
 <td> 793.091 ±(99.9%) 7.267 ns/op</td>
 <td> 831.289 ± 24.478 ns/op</td>
+<td> 0.902 ± 0.030 us/op</td>
 </tr>
 <tr>
 
@@ -1921,6 +2342,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 164.430 ± 0.627 ns/op</td>
 <td> 163.341 ±(99.9%) 9.606 ns/op</td>
 <td> 169.080 ± 10.634 ns/op</td>
+<td> 0.220 ± 0.013 us/op</td>
 </tr>
 <tr>
 
@@ -1931,6 +2353,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 10913.147 ± 54.193 ns/op</td>
 <td> 11135.491 ±(99.9%) 34.807 ns/op</td>
 <td> 12725.970 ± 62.728 ns/op</td>
+<td> 10.798 ±(99.9%) 0.102 us/op</td>
 </tr>
 <tr>
 
@@ -1941,6 +2364,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 10367.976 ± 41.548 ns/op</td>
 <td> 10591.299 ±(99.9%) 45.417 ns/op</td>
 <td> 12185.094 ± 52.048 ns/op</td>
+<td> 10.456 ±(99.9%) 0.100 us/op</td>
 </tr>
 <tr>
 
@@ -1951,6 +2375,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 5178.619 ± 24.284 ns/op</td>
 <td> 5047.245 ±(99.9%) 34.059 ns/op</td>
 <td> 5744.454 ± 29.855 ns/op</td>
+<td> 5.251 ±(99.9%) 0.104 us/op</td>
 </tr>
 <tr>
 
@@ -1961,6 +2386,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 9024.675 ± 40.063 ns/op</td>
 <td> 9187.052 ±(99.9%) 47.474 ns/op</td>
 <td> 10403.354 ± 54.450 ns/op</td>
+<td> 8.946 ±(99.9%) 0.095 us/op</td>
 </tr>
 <tr>
 
@@ -1971,6 +2397,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 8661.668 ± 36.189 ns/op</td>
 <td> 8765.936 ±(99.9%) 38.804 ns/op</td>
 <td> 10139.015 ± 45.384 ns/op</td>
+<td> 8.628 ±(99.9%) 0.077 us/op</td>
 </tr>
 <tr>
 
@@ -1981,6 +2408,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 7058.556 ± 32.718 ns/op</td>
 <td> 7156.495 ±(99.9%) 33.745 ns/op</td>
 <td> 8221.750 ± 46.964 ns/op</td>
+<td> 7.010 ±(99.9%) 0.099 us/op</td>
 </tr>
 <tr>
 
@@ -1991,6 +2419,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 6887.692 ± 31.219 ns/op</td>
 <td> 7105.078 ±(99.9%) 35.192 ns/op</td>
 <td> 8112.979 ± 36.645 ns/op</td>
+<td> 6.808 ±(99.9%) 0.093 us/op</td>
 </tr>
 <tr>
 
@@ -2001,6 +2430,51 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 3070.852 ± 29.020 ns/op</td>
 <td> 3168.870 ±(99.9%) 25.759 ns/op</td>
 <td> 3472.833 ± 30.077 ns/op</td>
+<td> 3.056 ±(99.9%) 0.063 us/op</td>
+</tr>
+<tr>
+
+<td>entities.IdsBenchmark.segmentId_threadLocalSecureRandom</td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> 15.660 ±(99.9%) 1.674 us/op</td>
+</tr>
+<tr>
+
+<td>entities.IdsBenchmark.traceId_threadLocalSecureRandom</td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> 15.079 ±(99.9%) 1.278 us/op</td>
+</tr>
+<tr>
+
+<td>entities.TraceHeaderBenchmark.parse</td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> 0.570 ±(99.9%) 0.022 us/op</td>
+</tr>
+<tr>
+
+<td>entities.TraceHeaderBenchmark.serialize</td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> 0.968 ±(99.9%) 0.261 us/op</td>
 </tr>
 <tr>
 
@@ -2011,6 +2485,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 149.325 ± 0.470 ns/op</td>
 <td> 154.190 ±(99.9%) 0.403 ns/op</td>
 <td> 156.572 ± 10.109 ns/op</td>
+<td> 0.162 ±(99.9%) 0.025 us/op</td>
 </tr>
 <tr>
 
@@ -2021,6 +2496,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 262.593 ± 15.510 ns/op</td>
 <td> 253.887 ±(99.9%) 10.525 ns/op</td>
 <td> 257.972 ± 9.606 ns/op</td>
+<td> 0.264 ±(99.9%) 0.016 us/op</td>
 </tr>
 <tr>
 
@@ -2031,6 +2507,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 110.714 ± 6.621 ns/op</td>
 <td> 112.538 ±(99.9%) 0.356 ns/op</td>
 <td> 107.105 ± 5.449 ns/op</td>
+<td> 0.115 ± 0.004 us/op</td>
 </tr>
 <tr>
 
@@ -2041,6 +2518,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 208.720 ± 12.643 ns/op</td>
 <td> 206.876 ±(99.9%) 0.707 ns/op</td>
 <td> 247.312 ± 106.604 ns/op</td>
+<td> 0.217 ± 0.022 us/op</td>
 </tr>
 </tbody>
 </table>
@@ -2415,6 +2893,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <th>Version 2.4.x</th>
 <th>Version 2.5.x</th>
 <th>Version 2.6.x</th>
+<th>Version 2.7.x</th>
 </tr>
 </thead>
 <tbody>
@@ -2428,6 +2907,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.001 ± 0.001 ops/ns</td>
 <td> 0.001 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.001 ± 0.001 ops/ns</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2438,6 +2918,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.001 ± 0.001 ops/ns</td>
 <td> 0.001 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.001 ± 0.001 ops/ns</td>
+<td> 1.078 ±(99.9%) 0.007 ops/us</td>
 </tr>
 <tr>
 
@@ -2448,6 +2929,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻³ ops/ns</td>
 <td> ≈ 10⁻³ ops/ns</td>
 <td> ≈ 10⁻³ ops/ns</td>
+<td> 0.579 ±(99.9%) 0.608 ops/us</td>
 </tr>
 <tr>
 
@@ -2458,6 +2940,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
+<td> 0.109 ±(99.9%) 0.002 ops/us</td>
 </tr>
 <tr>
 
@@ -2468,6 +2951,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
+<td> 0.081 ±(99.9%) 0.002 ops/us</td>
 </tr>
 <tr>
 
@@ -2478,6 +2962,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.001 ± 0.001 ops/ns</td>
 <td> 0.001 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.001 ± 0.001 ops/ns</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2488,6 +2973,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.001 ± 0.001 ops/ns</td>
 <td> 0.001 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.001 ± 0.001 ops/ns</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2498,6 +2984,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.001 ± 0.001 ops/ns</td>
 <td> 0.001 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.001 ± 0.001 ops/ns</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2508,6 +2995,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.002 ± 0.001 ops/ns</td>
 <td> 0.002 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.002 ± 0.001 ops/ns</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2518,6 +3006,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2528,6 +3017,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2538,6 +3028,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2548,6 +3039,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.003 ± 0.001 ops/ns</td>
 <td> 0.002 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.002 ± 0.001 ops/ns</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2558,6 +3050,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.003 ± 0.001 ops/ns</td>
 <td> 0.002 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.002 ± 0.001 ops/ns</td>
+<td> </td>
 </tr>
 <tr>
 
@@ -2568,6 +3061,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.005 ± 0.001 ops/ns</td>
 <td> 0.005 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.005 ± 0.001 ops/ns</td>
+<td> 4.635 ±(99.9%) 0.169 ops/us</td>
 </tr>
 <tr>
 
@@ -2578,6 +3072,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.006 ± 0.001 ops/ns</td>
 <td> 0.005 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.006 ± 0.001 ops/ns</td>
+<td> 5.515 ±(99.9%) 0.224 ops/us</td>
 </tr>
 <tr>
 
@@ -2588,6 +3083,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.001 ± 0.001 ops/ns</td>
 <td> 0.001 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.001 ± 0.001 ops/ns</td>
+<td> 1.032 ± 0.016 ops/us</td>
 </tr>
 <tr>
 
@@ -2598,6 +3094,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.002 ± 0.001 ops/ns</td>
 <td> 0.002 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.002 ± 0.001 ops/ns</td>
+<td> 1.525 ± 0.077 ops/us</td>
 </tr>
 <tr>
 
@@ -2608,6 +3105,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.011 ± 0.001 ops/ns</td>
 <td> 0.012 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.012 ± 0.001 ops/ns</td>
+<td> 7.257 ± 0.313 ops/us</td>
 </tr>
 <tr>
 
@@ -2618,6 +3116,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.001 ± 0.001 ops/ns</td>
 <td> 0.001 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.001 ± 0.001 ops/ns</td>
+<td> 1.113 ± 0.100 ops/us</td>
 </tr>
 <tr>
 
@@ -2628,6 +3127,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.006 ± 0.001 ops/ns</td>
 <td> 0.006 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.006 ± 0.001 ops/ns</td>
+<td> 4.586 ± 0.449 ops/us</td>
 </tr>
 <tr>
 
@@ -2638,6 +3138,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
+<td> 0.093 ±(99.9%) 0.002 ops/us</td>
 </tr>
 <tr>
 
@@ -2648,6 +3149,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
+<td> 0.097 ±(99.9%) 0.002 ops/us</td>
 </tr>
 <tr>
 
@@ -2658,6 +3160,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
+<td> 0.206 ±(99.9%) 0.003 ops/us</td>
 </tr>
 <tr>
 
@@ -2668,6 +3171,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
+<td> 0.115 ±(99.9%) 0.002 ops/us</td>
 </tr>
 <tr>
 
@@ -2678,6 +3182,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
+<td> 0.115 ±(99.9%) 0.002 ops/us</td>
 </tr>
 <tr>
 
@@ -2688,6 +3193,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
+<td> 0.144 ±(99.9%) 0.004 ops/us</td>
 </tr>
 <tr>
 
@@ -2698,6 +3204,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
+<td> 0.146 ±(99.9%) 0.001 ops/us</td>
 </tr>
 <tr>
 
@@ -2708,6 +3215,51 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> ≈ 10⁻³ ops/ns</td>
 <td> ≈ 10⁻³ ops/ns</td>
 <td> ≈ 10⁻⁴ ops/ns</td>
+<td> 0.325 ±(99.9%) 0.007 ops/us</td>
+</tr>
+<tr>
+
+<td>entities.IdsBenchmark.segmentId_threadLocalSecureRandom</td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> 2.232 ±(99.9%) 0.108 ops/us</td>
+</tr>
+<tr>
+
+<td>entities.IdsBenchmark.traceId_threadLocalSecureRandom</td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> 2.205 ±(99.9%) 0.116 ops/us</td>
+</tr>
+<tr>
+
+<td>entities.TraceHeaderBenchmark.parse</td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> 1.958 ±(99.9%) 0.004 ops/us</td>
+</tr>
+<tr>
+
+<td>entities.TraceHeaderBenchmark.serialize</td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td> 1.351 ±(99.9%) 0.007 ops/us</td>
 </tr>
 <tr>
 
@@ -2718,6 +3270,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.009 ± 0.001 ops/ns</td>
 <td> 0.009 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.008 ± 0.001 ops/ns</td>
+<td> 9.025 ±(99.9%) 0.018 ops/us</td>
 </tr>
 <tr>
 
@@ -2728,6 +3281,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.005 ± 0.001 ops/ns</td>
 <td> 0.005 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.005 ± 0.001 ops/ns</td>
+<td> 4.731 ±(99.9%) 0.318 ops/us</td>
 </tr>
 <tr>
 
@@ -2738,6 +3292,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.015 ± 0.001 ops/ns</td>
 <td> 0.015 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.015 ± 0.001 ops/ns</td>
+<td> 14.637 ±(99.9%) 0.294 ops/us</td>
 </tr>
 <tr>
 
@@ -2748,6 +3303,7 @@ strategy.sampling.LocalizedSamplingStrategyBenchmark.noSampleSamplingBenchmark  
 <td> 0.006 ± 0.001 ops/ns</td>
 <td> 0.006 ±(99.9%) 0.001 ops/ns</td>
 <td> 0.006 ± 0.001 ops/ns</td>
+<td> 6.061 ±(99.9%) 0.073 ops/us</td>
 </tr>
 </tbody>
 </table>

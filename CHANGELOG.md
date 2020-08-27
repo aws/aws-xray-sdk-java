@@ -1,5 +1,31 @@
 # Change Log
 
+## 2.7.0 - 2020-08-25
+- Add beginSegmentWithSampling API
+[PR 196](https://github.com/aws/aws-xray-sdk-java/pull/196)
+- Changed containerId to container_id in ECS plugin
+[PR 195](https://github.com/aws/aws-xray-sdk-java/pull/195)
+- Improved performance of withDefaultPlugins
+[PR 194](https://github.com/aws/aws-xray-sdk-java/pull/194)
+- Reduced timeout and logging from IMDS failure
+[PR 192](https://github.com/aws/aws-xray-sdk-java/pull/192)
+- Debug log the stacktrace for LOG_ERROR strategy
+[PR 191](https://github.com/aws/aws-xray-sdk-java/pull/191)
+- Made SqlSubsegments class exception-safe
+[PR 189](https://github.com/aws/aws-xray-sdk-java/pull/189)
+- Added utility class for creating SQL subsegments
+[PR 186](https://github.com/aws/aws-xray-sdk-java/pull/186)
+- Deprecated Dummy(Sub)Segments in favor of NoOps
+[PR 183](https://github.com/aws/aws-xray-sdk-java/pull/183)
+- Return no-op segments instead of null when context isn't found
+[PR 180](https://github.com/aws/aws-xray-sdk-java/pull/180)
+- Fixed behavior of exception throwing on invalid address in DaemonConfig
+[PR 179](https://github.com/aws/aws-xray-sdk-java/pull/179)
+- Fixed bug where subsegments operations used a different lock
+[PR 182](https://github.com/aws/aws-xray-sdk-java/pull/182)
+- Changed AWS SDKs to runtime dependencies in AWS SDK instrumentation modules
+[PR 167](https://github.com/aws/aws-xray-sdk-java/pull/167)
+
 ## 2.6.1 - 2020-06-20
 - Fixed JSON parsing logic for Centralized Sampling
 [PR 171](https://github.com/aws/aws-xray-sdk-java/pull/171)
