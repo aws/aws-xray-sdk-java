@@ -855,6 +855,8 @@ public class AWSXRayRecorderTest {
 
         Segment segment = AWSXRay.beginSegmentWithSampling("test");
         assertThat(segment.isSampled()).isTrue();
+        assertThat(segment.getAws().get("xray")).isInstanceOfSatisfying(
+            Map.class, xray -> assertThat(xray.get("rule_name")).isEqualTo("rule"));
     }
 
     @Test
