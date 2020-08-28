@@ -405,7 +405,12 @@ public class AWSXRayRecorder {
         final SamplingRequest samplingRequest = new SamplingRequest(name, null, null, null, this.origin);
         final SamplingResponse samplingResponse = this.getSamplingStrategy().shouldTrace(samplingRequest);
         if (samplingResponse.isSampled()) {
-            return beginSegment(name);
+            Segment segment = beginSegment(name);
+            if (samplingResponse.getRuleName().isPresent()) {
+                segment.setRuleName(samplingResponse.getRuleName().get());
+            }
+
+            return segment;
         }
 
         return beginNoOpSegment();
