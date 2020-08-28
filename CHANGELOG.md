@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.7.1 - 2020-08-28
+- Fix ClassCastException caused by change in 2.7.0
+[PR 202](https://github.com/aws/aws-xray-sdk-java/pull/202)
+- Add rule_name attribute to segments made with beginSegmentWithSampling
+[PR 204](https://github.com/aws/aws-xray-sdk-java/pull/204)
+
 ## 2.7.0 - 2020-08-25
 - Add beginSegmentWithSampling API
 [PR 196](https://github.com/aws/aws-xray-sdk-java/pull/196)
