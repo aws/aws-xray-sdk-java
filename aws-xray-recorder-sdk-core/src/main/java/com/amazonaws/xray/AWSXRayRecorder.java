@@ -475,7 +475,7 @@ public class AWSXRayRecorder {
                          + "named '" + current.getName() + "' to start new segment named '" + segment.getName() + "'.");
         }
 
-        segment.setAws(getAwsRuntimeContext());
+        segment.putAllAws(getAwsRuntimeContext());
         if (origin != null) {
             segment.setOrigin(origin);
         }

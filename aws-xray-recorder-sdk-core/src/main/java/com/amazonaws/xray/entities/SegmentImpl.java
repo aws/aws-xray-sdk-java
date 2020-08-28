@@ -149,7 +149,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
         checkAlreadyEmitted();
         if (getAws().get("xray") instanceof Map) {
             @SuppressWarnings("unchecked")
-            Map<String, Object> a = (HashMap<String, Object>) getAws().get("xray");
+            Map<String, Object> a = (Map<String, Object>) getAws().get("xray");
             HashMap<String, Object> referA = new HashMap<>();
             if (a != null) {
                 referA.putAll(a);

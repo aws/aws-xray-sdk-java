@@ -334,6 +334,26 @@ public class AWSXRayRecorderTest {
             captured.getEndTime()).toString(), captured.streamSerialize(), JSONCompareMode.NON_EXTENSIBLE);
     }
 
+    @Test
+    public void testBeginSegment_awsRuntimeContextNotMutableBySegment() {
+        Segment segment = AWSXRay.beginSegment("test");
+        segment.putAws("foo", "bar");
+        assertThat(segment.getAws().get("foo")).isEqualTo("bar");
+        AWSXRay.endSegment();
+
+        segment = AWSXRay.beginSegment("test");
+        assertThat(segment.getAws().get("foo")).isNull();
+        AWSXRay.endSegment();
+    }
+
+    @Test
+    public void testBeginSegment_canSetRuleName() {
+        Segment segment = AWSXRay.beginSegment("test");
+        segment.setRuleName("rule");
+        assertThat(segment.getAws().get("xray")).isInstanceOfSatisfying(
+            Map.class, xray -> assertThat(xray.get("rule_name")).isEqualTo("rule"));
+    }
+
     private ObjectNode expectedLambdaSubsegment(
         TraceID traceId, String segmentId, String subsegmentId, double startTime, double endTime) {
         ObjectNode expected = JsonNodeFactory.instance.objectNode();
