@@ -13,13 +13,8 @@ plugins {
     id("org.ajoberstar.grgit")
 }
 
-
-val buildAllTask = tasks.register("buildAll")
-
 tasks {
     val prepareRelease by registering {
-        dependsOn(buildAllTask)
-
         doLast {
             val readmeText = file("README.md").readText()
             val updatedText = readmeText.replace("<version>[^<]+<\\/version>".toRegex(), "<version>${project.version}</version>")
@@ -29,10 +24,6 @@ tasks {
         }
     }
 
-    named("snapshotSetup") {
-        dependsOn(buildAllTask)
-    }
-
     named("finalSetup") {
         dependsOn(prepareRelease)
     }
@@ -40,7 +31,7 @@ tasks {
 
 val releaseTask = tasks.named("release")
 releaseTask.configure {
-    mustRunAfter(tasks.named("snapshotSetup"), tasks.named("prepareRelease"))
+    mustRunAfter(tasks.named("snapshotSetup"), tasks.named("finalSetup"))
 }
 
 release {
@@ -217,10 +208,6 @@ allprojects {
 
     plugins.withId("maven-publish") {
         plugins.apply("signing")
-
-        buildAllTask.configure {
-            dependsOn(tasks.named("build"))
-        }
 
         releaseTask.configure {
             finalizedBy(tasks.named("publish"))
