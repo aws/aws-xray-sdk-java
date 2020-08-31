@@ -1,3 +1,4 @@
+import nebula.plugin.release.git.opinion.Strategies
 import net.ltgt.gradle.errorprone.errorprone
 import nl.javadude.gradle.plugins.license.LicenseExtension
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
@@ -8,27 +9,42 @@ plugins {
     id("net.ltgt.errorprone") apply false
     id("org.checkerframework") apply false
 
+    id("nebula.release")
     id("org.ajoberstar.grgit")
-    id("org.ajoberstar.reckon")
 }
 
-reckon {
-    scopeFromProp()
-    snapshotFromProp()
-}
 
-val prepareRelease = tasks.register("prepareRelease") {
-    doLast {
-        val readmeText = file("README.md").readText()
-        val updatedText = readmeText.replace("<version>[^<]+<\\/version>".toRegex(), "<version>${project.version}</version>")
-        file("README.md").writeText(updatedText)
+val buildAllTask = tasks.register("buildAll")
 
-        grgit.commit(mapOf("message" to "Releasing ${project.version}", "all" to true))
+tasks {
+    val prepareRelease by registering {
+        dependsOn(buildAllTask)
+
+        doLast {
+            val readmeText = file("README.md").readText()
+            val updatedText = readmeText.replace("<version>[^<]+<\\/version>".toRegex(), "<version>${project.version}</version>")
+            file("README.md").writeText(updatedText)
+
+            grgit.commit(mapOf("message" to "Releasing ${project.version}", "all" to true))
+        }
+    }
+
+    named("snapshotSetup") {
+        dependsOn(buildAllTask)
+    }
+
+    named("finalSetup") {
+        dependsOn(prepareRelease)
     }
 }
 
-val release = tasks.register("release") {
-    dependsOn(prepareRelease)
+val releaseTask = tasks.named("release")
+releaseTask.configure {
+    mustRunAfter(tasks.named("snapshotSetup"), tasks.named("prepareRelease"))
+}
+
+release {
+    defaultVersionStrategy = Strategies.getSNAPSHOT()
 }
 
 allprojects {
@@ -202,17 +218,12 @@ allprojects {
     plugins.withId("maven-publish") {
         plugins.apply("signing")
 
-        prepareRelease.configure {
+        buildAllTask.configure {
             dependsOn(tasks.named("build"))
         }
 
-        val publish = tasks.named("publish")
-        publish.configure {
-            mustRunAfter(prepareRelease)
-        }
-
-        release.configure {
-            dependsOn(publish)
+        releaseTask.configure {
+            finalizedBy(tasks.named("publish"))
         }
 
         // Don't publish Gradle metadata for now until verifying they work well.
@@ -280,8 +291,8 @@ allprojects {
                     url = uri(if (isSnapshot) "https://aws.oss.sonatype.org/content/repositories/snapshots/"
                         else "https://aws.oss.sonatype.org/service/local/staging/deploy/maven2")
                     credentials {
-                        username = "${findProperty("aws.sonatype.username")}"
-                        password = "${findProperty("aws.sonatype.password")}"
+                        username = "${findProperty("aws.sonatype.username") ?: System.getenv("SONATYPE_USERNAME")}"
+                        password = "${findProperty("aws.sonatype.password") ?: System.getenv("SONATYPE_PASSWORD")}"
                     }
                 }
             }

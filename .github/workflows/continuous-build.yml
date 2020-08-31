@@ -32,7 +32,7 @@ jobs:
           path: ~/.gradle/wrapper
           key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
       - name: Execute Gradle build
-        run: ./gradlew build --stacktrace
+        run: ./gradlew snapshot --stacktrace
         shell: bash
         env:
           CI: true

@@ -1,6 +1,7 @@
 pluginManagement {
     plugins {
         id("com.github.hierynomus.license") version "0.15.0"
+        id("nebula.release") version "15.1.0"
         id("net.ltgt.errorprone") version "1.2.1"
         id("org.ajoberstar.grgit") version "4.0.2"
         id("org.ajoberstar.reckon") version "0.12.0"
