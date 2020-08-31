@@ -55,8 +55,13 @@ jobs:
         with:
           path: ~/.gradle/caches
           key: gradle-caches-${{ hashFiles('**/*.gradle.kts') }}
-       - name: Execute Gradle publish
-         run: ./gradlew snapshot --stacktrace
-         shell: bash
-         env:
-           CI: true
+      - name: Cache Gradle Wrapper
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper
+          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Execute Gradle publish
+        run: ./gradlew snapshot --stacktrace
+        shell: bash
+        env:
+          CI: true
