@@ -4,7 +4,6 @@ pluginManagement {
         id("nebula.release") version "15.1.0"
         id("net.ltgt.errorprone") version "1.2.1"
         id("org.ajoberstar.grgit") version "4.0.2"
-        id("org.ajoberstar.reckon") version "0.12.0"
         id("org.checkerframework") version "0.5.4"
     }
 }
