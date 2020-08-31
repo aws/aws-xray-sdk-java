@@ -286,11 +286,14 @@ allprojects {
         }
 
         tasks.withType<Sign>().configureEach {
-            onlyIf { !isSnapshot }
+            onlyIf { System.getenv("CI") == "true" }
         }
 
         configure<SigningExtension> {
-            useGpgCmd()
+            val signingKeyId = System.getenv("GPG_KEY_ID")
+            val signingKey = System.getenv("GPG_PRIVATE_KEY")
+            val signingPassword = System.getenv("GPG_PASSWORD")
+            useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
             sign(the<PublishingExtension>().publications["maven"])
         }
     }
