@@ -43,6 +43,23 @@ public class IdsBenchmark {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
+    private static final TraceID TRACE_ID = TraceID.create();
+
+    @Benchmark
+    public TraceID traceId_create() {
+        return TraceID.create();
+    }
+
+    @Benchmark
+    public TraceID traceId_parse() {
+        return TraceID.fromString("1-57ff426a-80c11c39b0c928905eb0828d");
+    }
+
+    @Benchmark
+    public String traceId_serialize() {
+        return TRACE_ID.toString();
+    }
+
     @Benchmark
     public BigInteger traceId_secureRandom() {
         return new BigInteger(96, SECURE_RANDOM);
@@ -77,7 +94,7 @@ public class IdsBenchmark {
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
             .addProfiler("gc")
-            .include(".*" + IdsBenchmark.class.getSimpleName())
+            .include(".*" + IdsBenchmark.class.getSimpleName() + ".*_(create|parse|serialize)")
             .build();
 
         new Runner(opt).run();

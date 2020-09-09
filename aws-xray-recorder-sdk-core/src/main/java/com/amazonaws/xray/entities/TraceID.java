@@ -16,13 +16,18 @@
 package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.ThreadLocalStorage;
+import com.amazonaws.xray.internal.RecyclableBuffers;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.time.Instant;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class TraceID {
 
-    private static final TraceID INVALID = new TraceID(0, BigInteger.ZERO);
+    private static final String INVALID_START_TIME = "00000000";
+    private static final String INVALID_NUMBER = "000000000000000000000000";
+
+    private static final TraceID INVALID = new TraceID(INVALID_START_TIME, INVALID_NUMBER);
 
     /**
      * Returns a new {@link TraceID} which represents the start of a new trace.
@@ -54,15 +59,15 @@ public class TraceID {
         }
 
         String startTimePart = xrayTraceId.substring(TRACE_ID_DELIMITER_INDEX_1 + 1, TRACE_ID_DELIMITER_INDEX_2);
-        String randomPart = xrayTraceId.substring(TRACE_ID_DELIMITER_INDEX_2 + 1, TRACE_ID_LENGTH);
-
-        final TraceID result;
-        try {
-            result = new TraceID(Long.valueOf(startTimePart, 16), new BigInteger(randomPart, 16));
-        } catch (NumberFormatException e) {
+        if (!isHex(startTimePart)) {
             return TraceID.create();
         }
-        return result;
+        String randomPart = xrayTraceId.substring(TRACE_ID_DELIMITER_INDEX_2 + 1, TRACE_ID_LENGTH);
+        if (!isHex(randomPart)) {
+            return TraceID.create();
+        }
+
+        return new TraceID(startTimePart, randomPart);
     }
 
     /**
@@ -80,8 +85,8 @@ public class TraceID {
     private static final char VERSION = '1';
     private static final char DELIMITER = '-';
 
-    private BigInteger number;
-    private long startTime;
+    private String numberHex;
+    private String startTimeHex;
 
     /**
      * @deprecated Use {@link #create()}.
@@ -96,39 +101,40 @@ public class TraceID {
      */
     @Deprecated
     public TraceID(long startTime) {
-        number = new BigInteger(96, ThreadLocalStorage.getRandom());
-        this.startTime = startTime;
+        SecureRandom random = ThreadLocalStorage.getRandom();
+
+        // nextBytes much faster than calling nextInt multiple times when using SecureRandom
+        byte[] randomBytes = RecyclableBuffers.bytes(12);
+        random.nextBytes(randomBytes);
+        numberHex = bytesToBase16String(randomBytes);
+        this.startTimeHex = intToBase16String((int) startTime);
     }
 
-    private TraceID(long startTime, BigInteger number) {
-        this.startTime = startTime;
-        this.number = number;
+    private TraceID(String startTimeHex, String numberHex) {
+        this.startTimeHex = startTimeHex;
+        this.numberHex = numberHex;
     }
 
     @Override
     public String toString() {
-        String paddedNumber = padLeft(number.toString(16), 24);
-        String startTime = padLeft(Long.toHexString(this.startTime), 8);
-        return "" + VERSION + DELIMITER + startTime + DELIMITER + paddedNumber;
-    }
-
-    private static String padLeft(String str, int size) {
-        if (str.length() == size) {
-            return str;
-        }
-        StringBuilder padded = new StringBuilder(size);
-        for (int i = str.length(); i < size; i++) {
-            padded.append('0');
-        }
-        padded.append(str);
-        return padded.toString();
+        return "" + VERSION + DELIMITER + startTimeHex + DELIMITER + numberHex;
     }
 
     /**
      * @return the number
+     *
+     * @deprecated use {@link #getNumberAsHex()}.
      */
+    @Deprecated
     public BigInteger getNumber() {
-        return number;
+        return new BigInteger(numberHex, 16);
+    }
+
+    /**
+     * Returns the number component of this {@link TraceID} as a hexadecimal string.
+     */
+    public String getNumberAsHex() {
+        return numberHex;
     }
 
     /**
@@ -139,15 +145,25 @@ public class TraceID {
     @Deprecated
     public void setNumber(@Nullable BigInteger number) {
         if (number != null) {
-            this.number = number;
+            this.numberHex = numberToBase16String(number.shiftRight(64).intValue(), number.longValue());
         }
     }
 
     /**
      * @return the startTime
+     *
+     * @deprecated Use {@link #getStartTimeAsHex()}.
      */
     public long getStartTime() {
-        return startTime;
+        return Long.parseLong(startTimeHex, 16);
+    }
+
+    /**
+     * Returns the start time of this {@link TraceID} as a hexadecimal string representing the number of seconds since
+     * the epoch.
+     */
+    public String getStartTimeAsHex() {
+        return startTimeHex;
     }
 
     /**
@@ -157,15 +173,12 @@ public class TraceID {
      */
     @Deprecated
     public void setStartTime(long startTime) {
-        this.startTime = startTime;
+        this.startTimeHex = intToBase16String(startTime);
     }
 
     @Override
     public int hashCode() {
-        int result = 1;
-        result = 31 * result + ((number == null) ? 0 : number.hashCode());
-        result = 31 * result + (int) (startTime ^ (startTime >>> 32));
-        return result;
+        return 31 * numberHex.hashCode() + startTimeHex.hashCode();
     }
 
     @Override
@@ -177,6 +190,83 @@ public class TraceID {
             return false;
         }
         TraceID other = (TraceID) obj;
-        return number.equals(other.number) && startTime == other.startTime;
+        return numberHex.equals(other.numberHex) && startTimeHex.equals(other.startTimeHex);
+    }
+
+    private static final int BYTE_BASE16 = 2;
+    private static final String ALPHABET = "0123456789abcdef";
+    private static final char[] ENCODING = buildEncodingArray();
+
+    private static char[] buildEncodingArray() {
+        char[] encoding = new char[512];
+        for (int i = 0; i < 256; ++i) {
+            encoding[i] = ALPHABET.charAt(i >>> 4);
+            encoding[i | 0x100] = ALPHABET.charAt(i & 0xF);
+        }
+        return encoding;
+    }
+
+    private static String bytesToBase16String(byte[] bytes) {
+        char[] dest = RecyclableBuffers.chars(24);
+        for (int i = 0; i < 12; i++) {
+            byteToBase16(bytes[i], dest, i * BYTE_BASE16);
+        }
+
+        return new String(dest, 0, 24);
+    }
+
+    private static String numberToBase16String(int hi, long lo) {
+        char[] dest = RecyclableBuffers.chars(24);
+
+        byteToBase16((byte) (hi >> 24 & 0xFFL), dest, 0);
+        byteToBase16((byte) (hi >> 16 & 0xFFL), dest, BYTE_BASE16);
+        byteToBase16((byte) (hi >> 8 & 0xFFL), dest, 2 * BYTE_BASE16);
+        byteToBase16((byte) (hi & 0xFFL), dest, 3 * BYTE_BASE16);
+
+        byteToBase16((byte) (lo >> 56 & 0xFFL), dest, 4 * BYTE_BASE16);
+        byteToBase16((byte) (lo >> 48 & 0xFFL), dest, 5 * BYTE_BASE16);
+        byteToBase16((byte) (lo >> 40 & 0xFFL), dest, 6 * BYTE_BASE16);
+        byteToBase16((byte) (lo >> 32 & 0xFFL), dest, 7 * BYTE_BASE16);
+        byteToBase16((byte) (lo >> 24 & 0xFFL), dest, 8 * BYTE_BASE16);
+        byteToBase16((byte) (lo >> 16 & 0xFFL), dest, 9 * BYTE_BASE16);
+        byteToBase16((byte) (lo >> 8 & 0xFFL), dest, 10 * BYTE_BASE16);
+        byteToBase16((byte) (lo & 0xFFL), dest, 11 * BYTE_BASE16);
+
+        return new String(dest, 0, 24);
+    }
+
+
+    private static String intToBase16String(long value) {
+        char[] dest = RecyclableBuffers.chars(8);
+        byteToBase16((byte) (value >> 24 & 0xFFL), dest, 0);
+        byteToBase16((byte) (value >> 16 & 0xFFL), dest, BYTE_BASE16);
+        byteToBase16((byte) (value >> 8 & 0xFFL), dest, 2 * BYTE_BASE16);
+        byteToBase16((byte) (value & 0xFFL), dest, 3 * BYTE_BASE16);
+        return new String(dest, 0, 8);
+    }
+
+    private static void byteToBase16(byte value, char[] dest, int destOffset) {
+        int b = value & 0xFF;
+        dest[destOffset] = ENCODING[b];
+        dest[destOffset + 1] = ENCODING[b | 0x100];
+    }
+
+    // Visible for testing
+    static boolean isHex(String value) {
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (!isDigit(c) && !isLowercaseHexCharacter(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isLowercaseHexCharacter(char b) {
+        return 'a' <= b && b <= 'f';
+    }
+
+    private static boolean isDigit(char b) {
+        return '0' <= b && b <= '9';
     }
 }

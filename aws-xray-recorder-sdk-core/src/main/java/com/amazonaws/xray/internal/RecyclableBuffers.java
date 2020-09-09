@@ -28,6 +28,12 @@ public final class RecyclableBuffers {
 
     private static final ThreadLocal<@Nullable StringBuilder> STRING_BUILDER = new ThreadLocal<>();
 
+    @SuppressWarnings("nullness:type.argument.type.incompatible")
+    private static final ThreadLocal<char[]> CHARS = new ThreadLocal<>();
+
+    @SuppressWarnings("nullness:type.argument.type.incompatible")
+    private static final ThreadLocal<byte[]> BYTES = new ThreadLocal<>();
+
     /**
      * A {@link ThreadLocal} {@link StringBuilder}. Take care when filling a large value into this buffer
      * because the memory will remain for the lifetime of the thread.
@@ -39,6 +45,32 @@ public final class RecyclableBuffers {
             STRING_BUILDER.set(buffer);
         }
         buffer.setLength(0);
+        return buffer;
+    }
+
+    /**
+     * A {@link ThreadLocal} {@code char[]} of length {@code length}. The array is not zeroed in any way - every character of
+     * a resulting {@link String} must be set explicitly. The array returned my be longer than {@code length} - always explicitly
+     * set the length when using the result, for example by calling {@link String#valueOf(char[], int, int)}.
+     */
+    public static char[] chars(int length) {
+        char[] buffer = CHARS.get();
+        if (buffer == null || buffer.length < length) {
+            buffer = new char[length];
+            CHARS.set(buffer);
+        }
+        return buffer;
+    }
+
+    /**
+     * A {@link ThreadLocal} {@code byte[]} of length {@code length}. The array is not zeroed in any way.
+     */
+    public static byte[] bytes(int length) {
+        byte[] buffer = BYTES.get();
+        if (buffer == null || buffer.length < length) {
+            buffer = new byte[length];
+            BYTES.set(buffer);
+        }
         return buffer;
     }
 
