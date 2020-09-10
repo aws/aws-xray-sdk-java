@@ -50,7 +50,7 @@ public final class RecyclableBuffers {
 
     /**
      * A {@link ThreadLocal} {@code char[]} of length {@code length}. The array is not zeroed in any way - every character of
-     * a resulting {@link String} must be set explicitly. The array returned my be longer than {@code length} - always explicitly
+     * a resulting {@link String} must be set explicitly. The array returned may be longer than {@code length} - always explicitly
      * set the length when using the result, for example by calling {@link String#valueOf(char[], int, int)}.
      */
     public static char[] chars(int length) {
