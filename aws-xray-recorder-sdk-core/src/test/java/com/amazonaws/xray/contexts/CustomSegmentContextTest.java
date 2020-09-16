@@ -124,7 +124,7 @@ class CustomSegmentContextTest {
             list.add(i);
         }
 
-        list.parallelStream().forEach(e -> {
+        list.forEach(e -> {
             AWSXRay.setTraceEntity(test);
             AWSXRay.createSubsegment("parallelPrint", (subsegment) -> {
             });
