@@ -26,6 +26,11 @@ val DEPENDENCY_SETS = listOf(
                 listOf("assertj-core")
         ),
         DependencySet(
+                "org.junit-pioneer",
+                "0.9.0",
+                listOf("junit-pioneer")
+        ),
+        DependencySet(
                 "junit",
                 "4.12",
                 listOf("junit")
