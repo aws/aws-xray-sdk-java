@@ -25,12 +25,15 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 class NoOpSubSegment implements Subsegment {
 
-    private final Segment parent;
+    private final Segment parentSegment;
     private final AWSXRayRecorder creator;
 
-    NoOpSubSegment(Segment parent, AWSXRayRecorder creator) {
-        this.parent = parent;
+    private volatile Entity parent;
+
+    NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator) {
+        this.parentSegment = parentSegment;
         this.creator = creator;
+        parent = parentSegment;
     }
 
     @Override
@@ -164,6 +167,7 @@ class NoOpSubSegment implements Subsegment {
 
     @Override
     public void setParent(Entity parent) {
+        this.parent = parent;
     }
 
     @Override
@@ -186,7 +190,7 @@ class NoOpSubSegment implements Subsegment {
 
     @Override
     public TraceID getTraceId() {
-        return parent.getTraceId();
+        return parentSegment.getTraceId();
     }
 
     @Override
@@ -213,7 +217,7 @@ class NoOpSubSegment implements Subsegment {
 
     @Override
     public Segment getParentSegment() {
-        return parent;
+        return parentSegment;
     }
 
     @Override

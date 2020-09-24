@@ -111,6 +111,7 @@ allprojects {
 
         dependencies {
             add("testImplementation", "org.junit.jupiter:junit-jupiter-api")
+            add("testImplementation", "org.junit-pioneer:junit-pioneer")
             add("testRuntimeOnly", "org.junit.jupiter:junit-jupiter-engine")
             add("testRuntimeOnly", "org.junit.vintage:junit-vintage-engine")
             add("testImplementation", "junit:junit")

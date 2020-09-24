@@ -74,7 +74,7 @@ public class LambdaSegmentContext implements SegmentContext {
             Subsegment parentSubsegment = (Subsegment) entity;
             // Ensure customers have not leaked subsegments across invocations
             TraceID environmentRootTraceId = LambdaSegmentContext.getTraceHeaderFromEnvironment().getRootTraceId();
-            if (null != environmentRootTraceId &&
+            if (environmentRootTraceId != null &&
                 !environmentRootTraceId.equals(parentSubsegment.getParentSegment().getTraceId())) {
                 clearTraceEntity();
                 return beginSubsegment(recorder, name);
