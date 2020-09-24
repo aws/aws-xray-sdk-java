@@ -16,7 +16,8 @@
 package com.amazonaws.xray;
 
 import com.amazonaws.xray.entities.Entity;
-import java.security.SecureRandom;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -25,8 +26,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @SuppressWarnings("checkstyle:HideUtilityClassConstructor")
 @Deprecated
 public class ThreadLocalStorage {
-
-    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     static class LocalEntity extends ThreadLocal<@Nullable Entity> {
         @Override
@@ -59,7 +58,7 @@ public class ThreadLocalStorage {
         CURRENT_ENTITY.remove();
     }
 
-    public static SecureRandom getRandom() {
-        return SECURE_RANDOM;
+    public static Random getRandom() {
+        return ThreadLocalRandom.current();
     }
 }

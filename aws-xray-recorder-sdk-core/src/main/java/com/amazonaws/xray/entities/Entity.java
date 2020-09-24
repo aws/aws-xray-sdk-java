@@ -28,11 +28,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public interface Entity extends AutoCloseable {
 
     static String generateId() {
-        String id = Long.toString(ThreadLocalStorage.getRandom().nextLong() >>> 1, 16);
+        StringBuilder id = new StringBuilder(Long.toString(ThreadLocalStorage.getRandom().nextLong() >>> 1, 16));
         while (id.length() < 16) {
-            id = '0' + id;
+            id.insert(0, '0');
         }
-        return id;
+        return id.toString();
     }
 
     String getName();

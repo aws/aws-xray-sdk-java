@@ -18,8 +18,8 @@ package com.amazonaws.xray.entities;
 import com.amazonaws.xray.ThreadLocalStorage;
 import com.amazonaws.xray.internal.RecyclableBuffers;
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.Random;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class TraceID {
@@ -101,7 +101,7 @@ public class TraceID {
      */
     @Deprecated
     public TraceID(long startTime) {
-        SecureRandom random = ThreadLocalStorage.getRandom();
+        Random random = ThreadLocalStorage.getRandom();
 
         // nextBytes much faster than calling nextInt multiple times when using SecureRandom
         byte[] randomBytes = RecyclableBuffers.bytes(12);
