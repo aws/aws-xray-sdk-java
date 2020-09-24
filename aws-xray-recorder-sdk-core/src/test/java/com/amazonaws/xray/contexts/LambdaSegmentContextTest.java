@@ -58,13 +58,13 @@ class LambdaSegmentContextTest {
     }
 
     @Test
-    void testBeginSubsegmentWithNullTraceHeaderEnvironmentVariableResultsInADummySegmentParent() {
+    void testBeginSubsegmentWithNullTraceHeaderEnvironmentVariableResultsInAFacadeSegmentParent() {
         testContextResultsInFacadeSegmentParent();
     }
 
     @Test
     @SetEnvironmentVariable(key = "_X_AMZN_TRACE_ID", value = "a")
-    void testBeginSubsegmentWithIncompleteTraceHeaderEnvironmentVariableResultsInADummySegmentParent() {
+    void testBeginSubsegmentWithIncompleteTraceHeaderEnvironmentVariableResultsInAFacadeSegmentParent() {
         testContextResultsInFacadeSegmentParent();
     }
 
@@ -90,7 +90,8 @@ class LambdaSegmentContextTest {
         lsc.endSubsegment(AWSXRay.getGlobalRecorder());
     }
 
-
+    // We create segments twice with different environment variables for the same context, similar to how Lambda would invoke
+    // a function.
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     static class LeakedSubsegments {
