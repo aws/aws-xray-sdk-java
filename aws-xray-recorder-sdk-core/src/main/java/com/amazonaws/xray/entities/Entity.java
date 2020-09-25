@@ -15,8 +15,8 @@
 
 package com.amazonaws.xray.entities;
 
+import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.ThreadLocalStorage;
 import com.amazonaws.xray.exceptions.AlreadyEmittedException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
@@ -27,12 +27,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface Entity extends AutoCloseable {
 
+    /**
+     * @deprecated Use the {@link com.amazonaws.xray.internal.IdGenerator ID generator} configured on this
+     * entity's creator instead
+     */
+    @Deprecated
     static String generateId() {
-        String id = Long.toString(ThreadLocalStorage.getRandom().nextLong() >>> 1, 16);
-        while (id.length() < 16) {
-            id = '0' + id;
-        }
-        return id;
+        return AWSXRay.getGlobalRecorder().getIdGenerator().newEntityId();
     }
 
     String getName();
