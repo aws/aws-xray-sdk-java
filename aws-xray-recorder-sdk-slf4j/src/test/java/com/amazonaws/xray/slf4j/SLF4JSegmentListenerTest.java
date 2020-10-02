@@ -1,3 +1,18 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
 package com.amazonaws.xray.slf4j;
 
 import com.amazonaws.xray.AWSXRay;
@@ -25,7 +40,10 @@ public class SLF4JSegmentListenerTest {
         Mockito.doReturn(true).when(blankEmitter).sendSubsegment(Mockito.any());
         SLF4JSegmentListener segmentListener = new SLF4JSegmentListener();
 
-        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard().withEmitter(blankEmitter).withSegmentListener(segmentListener).build());
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.standard()
+            .withEmitter(blankEmitter)
+            .withSegmentListener(segmentListener)
+            .build());
         AWSXRay.clearTraceEntity();
         MDC.clear();
     }
