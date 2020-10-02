@@ -58,7 +58,7 @@ public class DummySegment implements Segment {
     }
 
     public DummySegment(AWSXRayRecorder creator) {
-        this(creator, TraceID.create());
+        this(creator, TraceID.create(creator));
     }
 
     public DummySegment(AWSXRayRecorder creator, TraceID traceId) {

@@ -49,7 +49,7 @@ public class LambdaSegmentContext implements SegmentContext {
         if (isInitializing(traceHeader)) {
             logger.warn(LAMBDA_TRACE_HEADER_KEY + " is missing a trace ID, parent ID, or sampling decision. Subsegment "
                         + name + " discarded.");
-            return new FacadeSegment(recorder, TraceID.create(), "", SampleDecision.NOT_SAMPLED);
+            return new FacadeSegment(recorder, TraceID.create(recorder), "", SampleDecision.NOT_SAMPLED);
         }
         return new FacadeSegment(recorder, traceHeader.getRootTraceId(), traceHeader.getParentId(), traceHeader.getSampled());
     }

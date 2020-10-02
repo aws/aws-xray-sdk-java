@@ -42,7 +42,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
     // it makes the code to hard to reason about e.g., nullness.
     @SuppressWarnings("nullness")
     public SegmentImpl(AWSXRayRecorder creator, String name) {
-        this(creator, name, TraceID.create());
+        this(creator, name, TraceID.create(creator));
     }
 
     // TODO(anuraaga): Refactor the entity relationship. There isn't a great reason to use a type hierarchy for data classes and
@@ -50,6 +50,9 @@ public class SegmentImpl extends EntityImpl implements Segment {
     @SuppressWarnings("nullness")
     public SegmentImpl(AWSXRayRecorder creator, String name, TraceID traceId) {
         super(creator, name);
+        if (traceId == null) {
+            traceId = TraceID.create(creator);
+        }
         setTraceId(traceId);
 
         this.service = new ConcurrentHashMap<>();

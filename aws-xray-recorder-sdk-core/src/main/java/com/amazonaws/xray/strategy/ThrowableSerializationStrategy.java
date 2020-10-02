@@ -15,9 +15,11 @@
 
 package com.amazonaws.xray.strategy;
 
+import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.ThrowableDescription;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface ThrowableSerializationStrategy {
     /**
@@ -32,4 +34,25 @@ public interface ThrowableSerializationStrategy {
      * @return a list of {@code ThrowableDescription}s which represent the provided {@code Throwable}
      */
     List<ThrowableDescription> describeInContext(Throwable throwable, List<Subsegment> subsegments);
+
+    /**
+     * Serializes a {@code Throwable} into a {@code ThrowableDescription}. Uses the provided subsegments to chain exceptions where
+     * possible.
+     *
+     * @param entity
+     *            the current entity. May be null.
+     * @param throwable
+     *            the Throwable to serialize
+     * @param subsegments
+     *            the list of subsegment children in which to look for the same {@code Throwable} object, for chaining
+     *
+     * @return a list of {@code ThrowableDescription}s which represent the provided {@code Throwable}
+     */
+    default List<ThrowableDescription> describeInContext(
+        @Nullable Entity entity,
+        Throwable throwable,
+        List<Subsegment> subsegments
+    ) {
+        return describeInContext(throwable, subsegments);
+    }
 }

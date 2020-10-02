@@ -15,10 +15,12 @@
 
 package com.amazonaws.xray.entities;
 
-import com.amazonaws.xray.ThreadLocalStorage;
-import com.amazonaws.xray.internal.RecyclableBuffers;
+import static com.amazonaws.xray.utils.ByteUtils.intToBase16String;
+import static com.amazonaws.xray.utils.ByteUtils.numberToBase16String;
+
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorder;
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.time.Instant;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -30,10 +32,23 @@ public class TraceID {
     private static final TraceID INVALID = new TraceID(INVALID_START_TIME, INVALID_NUMBER);
 
     /**
-     * Returns a new {@link TraceID} which represents the start of a new trace.
+     * Returns a new {@link TraceID} which represents the start of a new trace. This new ID
+     * is generated according to the settings provided by the global AWSXRayRecorder instance
+     * returned by {@link AWSXRay#getGlobalRecorder}.
+     *
+     * @see #create(AWSXRayRecorder)
      */
     public static TraceID create() {
-        return new TraceID();
+        return new TraceID(Instant.now().getEpochSecond(), AWSXRay.getGlobalRecorder());
+    }
+
+    /**
+     * Returns a new {@code TraceID} which represents the start of a new trace. This new
+     * ID is generated according to the settings provided by the AWSXRayRecorder instance
+     * that created it.
+     */
+    public static TraceID create(AWSXRayRecorder creator) {
+        return new TraceID(Instant.now().getEpochSecond(), creator);
     }
 
     /**
@@ -89,7 +104,7 @@ public class TraceID {
     private String startTimeHex;
 
     /**
-     * @deprecated Use {@link #create()}.
+     * @deprecated Use {@link #create()} or {@link #create(AWSXRayRecorder)}
      */
     @Deprecated
     public TraceID() {
@@ -97,17 +112,15 @@ public class TraceID {
     }
 
     /**
-     * @deprecated Use {@link #create()}.
+     * @deprecated Use {@link #create()} or {@link #create(AWSXRayRecorder)}
      */
     @Deprecated
     public TraceID(long startTime) {
-        SecureRandom random = ThreadLocalStorage.getRandom();
+        this(startTime, AWSXRay.getGlobalRecorder());
+    }
 
-        // nextBytes much faster than calling nextInt multiple times when using SecureRandom
-        byte[] randomBytes = RecyclableBuffers.bytes(12);
-        random.nextBytes(randomBytes);
-        numberHex = bytesToBase16String(randomBytes);
-        this.startTimeHex = intToBase16String((int) startTime);
+    private TraceID(long startTime, AWSXRayRecorder creator) {
+        this(intToBase16String((int) startTime), creator.getIdGenerator().newTraceId());
     }
 
     private TraceID(String startTimeHex, String numberHex) {
@@ -191,64 +204,6 @@ public class TraceID {
         }
         TraceID other = (TraceID) obj;
         return numberHex.equals(other.numberHex) && startTimeHex.equals(other.startTimeHex);
-    }
-
-    private static final int BYTE_BASE16 = 2;
-    private static final String ALPHABET = "0123456789abcdef";
-    private static final char[] ENCODING = buildEncodingArray();
-
-    private static char[] buildEncodingArray() {
-        char[] encoding = new char[512];
-        for (int i = 0; i < 256; ++i) {
-            encoding[i] = ALPHABET.charAt(i >>> 4);
-            encoding[i | 0x100] = ALPHABET.charAt(i & 0xF);
-        }
-        return encoding;
-    }
-
-    private static String bytesToBase16String(byte[] bytes) {
-        char[] dest = RecyclableBuffers.chars(24);
-        for (int i = 0; i < 12; i++) {
-            byteToBase16(bytes[i], dest, i * BYTE_BASE16);
-        }
-
-        return new String(dest, 0, 24);
-    }
-
-    private static String numberToBase16String(int hi, long lo) {
-        char[] dest = RecyclableBuffers.chars(24);
-
-        byteToBase16((byte) (hi >> 24 & 0xFFL), dest, 0);
-        byteToBase16((byte) (hi >> 16 & 0xFFL), dest, BYTE_BASE16);
-        byteToBase16((byte) (hi >> 8 & 0xFFL), dest, 2 * BYTE_BASE16);
-        byteToBase16((byte) (hi & 0xFFL), dest, 3 * BYTE_BASE16);
-
-        byteToBase16((byte) (lo >> 56 & 0xFFL), dest, 4 * BYTE_BASE16);
-        byteToBase16((byte) (lo >> 48 & 0xFFL), dest, 5 * BYTE_BASE16);
-        byteToBase16((byte) (lo >> 40 & 0xFFL), dest, 6 * BYTE_BASE16);
-        byteToBase16((byte) (lo >> 32 & 0xFFL), dest, 7 * BYTE_BASE16);
-        byteToBase16((byte) (lo >> 24 & 0xFFL), dest, 8 * BYTE_BASE16);
-        byteToBase16((byte) (lo >> 16 & 0xFFL), dest, 9 * BYTE_BASE16);
-        byteToBase16((byte) (lo >> 8 & 0xFFL), dest, 10 * BYTE_BASE16);
-        byteToBase16((byte) (lo & 0xFFL), dest, 11 * BYTE_BASE16);
-
-        return new String(dest, 0, 24);
-    }
-
-
-    private static String intToBase16String(long value) {
-        char[] dest = RecyclableBuffers.chars(8);
-        byteToBase16((byte) (value >> 24 & 0xFFL), dest, 0);
-        byteToBase16((byte) (value >> 16 & 0xFFL), dest, BYTE_BASE16);
-        byteToBase16((byte) (value >> 8 & 0xFFL), dest, 2 * BYTE_BASE16);
-        byteToBase16((byte) (value & 0xFFL), dest, 3 * BYTE_BASE16);
-        return new String(dest, 0, 8);
-    }
-
-    private static void byteToBase16(byte value, char[] dest, int destOffset) {
-        int b = value & 0xFF;
-        dest[destOffset] = ENCODING[b];
-        dest[destOffset + 1] = ENCODING[b | 0x100];
     }
 
     // Visible for testing

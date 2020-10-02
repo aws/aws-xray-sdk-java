@@ -17,13 +17,21 @@ package com.amazonaws.xray.entities;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.amazonaws.xray.AWSXRay;
+import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import java.time.Instant;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 class TraceIDTest {
 
-    // Chance this test passes once even when broken but unconceivable to pass several times.
+    @BeforeAll
+    static void beforeAll() {
+        AWSXRay.setGlobalRecorder(AWSXRayRecorderBuilder.defaultRecorder());
+    }
+
+    // Chance this test passes once even when broken but inconceivable to pass several times.
     @RepeatedTest(10)
     void create() {
         int startTimeSecs = (int) Instant.now().getEpochSecond();
