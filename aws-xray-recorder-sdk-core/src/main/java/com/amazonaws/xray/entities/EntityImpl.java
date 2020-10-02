@@ -176,7 +176,7 @@ public abstract class EntityImpl implements Entity {
         this.annotations = new ConcurrentHashMap<>();
         this.metadata = new ConcurrentHashMap<>();
         this.startTime = Instant.now().toEpochMilli() / 1000.0d;
-        this.id = Entity.generateId();
+        this.id = creator.getIdGenerator().newEntityId();
         this.inProgress = true;
         this.referenceCount = new LongAdder();
         this.totalSize = new LongAdder();
@@ -445,7 +445,8 @@ public abstract class EntityImpl implements Entity {
         setFault(true);
         getSubsegmentsLock().lock();
         try {
-            cause.addExceptions(creator.getThrowableSerializationStrategy().describeInContext(exception, subsegments));
+            cause.addExceptions(creator.getThrowableSerializationStrategy()
+                .describeInContext(this, exception, subsegments));
         } finally {
             getSubsegmentsLock().unlock();
         }

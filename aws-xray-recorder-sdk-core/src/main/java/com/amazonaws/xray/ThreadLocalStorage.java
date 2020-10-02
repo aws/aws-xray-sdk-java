@@ -59,6 +59,7 @@ public class ThreadLocalStorage {
         CURRENT_ENTITY.remove();
     }
 
+    @Deprecated
     public static SecureRandom getRandom() {
         return SECURE_RANDOM;
     }

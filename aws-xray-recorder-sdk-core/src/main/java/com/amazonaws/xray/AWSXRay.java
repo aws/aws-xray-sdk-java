@@ -206,7 +206,7 @@ public class AWSXRay {
     public static boolean sendSubegment(Subsegment subsegment) {
         return AWSXRay.sendSubsegment(subsegment);
     }
-    
+
     public static boolean sendSubsegment(Subsegment subsegment) {
         return globalRecorder.sendSubsegment(subsegment);
     }

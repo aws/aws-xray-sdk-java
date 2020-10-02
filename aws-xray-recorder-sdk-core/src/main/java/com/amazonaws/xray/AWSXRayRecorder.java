@@ -29,6 +29,9 @@ import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
+import com.amazonaws.xray.internal.FastIdGenerator;
+import com.amazonaws.xray.internal.IdGenerator;
+import com.amazonaws.xray.internal.SecureIdGenerator;
 import com.amazonaws.xray.listeners.SegmentListener;
 import com.amazonaws.xray.strategy.ContextMissingStrategy;
 import com.amazonaws.xray.strategy.DefaultContextMissingStrategy;
@@ -117,6 +120,7 @@ public class AWSXRayRecorder {
     private PrioritizationStrategy prioritizationStrategy;
     private ThrowableSerializationStrategy throwableSerializationStrategy;
     private ContextMissingStrategy contextMissingStrategy;
+    private IdGenerator idGenerator;
 
     private SegmentContextResolverChain segmentContextResolverChain;
 
@@ -137,6 +141,7 @@ public class AWSXRayRecorder {
         prioritizationStrategy = new DefaultPrioritizationStrategy();
         throwableSerializationStrategy = new DefaultThrowableSerializationStrategy();
         contextMissingStrategy = new DefaultContextMissingStrategy();
+        idGenerator = new SecureIdGenerator();
 
         logReferences = new HashSet<>();
 
@@ -940,6 +945,39 @@ public class AWSXRayRecorder {
      */
     public void setOrigin(String origin) {
         this.origin = origin;
+    }
+
+    /**
+     * Configures this {@code AWSXRayRecorder} to use a fast but cryptographically insecure random number
+     * generator for generating random IDs. This option should be preferred if your application does not
+     * rely on AWS X-Ray Trace IDs being generated from a cryptographically secure random number generator.
+     *
+     * @see #useSecureIdGenerator()
+     */
+    public final void useFastIdGenerator() {
+        this.idGenerator = new FastIdGenerator();
+    }
+
+    /**
+     * Configures this {@code AWSXRayRecorder} to use a cryptographically secure random generator for
+     * generating random IDs. Unless your application in some way relies on AWS X-Ray trace IDs
+     * being generated from a cryptographically secure random number source, you should prefer
+     * to use {@linkplain #useFastIdGenerator() the fast ID generator}.
+     *
+     * @see #useFastIdGenerator()
+     */
+    public final void useSecureIdGenerator() {
+        this.idGenerator = new SecureIdGenerator();
+    }
+
+    /**
+     * Gets this {@code AWSXRayRecorder} instance's ID generator. This method is intended for
+     * internal use only.
+     *
+     * @return the configured ID generator
+     */
+    public final IdGenerator getIdGenerator() {
+        return idGenerator;
     }
 
     /**

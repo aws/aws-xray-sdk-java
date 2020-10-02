@@ -16,15 +16,18 @@
 package com.amazonaws.xray.strategy;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.ThrowableDescription;
+import com.amazonaws.xray.internal.IdGenerator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Default implementation of {@code ThrowableSerializationStrategy}.
@@ -109,7 +112,27 @@ public class DefaultThrowableSerializationStrategy implements ThrowableSerializa
 
     @Override
     public List<ThrowableDescription> describeInContext(Throwable throwable, List<Subsegment> subsegments) {
+        return describeInContext(null, throwable, subsegments);
+    }
+
+    @Override
+    public List<ThrowableDescription> describeInContext(
+        @Nullable Entity entity,
+        Throwable throwable,
+        List<Subsegment> subsegments
+    ) {
         List<ThrowableDescription> result = new ArrayList<>();
+        IdGenerator idGenerator;
+
+        // We could fall back on ThreadLocalStorage#get if we were confident that no `SegmentContext` implementations
+        // override the default get/setTraceEntity implementations, but we can't make that guarantee.
+        if (entity != null) {
+            idGenerator = entity.getCreator().getIdGenerator();
+        } else if (!subsegments.isEmpty()) {
+            idGenerator = subsegments.get(0).getCreator().getIdGenerator();
+        } else {
+            idGenerator = AWSXRay.getGlobalRecorder().getIdGenerator();
+        }
 
         /*
          * Visit each node in the cause chain. For each node:
@@ -131,7 +154,7 @@ public class DefaultThrowableSerializationStrategy implements ThrowableSerializa
             result.add(description);
             return result;
         } else {
-            description = describeThrowable(throwable, Entity.generateId());
+            description = describeThrowable(throwable, idGenerator.newEntityId());
             result.add(description);
         }
 
@@ -145,7 +168,7 @@ public class DefaultThrowableSerializationStrategy implements ThrowableSerializa
                                      exceptionReferenced.get().getCause() : exceptionReferenced.get().getId());
             } else {
                 //Link it, and start a new description
-                String newId = Entity.generateId();
+                String newId = idGenerator.newEntityId();
                 description.setCause(newId);
 
                 description = describeThrowable(currentNode, newId);

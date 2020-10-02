@@ -80,6 +80,8 @@ public class AWSXRayRecorderBuilder {
     @Nullable
     private Emitter emitter;
 
+    private boolean useFastIdGenerator = false;
+
 
     private AWSXRayRecorderBuilder() {
         plugins = new HashSet<>();
@@ -221,6 +223,31 @@ public class AWSXRayRecorderBuilder {
     }
 
     /**
+     * Prepares this builder to build an {@code AWSXRayRecorder} which uses a fast but cryptographically insecure
+     * random number generator for generating random IDs. This option should be preferred unless your application
+     * relies on AWS X-Ray trace IDs being generated from a cryptographically secure random number source.
+     *
+     * @see #withSecureIdGenerator() ()
+     */
+    public AWSXRayRecorderBuilder withFastIdGenerator() {
+        this.useFastIdGenerator = true;
+        return this;
+    }
+
+    /**
+     * Prepares this builder to build an {@code AWSXRayRecorder} which uses a cryptographically secure random
+     * generator for generating random IDs. Unless your application relies on AWS X-Ray trace IDs
+     * being generated from a cryptographically secure random number source, you should prefer
+     * to use {@linkplain #withFastIdGenerator() the fast ID generator}.
+     *
+     * @see #withFastIdGenerator()
+     */
+    public AWSXRayRecorderBuilder withSecureIdGenerator() {
+        this.useFastIdGenerator = false;
+        return this;
+    }
+
+    /**
      * Constructs and returns an AWSXRayRecorder with the provided configuration.
      *
      * @return a configured instance of AWSXRayRecorder
@@ -256,6 +283,12 @@ public class AWSXRayRecorderBuilder {
 
         if (!segmentListeners.isEmpty()) {
             client.addAllSegmentListeners(segmentListeners);
+        }
+
+        if (useFastIdGenerator) {
+            client.useFastIdGenerator();
+        } else {
+            client.useSecureIdGenerator();
         }
 
         plugins.stream().filter(Objects::nonNull).filter(p -> p.isEnabled()).forEach(plugin -> {
