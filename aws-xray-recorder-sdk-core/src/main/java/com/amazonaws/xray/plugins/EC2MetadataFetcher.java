@@ -133,7 +133,7 @@ class EC2MetadataFetcher {
         try {
             connection = (HttpURLConnection) url.openConnection();
         } catch (Exception e) {
-            logger.warn("Error connecting to IMDS.", e);
+            logger.debug("Error connecting to IMDS.", e);
             return "";
         }
 
@@ -161,7 +161,7 @@ class EC2MetadataFetcher {
             if (e instanceof SocketTimeoutException) {
                 logger.debug("Timed out trying to connect to IMDS, likely not operating in EC2 environment");
             } else {
-                logger.warn("Error connecting to IMDS.", e);
+                logger.debug("Error connecting to IMDS.", e);
             }
             return "";
         }
