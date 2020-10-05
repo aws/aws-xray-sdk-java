@@ -15,39 +15,35 @@
 
 package com.amazonaws.xray.plugins;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(ECSPlugin.class)
+import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.SetEnvironmentVariable;
+
 public class ECSPluginTest {
     private static final String ECS_METADATA_KEY = "ECS_CONTAINER_METADATA_URI";
+    private static final String GOOD_URI = "http://172.0.0.1";
+    private static final String BAD_URI = "Not a URL";
 
     private final ECSPlugin plugin = new ECSPlugin();
 
     @Test
+    @SetEnvironmentVariable(key = ECS_METADATA_KEY, value = GOOD_URI)
     public void testIsEnabled() {
-        String uri = "http://172.0.0.1";
-        PowerMockito.mockStatic(System.class);
-        PowerMockito.when(System.getenv(ECS_METADATA_KEY)).thenReturn(uri);
-
         boolean enabled = plugin.isEnabled();
-
-        Assert.assertTrue(enabled);
+        assertThat(enabled).isTrue();
     }
 
     @Test
+    @SetEnvironmentVariable(key = ECS_METADATA_KEY, value = BAD_URI)
     public void testNotEnabled() {
-        String uri = "Not a URL";
-        PowerMockito.mockStatic(System.class);
-        PowerMockito.when(System.getenv(ECS_METADATA_KEY)).thenReturn(uri);
-
         boolean enabled = plugin.isEnabled();
+        assertThat(enabled).isFalse();
+    }
 
-        Assert.assertFalse(enabled);
+    @Test
+    public void testNotEnabledWithoutEnvironmentVariable() {
+        boolean enabled = plugin.isEnabled();
+        assertThat(enabled).isFalse();
     }
 }
