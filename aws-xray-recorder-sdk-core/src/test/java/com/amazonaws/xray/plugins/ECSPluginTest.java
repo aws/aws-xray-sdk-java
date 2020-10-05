@@ -17,38 +17,32 @@ package com.amazonaws.xray.plugins;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.SetEnvironmentVariable;
 
 public class ECSPluginTest {
-    @Rule
-    public EnvironmentVariables environmentVariables = new EnvironmentVariables();
-
     private static final String ECS_METADATA_KEY = "ECS_CONTAINER_METADATA_URI";
     private static final String GOOD_URI = "http://172.0.0.1";
     private static final String BAD_URI = "Not a URL";
 
     private final ECSPlugin plugin = new ECSPlugin();
 
-    @BeforeEach
-    public void setup() {
-        environmentVariables.set(ECS_METADATA_KEY, null);
-    }
-
     @Test
+    @SetEnvironmentVariable(key = ECS_METADATA_KEY, value = GOOD_URI)
     public void testIsEnabled() {
-        environmentVariables.set(ECS_METADATA_KEY, GOOD_URI);
-
         boolean enabled = plugin.isEnabled();
         assertThat(enabled).isTrue();
     }
 
     @Test
+    @SetEnvironmentVariable(key = ECS_METADATA_KEY, value = BAD_URI)
     public void testNotEnabled() {
-        environmentVariables.set(ECS_METADATA_KEY, BAD_URI);
+        boolean enabled = plugin.isEnabled();
+        assertThat(enabled).isFalse();
+    }
 
+    @Test
+    public void testNotEnabledWithoutEnvironmentVariable() {
         boolean enabled = plugin.isEnabled();
         assertThat(enabled).isFalse();
     }
