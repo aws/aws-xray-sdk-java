@@ -227,7 +227,7 @@ public class AWSXRayRecorderBuilder {
      * random number generator for generating random IDs. This option should be preferred unless your application
      * relies on AWS X-Ray trace IDs being generated from a cryptographically secure random number source.
      *
-     * @see #withSecureIdGenerator() ()
+     * @see #withSecureIdGenerator()
      */
     public AWSXRayRecorderBuilder withFastIdGenerator() {
         this.useFastIdGenerator = true;
