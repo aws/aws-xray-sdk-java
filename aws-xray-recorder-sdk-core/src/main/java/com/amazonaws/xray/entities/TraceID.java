@@ -20,8 +20,8 @@ import static com.amazonaws.xray.utils.ByteUtils.numberToBase16String;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.internal.TimeUtils;
 import java.math.BigInteger;
-import java.time.Instant;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class TraceID {
@@ -39,7 +39,7 @@ public class TraceID {
      * @see #create(AWSXRayRecorder)
      */
     public static TraceID create() {
-        return new TraceID(Instant.now().getEpochSecond(), AWSXRay.getGlobalRecorder());
+        return new TraceID(TimeUtils.currentEpochSecond(), AWSXRay.getGlobalRecorder());
     }
 
     /**
@@ -48,7 +48,7 @@ public class TraceID {
      * that created it.
      */
     public static TraceID create(AWSXRayRecorder creator) {
-        return new TraceID(Instant.now().getEpochSecond(), creator);
+        return new TraceID(TimeUtils.currentEpochSecond(), creator);
     }
 
     /**
@@ -108,7 +108,7 @@ public class TraceID {
      */
     @Deprecated
     public TraceID() {
-        this(Instant.now().getEpochSecond());
+        this(TimeUtils.currentEpochSecond());
     }
 
     /**

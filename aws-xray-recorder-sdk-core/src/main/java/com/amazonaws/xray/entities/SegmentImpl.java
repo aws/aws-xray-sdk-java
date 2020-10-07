@@ -17,7 +17,6 @@ package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -63,7 +62,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
     @Override
     public boolean end() {
         if (getEndTime() < Double.MIN_NORMAL) {
-            setEndTime(Instant.now().toEpochMilli() / 1000.0d);
+            setEndTime(System.currentTimeMillis() / 1000d);
         }
 
         setInProgress(false);
