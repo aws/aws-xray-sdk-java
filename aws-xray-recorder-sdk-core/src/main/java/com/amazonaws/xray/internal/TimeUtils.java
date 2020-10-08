@@ -26,6 +26,5 @@ public final class TimeUtils {
     }
 
     private TimeUtils() {
-        throw new AssertionError("no instances, please");
     }
 }
