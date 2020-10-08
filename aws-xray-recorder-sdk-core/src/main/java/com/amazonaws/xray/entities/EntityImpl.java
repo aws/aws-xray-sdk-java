@@ -33,7 +33,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -175,7 +174,7 @@ public abstract class EntityImpl implements Entity {
         this.sql = new ConcurrentHashMap<>();
         this.annotations = new ConcurrentHashMap<>();
         this.metadata = new ConcurrentHashMap<>();
-        this.startTime = Instant.now().toEpochMilli() / 1000.0d;
+        this.startTime = System.currentTimeMillis() / 1000d;
         this.id = creator.getIdGenerator().newEntityId();
         this.inProgress = true;
         this.referenceCount = new LongAdder();

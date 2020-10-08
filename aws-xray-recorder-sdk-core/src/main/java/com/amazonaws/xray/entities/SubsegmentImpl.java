@@ -18,7 +18,6 @@ package com.amazonaws.xray.entities;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.logging.Log;
@@ -55,7 +54,7 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
         }
 
         if (getEndTime() < Double.MIN_NORMAL) {
-            setEndTime(Instant.now().toEpochMilli() / 1000.0d);
+            setEndTime(System.currentTimeMillis() / 1000d);
         }
         setInProgress(false);
         boolean shouldEmit = parentSegment.decrementReferenceCount() && parentSegment.isSampled();

@@ -17,7 +17,6 @@ package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +61,7 @@ public class DummySegment implements Segment {
     }
 
     public DummySegment(AWSXRayRecorder creator, TraceID traceId) {
-        this.startTime = Instant.now().toEpochMilli() / 1000.0d;
+        this.startTime = System.currentTimeMillis() / 1000.0d;
         this.creator = creator;
         this.traceId = traceId;
     }
@@ -316,7 +315,7 @@ public class DummySegment implements Segment {
     @Override
     public boolean end() {
         if (getEndTime() < Double.MIN_NORMAL) {
-            setEndTime(Instant.now().toEpochMilli() / 1000.0d);
+            setEndTime(System.currentTimeMillis() / 1000.0d);
         }
 
         return false;
