@@ -554,12 +554,13 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Ends the provided subsegment. This method doesn't touch context storage.
+     * Ends the provided subsegment. This method doesn't touch context storage and should be used when ending custom subsegments
+     * in asynchronous methods or other threads.
      *
      * @param subsegment
      *          the subsegment to close.
      */
-    public void endSubsegment(Subsegment subsegment) {
+    public void endSubsegment(@Nullable Subsegment subsegment) {
         if (subsegment == null) {
             logger.debug("No input subsegment to end. No-op.");
             return;
