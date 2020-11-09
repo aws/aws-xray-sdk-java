@@ -989,7 +989,8 @@ public class AWSXRayRecorder {
     }
 
     /**
-     * Checks whether the current {@code SamplingStrategy} supports forced sampling.
+     * Checks whether the current {@code SamplingStrategy} supports forced sampling. Use with caution, since segments sampled in
+     * this manner will not count towards your sampling statistic counts.
      *
      * @return true if forced sampling is supported and the current segment was changed from not sampled to sampled.
      */
