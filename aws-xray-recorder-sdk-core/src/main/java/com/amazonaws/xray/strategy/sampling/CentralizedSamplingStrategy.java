@@ -34,6 +34,7 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
     // Initialize random ClientID. We use the same ClientID for all GetSamplingTargets calls. Conflicts are avoided
     // because IDs are scoped to a single account.
     private static final String clientID;
+    private boolean forcedSamplingSupport;
 
     static {
         SecureRandom rand = new SecureRandom();
@@ -144,6 +145,11 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
         rulePoller.start();
         targetPoller.start();
         isStarted = true;
+    }
+
+    @Override
+    public void setForcedSamplingSupport(boolean support) {
+        this.forcedSamplingSupport = support;
     }
 
     @Override

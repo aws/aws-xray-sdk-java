@@ -36,6 +36,7 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
         LogFactory.getLog(LocalizedSamplingStrategy.class);
 
     private static final URL DEFAULT_RULES;
+    private boolean forcedSamplingSupport;
 
     static {
         URL defaultRules =
@@ -178,6 +179,11 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
         } else {
             return ThreadLocalRandom.current().nextFloat() < samplingRule.getRate();
         }
+    }
+
+    @Override
+    public void setForcedSamplingSupport(boolean support) {
+        this.forcedSamplingSupport = support;
     }
 
     @Override

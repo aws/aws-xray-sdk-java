@@ -416,6 +416,14 @@ public class AWSXRayRecorder {
             }
 
             return segment;
+        } else if (this.getSamplingStrategy().isForcedSamplingSupported()) {
+            Segment segment = beginSegment(name);
+            segment.setSampled(false);
+            if (samplingResponse.getRuleName().isPresent()) {
+                segment.setRuleName(samplingResponse.getRuleName().get());
+            }
+
+            return segment;
         }
 
         return beginNoOpSegment();

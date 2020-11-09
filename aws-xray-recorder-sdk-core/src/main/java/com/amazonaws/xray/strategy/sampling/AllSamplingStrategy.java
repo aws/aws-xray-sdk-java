@@ -20,6 +20,8 @@ package com.amazonaws.xray.strategy.sampling;
  *
  */
 public class AllSamplingStrategy implements SamplingStrategy {
+    private boolean forcedSamplingSupport;
+
     @Override
     public SamplingResponse shouldTrace(SamplingRequest samplingRequest) {
         SamplingResponse sampleResponse = new SamplingResponse(true);
@@ -27,7 +29,12 @@ public class AllSamplingStrategy implements SamplingStrategy {
     }
 
     @Override
+    public void setForcedSamplingSupport(boolean support) {
+        this.forcedSamplingSupport = support;
+    }
+
+    @Override
     public boolean isForcedSamplingSupported() {
-        return false;
+        return forcedSamplingSupport;
     }
 }

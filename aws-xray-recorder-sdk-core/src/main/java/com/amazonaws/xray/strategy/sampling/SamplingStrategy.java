@@ -30,6 +30,14 @@ public interface SamplingStrategy {
     boolean isForcedSamplingSupported();
 
     /**
+     * Sets whether this strategy supports forced sampling.
+     *
+     * @param support - whether or not forced sampling is supported.
+     */
+    default void setForcedSamplingSupport(boolean support) {
+    }
+
+    /**
      * Shutdown additional resources created by advanced sampling strategies.
      */
     default void shutdown() {
