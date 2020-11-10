@@ -154,7 +154,6 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
 
     @Override
     public boolean isForcedSamplingSupported() {
-        //TODO address this
         return forcedSamplingSupport;
     }
 }

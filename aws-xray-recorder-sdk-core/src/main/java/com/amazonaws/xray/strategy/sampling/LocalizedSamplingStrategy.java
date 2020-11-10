@@ -194,7 +194,6 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
 
     @Override
     public boolean isForcedSamplingSupported() {
-        //TODO address this
         return forcedSamplingSupport;
     }
 }
