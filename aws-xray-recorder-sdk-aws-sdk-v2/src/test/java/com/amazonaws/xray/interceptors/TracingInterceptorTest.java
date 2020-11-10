@@ -15,26 +15,30 @@
 
 package com.amazonaws.xray.interceptors;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.Cause;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -55,13 +59,15 @@ import software.amazon.awssdk.services.lambda.LambdaAsyncClient;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
 
-@FixMethodOrder(MethodSorters.JVM)
-@RunWith(MockitoJUnitRunner.class)
-public class TracingInterceptorTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class TracingInterceptorTest {
 
-    @Before
+    @Mock
+    private Emitter blankEmitter;
+
+    @BeforeEach
     public void setup() {
-        Emitter blankEmitter = Mockito.mock(Emitter.class);
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
 
         AWSXRay.setGlobalRecorder(
@@ -73,7 +79,7 @@ public class TracingInterceptorTest {
         AWSXRay.beginSegment("test");
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         AWSXRay.endSegment();
     }
@@ -123,7 +129,7 @@ public class TracingInterceptorTest {
     }
 
     @Test
-    public void testResponseDescriptors() throws Exception {
+    void testResponseDescriptors() throws Exception {
         String responseBody = "{\"LastEvaluatedTableName\":\"baz\",\"TableNames\":[\"foo\",\"bar\",\"baz\"]}";
         SdkHttpResponse mockResponse = SdkHttpResponse.builder()
                 .statusCode(200)
@@ -170,7 +176,50 @@ public class TracingInterceptorTest {
     }
 
     @Test
-    public void testLambdaInvokeSubsegmentContainsFunctionName() throws Exception {
+    void manualSegmentPropagation() throws Exception {
+        AWSXRay.setGlobalRecorder(
+            AWSXRayRecorderBuilder.standard()
+                                  .withEmitter(blankEmitter)
+                                  .withContextMissingStrategy(new IgnoreErrorContextMissingStrategy())
+                                  .build());
+        Segment segment = AWSXRay.beginSegment("test");
+        AWSXRay.clearTraceEntity();
+        assertThat(AWSXRay.getCurrentSegment()).isNull();
+
+        String responseBody = "{\"LastEvaluatedTableName\":\"baz\",\"TableNames\":[\"foo\",\"bar\",\"baz\"]}";
+        SdkHttpResponse mockResponse =
+                SdkHttpResponse.builder()
+                               .statusCode(200)
+                               .putHeader("x-amzn-requestid", "1111-2222-3333-4444")
+                               .putHeader("Content-Length", "84")
+                               .putHeader("Content-Type", "application/x-amz-json-1.0")
+                               .build();
+        SdkHttpClient mockClient = mockSdkHttpClient(mockResponse, responseBody);
+
+        DynamoDbClient client =
+                DynamoDbClient.builder()
+                              .httpClient(mockClient)
+                              .endpointOverride(URI.create("http://example.com"))
+                              .region(Region.of("us-west-42"))
+                              .credentialsProvider(StaticCredentialsProvider.create(
+                                      AwsSessionCredentials.create("key", "secret", "session")))
+                              .overrideConfiguration(
+                                  ClientOverrideConfiguration.builder()
+                                                             .addExecutionInterceptor(new TracingInterceptor())
+                                                             .build())
+                              .build();
+
+        ListTablesRequest request = ListTablesRequest.builder().limit(3).build();
+        TracingInterceptor.unsafeAddSegmentToRequest(segment, request);
+        client.listTables(request);
+
+        Assert.assertEquals(1, segment.getSubsegments().size());
+        Subsegment subsegment = segment.getSubsegments().get(0);
+        assertThat(subsegment.getName()).isEqualTo("DynamoDb");
+    }
+
+    @Test
+    void testLambdaInvokeSubsegmentContainsFunctionName() throws Exception {
         SdkHttpClient mockClient = mockSdkHttpClient(generateLambdaInvokeResponse(200));
 
         LambdaClient client = LambdaClient.builder()
@@ -213,7 +262,7 @@ public class TracingInterceptorTest {
     }
 
     @Test
-    public void testAsyncLambdaInvokeSubsegmentContainsFunctionName() {
+    void testAsyncLambdaInvokeSubsegmentContainsFunctionName() {
         SdkAsyncHttpClient mockClient = mockSdkAsyncHttpClient(generateLambdaInvokeResponse(200));
 
         LambdaAsyncClient client = LambdaAsyncClient.builder()
@@ -255,7 +304,7 @@ public class TracingInterceptorTest {
     }
 
     @Test
-    public void test400Exception() throws Exception {
+    void test400Exception() throws Exception {
         SdkHttpClient mockClient = mockSdkHttpClient(generateLambdaInvokeResponse(400));
 
         LambdaClient client = LambdaClient.builder()
@@ -307,7 +356,7 @@ public class TracingInterceptorTest {
     }
 
     @Test
-    public void testAsync400Exception() {
+    void testAsync400Exception() {
         SdkAsyncHttpClient mockClient = mockSdkAsyncHttpClient(generateLambdaInvokeResponse(400));
 
         LambdaAsyncClient client = LambdaAsyncClient.builder()
@@ -358,7 +407,7 @@ public class TracingInterceptorTest {
     }
 
     @Test
-    public void testThrottledException() throws Exception {
+    void testThrottledException() throws Exception {
         SdkHttpClient mockClient = mockSdkHttpClient(generateLambdaInvokeResponse(429));
 
         LambdaClient client = LambdaClient.builder()
@@ -410,7 +459,7 @@ public class TracingInterceptorTest {
     }
 
     @Test
-    public void testAsyncThrottledException() {
+    void testAsyncThrottledException() {
         SdkAsyncHttpClient mockClient = mockSdkAsyncHttpClient(generateLambdaInvokeResponse(429));
 
         LambdaAsyncClient client = LambdaAsyncClient.builder()
@@ -461,7 +510,7 @@ public class TracingInterceptorTest {
     }
 
     @Test
-    public void test500Exception() throws Exception {
+    void test500Exception() throws Exception {
         SdkHttpClient mockClient = mockSdkHttpClient(generateLambdaInvokeResponse(500));
 
         LambdaClient client = LambdaClient.builder()
@@ -513,7 +562,7 @@ public class TracingInterceptorTest {
     }
 
     @Test
-    public void testAsync500Exception() {
+    void testAsync500Exception() {
         SdkAsyncHttpClient mockClient = mockSdkAsyncHttpClient(generateLambdaInvokeResponse(500));
 
         LambdaAsyncClient client = LambdaAsyncClient.builder()

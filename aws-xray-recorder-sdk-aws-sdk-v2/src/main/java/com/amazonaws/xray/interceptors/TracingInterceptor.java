@@ -21,6 +21,7 @@ import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.EntityDataKeys;
 import com.amazonaws.xray.entities.EntityHeaderKeys;
 import com.amazonaws.xray.entities.Namespace;
+import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.handlers.config.AWSOperationHandler;
@@ -34,14 +35,17 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.WeakHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import software.amazon.awssdk.awscore.AwsExecutionAttribute;
+import software.amazon.awssdk.awscore.AwsRequest;
 import software.amazon.awssdk.awscore.AwsResponse;
 import software.amazon.awssdk.core.SdkRequest;
 import software.amazon.awssdk.core.SdkResponse;
@@ -65,6 +69,8 @@ public class TracingInterceptor implements ExecutionInterceptor {
     // TODO(anuraaga): Make private in next major version and rename.
     public static final ExecutionAttribute<Subsegment> entityKey = new ExecutionAttribute("AWS X-Ray Entity");
 
+    private static final Map<AwsRequest, Segment> MANUALLY_PROPAGATED_SEGMENTS = Collections.synchronizedMap(new WeakHashMap<>());
+
     private static final Log logger = LogFactory.getLog(TracingInterceptor.class);
 
     private static final ObjectMapper MAPPER = new ObjectMapper()
@@ -81,6 +87,23 @@ public class TracingInterceptor implements ExecutionInterceptor {
     private AWSServiceHandlerManifest awsServiceHandlerManifest;
     private AWSXRayRecorder recorder;
     private final String accountId;
+
+    /**
+     * Adds an external reference to the {@link Segment} from the {@link AwsRequest} which will be used in-place of parenting via
+     * a {@link ThreadLocal}. This is an advanced API for users that can't rely on thread-local propagation, but it is strongly
+     * discouraged from using this.
+     *
+     * <p>To manually register a segment to a request, call this method just before sending it.
+     *
+     * <pre>{@code
+     * ListTablesRequest request = ListTablesRequest.builder().build();
+     * TracingInterceptor.unsafeAddSegmentToRequest(AWSXray.getCurrentSegment(), request);
+     * client.listTables(request);
+     * }</pre>
+     */
+    public static void unsafeAddSegmentToRequest(Segment segment, AwsRequest request) {
+        MANUALLY_PROPAGATED_SEGMENTS.put(request, segment);
+    }
 
     public TracingInterceptor() {
         this(null, null, null);
@@ -220,22 +243,42 @@ public class TracingInterceptor implements ExecutionInterceptor {
     @Override
     public void beforeExecution(Context.BeforeExecution context, ExecutionAttributes executionAttributes) {
         AWSXRayRecorder recorder = getRecorder();
-        Entity origin = recorder.getTraceEntity();
+
+        Entity origin = null;
+        SdkRequest sdkRequest = context.request();
+        if (sdkRequest instanceof AwsRequest) {
+            origin = MANUALLY_PROPAGATED_SEGMENTS.remove(sdkRequest);
+        }
+        boolean manuallyPropagatedParent = false;
+        if (origin != null) {
+            manuallyPropagatedParent = true;
+            recorder.setTraceEntity(origin);
+        } else {
+            origin = recorder.getTraceEntity();
+        }
+
 
         Subsegment subsegment = recorder.beginSubsegment(executionAttributes.getAttribute(SdkExecutionAttribute.SERVICE_NAME));
-        subsegment.setNamespace(Namespace.AWS.toString());
-        subsegment.putAws(EntityDataKeys.AWS.OPERATION_KEY,
-                          executionAttributes.getAttribute(SdkExecutionAttribute.OPERATION_NAME));
-        Region region = executionAttributes.getAttribute(AwsExecutionAttribute.AWS_REGION);
-        if (region != null) {
-            subsegment.putAws(EntityDataKeys.AWS.REGION_KEY, region.id());
-        }
-        subsegment.putAllAws(extractRequestParameters(context, executionAttributes));
-        if (accountId != null) {
-            subsegment.putAws(EntityDataKeys.AWS.ACCOUNT_ID_SUBSEGMENT_KEY, accountId);
+        try {
+            subsegment.setNamespace(Namespace.AWS.toString());
+            subsegment.putAws(EntityDataKeys.AWS.OPERATION_KEY,
+                              executionAttributes.getAttribute(SdkExecutionAttribute.OPERATION_NAME));
+            Region region = executionAttributes.getAttribute(AwsExecutionAttribute.AWS_REGION);
+            if (region != null) {
+                subsegment.putAws(EntityDataKeys.AWS.REGION_KEY, region.id());
+            }
+            subsegment.putAllAws(extractRequestParameters(context, executionAttributes));
+            if (accountId != null) {
+                subsegment.putAws(EntityDataKeys.AWS.ACCOUNT_ID_SUBSEGMENT_KEY, accountId);
+            }
+        } finally {
+            if (manuallyPropagatedParent) {
+                recorder.setTraceEntity(null);
+            } else {
+                recorder.setTraceEntity(origin);
+            }
         }
 
-        recorder.setTraceEntity(origin);
         // store the subsegment in the AWS SDK's executionAttributes so it can be accessed across threads
         executionAttributes.putAttribute(entityKey, subsegment);
     }
