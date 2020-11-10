@@ -25,7 +25,7 @@ public class LogErrorContextMissingStrategy implements ContextMissingStrategy {
     private static final Log logger = LogFactory.getLog(LogErrorContextMissingStrategy .class);
 
     /**
-     * Logs {@code message} on the {#code error} level.
+     * Logs {@code message} on the {@code error} level, and a stacktrace at {@code debug} level.
      * @param message the message to log
      * @param exceptionClass the type of exception suppressed in favor of logging {@code message}
      */
@@ -33,7 +33,7 @@ public class LogErrorContextMissingStrategy implements ContextMissingStrategy {
     public void contextMissing(String message, Class<? extends RuntimeException> exceptionClass) {
         logger.error("Suppressing AWS X-Ray context missing exception (" + exceptionClass.getSimpleName() + "): " + message);
         if (logger.isDebugEnabled()) {
-            logger.debug(new RuntimeException(message));
+            logger.debug("", new RuntimeException(message));
         }
     }
 }
