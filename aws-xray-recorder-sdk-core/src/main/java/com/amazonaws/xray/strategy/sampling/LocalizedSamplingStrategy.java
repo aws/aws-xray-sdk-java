@@ -35,7 +35,10 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
     private static final Log logger =
         LogFactory.getLog(LocalizedSamplingStrategy.class);
 
-    private static final URL DEFAULT_RULES;
+    private final boolean forcedSamplingSupport;
+
+    // Visible for other sampling strategies
+    static final URL DEFAULT_RULES;
 
     static {
         URL defaultRules =
@@ -64,11 +67,20 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
     private SamplingRule defaultRule;
 
     public LocalizedSamplingStrategy() {
-        this(DEFAULT_RULES);
+        this(DEFAULT_RULES, false);
     }
 
     public LocalizedSamplingStrategy(@Nullable URL ruleLocation) {
+        this(ruleLocation, false);
+    }
+
+    public LocalizedSamplingStrategy(boolean forcedSamplingSupport) {
+        this(DEFAULT_RULES, forcedSamplingSupport);
+    }
+
+    public LocalizedSamplingStrategy(@Nullable URL ruleLocation, boolean forcedSamplingSupport) {
         this.samplingRulesLocation = ruleLocation;
+        this.forcedSamplingSupport = forcedSamplingSupport;
 
         SamplingRuleManifest manifest = getRuleManifest(ruleLocation);
         if (manifest != null) {
@@ -182,7 +194,6 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
 
     @Override
     public boolean isForcedSamplingSupported() {
-        //TODO address this
-        return false;
+        return forcedSamplingSupport;
     }
 }
