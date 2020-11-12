@@ -51,23 +51,29 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
     private final LocalizedSamplingStrategy fallback;
     private final RulePoller rulePoller;
     private final TargetPoller targetPoller;
+    private final boolean forcedSamplingSupport;
 
     private boolean isStarted = false;
 
     public CentralizedSamplingStrategy() {
-        this.manifest = new CentralizedManifest();
-        this.fallback = new LocalizedSamplingStrategy();
-        UnsignedXrayClient client = new UnsignedXrayClient();
-        this.rulePoller = new RulePoller(client, manifest, Clock.systemUTC());
-        this.targetPoller = new TargetPoller(client, manifest, Clock.systemUTC());
+        this(LocalizedSamplingStrategy.DEFAULT_RULES, false);
     }
 
-    public CentralizedSamplingStrategy(URL ruleLocation) {
+    public CentralizedSamplingStrategy(@Nullable URL ruleLocation) {
+        this(ruleLocation, false);
+    }
+
+    public CentralizedSamplingStrategy(boolean forcedSamplingSupport) {
+        this(LocalizedSamplingStrategy.DEFAULT_RULES, forcedSamplingSupport);
+    }
+
+    public CentralizedSamplingStrategy(@Nullable URL ruleLocation, boolean forcedSamplingSupport) {
         this.manifest = new CentralizedManifest();
         this.fallback = new LocalizedSamplingStrategy(ruleLocation);
         UnsignedXrayClient client = new UnsignedXrayClient();
         this.rulePoller = new RulePoller(client, manifest, Clock.systemUTC());
         this.targetPoller = new TargetPoller(client, manifest, Clock.systemUTC());
+        this.forcedSamplingSupport = forcedSamplingSupport;
     }
 
     @Nullable
@@ -148,8 +154,6 @@ public class CentralizedSamplingStrategy implements SamplingStrategy {
 
     @Override
     public boolean isForcedSamplingSupported() {
-        //TODO address this
-        return false;
+        return forcedSamplingSupport;
     }
-
 }

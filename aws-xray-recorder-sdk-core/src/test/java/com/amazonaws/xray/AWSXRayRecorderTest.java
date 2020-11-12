@@ -17,6 +17,8 @@ package com.amazonaws.xray;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import com.amazonaws.xray.contexts.LambdaSegmentContext;
 import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
@@ -38,7 +40,6 @@ import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
-import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import com.amazonaws.xray.strategy.sampling.SamplingResponse;
 import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -68,7 +69,9 @@ import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -85,6 +88,9 @@ public class AWSXRayRecorderTest {
     private static final String TRACE_HEADER = "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1";
 
     private static ExecutorService threadExecutor;
+
+    @Mock
+    private SamplingStrategy mockSamplingStrategy;
 
     @Rule
     public EnvironmentVariables environmentVariables = new EnvironmentVariables();
@@ -103,6 +109,7 @@ public class AWSXRayRecorderTest {
 
     @Before
     public void setupAWSXRay() {
+        MockitoAnnotations.initMocks(this);
         Emitter blankEmitter = Mockito.mock(Emitter.class);
         LocalizedSamplingStrategy defaultSamplingStrategy = new LocalizedSamplingStrategy();
         Mockito.doReturn(true).when(blankEmitter).sendSegment(Mockito.anyObject());
@@ -270,7 +277,7 @@ public class AWSXRayRecorderTest {
         segment.setSampled(false);
         recorder.endSegment();
 
-        Mockito.verify(mockEmitter, Mockito.times(0)).sendSegment(Mockito.any());
+        Mockito.verify(mockEmitter, Mockito.times(0)).sendSegment(any());
     }
 
     @Test
@@ -283,7 +290,7 @@ public class AWSXRayRecorderTest {
         recorder.endSubsegment();
         recorder.endSegment();
 
-        Mockito.verify(mockEmitter, Mockito.times(1)).sendSegment(Mockito.any());
+        Mockito.verify(mockEmitter, Mockito.times(1)).sendSegment(any());
     }
 
     @Test
@@ -296,7 +303,7 @@ public class AWSXRayRecorderTest {
         recorder.endSubsegment(subsegment);
         recorder.endSegment();
 
-        Mockito.verify(mockEmitter, Mockito.times(1)).sendSegment(Mockito.any());
+        Mockito.verify(mockEmitter, Mockito.times(1)).sendSegment(any());
     }
 
     @Test
@@ -309,7 +316,7 @@ public class AWSXRayRecorderTest {
         recorder.endSubsegment();
         recorder.endSegment();
 
-        Mockito.verify(mockEmitter, Mockito.times(0)).sendSegment(Mockito.any());
+        Mockito.verify(mockEmitter, Mockito.times(0)).sendSegment(any());
     }
 
     @Test
@@ -378,7 +385,7 @@ public class AWSXRayRecorderTest {
         recorder.createSubsegment("test", () -> {
         });
 
-        Mockito.verify(mockEmitter, Mockito.times(0)).sendSubsegment(Mockito.any());
+        Mockito.verify(mockEmitter, Mockito.times(0)).sendSubsegment(any());
     }
 
     @Test
@@ -851,7 +858,9 @@ public class AWSXRayRecorderTest {
 
     @Test
     public void testBeginSegmentWithSamplingDoesSample() {
-        AWSXRay.getGlobalRecorder().setSamplingStrategy(new TestSamplingStrategy(true));
+        SamplingResponse response = new SamplingResponse(true, "rule");
+        when(mockSamplingStrategy.shouldTrace(any())).thenReturn(response);
+        AWSXRay.getGlobalRecorder().setSamplingStrategy(mockSamplingStrategy);
 
         Segment segment = AWSXRay.beginSegmentWithSampling("test");
         assertThat(segment.isSampled()).isTrue();
@@ -861,27 +870,29 @@ public class AWSXRayRecorderTest {
 
     @Test
     public void testBeginSegmentWithSamplingDoesNotSample() {
-        AWSXRay.getGlobalRecorder().setSamplingStrategy(new TestSamplingStrategy(false));
+        SamplingResponse response = new SamplingResponse(false, "rule");
+        when(mockSamplingStrategy.shouldTrace(any())).thenReturn(response);
+        AWSXRay.getGlobalRecorder().setSamplingStrategy(mockSamplingStrategy);
 
         Segment segment = AWSXRay.beginSegmentWithSampling("test");
         assertThat(segment.isSampled()).isFalse();
+
+        segment.setUser("user");
+        assertThat(segment.getUser()).isEmpty();  // Loose way to test that segment is a no-op
     }
 
-    private static class TestSamplingStrategy implements SamplingStrategy {
-        boolean sampled;
+    @Test
+    public void testBeginSegmentWithForcedSampling() {
+        SamplingResponse response = new SamplingResponse(false, "rule");
+        when(mockSamplingStrategy.isForcedSamplingSupported()).thenReturn(true);
+        when(mockSamplingStrategy.shouldTrace(any())).thenReturn(response);
+        AWSXRay.getGlobalRecorder().setSamplingStrategy(mockSamplingStrategy);
 
-        TestSamplingStrategy(boolean sampled) {
-            this.sampled = sampled;
-        }
+        Segment segment = AWSXRay.beginSegmentWithSampling("test");
+        assertThat(segment.isSampled()).isFalse();
 
-        @Override
-        public SamplingResponse shouldTrace(SamplingRequest sampleRequest) {
-            return new SamplingResponse(sampled, "rule");
-        }
+        segment.setUser("user");
+        assertThat(segment.getUser()).isEqualTo("user");  // Loose way to test that segment is real
 
-        @Override
-        public boolean isForcedSamplingSupported() {
-            return false;
-        }
     }
 }
