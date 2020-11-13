@@ -105,7 +105,7 @@ public class AWSXRay {
     }
 
     /**
-     * @deprecated Use {@code AWSXray.getGlobalRecorder().beginNoOpSegment() }.
+     * @deprecated Use {@code AWSXRay.getGlobalRecorder().beginNoOpSegment() }.
      */
     @Deprecated
     public static Segment beginDummySegment() {
@@ -122,6 +122,10 @@ public class AWSXRay {
 
     public static void endSubsegment() {
         globalRecorder.endSubsegment();
+    }
+
+    public static void endSubsegment(@Nullable Subsegment subsegment) {
+        globalRecorder.endSubsegment(subsegment);
     }
 
     @Nullable
