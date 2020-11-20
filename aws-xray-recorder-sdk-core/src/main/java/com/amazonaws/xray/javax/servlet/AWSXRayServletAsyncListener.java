@@ -48,17 +48,13 @@ class AWSXRayServletAsyncListener implements AsyncListener {
 
     private void processEvent(AsyncEvent event) throws IOException {
         AWSXRayRecorder recorder = getRecorder();
-        Entity prior = recorder.getTraceEntity();
-        try {
-            Entity entity = (Entity) event.getSuppliedRequest().getAttribute(ENTITY_ATTRIBUTE_KEY);
-            recorder.setTraceEntity(entity);
+        Entity entity = (Entity) event.getSuppliedRequest().getAttribute(ENTITY_ATTRIBUTE_KEY);
+        entity.run(() -> {
             if (event.getThrowable() != null) {
                 entity.addException(event.getThrowable());
             }
             filter.postFilter(event.getSuppliedRequest(), event.getSuppliedResponse());
-        } finally {
-            recorder.setTraceEntity(prior);
-        }
+        });
     }
 
     @Override

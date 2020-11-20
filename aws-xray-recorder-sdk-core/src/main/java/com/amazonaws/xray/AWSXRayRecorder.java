@@ -17,6 +17,7 @@ package com.amazonaws.xray;
 
 import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
 import com.amazonaws.xray.contexts.SegmentContext;
+import com.amazonaws.xray.contexts.SegmentContextExecutors;
 import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.contexts.ThreadLocalSegmentContextResolver;
 import com.amazonaws.xray.emitters.Emitter;
@@ -753,7 +754,11 @@ public class AWSXRayRecorder {
      *
      * @param entity
      *            the trace entity to set
+     *
+     * @deprecated Use {@link Entity#run(Runnable)} or methods in {@link SegmentContextExecutors} instead of directly setting
+     * the trace entity so it can be restored correctly.
      */
+    @Deprecated
     public void setTraceEntity(@Nullable Entity entity) {
         SegmentContext context = getSegmentContext();
         if (context == null) {

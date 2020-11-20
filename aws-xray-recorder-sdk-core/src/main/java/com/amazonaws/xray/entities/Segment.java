@@ -27,26 +27,6 @@ public interface Segment extends Entity {
     }
 
     /**
-     * Immediately runs the provided {@link Runnable} with this {@link Segment} as the current entity.
-     */
-    default void run(Runnable runnable) {
-        run(runnable, getCreator());
-    }
-
-    /**
-     * Immediately runs the provided {@link Runnable} with this {@link Segment} as the current entity.
-     */
-    default void run(Runnable runnable, AWSXRayRecorder recorder) {
-        Entity previous = recorder.getTraceEntity();
-        recorder.setTraceEntity(this);
-        try {
-            runnable.run();
-        } finally {
-            recorder.setTraceEntity(previous);
-        }
-    }
-
-    /**
      * Ends the segment. Sets the end time to the current time. Sets inProgress to false.
      *
      * @return true if 1) the reference count is less than or equal to zero and 2) sampled is true
