@@ -37,7 +37,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "org.mockito",
-                "2.28.2",
+                "3.6.0",
                 listOf("mockito-all", "mockito-core", "mockito-junit-jupiter")
         )
 )

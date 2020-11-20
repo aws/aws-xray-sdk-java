@@ -39,6 +39,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
@@ -52,13 +53,13 @@ public class SegmentContextExecutorsTest {
     @Mock
     private volatile AWSXRayRecorder recorder;
 
-    @Mock
+    @Spy
     private volatile Segment current;
 
-    @Mock
+    @Spy
     private volatile Segment manual;
 
-    @Mock
+    @Spy
     private volatile Segment previous;
 
     @BeforeClass
