@@ -19,7 +19,6 @@ import static com.amazonaws.xray.utils.LooseValidations.checkNotNull;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import java.util.concurrent.Executor;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -80,13 +79,7 @@ public final class SegmentContextExecutors {
 
         @Override
         public void execute(Runnable command) {
-            Entity previous = recorder.getTraceEntity();
-            recorder.setTraceEntity(segment);
-            try {
-                command.run();
-            } finally {
-                recorder.setTraceEntity(previous);
-            }
+            segment.run(command, recorder);
         }
     }
 }

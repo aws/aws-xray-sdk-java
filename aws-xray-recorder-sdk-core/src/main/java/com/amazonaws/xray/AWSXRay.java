@@ -15,6 +15,7 @@
 
 package com.amazonaws.xray;
 
+import com.amazonaws.xray.contexts.SegmentContextExecutors;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
@@ -186,6 +187,11 @@ public class AWSXRay {
         globalRecorder.clearThreadLocal();
     }
 
+    /**
+     * @deprecated Use {@link Entity#run(Runnable)} or methods in {@link SegmentContextExecutors} instead of directly setting
+     * the trace entity so it can be restored correctly.
+     */
+    @Deprecated
     public static void setTraceEntity(Entity entity) {
         globalRecorder.setTraceEntity(entity);
     }

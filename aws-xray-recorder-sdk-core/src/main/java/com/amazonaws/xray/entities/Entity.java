@@ -36,6 +36,26 @@ public interface Entity extends AutoCloseable {
         return AWSXRay.getGlobalRecorder().getIdGenerator().newEntityId();
     }
 
+    /**
+     * Immediately runs the provided {@link Runnable} with this {@link Segment} as the current entity.
+     */
+    default void run(Runnable runnable) {
+        run(runnable, getCreator());
+    }
+
+    /**
+     * Immediately runs the provided {@link Runnable} with this {@link Segment} as the current entity.
+     */
+    default void run(Runnable runnable, AWSXRayRecorder recorder) {
+        Entity previous = recorder.getTraceEntity();
+        recorder.setTraceEntity(this);
+        try {
+            runnable.run();
+        } finally {
+            recorder.setTraceEntity(previous);
+        }
+    }
+
     String getName();
 
     /**
