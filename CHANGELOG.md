@@ -1,5 +1,25 @@
 # Change Log
 
+## 2.8.0 - 2020-11-24
+- Optimized creating, parsing, and serializing trace IDs
+[PR 212](https://github.com/aws/aws-xray-sdk-java/pull/212)
+- Fixed setParent behavior for NoOp subsegments
+[PR 215](https://github.com/aws/aws-xray-sdk-java/pull/215)
+- Added a faster random source configuration
+[PR 218](https://github.com/aws/aws-xray-sdk-java/pull/218)
+- Lowered log level on IMDS error messages
+[PR 219](https://github.com/aws/aws-xray-sdk-java/pull/219)
+- Removed nanosecond-time resolution where unneeded for performance
+[PR 224](https://github.com/aws/aws-xray-sdk-java/pull/224)
+- Fixed log error context missing strategy stack traces
+[PR 235](https://github.com/aws/aws-xray-sdk-java/pull/235)
+- Added isForcedSampling support configurability to sampling strategies
+[PR 232](https://github.com/aws/aws-xray-sdk-java/pull/232)
+- Add top-level method for context-free endSubsegment
+[PR 229](https://github.com/aws/aws-xray-sdk-java/pull/229)
+- Add ThreadLocal-safe Entity.run() method
+[PR 240](https://github.com/aws/aws-xray-sdk-java/pull/240)
+
 ## 2.7.1 - 2020-08-28
 - Fix ClassCastException caused by change in 2.7.0
 [PR 202](https://github.com/aws/aws-xray-sdk-java/pull/202)

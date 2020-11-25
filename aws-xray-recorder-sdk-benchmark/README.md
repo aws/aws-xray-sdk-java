@@ -200,6 +200,7 @@ In the latest version of our SDK (2.2.x), the typical request-response lifecycle
 ### Benchmark Data by SDK Version
 
 Note that beginning with version 2.7.x, benchmarks are only ran with the Sample Time and Throughput modes.
+Beginning with version 2.8.x, we publish the raw output of the benchmarking tests in the [results](./results) directory.
 
 #### 1.3.x
 <details><summary>Show</summary>
