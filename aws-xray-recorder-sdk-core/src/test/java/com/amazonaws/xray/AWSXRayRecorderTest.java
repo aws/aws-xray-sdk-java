@@ -40,6 +40,7 @@ import com.amazonaws.xray.strategy.IgnoreErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
+import com.amazonaws.xray.strategy.sampling.NoSamplingStrategy;
 import com.amazonaws.xray.strategy.sampling.SamplingResponse;
 import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -757,6 +758,29 @@ public class AWSXRayRecorderTest {
         TraceID traceID = TraceID.create();
         Segment segment = AWSXRay.getGlobalRecorder().beginNoOpSegment(traceID);
         assertThat(segment.getTraceId()).isEqualTo(traceID);
+    }
+
+    @Test
+    public void testNoOpSegmentWithForcedTraceId() {
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+                                                         .withAlwaysCreateTraceId()
+                                                         .build();
+        Segment segment = recorder.beginNoOpSegment();
+        assertThat(segment.getTraceId()).isNotEqualTo(TraceID.invalid());
+        AWSXRayRecorder recorder2 = AWSXRayRecorderBuilder.standard()
+                                                         .build();
+        Segment segment2 = recorder2.beginNoOpSegment();
+        assertThat(segment2.getTraceId()).isEqualTo(TraceID.invalid());
+    }
+
+    @Test
+    public void testAlwaysCreateTraceId() {
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+                                                         .withAlwaysCreateTraceId()
+                                                         .withSamplingStrategy(new NoSamplingStrategy())
+                                                         .build();
+        Segment segment = recorder.beginSegmentWithSampling("test");
+        assertThat(segment.getTraceId()).isNotEqualTo(TraceID.invalid());
     }
 
     @Test

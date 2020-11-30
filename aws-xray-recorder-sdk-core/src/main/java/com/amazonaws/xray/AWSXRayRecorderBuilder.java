@@ -81,6 +81,7 @@ public class AWSXRayRecorderBuilder {
     private Emitter emitter;
 
     private boolean useFastIdGenerator = false;
+    private boolean alwaysCreateTraceId = false;
 
 
     private AWSXRayRecorderBuilder() {
@@ -248,6 +249,17 @@ public class AWSXRayRecorderBuilder {
     }
 
     /**
+     * Prepares this builder to build an {@code AWSXRayRecorder} which creates Trace ID for all Segments
+     * even for NoOp segments that usually include include a static invalid TraceID.
+     * This could be useful for example in case the Trace ID is logged to be able to aggregate all logs from a
+     * single request
+     */
+    public AWSXRayRecorderBuilder withAlwaysCreateTraceId() {
+        this.alwaysCreateTraceId = true;
+        return this;
+    }
+
+    /**
      * Constructs and returns an AWSXRayRecorder with the provided configuration.
      *
      * @return a configured instance of AWSXRayRecorder
@@ -289,6 +301,10 @@ public class AWSXRayRecorderBuilder {
             client.useFastIdGenerator();
         } else {
             client.useSecureIdGenerator();
+        }
+
+        if (alwaysCreateTraceId) {
+            client.alwaysCreateTraceID(true);
         }
 
         plugins.stream().filter(Objects::nonNull).filter(p -> p.isEnabled()).forEach(plugin -> {

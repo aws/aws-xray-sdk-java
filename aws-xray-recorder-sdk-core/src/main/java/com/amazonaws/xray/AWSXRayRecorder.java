@@ -135,6 +135,7 @@ public class AWSXRayRecorder {
 
     @MonotonicNonNull
     private String origin;
+    private boolean alwaysCreateTraceId;
 
     public AWSXRayRecorder() {
         samplingStrategy = new DefaultSamplingStrategy();
@@ -441,7 +442,7 @@ public class AWSXRayRecorder {
      * will be propagated downstream.
      */
     public Segment beginNoOpSegment() {
-        return beginSegment(Segment.noOp(TraceID.invalid(), this));
+        return beginSegment(Segment.noOp(this.alwaysCreateTraceId ? TraceID.create(this) : TraceID.invalid(), this));
     }
 
     /**
@@ -1081,5 +1082,13 @@ public class AWSXRayRecorder {
                                                   SegmentNotFoundException.class);
             return null;
         }
+    }
+
+    /**
+     * Configures this {@code AWSXRayRecorder} to add valid TraceId in all segments even NoOp ones that usually have
+     * a fixed value.
+     */
+    public void alwaysCreateTraceID(final boolean alwaysCreateTraceId) {
+        this.alwaysCreateTraceId = alwaysCreateTraceId;
     }
 }
