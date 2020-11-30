@@ -250,7 +250,7 @@ public class AWSXRayRecorderBuilder {
 
     /**
      * Prepares this builder to build an {@code AWSXRayRecorder} which creates Trace ID for all Segments
-     * even for NoOp segments that usually include include a static invalid TraceID.
+     * even for NoOpSegments or not sampled ones that usually include include a static invalid TraceID.
      * This could be useful for example in case the Trace ID is logged to be able to aggregate all logs from a
      * single request
      */
