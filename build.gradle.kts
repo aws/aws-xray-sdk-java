@@ -11,6 +11,7 @@ plugins {
 
     id("nebula.release")
     id("org.ajoberstar.grgit")
+    id("io.freefair.aggregate-javadoc-jar")
 }
 
 tasks {
