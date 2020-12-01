@@ -81,7 +81,7 @@ public class AWSXRayRecorderBuilder {
     private Emitter emitter;
 
     private boolean useFastIdGenerator = false;
-    private boolean alwaysCreateTraceId = false;
+    private boolean forcedTraceIdGeneration = false;
 
 
     private AWSXRayRecorderBuilder() {
@@ -254,8 +254,8 @@ public class AWSXRayRecorderBuilder {
      * This could be useful for example in case the Trace ID is logged to be able to aggregate all logs from a
      * single request
      */
-    public AWSXRayRecorderBuilder withAlwaysCreateTraceId() {
-        this.alwaysCreateTraceId = true;
+    public AWSXRayRecorderBuilder withForcedTraceIdGeneration() {
+        this.forcedTraceIdGeneration = true;
         return this;
     }
 
@@ -303,8 +303,8 @@ public class AWSXRayRecorderBuilder {
             client.useSecureIdGenerator();
         }
 
-        if (alwaysCreateTraceId) {
-            client.alwaysCreateTraceID(true);
+        if (forcedTraceIdGeneration) {
+            client.setForcedTraceIdGeneration(true);
         }
 
         plugins.stream().filter(Objects::nonNull).filter(p -> p.isEnabled()).forEach(plugin -> {

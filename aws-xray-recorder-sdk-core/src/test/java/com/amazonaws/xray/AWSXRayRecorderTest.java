@@ -763,7 +763,7 @@ public class AWSXRayRecorderTest {
     @Test
     public void testNoOpSegmentWithForcedTraceId() {
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-                                                         .withAlwaysCreateTraceId()
+                                                         .withForcedTraceIdGeneration()
                                                          .build();
         Segment segment = recorder.beginNoOpSegment();
         assertThat(segment.getTraceId()).isNotEqualTo(TraceID.invalid());
@@ -776,7 +776,7 @@ public class AWSXRayRecorderTest {
     @Test
     public void testAlwaysCreateTraceId() {
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-                                                         .withAlwaysCreateTraceId()
+                                                         .withForcedTraceIdGeneration()
                                                          .withSamplingStrategy(new NoSamplingStrategy())
                                                          .build();
         Segment segment = recorder.beginSegmentWithSampling("test");
