@@ -93,12 +93,23 @@ public class CentralizedManifest implements Manifest {
         boolean invalidate = false;
 
         Map<String, CentralizedRule> rules = this.rules;
+        List<String> inputNames = new ArrayList<>(inputs.size());
 
         for (SamplingRule i : inputs) {
             if (i.getRuleName().equals(CentralizedRule.DEFAULT_RULE_NAME)) {
                 putDefaultRule(i);
             } else {
+                inputNames.add(i.getRuleName());
                 invalidate = putCustomRule(rules, i);
+            }
+        }
+        // Check if any rule was removed
+        if (!invalidate) {
+            for (CentralizedRule rule : rules.values()) {
+                if (!inputNames.contains(rule.getName())) {
+                    invalidate = true;
+                    break;
+                }
             }
         }
 

@@ -221,6 +221,23 @@ class CentralizedManifestTest {
     }
 
     @Test
+    void testRebuildOnRuleDeletion() {
+        CentralizedManifest manifest = new CentralizedManifest();
+
+        manifest.putRules(Arrays.asList(rule("r1"), rule("r2")), Instant.now());
+        Map<String, CentralizedRule> rules1 = Whitebox.getInternalState(manifest, "rules", CentralizedManifest.class);
+
+        manifest.putRules(Arrays.asList(rule("r2")), Instant.now());
+        Map<String, CentralizedRule> rules2 = Whitebox.getInternalState(manifest, "rules", CentralizedManifest.class);
+
+        // The map of rules should be rebuilt, resulting in a new object
+        Assertions.assertFalse(rules1 == rules2);
+
+        Assertions.assertEquals(2, rules1.size());
+        Assertions.assertEquals(1, rules2.size());
+    }
+
+    @Test
     void testManifestSizeWithDefaultRule() {
         CentralizedManifest m = new CentralizedManifest();
 
