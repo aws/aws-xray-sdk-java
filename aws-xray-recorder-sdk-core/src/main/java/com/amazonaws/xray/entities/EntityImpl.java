@@ -33,10 +33,11 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.logging.Log;
@@ -63,59 +64,81 @@ public abstract class EntityImpl implements Entity {
 
     private static final String DEFAULT_METADATA_NAMESPACE = "default";
 
+    protected final Object lock = new Object();
+    private final String name;
+
     /*
      * Reference counter to track how many subsegments are in progress on this entity. Starts with a value of 0.
      */
     @JsonIgnore
-    protected LongAdder referenceCount;
+    protected int referenceCount;
 
     @JsonIgnore
     protected LongAdder totalSize;
 
-    private String name;
+    @GuardedBy("lock")
     private String id;
+    @GuardedBy("lock")
     @Nullable
     private String parentId;
+    @GuardedBy("lock")
     private double startTime;
 
     @JsonInclude(Include.NON_DEFAULT)
     @JsonSerialize(using = ToStringSerializer.class)
+    @GuardedBy("lock")
     private TraceID traceId;
 
     @JsonInclude(Include.NON_DEFAULT)
+    @GuardedBy("lock")
     private double endTime;
 
     @JsonInclude(Include.NON_DEFAULT)
+    @GuardedBy("lock")
     private boolean fault;
     @JsonInclude(Include.NON_DEFAULT)
+    @GuardedBy("lock")
     private boolean error;
     @JsonInclude(Include.NON_DEFAULT)
+    @GuardedBy("lock")
     private boolean throttle;
     @JsonInclude(Include.NON_DEFAULT)
+    @GuardedBy("lock")
     private boolean inProgress;
 
     @Nullable
+    @GuardedBy("lock")
     private String namespace;
 
     // TODO(anuraaga): Check final for other variables, for now this is most important since it's also a lock.
     private final List<Subsegment> subsegments;
 
+    @GuardedBy("lock")
     private Cause cause;
+    @GuardedBy("lock")
     private Map<String, Object> http;
+    @GuardedBy("lock")
     private Map<String, Object> aws;
+    @GuardedBy("lock")
     private Map<String, Object> sql;
 
+    @GuardedBy("lock")
     private Map<String, Map<String, Object>> metadata;
+    @GuardedBy("lock")
     private Map<String, Object> annotations;
 
     @JsonIgnore
+    @GuardedBy("lock")
     private Entity parent;
     @JsonIgnore
+    @GuardedBy("lock")
     private AWSXRayRecorder creator;
     @JsonIgnore
+    @GuardedBy("lock")
     private ReentrantLock subsegmentsLock;
 
     @JsonIgnore
+    @GuardedBy("lock")
     private boolean emitted = false;
 
     static {
@@ -155,6 +178,7 @@ public abstract class EntityImpl implements Entity {
     protected EntityImpl() {
         // TODO(anuraaga): Check this is working as intended, empty lists are currently serialized.
         subsegments = null;
+        name = null;
     }
 
     // TODO(anuraaga): Refactor the entity relationship. There isn't a great reason to use a type hierarchy for data classes and
@@ -169,15 +193,15 @@ public abstract class EntityImpl implements Entity {
         this.subsegments = new ArrayList<>();
         this.subsegmentsLock = new ReentrantLock();
         this.cause = new Cause();
-        this.http = new ConcurrentHashMap<>();
-        this.aws = new ConcurrentHashMap<>();
-        this.sql = new ConcurrentHashMap<>();
-        this.annotations = new ConcurrentHashMap<>();
-        this.metadata = new ConcurrentHashMap<>();
+        this.http = new HashMap<>();
+        this.aws = new HashMap<>();
+        this.sql = new HashMap<>();
+        this.annotations = new HashMap<>();
+        this.metadata = new HashMap<>();
         this.startTime = System.currentTimeMillis() / 1000d;
         this.id = creator.getIdGenerator().newEntityId();
         this.inProgress = true;
-        this.referenceCount = new LongAdder();
+        this.referenceCount = 0;
         this.totalSize = new LongAdder();
     }
 
@@ -190,9 +214,11 @@ public abstract class EntityImpl implements Entity {
      *
      */
     protected void checkAlreadyEmitted() {
-        if (emitted) {
-            getCreator().getContextMissingStrategy().contextMissing("Segment " + getName() + " has already been emitted.",
-                                                                    AlreadyEmittedException.class);
+        synchronized (lock) {
+            if (emitted) {
+                getCreator().getContextMissingStrategy().contextMissing("Segment " + getName() + " has already been emitted.",
+                                                                        AlreadyEmittedException.class);
+            }
         }
     }
 
@@ -203,151 +229,205 @@ public abstract class EntityImpl implements Entity {
 
     @Override
     public String getId() {
-        return id;
+        synchronized (lock) {
+            return id;
+        }
     }
 
     @Override
     public void setId(String id) {
-        checkAlreadyEmitted();
-        this.id = id;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.id = id;
+        }
     }
 
     @Override
     public double getStartTime() {
-        return startTime;
+        synchronized (lock) {
+            return startTime;
+        }
     }
 
     @Override
     public void setStartTime(double startTime) {
-        checkAlreadyEmitted();
-        this.startTime = startTime;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.startTime = startTime;
+        }
     }
 
     @Override
     public double getEndTime() {
-        return endTime;
+        synchronized (lock) {
+            return endTime;
+        }
     }
 
     @Override
     public void setEndTime(double endTime) {
-        checkAlreadyEmitted();
-        this.endTime = endTime;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.endTime = endTime;
+        }
     }
 
     @Override
     public boolean isFault() {
-        return fault;
+        synchronized (lock) {
+            return fault;
+        }
     }
 
     @Override
     public void setFault(boolean fault) {
-        checkAlreadyEmitted();
-        this.fault = fault;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.fault = fault;
+        }
     }
 
     @Override
     public boolean isError() {
-        return error;
+        synchronized (lock) {
+            return error;
+        }
     }
 
     @Override
     public void setError(boolean error) {
-        checkAlreadyEmitted();
-        this.error = error;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.error = error;
+        }
     }
 
     @Override
     @Nullable
     public String getNamespace() {
-        return namespace;
+        synchronized (lock) {
+            return namespace;
+        }
     }
 
     @Override
     public void setNamespace(String namespace) {
-        checkAlreadyEmitted();
-        this.namespace = namespace;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.namespace = namespace;
+        }
     }
 
     @Override
     public ReentrantLock getSubsegmentsLock() {
-        return subsegmentsLock;
+        synchronized (lock) {
+            return subsegmentsLock;
+        }
     }
 
     @Override
     public void setSubsegmentsLock(ReentrantLock subsegmentsLock) {
-        checkAlreadyEmitted();
-        this.subsegmentsLock = subsegmentsLock;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.subsegmentsLock = subsegmentsLock;
+        }
     }
 
     @Override
     public Cause getCause() {
-        return cause;
+        synchronized (lock) {
+            return cause;
+        }
     }
 
     @Override
     public Map<String, Object> getHttp() {
-        return http;
+        synchronized (lock) {
+            return http;
+        }
     }
 
     @Override
     public void setHttp(Map<String, Object> http) {
-        checkAlreadyEmitted();
-        this.http = http;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.http = http;
+        }
     }
 
     @Override
     public Map<String, Object> getAws() {
-        return aws;
+        synchronized (lock) {
+            return aws;
+        }
     }
 
     @Override
     public void setAws(Map<String, Object> aws) {
-        checkAlreadyEmitted();
-        this.aws = aws;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.aws = aws;
+        }
     }
 
     @Override
     public Map<String, Object> getSql() {
-        return sql;
+        synchronized (lock) {
+            return sql;
+        }
     }
 
     @Override
     public void setSql(Map<String, Object> sql) {
-        checkAlreadyEmitted();
-        this.sql = sql;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.sql = sql;
+        }
     }
 
     @Override
     public Map<String, Map<String, Object>> getMetadata() {
-        return metadata;
+        synchronized (lock) {
+            return metadata;
+        }
     }
 
     @Override
     public void setMetadata(Map<String, Map<String, Object>> metadata) {
-        checkAlreadyEmitted();
-        this.metadata = metadata;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.metadata = metadata;
+        }
     }
 
     @Override
     public Map<String, Object> getAnnotations() {
-        return annotations;
+        synchronized (lock) {
+            return annotations;
+        }
     }
 
     @Override
     public void setAnnotations(Map<String, Object> annotations) {
-        checkAlreadyEmitted();
-        this.annotations = annotations;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.annotations = annotations;
+        }
     }
 
     @Override
     public Entity getParent() {
-        return parent;
+        synchronized (lock) {
+            return parent;
+        }
     }
 
     @Override
     public void setParent(Entity parent) {
-        checkAlreadyEmitted();
-        this.parent = parent;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.parent = parent;
+        }
     }
 
     /**
@@ -355,7 +435,9 @@ public abstract class EntityImpl implements Entity {
      */
     @Override
     public AWSXRayRecorder getCreator() {
-        return creator;
+        synchronized (lock) {
+            return creator;
+        }
     }
 
     /**
@@ -363,58 +445,76 @@ public abstract class EntityImpl implements Entity {
      */
     @Override
     public void setCreator(AWSXRayRecorder creator) {
-        checkAlreadyEmitted();
-        this.creator = creator;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.creator = creator;
+        }
     }
 
     @Override
     public boolean isThrottle() {
-        return throttle;
+        synchronized (lock) {
+            return throttle;
+        }
     }
 
     @Override
     public void setThrottle(boolean throttle) {
-        checkAlreadyEmitted();
-        if (throttle) {
-            this.fault = false;
-            this.error = true;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            if (throttle) {
+                this.fault = false;
+                this.error = true;
+            }
+            this.throttle = throttle;
         }
-        this.throttle = throttle;
     }
 
     @Override
     public boolean isInProgress() {
-        return inProgress;
+        synchronized (lock) {
+            return inProgress;
+        }
     }
 
     @Override
     public void setInProgress(boolean inProgress) {
-        checkAlreadyEmitted();
-        this.inProgress = inProgress;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.inProgress = inProgress;
+        }
     }
 
     @Override
     public TraceID getTraceId() {
-        return traceId;
+        synchronized (lock) {
+            return traceId;
+        }
     }
 
     @Override
     @EnsuresNonNull("this.traceId")
     public void setTraceId(TraceID traceId) {
-        checkAlreadyEmitted();
-        this.traceId = traceId;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.traceId = traceId;
+        }
     }
 
     @Override
     @Nullable
     public String getParentId() {
-        return parentId;
+        synchronized (lock) {
+            return parentId;
+        }
     }
 
     @Override
     public void setParentId(@Nullable String parentId) {
-        checkAlreadyEmitted();
-        this.parentId = parentId;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.parentId = parentId;
+        }
     }
 
 
@@ -424,133 +524,163 @@ public abstract class EntityImpl implements Entity {
 
     @Override
     public List<Subsegment> getSubsegments() {
-        return subsegments;
+        synchronized (lock) {
+            return subsegments;
+        }
     }
 
     @Override
     public void addSubsegment(Subsegment subsegment) {
-        checkAlreadyEmitted();
-        getSubsegmentsLock().lock();
-        try {
-            subsegments.add(subsegment);
-        } finally {
-            getSubsegmentsLock().unlock();
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            getSubsegmentsLock().lock();
+            try {
+                subsegments.add(subsegment);
+            } finally {
+                getSubsegmentsLock().unlock();
+            }
         }
     }
 
     @Override
     public void addException(Throwable exception) {
-        checkAlreadyEmitted();
-        setFault(true);
-        getSubsegmentsLock().lock();
-        try {
-            cause.addExceptions(creator.getThrowableSerializationStrategy()
-                .describeInContext(this, exception, subsegments));
-        } finally {
-            getSubsegmentsLock().unlock();
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            setFault(true);
+            getSubsegmentsLock().lock();
+            try {
+                cause.addExceptions(creator.getThrowableSerializationStrategy()
+                                           .describeInContext(this, exception, subsegments));
+            } finally {
+                getSubsegmentsLock().unlock();
+            }
         }
     }
 
     @Override
     public void putHttp(String key, Object value) {
-        checkAlreadyEmitted();
-        validateNotNull(key);
-        validateNotNull(value);
-        http.put(key, value);
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            validateNotNull(key);
+            validateNotNull(value);
+            http.put(key, value);
+        }
     }
 
     @Override
     public void putAllHttp(Map<String, Object> all) {
-        checkAlreadyEmitted();
-        validateNotNull(all);
-        http.putAll(all);
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            validateNotNull(all);
+            http.putAll(all);
+        }
     }
 
     @Override
     public void putAws(String key, Object value) {
-        checkAlreadyEmitted();
-        validateNotNull(key);
-        validateNotNull(value);
-        aws.put(key, value);
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            validateNotNull(key);
+            validateNotNull(value);
+            aws.put(key, value);
+        }
     }
 
     @Override
     public void putAllAws(Map<String, Object> all) {
-        checkAlreadyEmitted();
-        validateNotNull(all);
-        aws.putAll(all);
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            validateNotNull(all);
+            aws.putAll(all);
+        }
     }
 
     @Override
     public void putSql(String key, Object value) {
-        checkAlreadyEmitted();
-        validateNotNull(key);
-        validateNotNull(value);
-        sql.put(key, value);
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            validateNotNull(key);
+            validateNotNull(value);
+            sql.put(key, value);
+        }
     }
 
     @Override
     public void putAllSql(Map<String, Object> all) {
-        checkAlreadyEmitted();
-        validateNotNull(all);
-        sql.putAll(all);
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            validateNotNull(all);
+            sql.putAll(all);
+        }
     }
 
     @Override
     public void putAnnotation(String key, String value) {
-        checkAlreadyEmitted();
-        validateNotNull(key);
-        validateNotNull(value);
-        annotations.put(key, value);
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            validateNotNull(key);
+            validateNotNull(value);
+            annotations.put(key, value);
+        }
     }
 
     @Override
     public void putAnnotation(String key, Number value) {
-        checkAlreadyEmitted();
-        validateNotNull(key);
-        validateNotNull(value);
-        annotations.put(key, value);
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            validateNotNull(key);
+            validateNotNull(value);
+            annotations.put(key, value);
+        }
     }
 
     @Override
     public void putAnnotation(String key, Boolean value) {
-        checkAlreadyEmitted();
-        validateNotNull(key);
-        validateNotNull(value);
-        annotations.put(key, value);
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            validateNotNull(key);
+            validateNotNull(value);
+            annotations.put(key, value);
+        }
     }
 
     @Override
     public void putMetadata(String key, Object object) {
-        checkAlreadyEmitted();
-        putMetadata(DEFAULT_METADATA_NAMESPACE, key, object);
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            putMetadata(DEFAULT_METADATA_NAMESPACE, key, object);
+        }
     }
 
     @Override
     public void putMetadata(String namespace, String key, Object object) {
-        checkAlreadyEmitted();
-        validateNotNull(namespace);
-        validateNotNull(key);
-        if (null == object) {
-            object = NullNode.instance;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            validateNotNull(namespace);
+            validateNotNull(key);
+            if (null == object) {
+                object = NullNode.instance;
+            }
+            metadata.computeIfAbsent(namespace, unused -> new HashMap<>()).put(key, object);
         }
-        metadata.computeIfAbsent(namespace, (n) -> {
-            return new ConcurrentHashMap<String, Object>();
-        }).put(key, object);
     }
 
     @Override
     public void incrementReferenceCount() {
-        checkAlreadyEmitted();
-        referenceCount.increment();
-        totalSize.increment();
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            referenceCount++;
+            totalSize.increment();
+        }
     }
 
     @Override
     public boolean decrementReferenceCount() {
-        checkAlreadyEmitted();
-        referenceCount.decrement();
-        return !isInProgress() && referenceCount.intValue() <= 0;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            referenceCount--;
+            return !isInProgress() && referenceCount <= 0;
+        }
     }
 
     /**
@@ -561,7 +691,9 @@ public abstract class EntityImpl implements Entity {
      */
     @Override
     public int getReferenceCount() {
-        return referenceCount.intValue();
+        synchronized (lock) {
+            return referenceCount;
+        }
     }
 
     /**
@@ -569,7 +701,9 @@ public abstract class EntityImpl implements Entity {
      */
     @Override
     public LongAdder getTotalSize() {
-        return totalSize;
+        synchronized (lock) {
+            return totalSize;
+        }
     }
 
     /**
@@ -577,7 +711,9 @@ public abstract class EntityImpl implements Entity {
      */
     @Override
     public boolean isEmitted() {
-        return emitted;
+        synchronized (lock) {
+            return emitted;
+        }
     }
 
     /**
@@ -586,39 +722,47 @@ public abstract class EntityImpl implements Entity {
      */
     @Override
     public void setEmitted(boolean emitted) {
-        checkAlreadyEmitted();
-        this.emitted = emitted;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.emitted = emitted;
+        }
     }
 
     @Override
     public String serialize() {
-        try {
-            return mapper.writeValueAsString(this);
-        } catch (JsonProcessingException jpe) {
-            logger.error("Exception while serializing entity.", jpe);
+        synchronized (lock) {
+            try {
+                return mapper.writeValueAsString(this);
+            } catch (JsonProcessingException jpe) {
+                logger.error("Exception while serializing entity.", jpe);
+            }
+            return "";
         }
-        return "";
     }
 
     @Override
     public String prettySerialize() {
-        try {
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
-        } catch (JsonProcessingException jpe) {
-            logger.error("Exception while serializing segment.", jpe);
+        synchronized (lock) {
+            try {
+                return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
+            } catch (JsonProcessingException jpe) {
+                logger.error("Exception while serializing segment.", jpe);
+            }
+            return "";
         }
-        return "";
     }
 
     @Override
     public void removeSubsegment(Subsegment subsegment) {
-        getSubsegmentsLock().lock();
-        try {
-            subsegments.remove(subsegment);
-        } finally {
-            getSubsegmentsLock().unlock();
+        synchronized (lock) {
+            getSubsegmentsLock().lock();
+            try {
+                subsegments.remove(subsegment);
+            } finally {
+                getSubsegmentsLock().unlock();
+            }
+            getParentSegment().getTotalSize().decrement();
         }
-        getParentSegment().getTotalSize().decrement();
     }
 
 

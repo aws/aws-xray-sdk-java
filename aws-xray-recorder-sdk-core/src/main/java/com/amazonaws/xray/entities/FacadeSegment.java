@@ -26,12 +26,6 @@ public class FacadeSegment extends EntityImpl implements Segment {
     private static final String MUTATION_UNSUPPORTED_MESSAGE = "FacadeSegments cannot be mutated.";
     private static final String INFORMATION_UNAVAILABLE_MESSAGE = "This information is unavailable.";
 
-    protected String resourceArn;
-    protected String user;
-    protected String origin;
-
-    protected Map<String, Object> service;
-
     private final boolean sampled;
 
     // TODO(anuraaga): Refactor the entity relationship. There isn't a great reason to use a type hierarchy for data classes and
