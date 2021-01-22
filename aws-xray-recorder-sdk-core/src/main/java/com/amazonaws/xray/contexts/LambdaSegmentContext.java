@@ -36,6 +36,7 @@ public class LambdaSegmentContext implements SegmentContext {
 
     private static final String LAMBDA_TRACE_HEADER_KEY = "_X_AMZN_TRACE_ID";
     
+    // See: https://github.com/aws/aws-xray-sdk-java/issues/251
     private static final String LAMBDA_TRACE_HEADER_PROP = "com.amazonaws.xray.traceHeader";
 
     private static TraceHeader getTraceHeaderFromEnvironment() {
