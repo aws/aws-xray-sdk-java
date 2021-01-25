@@ -171,6 +171,25 @@ HttpClient httpClient = new DefaultHttpClient();
 httpClient.execute(request);
 ```
 
+### Intercept JDBC-Based SQL Queries
+
+In addition to our Postgres and MySQL patchers documented in the [official docs](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-sqlclients.html), this SDK also includes the `aws-xray-recorder-sdk-sql` library. This library can automatically instrument any JDBC data source, connection, or statement so that its queries are recorded by AWS X-Ray.
+
+```java
+import com.amazonaws.xray.sql.TracingConnection;
+import com.amazonaws.xray.sql.TracingDataSource;
+import com.amazonaws.xray.sql.TracingStatement;
+import java.sql.*;
+
+// Choose the one that you'd like to trace
+String sql = "SELECT * FROM MYTABLE";
+DataSource dataSource = TracingDataSource.decorate(dataSource);
+Connection connection = TracingConnection.decorate(connection);
+Statement statement = TracingStatement.decorateStatement(statement);
+PreparedStatement preparedStatement = TracingStatement.decoratePreparedStatement(preparedStatement, sql);
+CallableStatement callableStatement = TracingStatement.decorateCallableStatement(callableStatement, sql);
+```
+
 ### Intercept custom methods
 
 It may be useful to further decorate portions of an application for which performance is critical. Generating subsegments around these hot spots will help in understanding their impact on application performance. There are a few different styles available for tracing custom methods.
