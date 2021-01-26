@@ -173,7 +173,7 @@ httpClient.execute(request);
 
 ### Intercept JDBC-Based SQL Queries
 
-In addition to our Postgres and MySQL patchers documented in the [official docs](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-sqlclients.html), this SDK also includes the `aws-xray-recorder-sdk-sql` library. This library can automatically instrument any JDBC data source, connection, or statement so that its queries are recorded by AWS X-Ray.
+In addition to our Postgres and MySQL patchers documented in the [official docs](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-sqlclients.html), this SDK also includes the `aws-xray-recorder-sdk-sql` library. This library can instrument any JDBC data source, connection, or statement so that its queries are recorded by AWS X-Ray.
 
 ```java
 import com.amazonaws.xray.sql.TracingConnection;
