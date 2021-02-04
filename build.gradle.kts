@@ -121,6 +121,8 @@ allprojects {
             add("testImplementation", "org.mockito:mockito-core")
             add("testImplementation", "org.mockito:mockito-junit-jupiter")
 
+            add("compileOnly", "com.google.errorprone:error_prone_annotations")
+
             add("compileOnly", "org.checkerframework:checker-qual:3.4.1")
             add("testImplementation", "org.checkerframework:checker-qual:3.4.1")
             add("checkerFramework", "org.checkerframework:checker:3.4.1")

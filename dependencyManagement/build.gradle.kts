@@ -11,6 +11,11 @@ val DEPENDENCY_BOMS = listOf(
 
 val DEPENDENCY_SETS = listOf(
         DependencySet(
+                "com.google.errorprone",
+                "2.5.1",
+                listOf("error_prone_annotations")
+        ),
+        DependencySet(
                 "com.github.tomakehurst",
                 "2.26.3",
                 listOf("wiremock-jre8")

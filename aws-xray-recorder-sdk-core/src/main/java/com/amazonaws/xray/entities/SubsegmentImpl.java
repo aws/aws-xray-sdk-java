@@ -18,6 +18,7 @@ package com.amazonaws.xray.entities;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.logging.Log;
@@ -28,10 +29,13 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     private static final Log logger = LogFactory.getLog(SubsegmentImpl.class);
 
     @Nullable
+    @GuardedBy("lock")
     private String namespace;
 
+    @GuardedBy("lock")
     private Segment parentSegment;
 
+    @GuardedBy("lock")
     private Set<String> precursorIds;
 
     @SuppressWarnings("nullness")
@@ -48,95 +52,119 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
 
     @Override
     public boolean end() {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Subsegment named '" + getName() + "' ending. Parent segment named '" + parentSegment.getName()
-                         + "' has reference count " + parentSegment.getReferenceCount());
-        }
+        synchronized (lock) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Subsegment named '" + getName() + "' ending. Parent segment named '" + parentSegment.getName()
+                             + "' has reference count " + parentSegment.getReferenceCount());
+            }
 
-        if (getEndTime() < Double.MIN_NORMAL) {
-            setEndTime(System.currentTimeMillis() / 1000d);
+            if (getEndTime() < Double.MIN_NORMAL) {
+                setEndTime(System.currentTimeMillis() / 1000d);
+            }
+            setInProgress(false);
+            boolean shouldEmit = parentSegment.decrementReferenceCount() && parentSegment.isSampled();
+            if (shouldEmit) {
+                checkAlreadyEmitted();
+                setEmitted(true);
+            }
+            return shouldEmit;
         }
-        setInProgress(false);
-        boolean shouldEmit = parentSegment.decrementReferenceCount() && parentSegment.isSampled();
-        if (shouldEmit) {
-            checkAlreadyEmitted();
-            setEmitted(true);
-        }
-        return shouldEmit;
     }
 
     @Override
     @Nullable
     public String getNamespace() {
-        return namespace;
+        synchronized (lock) {
+            return namespace;
+        }
     }
 
     @Override
     public void setNamespace(String namespace) {
-        checkAlreadyEmitted();
-        this.namespace = namespace;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.namespace = namespace;
+        }
     }
 
     @Override
     public Segment getParentSegment() {
-        return parentSegment;
+        synchronized (lock) {
+            return parentSegment;
+        }
     }
 
     @Override
     public void setParentSegment(Segment parentSegment) {
-        checkAlreadyEmitted();
-        this.parentSegment = parentSegment;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.parentSegment = parentSegment;
+        }
     }
 
     @Override
     public void addPrecursorId(String precursorId) {
-        checkAlreadyEmitted();
-        this.precursorIds.add(precursorId);
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.precursorIds.add(precursorId);
+        }
     }
 
     @Override
     public Set<String> getPrecursorIds() {
-        return precursorIds;
+        synchronized (lock) {
+            return precursorIds;
+        }
     }
 
     @Override
     public void setPrecursorIds(Set<String> precursorIds) {
-        checkAlreadyEmitted();
-        this.precursorIds = precursorIds;
+        synchronized (lock) {
+            checkAlreadyEmitted();
+            this.precursorIds = precursorIds;
+        }
     }
 
     private ObjectNode getStreamSerializeObjectNode() {
-        ObjectNode obj = (ObjectNode) mapper.valueToTree(this);
-        obj.put("type", "subsegment");
-        obj.put("parent_id", getParent().getId());
-        obj.put("trace_id", parentSegment.getTraceId().toString());
-        return obj;
+        synchronized (lock) {
+            ObjectNode obj = (ObjectNode) mapper.valueToTree(this);
+            obj.put("type", "subsegment");
+            obj.put("parent_id", getParent().getId());
+            obj.put("trace_id", parentSegment.getTraceId().toString());
+            return obj;
+        }
     }
 
     @Override
     public String streamSerialize() {
-        String ret = "";
-        try {
-            ret = mapper.writeValueAsString(getStreamSerializeObjectNode());
-        } catch (JsonProcessingException jpe) {
-            logger.error("Exception while serializing entity.", jpe);
+        synchronized (lock) {
+            String ret = "";
+            try {
+                ret = mapper.writeValueAsString(getStreamSerializeObjectNode());
+            } catch (JsonProcessingException jpe) {
+                logger.error("Exception while serializing entity.", jpe);
+            }
+            return ret;
         }
-        return ret;
     }
 
     @Override
     public String prettyStreamSerialize() {
-        String ret = "";
-        try {
-            ret = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(getStreamSerializeObjectNode());
-        } catch (JsonProcessingException jpe) {
-            logger.error("Exception while serializing entity.", jpe);
+        synchronized (lock) {
+            String ret = "";
+            try {
+                ret = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(getStreamSerializeObjectNode());
+            } catch (JsonProcessingException jpe) {
+                logger.error("Exception while serializing entity.", jpe);
+            }
+            return ret;
         }
-        return ret;
     }
 
     @Override
     public void close() {
-        getCreator().endSubsegment();
+        synchronized (lock) {
+            getCreator().endSubsegment();
+        }
     }
 }
