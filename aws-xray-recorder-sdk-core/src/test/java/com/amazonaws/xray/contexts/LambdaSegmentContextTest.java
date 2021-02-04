@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
+import org.junitpioneer.jupiter.SetSystemProperty;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -116,6 +117,14 @@ class LambdaSegmentContextTest {
             Subsegment secondInvocation = lsc.beginSubsegment(AWSXRay.getGlobalRecorder(), "test");
             assertThat(secondInvocation).isNotNull();
             assertThat(secondInvocation.getParent()).isInstanceOf(FacadeSegment.class);
+        }
+
+        @Test
+        @SetSystemProperty(key = "com.amazonaws.xray.traceHeader", value = TRACE_HEADER)
+        void oneInvocationGeneratesSegmentUsingSystemProperty() {
+            Subsegment firstInvocation = lsc.beginSubsegment(AWSXRay.getGlobalRecorder(), "test");
+            assertThat(firstInvocation).isNotNull();
+            assertThat(firstInvocation.getParent()).isInstanceOf(FacadeSegment.class);
         }
     }
 
