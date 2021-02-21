@@ -4,7 +4,6 @@ plugins {
 
 description = "AWS X-Ray SDK Code Coverage"
 
-
 dependencies {
     rootProject.subprojects.forEach { subproject ->
         // Generate aggregate coverage report for published modules that enable jacoco.
