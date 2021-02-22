@@ -302,3 +302,63 @@ allprojects {
         }
     }
 }
+
+subprojects {
+    group = "com.amazonaws"
+
+    plugins.withId("java-library") {
+        plugins.apply("jacoco")
+
+        configure<JacocoPluginExtension> {
+            toolVersion = "0.8.6"
+        }
+
+        // Do not generate reports for individual projects
+        tasks.named("jacocoTestReport") {
+            enabled = false
+        }
+
+        configurations {
+            val implementation by getting
+
+            create("transitiveSourceElements") {
+                isVisible = false
+                isCanBeResolved = false
+                isCanBeConsumed = true
+                extendsFrom(implementation)
+                attributes {
+                    attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+                    attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.DOCUMENTATION))
+                    attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named("source-folders"))
+                }
+                val mainSources = the<JavaPluginConvention>().sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+                mainSources.java.srcDirs.forEach {
+                    outgoing.artifact(it)
+                }
+            }
+
+            create("coverageDataElements") {
+                isVisible = false
+                isCanBeResolved = false
+                isCanBeConsumed = true
+                extendsFrom(implementation)
+                attributes {
+                    attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+                    attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.DOCUMENTATION))
+                    attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named("jacoco-coverage-data"))
+                }
+                // This will cause the test task to run if the coverage data is requested by the aggregation task
+                tasks.withType(Test::class) {
+                    outgoing.artifact(extensions.getByType<JacocoTaskExtension>().destinationFile!!)
+                }
+            }
+
+            configureEach {
+                resolutionStrategy {
+                    failOnVersionConflict()
+                    preferProjectModules()
+                }
+            }
+        }
+    }
+}

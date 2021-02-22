@@ -17,25 +17,44 @@ jobs:
         java:
           - 8
           - 11
+        include:
+          - os: ubuntu-latest
+            java: 11
+            coverage: true
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v1
+
       - name: Setup java
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+
       - name: Cache Gradle Modules
         uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
           key: gradle-caches-${{ hashFiles('**/*.gradle.kts') }}
+
       - name: Cache Gradle Wrapper
         uses: actions/cache@v1
         with:
           path: ~/.gradle/wrapper
           key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+
       - name: Execute Gradle build
-        run: ./gradlew build --stacktrace
+        run: ./gradlew build ${{ matrix.coverage && 'codeCoverageReport' || '' }} --stacktrace
         shell: bash
         env:
           CI: true
+
+      - uses: codecov/codecov-action@v1
+        if: ${{ matrix.coverage }}
+        with:
+          files: ./jacoco/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml
+
+      - uses: actions/upload-artifact@v2
+        if: ${{ matrix.coverage }}
+        with:
+          name: coverage-report
+          path: jacoco/build/reports/jacoco/codeCoverageReport/html

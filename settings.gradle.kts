@@ -28,3 +28,5 @@ include(":aws-xray-recorder-sdk-metrics")
 
 // Internal project for applying dependency management.
 include(":dependencyManagement")
+// Project for generating aggregated Jacoco code coverage report.
+include(":jacoco")
