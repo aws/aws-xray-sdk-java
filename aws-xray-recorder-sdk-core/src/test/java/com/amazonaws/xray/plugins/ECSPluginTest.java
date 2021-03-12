@@ -16,34 +16,62 @@
 package com.amazonaws.xray.plugins;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
+import com.amazonaws.xray.entities.AWSLogReference;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junitpioneer.jupiter.SetEnvironmentVariable;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-public class ECSPluginTest {
+@ExtendWith(MockitoExtension.class)
+class ECSPluginTest {
     private static final String ECS_METADATA_KEY = "ECS_CONTAINER_METADATA_URI";
     private static final String GOOD_URI = "http://172.0.0.1";
     private static final String BAD_URI = "Not a URL";
 
-    private final ECSPlugin plugin = new ECSPlugin();
+    @Mock
+    private ECSMetadataFetcher mockFetcher;
 
     @Test
     @SetEnvironmentVariable(key = ECS_METADATA_KEY, value = GOOD_URI)
-    public void testIsEnabled() {
-        boolean enabled = plugin.isEnabled();
-        assertThat(enabled).isTrue();
+    void testIsEnabled() {
+        ECSPlugin plugin = new ECSPlugin();
+        assertThat(plugin.isEnabled()).isTrue();
     }
 
     @Test
     @SetEnvironmentVariable(key = ECS_METADATA_KEY, value = BAD_URI)
-    public void testNotEnabled() {
-        boolean enabled = plugin.isEnabled();
-        assertThat(enabled).isFalse();
+    void testBadUri() {
+        assertThatThrownBy(() -> new ECSPlugin()).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void testNotEnabledWithoutEnvironmentVariable() {
-        boolean enabled = plugin.isEnabled();
-        assertThat(enabled).isFalse();
+    void testNotEnabledWithoutEnvironmentVariable() {
+        ECSPlugin plugin = new ECSPlugin();
+        assertThat(plugin.isEnabled()).isFalse();
+    }
+
+    @Test
+    void testLogGroupRecording() {
+        Map<ECSMetadataFetcher.ECSContainerMetadata, String> containerMetadata = new HashMap<>();
+        containerMetadata.put(ECSMetadataFetcher.ECSContainerMetadata.LOG_GROUP_REGION, "us-west-2");
+        containerMetadata.put(ECSMetadataFetcher.ECSContainerMetadata.LOG_GROUP_NAME, "my-log-group");
+        containerMetadata.put(ECSMetadataFetcher.ECSContainerMetadata.CONTAINER_ARN,
+            "arn:aws:ecs:us-west-2:123456789012:container-instance/my-cluster/12345");
+        when(mockFetcher.fetchContainer()).thenReturn(containerMetadata);
+
+        ECSPlugin plugin = new ECSPlugin(mockFetcher);
+        Set<AWSLogReference> references = plugin.getLogReferences();
+        AWSLogReference expected = new AWSLogReference();
+        expected.setLogGroup("my-log-group");
+        expected.setArn("arn:aws:logs:us-west-2:123456789012:log-group:my-log-group");
+
+        assertThat(references).containsOnly(expected);
     }
 }
