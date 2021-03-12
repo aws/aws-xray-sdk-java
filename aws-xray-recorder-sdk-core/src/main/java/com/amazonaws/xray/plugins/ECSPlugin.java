@@ -15,12 +15,15 @@
 
 package com.amazonaws.xray.plugins;
 
+import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.utils.DockerUtils;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -38,16 +41,33 @@ public class ECSPlugin implements Plugin {
     private static final Log logger = LogFactory.getLog(ECSPlugin.class);
 
     private static final String SERVICE_NAME = "ecs";
-    private static final String ECS_METADATA_KEY = "ECS_CONTAINER_METADATA_URI";
-    private static final String HTTP_PREFIX = "http://";
+    private static final String ECS_METADATA_V3_KEY = "ECS_CONTAINER_METADATA_URI";
+    private static final String ECS_METADATA_V4_KEY = "ECS_CONTAINER_METADATA_URI_V4";
     private static final String CONTAINER_ID_KEY = "container_id";
+    private static final String CONTAINER_NAME_KEY = "container";
+    private static final String CONTAINER_ARN_KEY = "container_arn";
 
+    private final ECSMetadataFetcher fetcher;
     private final HashMap<String, @Nullable Object> runtimeContext;
     private final DockerUtils dockerUtils;
+    private final Set<AWSLogReference> logReferences;
+    private final Map<ECSMetadataFetcher.ECSContainerMetadata, String> containerMetadata;
 
     public ECSPlugin() {
         runtimeContext = new HashMap<>();
         dockerUtils = new DockerUtils();
+        logReferences = new HashSet<>();
+        fetcher = new ECSMetadataFetcher(getTmdeFromEnv());
+        containerMetadata = this.fetcher.fetchContainer();
+    }
+
+    // Exposed for testing
+    ECSPlugin(ECSMetadataFetcher fetcher) {
+        runtimeContext = new HashMap<>();
+        dockerUtils = new DockerUtils();
+        logReferences = new HashSet<>();
+        this.fetcher = fetcher;
+        containerMetadata = this.fetcher.fetchContainer();
     }
 
     /**
@@ -55,12 +75,8 @@ public class ECSPlugin implements Plugin {
      */
     @Override
     public boolean isEnabled() {
-        String ecsMetadataUri = System.getenv(ECS_METADATA_KEY);
-        if (ecsMetadataUri == null) {
-            return false;
-        }
-
-        return ecsMetadataUri.startsWith(HTTP_PREFIX);
+        String ecsMetadataUri = getTmdeFromEnv();
+        return ecsMetadataUri != null && ecsMetadataUri.startsWith("http://");
     }
 
     @Override
@@ -70,7 +86,7 @@ public class ECSPlugin implements Plugin {
 
     public void populateRuntimeContext() {
         try {
-            runtimeContext.put("container", InetAddress.getLocalHost().getHostName());
+            runtimeContext.put(CONTAINER_NAME_KEY, InetAddress.getLocalHost().getHostName());
         } catch (UnknownHostException uhe) {
             logger.error("Could not get docker container ID from hostname.", uhe);
         }
@@ -80,12 +96,45 @@ public class ECSPlugin implements Plugin {
         } catch (IOException e) {
             logger.error("Failed to read full container ID from container instance.", e);
         }
+
+        if (containerMetadata.containsKey(ECSMetadataFetcher.ECSContainerMetadata.CONTAINER_ARN)) {
+            runtimeContext.put(CONTAINER_ARN_KEY, containerMetadata.get(ECSMetadataFetcher.ECSContainerMetadata.CONTAINER_ARN));
+        }
     }
 
     @Override
     public Map<String, @Nullable Object> getRuntimeContext() {
         populateRuntimeContext();
         return runtimeContext;
+    }
+
+    @Override
+    public Set<AWSLogReference> getLogReferences() {
+        if (logReferences.isEmpty()) {
+            populateLogReferences();
+        }
+
+        return logReferences;
+    }
+
+    // See: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-settings.html#ecs-resource-ids
+    private void populateLogReferences() {
+        String logGroup = containerMetadata.get(ECSMetadataFetcher.ECSContainerMetadata.LOG_GROUP_NAME);
+        String logRegion = containerMetadata.get(ECSMetadataFetcher.ECSContainerMetadata.LOG_GROUP_REGION);
+        String containerArn = containerMetadata.get(ECSMetadataFetcher.ECSContainerMetadata.CONTAINER_ARN);
+        String logAccount = containerArn == null ? null : containerArn.split(":")[4];
+
+        if (logGroup == null) {
+            return;
+        }
+
+        AWSLogReference logReference = new AWSLogReference();
+        logReference.setLogGroup(logGroup);
+
+        if (logRegion != null && logAccount != null) {
+            logReference.setArn("arn:aws:logs:" + logRegion + ":" + logAccount + ":log-group:" + logGroup);
+        }
+        logReferences.add(logReference);
     }
 
     @Override
@@ -108,5 +157,18 @@ public class ECSPlugin implements Plugin {
     @Override
     public int hashCode() {
         return this.getOrigin().hashCode();
+    }
+
+    /**
+     * @return V4 Metadata endpoint if present, otherwise V3 endpoint if present, otherwise null
+     */
+    @Nullable
+    private String getTmdeFromEnv() {
+        String ecsMetadataUri = System.getenv(ECS_METADATA_V4_KEY);
+        if (ecsMetadataUri == null) {
+            ecsMetadataUri = System.getenv(ECS_METADATA_V3_KEY);
+        }
+
+        return ecsMetadataUri;
     }
 }

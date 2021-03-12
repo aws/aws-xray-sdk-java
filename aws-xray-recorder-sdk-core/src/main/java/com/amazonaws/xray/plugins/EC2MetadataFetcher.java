@@ -18,22 +18,14 @@ package com.amazonaws.xray.plugins;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 class EC2MetadataFetcher {
     private static final Log logger = LogFactory.getLog(EC2MetadataFetcher.class);
@@ -47,8 +39,7 @@ class EC2MetadataFetcher {
         AMI_ID,
     }
 
-    private static final int CONNECT_TIMEOUT_MILLIS = 100;
-    private static final int READ_TIMEOUT_MILLIS = 1000;
+    private static final String METADATA_SERVICE_NAME = "IMDS";
     private static final String DEFAULT_IMDS_ENDPOINT = "169.254.169.254";
 
     private final URL identityDocumentUrl;
@@ -120,86 +111,11 @@ class EC2MetadataFetcher {
     }
 
     private String fetchToken() {
-        return fetchString("PUT", tokenUrl, "", true);
+        return MetadataUtils.fetchString("PUT", tokenUrl, "", true, METADATA_SERVICE_NAME);
     }
 
     private String fetchIdentity(String token) {
-        return fetchString("GET", identityDocumentUrl, token, false);
-    }
-
-    // Generic HTTP fetch function for IMDS.
-    private static String fetchString(String httpMethod, URL url, String token, boolean includeTtl) {
-        final HttpURLConnection connection;
-        try {
-            connection = (HttpURLConnection) url.openConnection();
-        } catch (Exception e) {
-            logger.debug("Error connecting to IMDS.", e);
-            return "";
-        }
-
-        try {
-            connection.setRequestMethod(httpMethod);
-        } catch (ProtocolException e) {
-            logger.warn("Unknown HTTP method, this is a programming bug.", e);
-            return "";
-        }
-
-        connection.setConnectTimeout(CONNECT_TIMEOUT_MILLIS);
-        connection.setReadTimeout(READ_TIMEOUT_MILLIS);
-
-        if (includeTtl) {
-            connection.setRequestProperty("X-aws-ec2-metadata-token-ttl-seconds", "60");
-        }
-        if (!token.isEmpty()) {
-            connection.setRequestProperty("X-aws-ec2-metadata-token", token);
-        }
-
-        final int responseCode;
-        try {
-            responseCode = connection.getResponseCode();
-        } catch (Exception e) {
-            if (e instanceof SocketTimeoutException) {
-                logger.debug("Timed out trying to connect to IMDS, likely not operating in EC2 environment");
-            } else {
-                logger.debug("Error connecting to IMDS.", e);
-            }
-            return "";
-        }
-
-        if (responseCode != 200) {
-            logger.warn("Error reponse from IMDS: code (" + responseCode + ") text " + readResponseString(connection));
-        }
-
-        return readResponseString(connection).trim();
-    }
-
-    private static String readResponseString(HttpURLConnection connection) {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try (InputStream is = connection.getInputStream()) {
-            readTo(is, os);
-        } catch (IOException e) {
-            // Only best effort read if we can.
-        }
-        try (InputStream is = connection.getErrorStream()) {
-            readTo(is, os);
-        } catch (IOException e) {
-            // Only best effort read if we can.
-        }
-        try {
-            return os.toString(StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("UTF-8 not supported can't happen.");
-        }
-    }
-
-    private static void readTo(@Nullable InputStream is, ByteArrayOutputStream os) throws IOException {
-        if (is == null) {
-            return;
-        }
-        int b;
-        while ((b = is.read()) != -1) {
-            os.write(b);
-        }
+        return MetadataUtils.fetchString("GET", identityDocumentUrl, token, false, METADATA_SERVICE_NAME);
     }
 
     private static String getEndpoint() {
