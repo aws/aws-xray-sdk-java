@@ -34,6 +34,7 @@ class ECSMetadataFetcher {
     private static final String METADATA_SERVICE_NAME = "TMDE";
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
+    @Nullable
     private final URL containerUrl;
 
     // TODO: Record additional attributes in runtime context from Task Metadata Endpoint
@@ -62,7 +63,7 @@ class ECSMetadataFetcher {
             return Collections.emptyMap();
         }
 
-        String metadata = MetadataUtils.fetchString("GET", this.containerUrl, null, false, METADATA_SERVICE_NAME);
+        String metadata = MetadataUtils.fetchString("GET", this.containerUrl, "", false, METADATA_SERVICE_NAME);
 
         Map<ECSContainerMetadata, String> result = new HashMap<>();
         try (JsonParser parser = JSON_FACTORY.createParser(metadata)) {

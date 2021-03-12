@@ -53,6 +53,7 @@ public class ECSPlugin implements Plugin {
     private final Set<AWSLogReference> logReferences;
     private final Map<ECSMetadataFetcher.ECSContainerMetadata, String> containerMetadata;
 
+    @SuppressWarnings("nullness:method.invocation.invalid")
     public ECSPlugin() {
         runtimeContext = new HashMap<>();
         dockerUtils = new DockerUtils();
@@ -120,16 +121,15 @@ public class ECSPlugin implements Plugin {
     // See: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-account-settings.html#ecs-resource-ids
     private void populateLogReferences() {
         String logGroup = containerMetadata.get(ECSMetadataFetcher.ECSContainerMetadata.LOG_GROUP_NAME);
-        String logRegion = containerMetadata.get(ECSMetadataFetcher.ECSContainerMetadata.LOG_GROUP_REGION);
-        String containerArn = containerMetadata.get(ECSMetadataFetcher.ECSContainerMetadata.CONTAINER_ARN);
-        String logAccount = containerArn == null ? null : containerArn.split(":")[4];
-
         if (logGroup == null) {
             return;
         }
-
         AWSLogReference logReference = new AWSLogReference();
         logReference.setLogGroup(logGroup);
+
+        String logRegion = containerMetadata.get(ECSMetadataFetcher.ECSContainerMetadata.LOG_GROUP_REGION);
+        String containerArn = containerMetadata.get(ECSMetadataFetcher.ECSContainerMetadata.CONTAINER_ARN);
+        String logAccount = containerArn != null ? containerArn.split(":")[4] : null;
 
         if (logRegion != null && logAccount != null) {
             logReference.setArn("arn:aws:logs:" + logRegion + ":" + logAccount + ":log-group:" + logGroup);
