@@ -27,8 +27,8 @@ jobs:
         run: ./gradlew build -Prelease.version=${{ github.event.inputs.version }} --stacktrace
         env:
           CI: true
-      - name: Publish to staging repo
-        run: ./gradlew final -Prelease.version=${{ github.event.inputs.version }} --stacktrace
+      - name: Build and publish to sonatype
+        run: ./gradlew final closeAndReleaseSonatypeStagingRepository -Prelease.version=${{ github.event.inputs.version }} --stacktrace
         env:
           CI: true
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}

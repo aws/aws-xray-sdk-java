@@ -81,7 +81,7 @@ jobs:
           path: ~/.gradle/wrapper
           key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
       - name: Execute Gradle publish
-        run: ./gradlew snapshot --stacktrace
+        run: ./gradlew snapshot --stacktrace --info
         shell: bash
         env:
           CI: true
