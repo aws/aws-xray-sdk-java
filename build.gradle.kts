@@ -12,6 +12,7 @@ plugins {
     id("nebula.release")
     id("org.ajoberstar.grgit")
     id("io.freefair.aggregate-javadoc-jar")
+    id("io.github.gradle-nexus.publish-plugin")
 }
 
 tasks {
@@ -37,6 +38,17 @@ releaseTask.configure {
 
 release {
     defaultVersionStrategy = Strategies.getSNAPSHOT()
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://aws.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://aws.oss.sonatype.org/content/repositories/snapshots/"))
+            username.set("${findProperty("aws.sonatype.username") ?: System.getenv("SONATYPE_USERNAME")}")
+            password.set("${findProperty("aws.sonatype.password") ?: System.getenv("SONATYPE_PASSWORD")}")
+        }
+    }
 }
 
 allprojects {
@@ -214,15 +226,13 @@ allprojects {
         plugins.apply("signing")
 
         releaseTask.configure {
-            finalizedBy(tasks.named("publish"))
+            finalizedBy(tasks.named("publishToSonatype"))
         }
 
         // Don't publish Gradle metadata for now until verifying they work well.
         tasks.withType<GenerateModuleMetadata> {
             enabled = false
         }
-
-        val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
         configure<PublishingExtension> {
             publications {
@@ -273,17 +283,6 @@ allprojects {
                         }
 
                         properties.put("awsxrayrecordersdk.version", project.version.toString())
-                    }
-                }
-            }
-
-            repositories {
-                maven {
-                    url = uri(if (isSnapshot) "https://aws.oss.sonatype.org/content/repositories/snapshots/"
-                        else "https://aws.oss.sonatype.org/service/local/staging/deploy/maven2")
-                    credentials {
-                        username = "${findProperty("aws.sonatype.username") ?: System.getenv("SONATYPE_USERNAME")}"
-                        password = "${findProperty("aws.sonatype.password") ?: System.getenv("SONATYPE_PASSWORD")}"
                     }
                 }
             }
