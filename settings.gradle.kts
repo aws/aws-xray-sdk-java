@@ -31,3 +31,5 @@ include(":aws-xray-recorder-sdk-metrics")
 include(":dependencyManagement")
 // Project for generating aggregated Jacoco code coverage report.
 include(":jacoco")
+// Internal project for smoke tests
+include(":smoke-tests")
