@@ -16,6 +16,11 @@ val DEPENDENCY_SETS = listOf(
                 listOf("error_prone_annotations")
         ),
         DependencySet(
+                "com.fasterxml.jackson.datatype",
+                "2.11.0",
+                listOf("jackson-datatype-jsr310")
+        ),
+        DependencySet(
                 "com.github.tomakehurst",
                 "2.26.3",
                 listOf("wiremock-jre8")

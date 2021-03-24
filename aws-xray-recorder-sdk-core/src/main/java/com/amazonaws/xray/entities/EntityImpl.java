@@ -57,6 +57,7 @@ public abstract class EntityImpl implements Entity {
     @SuppressWarnings("checkstyle:ConstantName")
     @Deprecated
     protected static final ObjectMapper mapper = new ObjectMapper()
+        .findAndRegisterModules()
         .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
         .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
