@@ -33,7 +33,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,7 +57,7 @@ public abstract class EntityImpl implements Entity {
     @SuppressWarnings("checkstyle:ConstantName")
     @Deprecated
     protected static final ObjectMapper mapper = new ObjectMapper()
-        .registerModule(new JavaTimeModule())
+        .findAndRegisterModules()
         .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
         .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
