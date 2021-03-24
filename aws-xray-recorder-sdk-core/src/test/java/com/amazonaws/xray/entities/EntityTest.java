@@ -21,6 +21,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import com.amazonaws.xray.AWSXRay;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -46,10 +47,24 @@ class EntityTest {
     @Test
     void testTimestampSerialization() {
         Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test");
-        seg.putMetadata("date", Instant.ofEpochSecond(1616559298));
+        seg.putMetadata("instant", Instant.ofEpochSecond(1616559298));
         String serializedSeg = seg.serialize();
 
-        String expected = "{\"default\":{\"date\":1616559298.000000000}}";
+        String expected = "{\"default\":{\"instant\":1616559298.000000000}}";
+        assertThat(serializedSeg).contains(expected);
+    }
+
+    /**
+     * Dates are serialized into millisecond integers rather than second doubles because anything beyond millisecond
+     * accuracy is meaningless for Dates: https://docs.oracle.com/javase/8/docs/api/java/util/Date.html
+     */
+    @Test
+    void testDateSerialization() {
+        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test");
+        seg.putMetadata("date", Date.from(Instant.ofEpochSecond(1616559298)));
+        String serializedSeg = seg.serialize();
+
+        String expected = "{\"default\":{\"date\":1616559298000}}";
         assertThat(serializedSeg).contains(expected);
     }
 }
