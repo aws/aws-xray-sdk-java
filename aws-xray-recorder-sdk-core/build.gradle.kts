@@ -9,6 +9,7 @@ dependencies {
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
     compileOnly("javax.servlet:javax.servlet-api:3.1.0")
 
+    testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.0")
     testImplementation("com.github.stefanbirkner:system-rules:1.16.0")
     testImplementation("com.github.tomakehurst:wiremock-jre8")
     testImplementation("org.openjdk.jmh:jmh-core:1.19")
