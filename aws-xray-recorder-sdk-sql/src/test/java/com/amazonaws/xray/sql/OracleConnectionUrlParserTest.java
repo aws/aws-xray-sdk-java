@@ -24,7 +24,7 @@ class OracleConnectionUrlParserTest {
     // https://docs.oracle.com/cd/B28359_01/java.111/b31224/urls.htm
     // https://docs.oracle.com/cd/B28359_01/java.111/b31224/jdbcthin.htm
     // https://docs.oracle.com/cd/B28359_01/java.111/b31224/instclnt.htm
-    private String[] ORACLE_URLS = {
+    private static final String[] ORACLE_URLS = {
         "jdbc:oracle:thin:orcluser/PW@localhost:55:orclsn",
         "jdbc:oracle:thin:orcluser/PW@//orcl.host:55/orclsn",
         "jdbc:oracle:thin:orcluser/PW@127.0.0.1:orclsn",
@@ -42,7 +42,7 @@ class OracleConnectionUrlParserTest {
             "( PORT = 55  ))(CONNECT_DATA=(SERVICE_NAME =orclsn  )))"
     };
 
-    private ConnectionInfo[] EXPECTED_INFO = {
+    private static final ConnectionInfo[] EXPECTED_INFO = {
         new ConnectionInfo.Builder().sanitizedUrl("jdbc:oracle:thin:orcluser@localhost:55:orclsn").user("orcluser")
             .host("localhost").dbName("orclsn").build(),
         new ConnectionInfo.Builder().sanitizedUrl("jdbc:oracle:thin:orcluser@//orcl.host:55/orclsn").user("orcluser")

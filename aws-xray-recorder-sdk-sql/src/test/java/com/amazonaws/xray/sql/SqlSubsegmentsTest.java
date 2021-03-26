@@ -136,7 +136,7 @@ class SqlSubsegmentsTest {
 
     @Test
     void testHostIsNotNull() throws SQLException {
-        when(metaData.getURL()).thenReturn(null);
+        when(metaData.getURL()).thenReturn("some invalid URL");
 
         Subsegment sub = SqlSubsegments.forQuery(connection, SQL);
 

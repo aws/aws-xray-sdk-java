@@ -30,8 +30,8 @@ import org.apache.commons.logging.LogFactory;
 final class OracleConnectionUrlParser {
     private static final Log log = LogFactory.getLog(OracleConnectionUrlParser.class);
 
-    private static final Pattern hostPattern = Pattern.compile("\\(\\s*host\\s*=\\s*([^ )]+)\\s*\\)");
-    private static final Pattern instancePattern = Pattern.compile("\\(\\s*service_name\\s*=\\s*([^ )]+)\\s*\\)");
+    private static final Pattern HOST_PATTERN = Pattern.compile("\\(\\s*host\\s*=\\s*([^ )]+)\\s*\\)");
+    private static final Pattern INSTANCE_PATTERN = Pattern.compile("\\(\\s*service_name\\s*=\\s*([^ )]+)\\s*\\)");
 
 
     static ConnectionInfo parseUrl(String jdbcUrl, ConnectionInfo.Builder builder) {
@@ -150,12 +150,12 @@ final class OracleConnectionUrlParser {
             builder.user(atSplit[0].substring(0, userInfoLoc));
         }
 
-        Matcher hostMatcher = hostPattern.matcher(atSplit[1]);
+        Matcher hostMatcher = HOST_PATTERN.matcher(atSplit[1]);
         if (hostMatcher.find()) {
             builder.host(hostMatcher.group(1));
         }
 
-        Matcher instanceMatcher = instancePattern.matcher(atSplit[1]);
+        Matcher instanceMatcher = INSTANCE_PATTERN.matcher(atSplit[1]);
         if (instanceMatcher.find()) {
             builder.dbName(instanceMatcher.group(1));
         }

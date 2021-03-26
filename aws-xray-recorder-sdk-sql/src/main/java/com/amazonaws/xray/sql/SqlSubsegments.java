@@ -88,7 +88,6 @@ public final class SqlSubsegments {
      * @return the created {@link Subsegment}.
      */
     public static Subsegment forQuery(Connection connection, @Nullable String query) {
-        logger.info("In forQuery with connection: " + connection + " and query: " + query);
         DatabaseMetaData metadata;
         ConnectionInfo connectionInfo = connMap.get(connection);
         String subsegmentName = DEFAULT_DATABASE_NAME;
@@ -96,10 +95,6 @@ public final class SqlSubsegments {
         try {
             metadata = connection.getMetaData();
             String connUrl = metadata.getURL();
-            logger.info("Got connUrl: " + connUrl);
-            if (connectionInfo != null) {
-                logger.info("cache hit!!\n" + connectionInfo.toString());
-            }
 
             // Parse URL if Oracle
             if (connectionInfo == null && connUrl != null && connUrl.contains("oracle")) {
@@ -119,22 +114,18 @@ public final class SqlSubsegments {
                 database = DEFAULT_DATABASE_NAME;
             }
 
-            logger.info("determined database name: " + database);
-
             // Get database host if available; otherwise omit host
             String host = null;
             if (connectionInfo.getHost() != null) {
                 host = connectionInfo.getHost();
-            } else {
+            } else if (connUrl != null) {
                 try {
-                    host = new URI(new URI(metadata.getURL()).getSchemeSpecificPart()).getHost();
+                    host = new URI(new URI(connUrl).getSchemeSpecificPart()).getHost();
                 } catch (URISyntaxException e) {
                     logger.debug("Unable to parse database URI. Falling back to default '" + DEFAULT_DATABASE_NAME
                         + "' for subsegment name.", e);
                 }
             }
-
-            logger.info("determined host: " + host);
 
             // Fully formed subsegment name is of form "dbName@host"
             subsegmentName = database + (host != null ? "@" + host : "");
