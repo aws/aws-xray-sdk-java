@@ -25,6 +25,8 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
+import java.util.Map;
+import java.util.WeakHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -35,6 +37,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 public final class SqlSubsegments {
     private static final Log logger = LogFactory.getLog(SqlSubsegments.class);
+
+    private static Map<Connection, ConnectionInfo> connMap = new WeakHashMap<>();
 
     /**
      * The URL of the database this query is made on
@@ -84,17 +88,56 @@ public final class SqlSubsegments {
      * @return the created {@link Subsegment}.
      */
     public static Subsegment forQuery(Connection connection, @Nullable String query) {
-        DatabaseMetaData metadata = null;
+        logger.info("In forQuery with connection: " + connection + " and query: " + query);
+        DatabaseMetaData metadata;
+        ConnectionInfo connectionInfo = connMap.get(connection);
         String subsegmentName = DEFAULT_DATABASE_NAME;
 
         try {
             metadata = connection.getMetaData();
-            String database = connection.getCatalog();
-            URI normalizedUri = new URI(new URI(metadata.getURL()).getSchemeSpecificPart());
-            subsegmentName = database + "@" + normalizedUri.getHost();
-        } catch (URISyntaxException e) {
-            logger.debug("Unable to parse database URI. Falling back to default '" + DEFAULT_DATABASE_NAME
-                + "' for subsegment name.", e);
+            String connUrl = metadata.getURL();
+            logger.info("Got connUrl: " + connUrl);
+            if (connectionInfo != null) {
+                logger.info("cache hit!!\n" + connectionInfo.toString());
+            }
+
+            // Parse URL if Oracle
+            if (connectionInfo == null && connUrl != null && connUrl.contains("oracle")) {
+                connectionInfo = OracleConnectionUrlParser.parseUrl(connUrl, new ConnectionInfo.Builder());
+                connMap.put(connection, connectionInfo);
+            } else if (connectionInfo == null) {
+                connectionInfo = new ConnectionInfo.Builder().build();
+            }
+
+            // Get database name if available; otherwise fallback to default
+            String database;
+            if (connectionInfo.getDbName() != null) {
+                database = connectionInfo.getDbName();
+            } else if (connection.getCatalog() != null) {
+                database = connection.getCatalog();
+            } else {
+                database = DEFAULT_DATABASE_NAME;
+            }
+
+            logger.info("determined database name: " + database);
+
+            // Get database host if available; otherwise omit host
+            String host = null;
+            if (connectionInfo.getHost() != null) {
+                host = connectionInfo.getHost();
+            } else {
+                try {
+                    host = new URI(new URI(metadata.getURL()).getSchemeSpecificPart()).getHost();
+                } catch (URISyntaxException e) {
+                    logger.debug("Unable to parse database URI. Falling back to default '" + DEFAULT_DATABASE_NAME
+                        + "' for subsegment name.", e);
+                }
+            }
+
+            logger.info("determined host: " + host);
+
+            // Fully formed subsegment name is of form "dbName@host"
+            subsegmentName = database + (host != null ? "@" + host : "");
         } catch (SQLException e) {
             logger.debug("Encountered exception while retrieving metadata for SQL subsegment "
                 + ", starting blank subsegment instead");
@@ -105,8 +148,9 @@ public final class SqlSubsegments {
         subsegment.setNamespace(Namespace.REMOTE.toString());
 
         try {
-            subsegment.putSql(URL, metadata.getURL());
-            subsegment.putSql(USER, metadata.getUserName());
+            subsegment.putSql(URL, connectionInfo.getSanitizedUrl() != null ?
+                connectionInfo.getSanitizedUrl() : metadata.getURL());
+            subsegment.putSql(USER, connectionInfo.getUser() != null ? connectionInfo.getUser() : metadata.getUserName());
             subsegment.putSql(DRIVER_VERSION, metadata.getDriverVersion());
             subsegment.putSql(DATABASE_TYPE, metadata.getDatabaseProductName());
             subsegment.putSql(DATABASE_VERSION, metadata.getDatabaseProductVersion());
@@ -119,6 +163,11 @@ public final class SqlSubsegments {
         }
 
         return subsegment;
+    }
+
+    // Visible for testing
+    static void setConnMap(Map connMap) {
+        SqlSubsegments.connMap = connMap;
     }
 
     private SqlSubsegments() {
