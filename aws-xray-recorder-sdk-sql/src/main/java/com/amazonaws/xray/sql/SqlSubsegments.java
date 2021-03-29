@@ -97,7 +97,7 @@ public final class SqlSubsegments {
             String connUrl = metadata.getURL();
 
             // Parse URL if Oracle
-            if (connectionInfo == null && connUrl != null && connUrl.contains("oracle")) {
+            if (connectionInfo == null && connUrl != null && connUrl.contains("jdbc:oracle")) {
                 connectionInfo = OracleConnectionUrlParser.parseUrl(connUrl, new ConnectionInfo.Builder());
                 connMap.put(connection, connectionInfo);
             } else if (connectionInfo == null) {
@@ -139,21 +139,27 @@ public final class SqlSubsegments {
         subsegment.setNamespace(Namespace.REMOTE.toString());
 
         try {
-            subsegment.putSql(URL, connectionInfo.getSanitizedUrl() != null ?
+            putSqlIfNotNull(subsegment, URL, connectionInfo.getSanitizedUrl() != null ?
                 connectionInfo.getSanitizedUrl() : metadata.getURL());
-            subsegment.putSql(USER, connectionInfo.getUser() != null ? connectionInfo.getUser() : metadata.getUserName());
-            subsegment.putSql(DRIVER_VERSION, metadata.getDriverVersion());
-            subsegment.putSql(DATABASE_TYPE, metadata.getDatabaseProductName());
-            subsegment.putSql(DATABASE_VERSION, metadata.getDatabaseProductVersion());
+            putSqlIfNotNull(subsegment, USER, connectionInfo.getUser() != null ?
+                connectionInfo.getUser() : metadata.getUserName());
+            putSqlIfNotNull(subsegment, DRIVER_VERSION, metadata.getDriverVersion());
+            putSqlIfNotNull(subsegment, DATABASE_TYPE, metadata.getDatabaseProductName());
+            putSqlIfNotNull(subsegment, DATABASE_VERSION, metadata.getDatabaseProductVersion());
         } catch (SQLException e) {
             logger.debug("Encountered exception while populating SQL subsegment metadata", e);
         }
 
-        if (query != null) {
-            subsegment.putSql(SANITIZED_QUERY, query);
-        }
+        putSqlIfNotNull(subsegment, SANITIZED_QUERY, query);
 
         return subsegment;
+    }
+
+    // Prevents NPEs if DatabaseMetaData returns null values
+    private static void putSqlIfNotNull(Subsegment subsegment, String key, String value) {
+        if (key != null && value != null) {
+            subsegment.putSql(key, value);
+        }
     }
 
     // Visible for testing
