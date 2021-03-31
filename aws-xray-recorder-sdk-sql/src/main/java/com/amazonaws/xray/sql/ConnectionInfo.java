@@ -71,7 +71,11 @@ final class ConnectionInfo {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(sanitizedUrl);
+        int result = sanitizedUrl != null ? sanitizedUrl.hashCode() : 0;
+        result = 31 * result + (user != null ? user.hashCode() : 0);
+        result = 31 * result + (host != null ? host.hashCode() : 0);
+        result = 31 * result + (dbName != null ? dbName.hashCode() : 0);
+        return result;
     }
 
     static class Builder {

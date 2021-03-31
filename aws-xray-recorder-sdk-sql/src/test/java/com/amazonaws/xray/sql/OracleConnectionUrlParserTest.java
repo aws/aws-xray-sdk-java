@@ -13,12 +13,23 @@
  * permissions and limitations under the License.
  */
 
+/*
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package com.amazonaws.xray.sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * Test class for parsing a bunch of acceptable Oracle URLs. The test cases are taken from the
+ * OpenTelemetry JdbcConnectionUrlParser test class.
+ *
+ * Original source: https://bit.ly/3mhFCud
+ */
 class OracleConnectionUrlParserTest {
 
     // https://docs.oracle.com/cd/B28359_01/java.111/b31224/urls.htm

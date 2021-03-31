@@ -13,6 +13,11 @@
  * permissions and limitations under the License.
  */
 
+/*
+ * Copyright The OpenTelemetry Authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 package com.amazonaws.xray.sql;
 
 import java.util.regex.Matcher;

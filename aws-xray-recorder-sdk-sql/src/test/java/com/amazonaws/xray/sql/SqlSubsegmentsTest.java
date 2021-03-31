@@ -26,13 +26,13 @@ import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Namespace;
 import com.amazonaws.xray.entities.Subsegment;
 
+import com.blogspot.mydailyjava.weaklockfree.WeakConcurrentMap;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import java.util.WeakHashMap;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ class SqlSubsegmentsTest {
     DatabaseMetaData metaData;
 
     @Spy
-    Map<Connection, ConnectionInfo> mapSpy = new WeakHashMap<>();
+    WeakConcurrentMap<Connection, ConnectionInfo> mapSpy = new WeakConcurrentMap.WithInlinedExpunction<>();
 
     @BeforeEach
     void setup() throws SQLException {
@@ -72,7 +72,7 @@ class SqlSubsegmentsTest {
         when(metaData.getDatabaseProductVersion()).thenReturn(DB_VERSION);
 
         AWSXRay.beginSegment("test");
-        SqlSubsegments.setConnMap(new WeakHashMap());
+        SqlSubsegments.setConnMap(new WeakConcurrentMap.WithInlinedExpunction<>());
     }
 
     @AfterEach
@@ -145,14 +145,14 @@ class SqlSubsegmentsTest {
 
     @Test
     void testPrefersSubsegmentNameFromUrl() {
-        Map<Connection, ConnectionInfo> map = new HashMap<>();
+        WeakConcurrentMap<Connection, ConnectionInfo> map = new WeakConcurrentMap.WithInlinedExpunction<>();
         map.put(connection, new ConnectionInfo.Builder().dbName("newDb").host("another").build());
         SqlSubsegments.setConnMap(map);
     }
 
     @Test
     void testPrefersMetaDataFromUrl() {
-        Map<Connection, ConnectionInfo> map = new HashMap<>();
+        WeakConcurrentMap<Connection, ConnectionInfo> map = new WeakConcurrentMap.WithInlinedExpunction<>();
         map.put(connection, new ConnectionInfo.Builder()
             .sanitizedUrl("jdbc:oracle:rds.us-west-2.com").user("another").dbName("newDb").host("rds.us-west-2.com").build());
         SqlSubsegments.setConnMap(map);
@@ -173,7 +173,7 @@ class SqlSubsegmentsTest {
         SqlSubsegments.forQuery(connection, "query 2");
 
         assertThat(mapSpy).hasSize(1);
-        assertThat(mapSpy).containsKey(connection);
+        assertThat(mapSpy.containsKey(connection)).isTrue();
 
         verify(mapSpy, times(1)).put(eq(connection), any());
         verify(mapSpy, times(2)).get(connection);

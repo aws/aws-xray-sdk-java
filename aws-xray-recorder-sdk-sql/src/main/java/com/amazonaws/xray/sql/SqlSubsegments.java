@@ -19,14 +19,13 @@ import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Namespace;
 import com.amazonaws.xray.entities.Subsegment;
 
+import com.blogspot.mydailyjava.weaklockfree.WeakConcurrentMap;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
-import java.util.Map;
-import java.util.WeakHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -38,7 +37,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public final class SqlSubsegments {
     private static final Log logger = LogFactory.getLog(SqlSubsegments.class);
 
-    private static Map<Connection, ConnectionInfo> connMap = new WeakHashMap<>();
+    private static WeakConcurrentMap<Connection, ConnectionInfo> connMap = new WeakConcurrentMap.WithInlinedExpunction<>();
 
     /**
      * The URL of the database this query is made on
@@ -163,7 +162,7 @@ public final class SqlSubsegments {
     }
 
     // Visible for testing
-    static void setConnMap(Map connMap) {
+    static void setConnMap(WeakConcurrentMap<Connection, ConnectionInfo> connMap) {
         SqlSubsegments.connMap = connMap;
     }
 
