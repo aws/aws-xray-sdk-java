@@ -16,12 +16,17 @@
 package com.amazonaws.xray.sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Namespace;
 import com.amazonaws.xray.entities.Subsegment;
 
+import com.blogspot.mydailyjava.weaklockfree.WeakConcurrentMap;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -33,8 +38,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
-public class SqlSubsegmentsTest {
+class SqlSubsegmentsTest {
     private static final String URL = "http://www.foo.com";
     private static final String HOST = "www.foo.com";
     private static final String USER = "user";
@@ -51,6 +57,9 @@ public class SqlSubsegmentsTest {
     @Mock
     DatabaseMetaData metaData;
 
+    @Spy
+    WeakConcurrentMap<Connection, ConnectionInfo> mapSpy = new WeakConcurrentMap.WithInlinedExpunction<>();
+
     @BeforeEach
     void setup() throws SQLException {
         MockitoAnnotations.initMocks(this);
@@ -63,6 +72,7 @@ public class SqlSubsegmentsTest {
         when(metaData.getDatabaseProductVersion()).thenReturn(DB_VERSION);
 
         AWSXRay.beginSegment("test");
+        SqlSubsegments.setConnMap(new WeakConcurrentMap.WithInlinedExpunction<>());
     }
 
     @AfterEach
@@ -113,5 +123,59 @@ public class SqlSubsegmentsTest {
         assertThat(sub.getName()).isEqualTo(SqlSubsegments.DEFAULT_DATABASE_NAME);
         assertThat(sub.isInProgress()).isTrue();
         assertThat(sub.getParentSegment().getSubsegments()).contains(sub);
+    }
+
+    @Test
+    void testDbNameIsNotNull() throws SQLException {
+        when(connection.getCatalog()).thenReturn(null);
+
+        Subsegment sub = SqlSubsegments.forQuery(connection, SQL);
+
+        assertThat(sub.getName()).isEqualTo(SqlSubsegments.DEFAULT_DATABASE_NAME + "@" + HOST);
+    }
+
+    @Test
+    void testHostIsNotNull() throws SQLException {
+        when(metaData.getURL()).thenReturn("some invalid URL");
+
+        Subsegment sub = SqlSubsegments.forQuery(connection, SQL);
+
+        assertThat(sub.getName()).isEqualTo(CATALOG);
+    }
+
+    @Test
+    void testPrefersSubsegmentNameFromUrl() {
+        WeakConcurrentMap<Connection, ConnectionInfo> map = new WeakConcurrentMap.WithInlinedExpunction<>();
+        map.put(connection, new ConnectionInfo.Builder().dbName("newDb").host("another").build());
+        SqlSubsegments.setConnMap(map);
+    }
+
+    @Test
+    void testPrefersMetaDataFromUrl() {
+        WeakConcurrentMap<Connection, ConnectionInfo> map = new WeakConcurrentMap.WithInlinedExpunction<>();
+        map.put(connection, new ConnectionInfo.Builder()
+            .sanitizedUrl("jdbc:oracle:rds.us-west-2.com").user("another").dbName("newDb").host("rds.us-west-2.com").build());
+        SqlSubsegments.setConnMap(map);
+
+        Subsegment sub = SqlSubsegments.forQuery(connection, SQL);
+
+        assertThat(sub.getName()).isEqualTo("newDb@rds.us-west-2.com");
+        assertThat(sub.getSql()).containsEntry("url", "jdbc:oracle:rds.us-west-2.com");
+        assertThat(sub.getSql()).containsEntry("user", "another");
+    }
+
+    @Test
+    void testCacheInsertionOnNewConnection() throws SQLException {
+        when(metaData.getURL()).thenReturn("jdbc:oracle:thin@rds.us-west-2.com");
+        SqlSubsegments.setConnMap(mapSpy);
+
+        SqlSubsegments.forQuery(connection, "query 1");
+        SqlSubsegments.forQuery(connection, "query 2");
+
+        assertThat(mapSpy).hasSize(1);
+        assertThat(mapSpy.containsKey(connection)).isTrue();
+
+        verify(mapSpy, times(1)).put(eq(connection), any());
+        verify(mapSpy, times(2)).get(connection);
     }
 }
