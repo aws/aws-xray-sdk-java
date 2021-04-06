@@ -15,6 +15,10 @@
 
 package com.amazonaws.xray.utils;
 
+import com.amazonaws.xray.entities.AWSLogReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +29,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -35,6 +40,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 public class DockerUtils {
     private static final Log logger = LogFactory.getLog(DockerUtils.class);
+
+    private static final ObjectMapper MAPPER = new ObjectMapper()
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    private static final String AWS_LOGS_DRIVER = "awslogs";
 
     private static final String CGROUP_PATH = "/proc/self/cgroup";
     private static final int CONTAINER_ID_LENGTH = 64;
@@ -95,5 +104,71 @@ public class DockerUtils {
         }
 
         return null;
+    }
+
+    /**
+     * Search a file path for the Docker daemon config file, and if present parse that file for the AWS Log group.
+     *
+     * Daemon config file: https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-configuration-file
+     * awslogs driver format: https://docs.docker.com/config/containers/logging/awslogs/
+     *
+     * @param filePath file system path to daemon configuration file
+     * @param fs file system to search for config file
+     * @return an AWSLogReference for the discovered log group, or null if the config file is not present or does not
+     *         contain an awslogs driver
+     */
+    @Nullable
+    public static AWSLogReference getAwsLogReference(String filePath, FileSystem fs) {
+        URL fileLoc;
+        try {
+            fileLoc = fs.getPath(filePath).toUri().toURL();
+        } catch (IOException e) {
+            logger.debug("Docker daemon config file does not exist", e);
+            return null;
+        }
+
+        try {
+            DockerLogConfiguration config = MAPPER.readValue(fileLoc, DockerLogConfiguration.class);
+            if (!AWS_LOGS_DRIVER.equals(config.getLogDriver())) {
+                return null;  // Only accept AWS log drivers
+            }
+            return config.getLogReference();
+        } catch (IOException e) {
+            logger.warn("Failed to parse docker daemon config file", e);
+        }
+
+        return null;
+    }
+
+    private static class DockerLogConfiguration {
+        @Nullable
+        private String logDriver;
+        @Nullable
+        private AWSLogReference logReference;
+
+        DockerLogConfiguration() {
+            this.logReference = null;
+            this.logDriver = null;
+        }
+
+        @JsonProperty("log-driver")
+        @Nullable
+        String getLogDriver() {
+            return logDriver;
+        }
+
+        void setLogDriver(@Nullable String logDriver) {
+            this.logDriver = logDriver;
+        }
+
+        @JsonProperty("log-opts")
+        @Nullable
+        AWSLogReference getLogReference() {
+            return logReference;
+        }
+
+        void setLogReference(@Nullable AWSLogReference logReference) {
+            this.logReference = logReference;
+        }
     }
 }

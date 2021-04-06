@@ -19,6 +19,7 @@ import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.listeners.SegmentListener;
+import com.amazonaws.xray.plugins.DockerPlugin;
 import com.amazonaws.xray.plugins.EC2Plugin;
 import com.amazonaws.xray.plugins.ECSPlugin;
 import com.amazonaws.xray.plugins.EKSPlugin;
@@ -220,6 +221,7 @@ public class AWSXRayRecorderBuilder {
         plugins.add(new ECSPlugin());
         plugins.add(new EKSPlugin());
         plugins.add(new ElasticBeanstalkPlugin());
+        plugins.add(new DockerPlugin());
         return this;
     }
 
@@ -323,13 +325,15 @@ public class AWSXRayRecorderBuilder {
                      * kubernetes authentication file, which is a stronger enable condition
                      */
                     String clientOrigin = client.getOrigin();
-                    if (clientOrigin == null ||
-                        ORIGIN_PRIORITY.getOrDefault(plugin.getOrigin(), 0) <
-                        ORIGIN_PRIORITY.getOrDefault(clientOrigin, 0)) {
-                        client.setOrigin(plugin.getOrigin());
+                    String pluginOrigin = plugin.getOrigin();
+                    if (pluginOrigin != null &&
+                        (clientOrigin == null ||
+                        ORIGIN_PRIORITY.getOrDefault(pluginOrigin, 0) <
+                        ORIGIN_PRIORITY.getOrDefault(clientOrigin, 0))) {
+                        client.setOrigin(pluginOrigin);
                     }
                 } else {
-                    logger.warn(plugin.getClass().getName() + " plugin returned empty runtime context data. The recorder will "
+                    logger.debug(plugin.getClass().getName() + " plugin returned empty runtime context data. The recorder will "
                                 + "not be setting segment origin or runtime context values from this plugin.");
                 }
             } catch (Exception e) {

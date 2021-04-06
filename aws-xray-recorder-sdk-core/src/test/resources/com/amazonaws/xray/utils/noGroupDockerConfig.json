@@ -1,0 +1,9 @@
+{
+  "data-root": "",
+  "dns": [],
+  "log-driver": "awslogs",
+  "log-opts": {
+    "labels": "somelabel",
+    "awslogs-region": "us-east-1"
+  }
+}

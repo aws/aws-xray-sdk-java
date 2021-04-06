@@ -27,8 +27,9 @@ public interface Plugin {
      * Returns the name of the origin associated with this plugin.
      * The {@link com.amazonaws.xray.AWSXRayRecorder} contains a prioritized list of origins from least to most specific.
      *
-     * @return the name of the origin associated with this plugin.
+     * @return the name of the origin associated with this plugin, or {@code null} if the plugin has no allow-listed origin
      */
+    @Nullable
     String getOrigin();
 
     String getServiceName();

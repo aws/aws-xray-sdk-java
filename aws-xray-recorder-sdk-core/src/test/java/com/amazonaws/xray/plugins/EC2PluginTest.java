@@ -16,11 +16,13 @@
 package com.amazonaws.xray.plugins;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.utils.JsonUtils;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,36 +60,57 @@ public class EC2PluginTest {
 
     private EC2Plugin ec2Plugin;
 
+    /**
+     * Sets up EC2 plugin, with both the CW agent config and IMDS metadata available by default.
+     */
     @Before
-    public void setUpEC2Plugin() {
+    public void setUpEC2Plugin() throws URISyntaxException {
         Map<EC2MetadataFetcher.EC2Metadata, String> metadata = new HashMap<>();
         metadata.put(EC2MetadataFetcher.EC2Metadata.INSTANCE_ID, "instance-1234");
         metadata.put(EC2MetadataFetcher.EC2Metadata.AVAILABILITY_ZONE, "ap-northeast-1a");
         metadata.put(EC2MetadataFetcher.EC2Metadata.INSTANCE_TYPE, "m4.xlarge");
         metadata.put(EC2MetadataFetcher.EC2Metadata.AMI_ID, "ami-1234");
         PowerMockito.mockStatic(JsonUtils.class);
+        when(fakeFs.getSeparator()).thenReturn("/");
         when(metadataFetcher.fetch()).thenReturn(metadata);
+
+        String path = "/com/amazonaws/xray/utils/easyDockerConfig.json";
+        when(fakeFs.getPath(anyString())).thenReturn(Paths.get(EC2PluginTest.class.getResource(path).toURI()));
+
         ec2Plugin = new EC2Plugin(fakeFs, metadataFetcher);
     }
 
     @Test
-    public void testMetadataPresent() {
-        assertThat(ec2Plugin.isEnabled()).isTrue();
+    public void testOnlyMetadataPresent() {
+        when(fakeFs.getPath(anyString())).thenReturn(Paths.get("/some/definitely/nonexistent/path"));
 
+        assertThat(ec2Plugin.isEnabled()).isTrue();
+    }
+
+    @Test
+    public void testOnlyConfigPresent() {
+        when(metadataFetcher.fetch()).thenReturn(Collections.emptyMap());
+
+        assertThat(ec2Plugin.isEnabled()).isTrue();
+    }
+
+    @Test
+    public void testMetadataAndConfigNotPresent() {
+        when(fakeFs.getPath(anyString())).thenReturn(Paths.get("/some/definitely/nonexistent/path"));
+        when(metadataFetcher.fetch()).thenReturn(Collections.emptyMap());
+        ec2Plugin = new EC2Plugin(fakeFs, metadataFetcher);
+
+        assertThat(ec2Plugin.isEnabled()).isFalse();
+    }
+
+    @Test
+    public void testRuntimeContextPopulation() {
         ec2Plugin.populateRuntimeContext();
         assertThat(ec2Plugin.getRuntimeContext())
             .containsEntry("instance_id", "instance-1234")
             .containsEntry("availability_zone", "ap-northeast-1a")
             .containsEntry("instance_size", "m4.xlarge")
             .containsEntry("ami_id", "ami-1234");
-    }
-
-    @Test
-    public void testMetadataNotPresent() {
-        when(metadataFetcher.fetch()).thenReturn(Collections.emptyMap());
-        ec2Plugin = new EC2Plugin(fakeFs, metadataFetcher);
-
-        assertThat(ec2Plugin.isEnabled()).isFalse();
     }
 
     @Test

@@ -1,0 +1,10 @@
+{
+  "data-root": "",
+  "dns": [],
+  "log-driver": "other",
+  "log-opts": {
+    "labels": "somelabel",
+    "config": "foo",
+    "awslogs-group": "should-not-matter"
+  }
+}

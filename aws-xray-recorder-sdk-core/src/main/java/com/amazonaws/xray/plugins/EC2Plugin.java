@@ -16,13 +16,12 @@
 package com.amazonaws.xray.plugins;
 
 import com.amazonaws.xray.entities.AWSLogReference;
-import com.amazonaws.xray.entities.StringValidator;
+import com.amazonaws.xray.utils.FSUtils;
 import com.amazonaws.xray.utils.JsonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,11 +48,8 @@ public class EC2Plugin implements Plugin {
     private static final String LOG_CONFIGS = "log_configs";
     private static final String LOG_GROUP_NAME = "log_group_name";
 
-    private static final String WINDOWS_PROGRAM_DATA = "ProgramData";
-    private static final String WINDOWS_PATH = "\\Amazon\\AmazonCloudWatchAgent\\log-config.json";
-
-    private static final String LINUX_ROOT = "/";
-    private static final String LINUX_PATH = "opt/aws/amazon-cloudwatch-agent/etc/log-config.json";
+    private static final String WINDOWS_CW_PATH = "\\Amazon\\AmazonCloudWatchAgent\\log-config.json";
+    private static final String LINUX_CW_PATH = "/opt/aws/amazon-cloudwatch-agent/etc/log-config.json";
 
     private final Map<String, @Nullable Object> runtimeContext;
 
@@ -63,20 +59,28 @@ public class EC2Plugin implements Plugin {
 
     private final Map<EC2MetadataFetcher.EC2Metadata, String> metadata;
 
+    @Nullable
+    private final String cwAgentConfig;
+
     public EC2Plugin() {
         this(FileSystems.getDefault(), new EC2MetadataFetcher());
     }
 
     public EC2Plugin(FileSystem fs, EC2MetadataFetcher metadataFetcher) {
         this.fs = fs;
-        metadata = metadataFetcher.fetch();
-        runtimeContext = new LinkedHashMap<>();
-        logReferences = new HashSet<>();
+        this.metadata = metadataFetcher.fetch();
+        this.runtimeContext = new LinkedHashMap<>();
+        this.logReferences = new HashSet<>();
+        this.cwAgentConfig = FSUtils.getOsSpecificFilePath(fs, LINUX_CW_PATH, WINDOWS_CW_PATH);
     }
 
+    /**
+     * @return true if either metadata from IMDS can be recorded or log group data can be recorded from the CW Agent
+     */
     @Override
     public boolean isEnabled() {
-        return metadata.containsKey(EC2MetadataFetcher.EC2Metadata.INSTANCE_ID);
+        return metadata.containsKey(EC2MetadataFetcher.EC2Metadata.INSTANCE_ID)
+            || (cwAgentConfig != null && this.fs.getPath(cwAgentConfig).toFile().exists());
     }
 
     @Override
@@ -105,40 +109,25 @@ public class EC2Plugin implements Plugin {
      * instance and populates log reference set with them to be included in trace documents.
      */
     public void populateLogReferences() {
-        String filePath = null;
-        String programData = System.getenv(WINDOWS_PROGRAM_DATA);
-
-        if (StringValidator.isNullOrBlank(programData)) {
-            for (Path root : fs.getRootDirectories()) {
-                if (root.toString().equals(LINUX_ROOT)) {
-                    filePath = LINUX_ROOT + LINUX_PATH;
-                    break;
-                }
-            }
-        } else {
-            filePath = programData + WINDOWS_PATH;
-        }
-
-        if (filePath == null) {
-            logger.warn("X-Ray could not recognize the file system in use. Expected file system to be Linux or Windows based.");
+        if (this.cwAgentConfig == null) {
             return;
         }
 
         try {
-            JsonNode logConfigs = JsonUtils.getNodeFromJsonFile(filePath, LOG_CONFIGS);
+            JsonNode logConfigs = JsonUtils.getNodeFromJsonFile(this.cwAgentConfig, LOG_CONFIGS);
             List<String> logGroups = JsonUtils.getMatchingListFromJsonArrayNode(logConfigs, LOG_GROUP_NAME);
 
             for (String logGroup : logGroups) {
                 AWSLogReference logReference = new AWSLogReference();
                 logReference.setLogGroup(logGroup);
-                logReferences.add(logReference);
+                this.logReferences.add(logReference);
             }
         } catch (IOException e) {
-            logger.warn("CloudWatch Agent log configuration file not found at " + filePath + ". Install the CloudWatch Agent "
-                        + "on this instance to record log references in X-Ray.");
+            logger.debug("CloudWatch Agent log configuration file not found at " + this.cwAgentConfig
+                + ". Install the CloudWatch Agent on this instance to record log references in X-Ray.");
         } catch (RuntimeException e) {
-            logger.warn("An unexpected exception occurred while reading CloudWatch agent log configuration file at " + filePath
-                        + ":\n", e);
+            logger.warn("An unexpected exception occurred while reading CloudWatch agent log configuration file at "
+                + this.cwAgentConfig + ":\n", e);
         }
     }
 

@@ -16,6 +16,7 @@
 package com.amazonaws.xray.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -34,6 +35,7 @@ public class AWSLogReference {
     /**
      * Returns the log group name associated with the segment.
      */
+    @JsonProperty("awslogs-group")
     @Nullable
     public String getLogGroup() {
         return logGroup;
