@@ -358,9 +358,7 @@ public class AWSXRayRecorderBuilder {
             logger.info("Recording log group " + logGroupFromEnv + " from environment variable.");
             AWSLogReference logReference = new AWSLogReference();
             logReference.setLogGroup(logGroupFromEnv);
-            Set<AWSLogReference> logReferences = new HashSet<>();
-            logReferences.add(logReference);
-            client.addAllLogReferences(logReferences);
+            client.addAllLogReferences(Collections.singleton(logReference));
         }
 
         return client;
