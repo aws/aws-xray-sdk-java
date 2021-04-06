@@ -24,6 +24,7 @@ import com.amazonaws.xray.contexts.LambdaSegmentContext;
 import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
 import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.emitters.Emitter;
+import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
@@ -51,6 +52,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
@@ -917,6 +919,18 @@ public class AWSXRayRecorderTest {
 
         segment.setUser("user");
         assertThat(segment.getUser()).isEqualTo("user");  // Loose way to test that segment is real
+    }
 
+    @Test
+    public void testLogGroupFromEnvironment() {
+        environmentVariables.set("AWS_LOG_GROUP", "my-group");
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard().build();
+        Segment segment = recorder.beginSegment("test");
+        AWSLogReference expected = new AWSLogReference();
+        expected.setLogGroup("my-group");
+
+        assertThat(segment.getAws()).containsKey("cloudwatch_logs");
+        Set<AWSLogReference> logReferences = (Set<AWSLogReference>) segment.getAws().get("cloudwatch_logs");
+        assertThat(logReferences).containsOnly(expected);
     }
 }
