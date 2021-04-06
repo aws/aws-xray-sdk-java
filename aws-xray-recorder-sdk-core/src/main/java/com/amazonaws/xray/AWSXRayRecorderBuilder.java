@@ -18,6 +18,7 @@ package com.amazonaws.xray;
 import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.AWSLogReference;
+import com.amazonaws.xray.entities.StringValidator;
 import com.amazonaws.xray.listeners.SegmentListener;
 import com.amazonaws.xray.plugins.EC2Plugin;
 import com.amazonaws.xray.plugins.ECSPlugin;
@@ -50,6 +51,7 @@ public class AWSXRayRecorderBuilder {
         LogFactory.getLog(AWSXRayRecorderBuilder.class);
 
     private static final Map<String, Integer> ORIGIN_PRIORITY;
+    private static final String LOG_GROUP_KEY = "AWS_LOG_GROUP";
 
     static {
         HashMap<String, Integer> originPriority = new HashMap<>();
@@ -350,6 +352,16 @@ public class AWSXRayRecorderBuilder {
                 logger.warn("Failed to get log references from " + plugin.getClass().getName() + ".", e);
             }
         });
+
+        String logGroupFromEnv = System.getenv(LOG_GROUP_KEY);
+        if (StringValidator.isNotNullOrBlank(logGroupFromEnv)) {
+            logger.info("Recording log group " + logGroupFromEnv + " from environment variable.");
+            AWSLogReference logReference = new AWSLogReference();
+            logReference.setLogGroup(logGroupFromEnv);
+            Set<AWSLogReference> logReferences = new HashSet<>();
+            logReferences.add(logReference);
+            client.addAllLogReferences(logReferences);
+        }
 
         return client;
     }
