@@ -11,18 +11,10 @@
 [PR 250](https://github.com/aws/aws-xray-sdk-java/pull/250)
 - Added support for reading header from environment and system properties
 [PR 252](https://github.com/aws/aws-xray-sdk-java/pull/252)
-- CodeCov report on pull requests
-[PR 261](https://github.com/aws/aws-xray-sdk-java/pull/261)
 - Added log correlation support to ECS plugin
 [PR 263](https://github.com/aws/aws-xray-sdk-java/pull/263)
-- Added support to close sonatype repository when releasing SDK
-[PR 264](https://github.com/aws/aws-xray-sdk-java/pull/264)
-- Added smoke tests for distribution channel
-[PR 266](https://github.com/aws/aws-xray-sdk-java/pull/266)
 - Added JavaTimeModule for entity object mapper
 [PR 267](https://github.com/aws/aws-xray-sdk-java/pull/267)
-- Publish metric on distribution channel availability
-[PR 268](https://github.com/aws/aws-xray-sdk-java/pull/268)
 - Addded enhanced metadata parsing for Oracle DBs
 [PR 270](https://github.com/aws/aws-xray-sdk-java/pull/270)
 - Added support to set log group via environment variable
