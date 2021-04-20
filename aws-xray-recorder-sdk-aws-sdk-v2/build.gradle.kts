@@ -8,11 +8,11 @@ dependencies {
 
     implementation(project(":aws-xray-recorder-sdk-aws-sdk-core"))
 
-    api("software.amazon.awssdk:aws-core:2.2.0")
+    api("software.amazon.awssdk:aws-core:2.15.20")
 
     testImplementation("org.skyscreamer:jsonassert:1.3.0")
-    testImplementation("software.amazon.awssdk:dynamodb:2.2.0")
-    testImplementation("software.amazon.awssdk:lambda:2.2.0")
+    testImplementation("software.amazon.awssdk:dynamodb:2.15.20")
+    testImplementation("software.amazon.awssdk:lambda:2.15.20")
 }
 
 description = "AWS X-Ray Recorder SDK for Java - AWS SDK V2"
