@@ -75,7 +75,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
             boolean shouldEmit = referenceCount <= 0;
             if (shouldEmit) {
                 checkAlreadyEmitted();
-                setEmitted(true);
+                ended = true;
             }
             return shouldEmit;
         }

@@ -81,7 +81,12 @@ public class UDPEmitter extends Emitter {
         if (logger.isDebugEnabled()) {
             logger.debug(segment.prettySerialize());
         }
-        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(StandardCharsets.UTF_8), segment);
+        if (segment.compareAndSetEmitted(false, true)) {
+            return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(StandardCharsets.UTF_8),
+                            segment);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -94,8 +99,13 @@ public class UDPEmitter extends Emitter {
         if (logger.isDebugEnabled()) {
             logger.debug(subsegment.prettyStreamSerialize());
         }
-        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + subsegment.streamSerialize()).getBytes(StandardCharsets.UTF_8),
-                        subsegment);
+        if (subsegment.compareAndSetEmitted(false, true)) {
+            return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER +
+                             subsegment.streamSerialize()).getBytes(StandardCharsets.UTF_8),
+                            subsegment);
+        } else {
+            return false;
+        }
     }
 
     private boolean sendData(byte[] data, Entity entity) {
