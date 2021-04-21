@@ -82,13 +82,7 @@ public class DefaultStreamingStrategy implements StreamingStrategy {
      */
     @Override
     public void streamSome(Entity entity, Emitter emitter) {
-        if (entity.getSubsegmentsLock().tryLock()) {
-            try {
-                stream(entity, emitter);
-            } finally {
-                entity.getSubsegmentsLock().unlock();
-            }
-        }
+        stream(entity, emitter);
     }
 
     private boolean stream(Entity entity, Emitter emitter) {
@@ -98,14 +92,8 @@ public class DefaultStreamingStrategy implements StreamingStrategy {
         //Gather children and in the condition they are ready to stream, add them to the streamable list.
         if (children.size() > 0) {
             for (Subsegment child : children) {
-                if (child.getSubsegmentsLock().tryLock()) {
-                    try {
-                        if (stream(child, emitter)) {
-                            streamable.add(child);
-                        }
-                    } finally {
-                        child.getSubsegmentsLock().unlock();
-                    }
+                if (stream(child, emitter)) {
+                    streamable.add(child);
                 }
             }
         }

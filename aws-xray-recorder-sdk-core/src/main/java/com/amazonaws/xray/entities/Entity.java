@@ -158,7 +158,7 @@ public interface Entity extends AutoCloseable {
     void setNamespace(String namespace);
 
     /**
-     * @return the subsegmentsLock
+     * @return an unused {@link ReentrantLock}
      *
      * @deprecated This is for internal use of the SDK and will be made private.
      */
