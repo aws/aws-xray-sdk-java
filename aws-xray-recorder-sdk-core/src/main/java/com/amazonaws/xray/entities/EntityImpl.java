@@ -530,6 +530,7 @@ public abstract class EntityImpl implements Entity {
         }
     }
 
+    @JsonIgnore
     @Override
     public List<Subsegment> getSubsegmentsCopy() {
         synchronized (lock) {
