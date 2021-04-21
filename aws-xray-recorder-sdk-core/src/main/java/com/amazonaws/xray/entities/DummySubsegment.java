@@ -224,6 +224,11 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
+    public List<Subsegment> getSubsegmentsCopy() {
+        return new ArrayList<>(list);
+    }
+
+    @Override
     public void addSubsegment(Subsegment subsegment) {
     }
 

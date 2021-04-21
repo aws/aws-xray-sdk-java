@@ -531,6 +531,13 @@ public abstract class EntityImpl implements Entity {
     }
 
     @Override
+    public List<Subsegment> getSubsegmentsCopy() {
+        synchronized (lock) {
+            return new ArrayList<>(subsegments);
+        }
+    }
+
+    @Override
     public void addSubsegment(Subsegment subsegment) {
         synchronized (lock) {
             checkAlreadyEmitted();
