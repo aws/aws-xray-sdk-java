@@ -367,7 +367,10 @@ public interface Entity extends AutoCloseable {
 
     /**
      * @return the subsegments
+     *
+     * @deprecated Use {@link #addSubsegment(Subsegment)} to add subsegments.
      */
+    @Deprecated
     List<Subsegment> getSubsegments();
 
     /**
