@@ -6,7 +6,7 @@ plugins {
 dependencies {
     api(project(":aws-xray-recorder-sdk-core"))
 
-    api("org.apache.httpcomponents:httpclient:4.5.2")
+    api("org.apache.httpcomponents:httpclient:4.5.13")
 
     testImplementation("com.github.tomakehurst:wiremock-jre8")
 }
