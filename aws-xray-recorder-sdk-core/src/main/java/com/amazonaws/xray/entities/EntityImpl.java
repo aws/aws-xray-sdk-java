@@ -534,16 +534,19 @@ public abstract class EntityImpl implements Entity {
         }
     }
 
+    @JsonIgnore
+    @Override
+    public List<Subsegment> getSubsegmentsCopy() {
+        synchronized (lock) {
+            return new ArrayList<>(subsegments);
+        }
+    }
+
     @Override
     public void addSubsegment(Subsegment subsegment) {
         synchronized (lock) {
             checkAlreadyEmitted();
-            getSubsegmentsLock().lock();
-            try {
-                subsegments.add(subsegment);
-            } finally {
-                getSubsegmentsLock().unlock();
-            }
+            subsegments.add(subsegment);
         }
     }
 
@@ -552,13 +555,8 @@ public abstract class EntityImpl implements Entity {
         synchronized (lock) {
             checkAlreadyEmitted();
             setFault(true);
-            getSubsegmentsLock().lock();
-            try {
-                cause.addExceptions(creator.getThrowableSerializationStrategy()
-                                           .describeInContext(this, exception, subsegments));
-            } finally {
-                getSubsegmentsLock().unlock();
-            }
+            cause.addExceptions(creator.getThrowableSerializationStrategy()
+                                       .describeInContext(this, exception, subsegments));
         }
     }
 
@@ -771,12 +769,7 @@ public abstract class EntityImpl implements Entity {
     @Override
     public void removeSubsegment(Subsegment subsegment) {
         synchronized (lock) {
-            getSubsegmentsLock().lock();
-            try {
-                subsegments.remove(subsegment);
-            } finally {
-                getSubsegmentsLock().unlock();
-            }
+            subsegments.remove(subsegment);
             getParentSegment().getTotalSize().decrement();
         }
     }
