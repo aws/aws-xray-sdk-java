@@ -65,7 +65,7 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
             boolean shouldEmit = parentSegment.decrementReferenceCount() && parentSegment.isSampled();
             if (shouldEmit) {
                 checkAlreadyEmitted();
-                setEmitted(true);
+                ended = true;
             }
             return shouldEmit;
         }

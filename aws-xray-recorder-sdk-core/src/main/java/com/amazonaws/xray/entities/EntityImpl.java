@@ -142,6 +142,10 @@ public abstract class EntityImpl implements Entity {
     @GuardedBy("lock")
     private boolean emitted = false;
 
+    @JsonIgnore
+    @GuardedBy("lock")
+    protected boolean ended = false;
+
     static {
         /*
          * Inject the CauseSerializer and StackTraceElementSerializer classes into the local mapper such that they will serialize
@@ -207,7 +211,7 @@ public abstract class EntityImpl implements Entity {
     }
 
     /**
-     * Checks if the entity has already been emitted to the X-Ray daemon.
+     * Checks if the entity has already been ended.
      *
      * @throws AlreadyEmittedException
      *             if the entity has already been emitted to the X-Ray daemon and the ContextMissingStrategy of the
@@ -216,7 +220,7 @@ public abstract class EntityImpl implements Entity {
      */
     protected void checkAlreadyEmitted() {
         synchronized (lock) {
-            if (emitted) {
+            if (ended || emitted) {
                 getCreator().getContextMissingStrategy().contextMissing("Segment " + getName() + " has already been emitted.",
                                                                         AlreadyEmittedException.class);
             }
@@ -724,6 +728,17 @@ public abstract class EntityImpl implements Entity {
         synchronized (lock) {
             checkAlreadyEmitted();
             this.emitted = emitted;
+        }
+    }
+
+    @Override
+    public boolean compareAndSetEmitted(boolean current, boolean next) {
+        synchronized (lock) {
+            if (emitted == current) {
+                emitted = next;
+                return true;
+            }
+            return false;
         }
     }
 
