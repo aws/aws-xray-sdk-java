@@ -37,6 +37,9 @@ public class TracingStatement {
 
     private static final Log logger = LogFactory.getLog(TracingStatement.class);
 
+    private static final boolean COLLECT_SQL_ENV =  Boolean.parseBoolean(System.getenv("AWS_XRAY_COLLECT_SQL_QUERIES"));
+    private static final boolean COLLECT_SQL_PROP = Boolean.parseBoolean(System.getProperty("AWS_XRAY_COLLECT_SQL_QUERIES"));
+
     /**
      * Call {@code statement = TracingStatement.decorateStatement(statement)} to decorate your {@link Statement}
      * in order to have the queries recorded with an X-Ray Subsegment. Do not use the method on {@link PreparedStatement}
@@ -87,8 +90,6 @@ public class TracingStatement {
 
         private final Statement delegate;
 
-        // TODO: https://github.com/aws/aws-xray-sdk-java/issues/28
-        @SuppressWarnings("UnusedVariable")
         private final String sql;
 
         TracingStatementHandler(Statement statement, String sql) {
@@ -106,7 +107,7 @@ public class TracingStatement {
             }
 
             logger.debug(
-                String.format("Invoking statement execution with X-Ray tracing. Tracing active: %s", subsegment != null));
+                    String.format("Invoking statement execution with X-Ray tracing. Tracing active: %s", subsegment != null));
             try {
                 // execute the query "wrapped" in a XRay Subsegment
                 return method.invoke(delegate, args);
@@ -143,11 +144,15 @@ public class TracingStatement {
 
         private Subsegment createSubsegment() {
             try {
-                return SqlSubsegments.forQuery(delegate.getConnection(), null);
+                return SqlSubsegments.forQuery(delegate.getConnection(), collectSqlQueries() ? sql : null);
             } catch (SQLException exception) {
                 logger.warn("Failed to create X-Ray subsegment for the statement execution.", exception);
                 return null;
             }
+        }
+
+        private boolean collectSqlQueries() {
+            return COLLECT_SQL_ENV || COLLECT_SQL_PROP;
         }
     }
 }
