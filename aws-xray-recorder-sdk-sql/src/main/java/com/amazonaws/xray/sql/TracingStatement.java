@@ -38,7 +38,7 @@ public class TracingStatement {
     private static final Log logger = LogFactory.getLog(TracingStatement.class);
 
     private static final boolean COLLECT_SQL_ENV =  Boolean.parseBoolean(System.getenv("AWS_XRAY_COLLECT_SQL_QUERIES"));
-    private static final boolean COLLECT_SQL_PROP = Boolean.parseBoolean(System.getProperty("AWS_XRAY_COLLECT_SQL_QUERIES"));
+    private static final boolean COLLECT_SQL_PROP = Boolean.parseBoolean(System.getProperty("com.amazonaws.xray.collectSqlQueries"));
 
     /**
      * Call {@code statement = TracingStatement.decorateStatement(statement)} to decorate your {@link Statement}
