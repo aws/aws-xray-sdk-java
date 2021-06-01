@@ -1,6 +1,14 @@
 # Change Log
 
-## 2.9.0
+## 2.9.1
+- Improve handling of entity `emitted` field
+[PR 279](https://github.com/aws/aws-xray-sdk-java/pull/279)
+- Remove global subsegment lock to fix race condition
+[PR 278](https://github.com/aws/aws-xray-sdk-java/pull/278)
+- Updated Apache HTTP and AWS SDK versions
+[PR 277](https://github.com/aws/aws-xray-sdk-java/pull/277)
+
+## 2.9.0 - 2021-04-08
 - Added aggregate javadoc plugin
 [PR 242](https://github.com/aws/aws-xray-sdk-java/pull/242)
 - Configurtion to always create trace ID
