@@ -1,6 +1,6 @@
 # Change Log
 
-## 2.9.1
+## 2.9.1 - 2021-06-02
 - Improve handling of entity `emitted` field
 [PR 279](https://github.com/aws/aws-xray-sdk-java/pull/279)
 - Remove global subsegment lock to fix race condition
