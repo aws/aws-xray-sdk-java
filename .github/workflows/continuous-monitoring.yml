@@ -24,6 +24,12 @@ jobs:
         with:
           java-version: 11
           
+      - name: Cache Gradle Wrapper
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper
+          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          
       - name: Run smoke tests
         id: distribution-availability
         run: ./gradlew :smoke-tests:check -PtestDistributionChannel=true
