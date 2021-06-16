@@ -32,7 +32,11 @@ jobs:
           
       - name: Run smoke tests
         id: distribution-availability
-        run: ./gradlew :smoke-tests:check -PtestDistributionChannel=true
+        uses: nick-invision/retry@v2
+        with:
+          timeout_seconds: 180
+          max_attempts: 3
+          command: ./gradlew :smoke-tests:check -PtestDistributionChannel=true
         
       - name: Publish metric on X-Ray Java SDK distribution availability
         if: ${{ always() }}
