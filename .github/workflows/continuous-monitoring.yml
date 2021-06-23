@@ -32,7 +32,11 @@ jobs:
           
       - name: Run smoke tests
         id: distribution-availability
-        run: ./gradlew :smoke-tests:check -PtestDistributionChannel=true
+        run: |
+          (echo "===== Attempt: 1 ====" && ./gradlew :smoke-tests:check -PtestDistributionChannel=true) || \
+          (echo "===== Attempt: 2 ====" && ./gradlew :smoke-tests:check -PtestDistributionChannel=true) || \
+          (echo "===== Attempt: 3 ====" && ./gradlew :smoke-tests:check -PtestDistributionChannel=true) || \
+          (echo "===== No more retries. Failed! ====" && exit 1)
         
       - name: Publish metric on X-Ray Java SDK distribution availability
         if: ${{ always() }}
