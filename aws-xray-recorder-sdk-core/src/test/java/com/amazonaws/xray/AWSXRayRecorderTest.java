@@ -505,6 +505,7 @@ public class AWSXRayRecorderTest {
         // No-op
         subsegment.setNamespace("foo");
         assertThat(subsegment.getNamespace()).isEmpty();
+        assertThat(subsegment.shouldPropagate()).isFalse();
     }
 
     @Test
@@ -736,8 +737,8 @@ public class AWSXRayRecorderTest {
         assertThat(segment.getCreator()).isEqualTo(AWSXRay.getGlobalRecorder());
         segment.setRuleName("foo");
         assertThat(segment.getParentSegment()).isSameAs(segment);
-        segment.getSubsegments().add(Subsegment.noOp(AWSXRay.getGlobalRecorder()));
-        segment.addSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder()));
+        segment.getSubsegments().add(Subsegment.noOp(AWSXRay.getGlobalRecorder(), true));
+        segment.addSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder(), true));
         assertThat(segment.getSubsegments()).isEmpty();
         segment.addException(new IllegalStateException());
         assertThat(segment.getReferenceCount()).isZero();
@@ -747,7 +748,7 @@ public class AWSXRayRecorderTest {
         assertThat(segment.getReferenceCount()).isZero();
         segment.decrementReferenceCount();
         assertThat(segment.getReferenceCount()).isZero();
-        segment.removeSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder()));
+        segment.removeSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder(), true));
         segment.setEmitted(true);
         segment.compareAndSetEmitted(false, true);
         assertThat(segment.isEmitted()).isFalse();
@@ -788,7 +789,7 @@ public class AWSXRayRecorderTest {
 
     @Test
     public void testNoOpSubsegment() throws Exception {
-        Subsegment subsegment = Subsegment.noOp(AWSXRay.getGlobalRecorder());
+        Subsegment subsegment = Subsegment.noOp(AWSXRay.getGlobalRecorder(), true);
 
         Map<String, Object> map = new HashMap<>();
         map.put("dog", "bark");
@@ -854,8 +855,8 @@ public class AWSXRayRecorderTest {
         subsegment.setCreator(AWSXRayRecorderBuilder.standard().build());
         assertThat(subsegment.getCreator()).isEqualTo(AWSXRay.getGlobalRecorder());
         assertThat(subsegment.getParentSegment().getTraceId()).isEqualTo(TraceID.invalid());
-        subsegment.getSubsegments().add(Subsegment.noOp(AWSXRay.getGlobalRecorder()));
-        subsegment.addSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder()));
+        subsegment.getSubsegments().add(Subsegment.noOp(AWSXRay.getGlobalRecorder(), true));
+        subsegment.addSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder(), true));
         assertThat(subsegment.getSubsegments()).isEmpty();
         subsegment.addException(new IllegalStateException());
         assertThat(subsegment.getReferenceCount()).isZero();
@@ -865,7 +866,7 @@ public class AWSXRayRecorderTest {
         assertThat(subsegment.getReferenceCount()).isZero();
         subsegment.decrementReferenceCount();
         assertThat(subsegment.getReferenceCount()).isZero();
-        subsegment.removeSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder()));
+        subsegment.removeSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder(), true));
         subsegment.setEmitted(true);
         subsegment.compareAndSetEmitted(false, true);
         assertThat(subsegment.isEmitted()).isFalse();
@@ -934,5 +935,18 @@ public class AWSXRayRecorderTest {
         assertThat(segment.getAws()).containsKey("cloudwatch_logs");
         Set<AWSLogReference> logReferences = (Set<AWSLogReference>) segment.getAws().get("cloudwatch_logs");
         assertThat(logReferences).containsOnly(expected);
+    }
+
+    @Test
+    public void testUnsampledSubsegmentPropagation() {
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+            .build();
+
+        Segment segment = recorder.beginSegmentWithSampling("test");
+        Subsegment subsegment = recorder.beginSubsegment("test");
+
+        assertThat(segment.isSampled()).isFalse();
+        assertThat(subsegment.shouldPropagate()).isTrue();
     }
 }

@@ -27,7 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
- * @deprecated Use {@link Subsegment#noOp(AWSXRayRecorder)}.
+ * @deprecated Use {@link Subsegment#noOp(AWSXRayRecorder, boolean)}.
  */
 @Deprecated
 public class DummySubsegment implements Subsegment {
@@ -338,6 +338,15 @@ public class DummySubsegment implements Subsegment {
 
     @Override
     public void addPrecursorId(String precursorId) {
+    }
+
+    @Override
+    public boolean shouldPropagate() {
+        return false;
+    }
+
+    @Override
+    public void setShouldPropagate(boolean shouldPropagate) {
     }
 
     @Override

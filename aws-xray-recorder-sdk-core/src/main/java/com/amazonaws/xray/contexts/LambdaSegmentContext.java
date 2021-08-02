@@ -107,7 +107,11 @@ public class LambdaSegmentContext implements SegmentContext {
         Entity current = getTraceEntity();
         if (current instanceof Subsegment) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Ending subsegment named: " + current.getName());
+                if (current.getName().isEmpty() && !current.getParentSegment().isSampled()) {
+                    logger.debug("Ending no-op subsegment");
+                } else {
+                    logger.debug("Ending subsegment named: " + current.getName());
+                }
             }
             Subsegment currentSubsegment = (Subsegment) current;
 
@@ -139,7 +143,8 @@ public class LambdaSegmentContext implements SegmentContext {
             }
 
         } else {
-            throw new SubsegmentNotFoundException("Failed to end a subsegment: subsegment cannot be found.");
+            recorder.getContextMissingStrategy().contextMissing("Failed to end subsegment: subsegment cannot be found.",
+                SubsegmentNotFoundException.class);
         }
     }
 }

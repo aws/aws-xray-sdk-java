@@ -39,7 +39,7 @@ public class ThreadLocalSegmentContext implements SegmentContext {
         if (current == null) {
             recorder.getContextMissingStrategy().contextMissing("Failed to begin subsegment named '" + name
                                                                 + "': segment cannot be found.", SegmentNotFoundException.class);
-            return Subsegment.noOp(recorder);
+            return Subsegment.noOp(recorder, false);
         }
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);
@@ -65,7 +65,11 @@ public class ThreadLocalSegmentContext implements SegmentContext {
         Entity current = getTraceEntity();
         if (current instanceof Subsegment) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Ending subsegment named: " + current.getName());
+                if (current.getName().isEmpty() && !current.getParentSegment().isSampled()) {
+                    logger.debug("Ending no-op subsegment");
+                } else {
+                    logger.debug("Ending subsegment named: " + current.getName());
+                }
             }
             Subsegment currentSubsegment = (Subsegment) current;
 

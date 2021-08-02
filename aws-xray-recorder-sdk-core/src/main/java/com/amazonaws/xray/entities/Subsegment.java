@@ -21,8 +21,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface Subsegment extends Entity {
 
-    static Subsegment noOp(AWSXRayRecorder recorder) {
-        return new NoOpSubSegment(Segment.noOp(TraceID.invalid(), recorder), recorder);
+    static Subsegment noOp(AWSXRayRecorder recorder, boolean shouldPropagate) {
+        return new NoOpSubSegment(Segment.noOp(TraceID.invalid(), recorder), recorder, shouldPropagate);
     }
 
     static Subsegment noOp(Segment parent, AWSXRayRecorder recorder) {
@@ -77,6 +77,18 @@ public interface Subsegment extends Entity {
      * @param precursorId the precursor ID to add to the set
      */
     void addPrecursorId(String precursorId);
+
+    /**
+     * Determines if this subsegment should propagate its trace context downstream
+     * @return true if its trace context should be propagated downstream, false otherwise
+     */
+    boolean shouldPropagate();
+
+    /**
+     * Determines if this subsegment should propagate its trace context downstream
+     * @param shouldPropagate
+     */
+    void setShouldPropagate(boolean shouldPropagate);
 
     /**
      * Serializes the subsegment as a standalone String with enough information for the subsegment to be streamed on its own.
