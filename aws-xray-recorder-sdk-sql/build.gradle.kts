@@ -14,10 +14,4 @@ tasks.jar {
     }
 }
 
-tasks.jar {
-    manifest {
-        attributes("Automatic-Module-Name" to "com.amazonaws.xray.sql")
-    }
-}
-
 description = "AWS X-Ray Recorder SDK for Java - SQL Interceptor"
