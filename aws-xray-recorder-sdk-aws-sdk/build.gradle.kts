@@ -15,4 +15,10 @@ dependencies {
     testImplementation("org.skyscreamer:jsonassert:1.3.0")
 }
 
+tasks.jar {
+    manifest {
+        attributes("Automatic-Module-Name" to "com.amazonaws.xray.aws-sdk")
+    }
+}
+
 description = "AWS X-Ray Recorder SDK for Java - AWS SDK Handler"

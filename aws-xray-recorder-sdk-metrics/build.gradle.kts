@@ -13,4 +13,10 @@ dependencies {
     testImplementation("org.powermock:powermock-api-mockito2:2.0.2")
 }
 
+tasks.jar {
+    manifest {
+        attributes("Automatic-Module-Name" to "com.amazonaws.xray.metrics")
+    }
+}
+
 description = "AWS X-Ray Recorder SDK for Java - Segment Metrics"

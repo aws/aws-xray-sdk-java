@@ -9,4 +9,10 @@ dependencies {
     testImplementation("com.fasterxml.jackson.core:jackson-databind")
 }
 
+tasks.jar {
+    manifest {
+        attributes("Automatic-Module-Name" to "com.amazonaws.xray.aws-sdk-core")
+    }
+}
+
 description = "AWS X-Ray Recorder SDK for Java - AWS SDK Core"

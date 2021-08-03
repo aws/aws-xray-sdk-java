@@ -11,4 +11,10 @@ dependencies {
     testImplementation("ch.qos.logback:logback-classic:1.3.0-alpha5")
 }
 
+tasks.jar {
+    manifest {
+        attributes("Automatic-Module-Name" to "com.amazonaws.xray.slf4j")
+    }
+}
+
 description = "AWS X-Ray Recorder SDK for Java - SLF4J Trace ID Injection"
