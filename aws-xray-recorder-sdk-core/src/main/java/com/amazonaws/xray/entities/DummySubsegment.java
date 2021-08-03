@@ -346,10 +346,6 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public void setShouldPropagate(boolean shouldPropagate) {
-    }
-
-    @Override
     public String streamSerialize() {
         return "";
     }

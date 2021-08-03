@@ -136,14 +136,6 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
         }
     }
 
-    @Override
-    public void setShouldPropagate(boolean shouldPropagate) {
-        synchronized (lock) {
-            checkAlreadyEmitted();
-            this.shouldPropagate = shouldPropagate;
-        }
-    }
-
     private ObjectNode getStreamSerializeObjectNode() {
         synchronized (lock) {
             ObjectNode obj = (ObjectNode) mapper.valueToTree(this);

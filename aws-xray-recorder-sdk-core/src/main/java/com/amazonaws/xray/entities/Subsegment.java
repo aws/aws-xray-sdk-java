@@ -85,12 +85,6 @@ public interface Subsegment extends Entity {
     boolean shouldPropagate();
 
     /**
-     * Determines if this subsegment should propagate its trace context downstream
-     * @param shouldPropagate
-     */
-    void setShouldPropagate(boolean shouldPropagate);
-
-    /**
      * Serializes the subsegment as a standalone String with enough information for the subsegment to be streamed on its own.
      * @return
      *  the string representation of the subsegment with enouogh information for it to be streamed
