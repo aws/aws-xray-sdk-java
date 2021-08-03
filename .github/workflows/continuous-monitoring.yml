@@ -2,7 +2,7 @@ name: Continuous monitoring of distribution channels
 on:
   workflow_dispatch:
   schedule:
-    - cron:  '0 */1 * * *'
+    - cron:  '*/10 * * * *'
 
 jobs:
   smoke-tests:
@@ -24,9 +24,19 @@ jobs:
         with:
           java-version: 11
           
+      - name: Cache Gradle Wrapper
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/wrapper
+          key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          
       - name: Run smoke tests
         id: distribution-availability
-        run: ./gradlew :smoke-tests:check -PtestDistributionChannel=true
+        run: |
+          (echo "===== Attempt: 1 ====" && ./gradlew :smoke-tests:check -PtestDistributionChannel=true) || \
+          (echo "===== Attempt: 2 ====" && ./gradlew :smoke-tests:check -PtestDistributionChannel=true) || \
+          (echo "===== Attempt: 3 ====" && ./gradlew :smoke-tests:check -PtestDistributionChannel=true) || \
+          (echo "===== No more retries. Failed! ====" && exit 1)
         
       - name: Publish metric on X-Ray Java SDK distribution availability
         if: ${{ always() }}

@@ -22,6 +22,12 @@ dependencies {
     add("jmhRuntimeClasspath", platform(project(":dependencyManagement")))
 }
 
+tasks.jar {
+    manifest {
+        attributes("Automatic-Module-Name" to "com.amazonaws.xray.benchmark")
+    }
+}
+
 jmh {
     fork = 1
     // Required when also including annotation processor.

@@ -9,4 +9,9 @@ dependencies {
     compileOnly("org.apache.tomcat:tomcat-jdbc:8.0.36")
 }
 
+tasks.jar {
+    manifest {
+        attributes("Automatic-Module-Name" to "com.amazonaws.xray.sql-mysql")
+    }
+}
 description = "AWS X-Ray Recorder SDK for Java - AWS SDK MySQL Interceptor"
