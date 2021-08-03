@@ -15,4 +15,10 @@ dependencies {
     testImplementation("software.amazon.awssdk:lambda:2.15.20")
 }
 
+tasks.jar {
+    manifest {
+        attributes("Automatic-Module-Name" to "com.amazonaws.xray.aws-sdk-v2")
+    }
+}
+
 description = "AWS X-Ray Recorder SDK for Java - AWS SDK V2"
