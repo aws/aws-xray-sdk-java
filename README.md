@@ -189,6 +189,7 @@ Statement statement = TracingStatement.decorateStatement(statement);
 PreparedStatement preparedStatement = TracingStatement.decoratePreparedStatement(preparedStatement, sql);
 CallableStatement callableStatement = TracingStatement.decorateCallableStatement(callableStatement, sql);
 ```
+For security reasons, the SQL query is not recorded by default. However, you can opt-in to SQL query recording by setting the `AWS_XRAY_COLLECT_SQL_QUERIES` environment variable or the `com.amazonaws.xray.collectSqlQueries` system property to `true`.
 
 ### Intercept custom methods
 
