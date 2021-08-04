@@ -11,7 +11,7 @@ dependencies {
 
 tasks.jar {
     manifest {
-        attributes("Automatic-Module-Name" to "com.amazonaws.xray.sql-postgres")
+        attributes("Automatic-Module-Name" to "com.amazonaws.xray.sql.postgres")
     }
 }
 description = "AWS X-Ray Recorder SDK for Java - AWS SDK PostgreSQL Interceptor"

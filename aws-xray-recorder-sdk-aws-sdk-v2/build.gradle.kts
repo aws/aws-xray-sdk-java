@@ -17,7 +17,7 @@ dependencies {
 
 tasks.jar {
     manifest {
-        attributes("Automatic-Module-Name" to "com.amazonaws.xray.aws-sdk-v2")
+        attributes("Automatic-Module-Name" to "com.amazonaws.xray.aws.sdk.v2")
     }
 }
 

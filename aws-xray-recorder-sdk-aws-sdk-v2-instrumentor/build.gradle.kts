@@ -9,7 +9,7 @@ dependencies {
 
 tasks.jar {
     manifest {
-        attributes("Automatic-Module-Name" to "com.amazonaws.xray.aws-sdk-v2-instrumentor")
+        attributes("Automatic-Module-Name" to "com.amazonaws.xray.aws.sdk.v2.instrumentor")
     }
 }
 
