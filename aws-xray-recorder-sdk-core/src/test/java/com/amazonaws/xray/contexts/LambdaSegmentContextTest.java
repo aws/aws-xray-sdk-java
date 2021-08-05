@@ -16,12 +16,16 @@
 package com.amazonaws.xray.contexts;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.FacadeSegment;
 import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
+import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
+import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,6 +93,16 @@ class LambdaSegmentContextTest {
         lsc.beginSubsegment(AWSXRay.getGlobalRecorder(), "test2");
         lsc.endSubsegment(AWSXRay.getGlobalRecorder());
         lsc.endSubsegment(AWSXRay.getGlobalRecorder());
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "_X_AMZN_TRACE_ID", value = TRACE_HEADER)
+    void testEndSubsegmentUsesContextMissing() {
+        AWSXRay.getGlobalRecorder().setContextMissingStrategy(new LogErrorContextMissingStrategy());
+        AWSXRay.endSubsegment(); // No exception
+
+        AWSXRay.getGlobalRecorder().setContextMissingStrategy(new RuntimeErrorContextMissingStrategy());
+        assertThatThrownBy(AWSXRay::endSubsegment).isInstanceOf(SubsegmentNotFoundException.class);
     }
 
     // We create segments twice with different environment variables for the same context, similar to how Lambda would invoke

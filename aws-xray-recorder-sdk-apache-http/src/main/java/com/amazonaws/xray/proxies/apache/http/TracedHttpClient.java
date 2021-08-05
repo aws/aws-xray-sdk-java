@@ -110,10 +110,12 @@ public class TracedHttpClient extends CloseableHttpClient {
         subsegment.setNamespace(Namespace.REMOTE.toString());
         Segment parentSegment = subsegment.getParentSegment();
 
-        TraceHeader header = new TraceHeader(parentSegment.getTraceId(),
-                                parentSegment.isSampled() ? subsegment.getId() : null,
-                                parentSegment.isSampled() ? SampleDecision.SAMPLED : SampleDecision.NOT_SAMPLED);
-        request.addHeader(TraceHeader.HEADER_KEY, header.toString());
+        if (subsegment.shouldPropagate()) {
+            TraceHeader header = new TraceHeader(parentSegment.getTraceId(),
+                parentSegment.isSampled() ? subsegment.getId() : null,
+                parentSegment.isSampled() ? SampleDecision.SAMPLED : SampleDecision.NOT_SAMPLED);
+            request.addHeader(TraceHeader.HEADER_KEY, header.toString());
+        }
 
         Map<String, Object> requestInformation = new HashMap<>();
 
