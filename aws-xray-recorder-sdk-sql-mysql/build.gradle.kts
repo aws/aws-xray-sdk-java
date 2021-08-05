@@ -11,7 +11,7 @@ dependencies {
 
 tasks.jar {
     manifest {
-        attributes("Automatic-Module-Name" to "com.amazonaws.xray.sql-mysql")
+        attributes("Automatic-Module-Name" to "com.amazonaws.xray.sql_mysql")
     }
 }
 description = "AWS X-Ray Recorder SDK for Java - AWS SDK MySQL Interceptor"

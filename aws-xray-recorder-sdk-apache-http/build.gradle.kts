@@ -13,7 +13,7 @@ dependencies {
 
 tasks.jar {
     manifest {
-        attributes("Automatic-Module-Name" to "com.amazonaws.xray.apache-http")
+        attributes("Automatic-Module-Name" to "com.amazonaws.xray.apache_http")
     }
 }
 
