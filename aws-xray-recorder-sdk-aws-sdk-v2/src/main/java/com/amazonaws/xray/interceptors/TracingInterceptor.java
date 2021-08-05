@@ -245,7 +245,7 @@ public class TracingInterceptor implements ExecutionInterceptor {
         SdkHttpRequest httpRequest = context.httpRequest();
 
         Subsegment subsegment = executionAttributes.getAttribute(entityKey);
-        if (subsegment == null) {
+        if (!subsegment.shouldPropagate()) {
             return httpRequest;
         }
 

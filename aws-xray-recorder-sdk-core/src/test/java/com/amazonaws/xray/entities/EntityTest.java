@@ -67,4 +67,16 @@ class EntityTest {
         String expected = "{\"default\":{\"date\":1616559298000}}";
         assertThat(serializedSeg).contains(expected);
     }
+
+    @Test
+    void testUnknownClassSerialization() {
+        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test");
+        seg.putAws("coolService", new EmptyBean());
+        seg.end();
+        seg.serialize();  // Verify we don't crash here
+    }
+
+    static class EmptyBean {
+        String otherField = "cerealization";
+    }
 }

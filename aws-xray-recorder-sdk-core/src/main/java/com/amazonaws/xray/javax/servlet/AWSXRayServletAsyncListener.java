@@ -15,7 +15,6 @@
 
 package com.amazonaws.xray.javax.servlet;
 
-import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.entities.Entity;
 import java.io.IOException;
@@ -39,15 +38,7 @@ class AWSXRayServletAsyncListener implements AsyncListener {
         this.recorder = recorder;
     }
 
-    private AWSXRayRecorder getRecorder() {
-        if (recorder == null) {
-            recorder = AWSXRay.getGlobalRecorder();
-        }
-        return recorder;
-    }
-
     private void processEvent(AsyncEvent event) throws IOException {
-        AWSXRayRecorder recorder = getRecorder();
         Entity entity = (Entity) event.getSuppliedRequest().getAttribute(ENTITY_ATTRIBUTE_KEY);
         entity.run(() -> {
             if (event.getThrowable() != null) {

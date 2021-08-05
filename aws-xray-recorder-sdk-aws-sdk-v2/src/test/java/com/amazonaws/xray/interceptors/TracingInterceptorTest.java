@@ -15,6 +15,11 @@
 
 package com.amazonaws.xray.interceptors;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.emitters.Emitter;
@@ -40,10 +45,13 @@ import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.async.EmptyPublisher;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
+import software.amazon.awssdk.core.interceptor.Context;
+import software.amazon.awssdk.core.interceptor.ExecutionAttributes;
 import software.amazon.awssdk.http.AbortableInputStream;
 import software.amazon.awssdk.http.ExecutableHttpRequest;
 import software.amazon.awssdk.http.HttpExecuteResponse;
 import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.http.SdkHttpRequest;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.http.async.AsyncExecuteRequest;
 import software.amazon.awssdk.http.async.SdkAsyncHttpClient;
@@ -86,8 +94,8 @@ public class TracingInterceptorTest {
         ExecutableHttpRequest abortableCallable = Mockito.mock(ExecutableHttpRequest.class);
         SdkHttpClient mockClient = Mockito.mock(SdkHttpClient.class);
 
-        Mockito.when(mockClient.prepareRequest(Mockito.any())).thenReturn(abortableCallable);
-        Mockito.when(abortableCallable.call()).thenReturn(HttpExecuteResponse.builder()
+        when(mockClient.prepareRequest(Mockito.any())).thenReturn(abortableCallable);
+        when(abortableCallable.call()).thenReturn(HttpExecuteResponse.builder()
                 .response(response)
                 .responseBody(AbortableInputStream.create(
                         new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8))
@@ -99,7 +107,7 @@ public class TracingInterceptorTest {
 
     private SdkAsyncHttpClient mockSdkAsyncHttpClient(SdkHttpResponse response) {
         SdkAsyncHttpClient mockClient = Mockito.mock(SdkAsyncHttpClient.class);
-        Mockito.when(mockClient.execute(Mockito.any(AsyncExecuteRequest.class)))
+        when(mockClient.execute(Mockito.any(AsyncExecuteRequest.class)))
                .thenAnswer((Answer<CompletableFuture<Void>>) invocationOnMock -> {
                    AsyncExecuteRequest request = invocationOnMock.getArgument(0);
                    SdkAsyncHttpResponseHandler handler = request.responseHandler();
@@ -561,6 +569,23 @@ public class TracingInterceptorTest {
             Assert.assertEquals(1, cause.getExceptions().size());
             Assert.assertEquals(true, cause.getExceptions().get(0).isRemote());
         }
+    }
+
+    @Test
+    public void testNoHeaderAddedWhenPropagationOff() {
+        Subsegment subsegment = Subsegment.noOp(AWSXRay.getGlobalRecorder(), false);
+        TracingInterceptor interceptor = new TracingInterceptor();
+        Context.ModifyHttpRequest context = Mockito.mock(Context.ModifyHttpRequest.class);
+        SdkHttpRequest mockRequest = Mockito.mock(SdkHttpRequest.class);
+        SdkHttpRequest.Builder mockRequestBuilder = Mockito.mock(SdkHttpRequest.Builder.class);
+        when(context.httpRequest()).thenReturn(mockRequest);
+        Mockito.lenient().when(context.httpRequest().toBuilder()).thenReturn(mockRequestBuilder);
+        ExecutionAttributes attributes = new ExecutionAttributes();
+        attributes.putAttribute(TracingInterceptor.entityKey, subsegment);
+
+        interceptor.modifyHttpRequest(context, attributes);
+
+        verify(mockRequest.toBuilder(), never()).appendHeader(anyString(), anyString());
     }
 }
 

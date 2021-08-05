@@ -27,12 +27,18 @@ class NoOpSubSegment implements Subsegment {
 
     private final Segment parentSegment;
     private final AWSXRayRecorder creator;
+    private final boolean shouldPropagate;
 
     private volatile Entity parent;
 
     NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator) {
+        this(parentSegment, creator, true);
+    }
+
+    NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator, boolean shouldPropagate) {
         this.parentSegment = parentSegment;
         this.creator = creator;
+        this.shouldPropagate = shouldPropagate;
         parent = parentSegment;
     }
 
@@ -345,6 +351,11 @@ class NoOpSubSegment implements Subsegment {
 
     @Override
     public void addPrecursorId(String precursorId) {
+    }
+
+    @Override
+    public boolean shouldPropagate() {
+        return this.shouldPropagate;
     }
 
     @Override

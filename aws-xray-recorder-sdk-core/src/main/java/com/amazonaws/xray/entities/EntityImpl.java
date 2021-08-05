@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -58,6 +59,7 @@ public abstract class EntityImpl implements Entity {
     @Deprecated
     protected static final ObjectMapper mapper = new ObjectMapper()
         .findAndRegisterModules()
+        .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
         .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
         .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
