@@ -191,7 +191,7 @@ public class TracingHandler extends RequestHandler2 {
         }
         currentSubsegment.setNamespace(Namespace.AWS.toString());
 
-        if (recorder.getCurrentSegment() != null) {
+        if (recorder.getCurrentSegment() != null && recorder.getCurrentSubsegment().shouldPropagate()) {
             TraceHeader header =
                 new TraceHeader(recorder.getCurrentSegment().getTraceId(),
                                 recorder.getCurrentSegment().isSampled() ? currentSubsegment.getId() : null,

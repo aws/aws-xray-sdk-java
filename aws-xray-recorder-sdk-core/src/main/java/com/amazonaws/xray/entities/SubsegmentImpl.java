@@ -38,6 +38,9 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     @GuardedBy("lock")
     private Set<String> precursorIds;
 
+    @GuardedBy("lock")
+    private boolean shouldPropagate;
+
     @SuppressWarnings("nullness")
     private SubsegmentImpl() {
         super();
@@ -48,6 +51,7 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
         this.parentSegment = parentSegment;
         parentSegment.incrementReferenceCount();
         this.precursorIds = new HashSet<>();
+        this.shouldPropagate = true;
     }
 
     @Override
@@ -122,6 +126,13 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
         synchronized (lock) {
             checkAlreadyEmitted();
             this.precursorIds = precursorIds;
+        }
+    }
+
+    @Override
+    public boolean shouldPropagate() {
+        synchronized (lock) {
+            return shouldPropagate;
         }
     }
 

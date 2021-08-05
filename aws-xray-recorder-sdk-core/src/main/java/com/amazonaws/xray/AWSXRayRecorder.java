@@ -609,7 +609,9 @@ public class AWSXRayRecorder {
         if (context == null) {
             // No context available, we return a no-op subsegment so user code does not have to work around this. Based on
             // ContextMissingStrategy they will still know about the issue unless they explicitly opt-ed out.
-            return Subsegment.noOp(this);
+            // This no-op subsegment is different from unsampled no-op subsegments only in that it should not cause trace
+            // context to be propagated downstream
+            return Subsegment.noOp(this, false);
         }
         return context.beginSubsegment(this, name);
     }
