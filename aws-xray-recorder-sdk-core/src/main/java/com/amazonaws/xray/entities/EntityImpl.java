@@ -36,10 +36,10 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.logging.Log;
@@ -198,7 +198,7 @@ public abstract class EntityImpl implements Entity {
 
         this.creator = creator;
         this.name = name;
-        this.subsegments = new CopyOnWriteArrayList<>();
+        this.subsegments = Collections.synchronizedList(new ArrayList<>());
         this.subsegmentsLock = new ReentrantLock();
         this.cause = new Cause();
         this.http = new HashMap<>();
