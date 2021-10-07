@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -197,7 +198,7 @@ public abstract class EntityImpl implements Entity {
 
         this.creator = creator;
         this.name = name;
-        this.subsegments = new ArrayList<>();
+        this.subsegments = Collections.synchronizedList(new ArrayList<>());
         this.subsegmentsLock = new ReentrantLock();
         this.cause = new Cause();
         this.http = new HashMap<>();
@@ -531,25 +532,21 @@ public abstract class EntityImpl implements Entity {
 
     @Override
     public List<Subsegment> getSubsegments() {
-        synchronized (lock) {
-            return subsegments;
-        }
+        return subsegments;
     }
 
     @JsonIgnore
     @Override
     public List<Subsegment> getSubsegmentsCopy() {
-        synchronized (lock) {
-            return new ArrayList<>(subsegments);
-        }
+        return new ArrayList<>(subsegments);
     }
 
     @Override
     public void addSubsegment(Subsegment subsegment) {
         synchronized (lock) {
             checkAlreadyEmitted();
-            subsegments.add(subsegment);
         }
+        subsegments.add(subsegment);
     }
 
     @Override
@@ -675,8 +672,8 @@ public abstract class EntityImpl implements Entity {
         synchronized (lock) {
             checkAlreadyEmitted();
             referenceCount++;
-            totalSize.increment();
         }
+        totalSize.increment();
     }
 
     @Override
@@ -706,9 +703,7 @@ public abstract class EntityImpl implements Entity {
      */
     @Override
     public LongAdder getTotalSize() {
-        synchronized (lock) {
-            return totalSize;
-        }
+        return totalSize;
     }
 
     /**
@@ -770,10 +765,8 @@ public abstract class EntityImpl implements Entity {
 
     @Override
     public void removeSubsegment(Subsegment subsegment) {
-        synchronized (lock) {
-            subsegments.remove(subsegment);
-            getParentSegment().getTotalSize().decrement();
-        }
+        subsegments.remove(subsegment);
+        getParentSegment().getTotalSize().decrement();
     }
 
 
