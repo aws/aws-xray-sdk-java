@@ -1,5 +1,19 @@
 # Change Log
 
+## 2.10.0 - 2021-10-19
+- Optimize the lock in segment
+[PR 306](https://github.com/aws/aws-xray-sdk-java/pull/306)
+- Optimize the regex in util method
+[PR 305](https://github.com/aws/aws-xray-sdk-java/pull/305)
+- Add Automatic-Module-Name to JAR Manifest
+[PR 297](https://github.com/aws/aws-xray-sdk-java/pull/297)
+- Improvements to no-op subsegment behavior
+[PR 294](https://github.com/aws/aws-xray-sdk-java/pull/294)
+- Prevent crashes on serializing empty beans
+[PR 293](https://github.com/aws/aws-xray-sdk-java/pull/293)
+- Opt-in support to collect SQL queries
+[PR 283](https://github.com/aws/aws-xray-sdk-java/pull/283)
+
 ## 2.9.1 - 2021-06-02
 - Improve handling of entity `emitted` field
 [PR 279](https://github.com/aws/aws-xray-sdk-java/pull/279)
