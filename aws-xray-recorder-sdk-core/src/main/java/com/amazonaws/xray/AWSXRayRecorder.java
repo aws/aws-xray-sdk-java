@@ -138,6 +138,10 @@ public class AWSXRayRecorder {
     private boolean forcedTraceIdGeneration;
 
     public AWSXRayRecorder() {
+        this(null);
+    }
+
+    AWSXRayRecorder(Emitter sharedEmitter) {
         samplingStrategy = new DefaultSamplingStrategy();
         streamingStrategy = new DefaultStreamingStrategy();
         prioritizationStrategy = new DefaultPrioritizationStrategy();
@@ -175,10 +179,14 @@ public class AWSXRayRecorder {
         serviceRuntimeContext = new ConcurrentHashMap<>();
         serviceRuntimeContext.putAll(RUNTIME_INFORMATION);
 
-        try {
-            emitter = Emitter.create();
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to instantiate AWSXRayRecorder: ", e);
+        if (sharedEmitter != null) {
+            emitter = sharedEmitter;
+        } else {
+            try {
+                emitter = Emitter.create();
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to instantiate AWSXRayRecorder: ", e);
+            }
         }
     }
 
