@@ -141,7 +141,7 @@ public class AWSXRayRecorder {
         this(null);
     }
 
-    AWSXRayRecorder(Emitter sharedEmitter) {
+    AWSXRayRecorder(@Nullable Emitter sharedEmitter) {
         samplingStrategy = new DefaultSamplingStrategy();
         streamingStrategy = new DefaultStreamingStrategy();
         prioritizationStrategy = new DefaultPrioritizationStrategy();
