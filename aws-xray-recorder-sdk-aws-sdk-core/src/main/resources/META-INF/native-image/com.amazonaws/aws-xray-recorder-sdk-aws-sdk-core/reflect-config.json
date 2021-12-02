@@ -1,0 +1,42 @@
+[
+  {
+    "name": "com.amazonaws.xray.handlers.config.AWSServiceHandlerManifest",
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.amazonaws.xray.handlers.config.AWSOperationHandlerManifest",
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.amazonaws.xray.handlers.config.AWSOperationHandler",
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.amazonaws.xray.handlers.config.AWSOperationHandlerRequestDescriptor",
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.amazonaws.xray.handlers.config.AWSOperationHandlerResponseDescriptor",
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allDeclaredConstructors": true
+  }
+]
