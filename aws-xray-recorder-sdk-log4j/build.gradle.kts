@@ -6,9 +6,9 @@ plugins {
 dependencies {
     api(project(":aws-xray-recorder-sdk-core"))
 
-    compileOnly("org.apache.logging.log4j:log4j-api:2.15.0")
+    compileOnly("org.apache.logging.log4j:log4j-api:2.17.0")
 
-    testImplementation("org.apache.logging.log4j:log4j-api:2.15.0")
+    testImplementation("org.apache.logging.log4j:log4j-api:2.17.0")
 }
 
 tasks.jar {
