@@ -1,5 +1,13 @@
 # Change Log
 
+## 2.11.0 - 2022-02-02
+- Update log4j to 2.17 to address CVE-2021-45105
+[PR 314](https://github.com/aws/aws-xray-sdk-java/pull/314)
+- Adding GraalVM native-image config
+[PR 311](https://github.com/aws/aws-xray-sdk-java/pull/311)
+- Reduce log level of sampling error logging
+[PR 309](https://github.com/aws/aws-xray-sdk-java/pull/309)
+
 ## 2.10.0 - 2021-10-19
 - Optimize the lock in segment
 [PR 306](https://github.com/aws/aws-xray-sdk-java/pull/306)
