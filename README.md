@@ -14,67 +14,67 @@ Add the AWS X-Ray SDK dependencies to your pom.xml:
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-core</artifactId>
-  <version>2.11.0</version>
+  <version>2.11.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-apache-http</artifactId>
-  <version>2.11.0</version>
+  <version>2.11.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
-  <version>2.11.0</version>
+  <version>2.11.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-aws-sdk-v2</artifactId>
-  <version>2.11.0</version>
+  <version>2.11.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-aws-sdk-instrumentor</artifactId>
-  <version>2.11.0</version>
+  <version>2.11.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-aws-sdk-v2-instrumentor</artifactId>
-  <version>2.11.0</version>
+  <version>2.11.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-sql</artifactId>
-  <version>2.11.0</version>
+  <version>2.11.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-sql-mysql</artifactId>
-  <version>2.11.0</version>
+  <version>2.11.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-sql-postgres</artifactId>
-  <version>2.11.0</version>
+  <version>2.11.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-spring</artifactId>
-  <version>2.11.0</version>
+  <version>2.11.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-log4j</artifactId>
-  <version>2.11.0</version>
+  <version>2.11.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-slf4j</artifactId>
-  <version>2.11.0</version>
+  <version>2.11.1</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-metrics</artifactId>
-  <version>2.11.0</version>
+  <version>2.11.1</version>
 </dependency>
 ```
 
