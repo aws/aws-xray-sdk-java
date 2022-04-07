@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.11.1 - 2022-04-06
+- Update Spring dependencies to address cve-2022-22965
+[PR 329](https://github.com/aws/aws-xray-sdk-java/pull/329)
+
 ## 2.11.0 - 2022-02-02
 - Update log4j to 2.17 to address CVE-2021-45105
 [PR 314](https://github.com/aws/aws-xray-sdk-java/pull/314)
