@@ -6,7 +6,7 @@ data class DependencySet(val group: String, val version: String, val modules: Li
 
 val DEPENDENCY_BOMS = listOf(
         "com.fasterxml.jackson:jackson-bom:2.11.0",
-        "org.junit:junit-bom:5.6.2"
+        "org.junit:junit-bom:5.8.2"
 )
 
 val DEPENDENCY_SETS = listOf(
@@ -42,7 +42,7 @@ val DEPENDENCY_SETS = listOf(
         ),
         DependencySet(
                 "junit",
-                "4.12",
+                "4.13.1",
                 listOf("junit")
         ),
         DependencySet(

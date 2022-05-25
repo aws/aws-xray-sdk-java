@@ -10,6 +10,8 @@ dependencies {
 
     api("software.amazon.awssdk:aws-core:2.15.20")
 
+    testImplementation("junit:junit:4.13.1")
+    testImplementation("org.mockito:mockito-junit-jupiter:3.12.4")
     testImplementation("org.skyscreamer:jsonassert:1.3.0")
     testImplementation("software.amazon.awssdk:dynamodb:2.15.20")
     testImplementation("software.amazon.awssdk:lambda:2.15.20")

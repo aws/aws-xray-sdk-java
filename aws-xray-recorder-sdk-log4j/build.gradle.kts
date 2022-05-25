@@ -9,6 +9,7 @@ dependencies {
     compileOnly("org.apache.logging.log4j:log4j-api:2.17.0")
 
     testImplementation("org.apache.logging.log4j:log4j-api:2.17.0")
+    testImplementation("org.mockito:mockito-core:3.12.4")
 }
 
 tasks.jar {

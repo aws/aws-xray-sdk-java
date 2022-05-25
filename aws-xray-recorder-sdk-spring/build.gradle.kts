@@ -14,6 +14,9 @@ dependencies {
     implementation("org.springframework:spring-aspects:5.3.18")
 
     compileOnly("org.springframework.data:spring-data-commons:2.6.3")
+
+    testImplementation("junit:junit:4.13.1")
+    testImplementation("org.mockito:mockito-core:3.12.4")
 }
 
 tasks.jar {

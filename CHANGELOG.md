@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.12.0 - 2022-05-25
+- Update AWS Java SDK to 1.12
+[PR 334](https://github.com/aws/aws-xray-sdk-java/pull/334)
+
 ## 2.11.1 - 2022-04-06
 - Update Spring dependencies to address cve-2022-22965
 [PR 329](https://github.com/aws/aws-xray-sdk-java/pull/329)

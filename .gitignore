@@ -21,3 +21,6 @@ gradle-app.setting
 
 # Cache of project
 .gradletasknamecache
+
+# VSCode
+.vscode
