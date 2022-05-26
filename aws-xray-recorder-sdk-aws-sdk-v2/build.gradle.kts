@@ -15,6 +15,17 @@ dependencies {
     testImplementation("org.skyscreamer:jsonassert:1.3.0")
     testImplementation("software.amazon.awssdk:dynamodb:2.15.20")
     testImplementation("software.amazon.awssdk:lambda:2.15.20")
+
+    // The packages below are necessary to make the
+    //
+    // `./gradlew aws-xray-recorder-sdk-aws-sdk-v2:dependencies --stacktrace`
+    //
+    // command work correctly
+    compileOnly("com.google.errorprone:error_prone_annotations:2.5.1")
+
+    testImplementation("org.assertj:assertj-core:3.16.1")
+    testImplementation("org.junit-pioneer:junit-pioneer:0.9.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:3.12.4")
 }
 
 tasks.jar {
