@@ -1,6 +1,6 @@
 pluginManagement {
     plugins {
-        id("com.github.hierynomus.license") version "0.15.0"
+        id("com.github.hierynomus.license") version "0.16.1"
         id("nebula.release") version "15.1.0"
         id("io.freefair.aggregate-javadoc-jar") version "5.3.0"
         id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
