@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly("com.fasterxml.jackson.core:jackson-annotations:2.11.0")
+    compileOnly("com.fasterxml.jackson.core:jackson-annotations")
 
     testImplementation("com.fasterxml.jackson.core:jackson-databind")
 }
