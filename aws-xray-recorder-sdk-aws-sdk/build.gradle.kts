@@ -8,11 +8,11 @@ dependencies {
 
     implementation(project(":aws-xray-recorder-sdk-aws-sdk-core"))
 
-    api("com.amazonaws:aws-java-sdk-core")
+    api("com.amazonaws:aws-java-sdk-core:1.12.228")
 
-    testImplementation("com.amazonaws:aws-java-sdk-lambda")
-    testImplementation("com.amazonaws:aws-java-sdk-s3")
-    testImplementation("com.amazonaws:aws-java-sdk-sns")
+    testImplementation("com.amazonaws:aws-java-sdk-lambda:1.12.228")
+    testImplementation("com.amazonaws:aws-java-sdk-s3:1.12.228")
+    testImplementation("com.amazonaws:aws-java-sdk-sns:1.12.228")
     testImplementation("org.powermock:powermock-reflect:2.0.2")
     testImplementation("org.skyscreamer:jsonassert:1.3.0")
 }

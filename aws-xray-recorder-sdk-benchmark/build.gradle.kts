@@ -28,6 +28,11 @@ tasks.jar {
     }
 }
 
+tasks.jmhJar {
+    // Gradle 7 requires duplicatesStrategy to be specified.
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 jmh {
     fork = 1
     // Required when also including annotation processor.

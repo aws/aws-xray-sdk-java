@@ -5,7 +5,6 @@ plugins {
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
 val DEPENDENCY_BOMS = listOf(
-        "com.amazonaws:aws-java-sdk-bom:1.12.228",
         "com.fasterxml.jackson:jackson-bom:2.12.0",
         "org.junit:junit-bom:5.8.2"
 )
