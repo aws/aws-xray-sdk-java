@@ -8,6 +8,11 @@ dependencies {
 
     implementation(project(":aws-xray-recorder-sdk-aws-sdk-core"))
 
+    // TODO: Try and find a way to declare aws-java-sdk dependencies
+    //  via a bom in the dependencyManagement project and make it available
+    //  for resolution not only in the SDK projects but also in projects
+    //  like benchmark.
+    //  See PR for more details: https://github.com/aws/aws-xray-sdk-java/pull/336
     api("com.amazonaws:aws-java-sdk-core:1.12.228")
 
     testImplementation("com.amazonaws:aws-java-sdk-lambda:1.12.228")
