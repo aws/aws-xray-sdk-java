@@ -30,6 +30,8 @@ tasks.jar {
 
 tasks.jmhJar {
     // Gradle 7 requires duplicatesStrategy to be specified.
+    //
+    // See more: https://github.com/gradle/gradle/issues/17236
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
