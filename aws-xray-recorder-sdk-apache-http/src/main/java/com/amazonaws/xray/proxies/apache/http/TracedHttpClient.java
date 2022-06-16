@@ -72,17 +72,11 @@ public class TracedHttpClient extends CloseableHttpClient {
     }
 
     public static HttpHost determineTarget(final HttpUriRequest request) throws ClientProtocolException {
-        // A null target may be acceptable if there is a default target.
-        // Otherwise, the null target is detected in the director.
-        HttpHost target = null;
-
         final URI requestUri = request.getURI();
-        if (requestUri.isAbsolute()) {
-            target = URIUtils.extractHost(requestUri);
-            if (target == null) {
-                throw new ClientProtocolException("URI does not specify a valid host name: "
-                        + requestUri);
-            }
+        HttpHost target = URIUtils.extractHost(requestUri);
+        if (target == null) {
+            throw new ClientProtocolException("URI does not specify a valid host name: "
+                    + requestUri);
         }
         return target;
     }
