@@ -26,6 +26,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Segment;
@@ -34,6 +36,7 @@ import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.entities.TraceID;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import org.apache.http.HttpHost;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -112,5 +115,21 @@ public class TracedHttpClientTest {
         verify(getRequestedFor(urlPathEqualTo("/"))
                    .withHeader(TraceHeader.HEADER_KEY,
                                equalTo("Root=1-67891233-abcdef012345678912345678;Sampled=0")));
+    }
+
+    @Test
+    public void testExceptionOnRelativeUrl() throws Exception {
+        stubFor(any(anyUrl()).willReturn(ok()));
+
+        TraceID traceID = TraceID.fromString("1-67891233-abcdef012345678912345678");
+        AWSXRay.beginSegment("test", traceID, null);
+        Exception exception = assertThrows(ClientProtocolException.class, () -> {
+            client.execute(new HttpGet("/hello/world/"));
+        });
+        AWSXRay.endSegment();
+
+        String expectedMessage = "URI does not specify a valid host name:";
+        String actualMessage = exception.getMessage();
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 }
