@@ -1,5 +1,11 @@
 [![Build Status](https://travis-ci.org/aws/aws-xray-sdk-java.svg?branch=master)](https://travis-ci.org/aws/aws-xray-sdk-java)
 
+### :mega: OpenTelemetry Java with AWS X-Ray
+
+You can now use OpenTelemetry Java SDK and still send traces to AWS X-Ray. For more details, please follow [this link](https://docs.aws.amazon.com/xray/latest/devguide/xray-java.html).
+
+If you want to open feature requests for instrumentations in OpenTelemetry, please do so [here](https://github.com/open-telemetry/opentelemetry-java-instrumentation/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=).
+
 # AWS X-Ray SDK for Java
 
 ![Screenshot of the AWS X-Ray console](/images/example_servicemap.png?raw=true)
