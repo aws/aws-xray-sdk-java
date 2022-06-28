@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/aws/aws-xray-sdk-java.svg?branch=master)](https://travis-ci.org/aws/aws-xray-sdk-java)
+![Build Status](https://github.com/aws/aws-xray-sdk-java/actions/workflows/master-build.yml/badge.svg)
 
 ### :mega: OpenTelemetry Java with AWS X-Ray
 
