@@ -4,7 +4,7 @@
 
 You can now use OpenTelemetry Java SDK and still send traces to AWS X-Ray. For more details, please follow [this link](https://docs.aws.amazon.com/xray/latest/devguide/xray-java.html).
 
-If you want to open feature requests for instrumentations in OpenTelemetry, please do so [here](https://github.com/open-telemetry/opentelemetry-java-instrumentation/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=).
+If you want additional features when tracing your Java applications, please [open an issue on the OpenTelemetry Java Instrumentation repository](https://github.com/open-telemetry/opentelemetry-java-instrumentation/issues/new?labels=enhancement&template=feature_request.md&title=X-Ray%20Compatible%20Feature%20Request).
 
 # AWS X-Ray SDK for Java
 
