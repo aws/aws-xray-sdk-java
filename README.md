@@ -2,7 +2,7 @@
 
 ### :mega: OpenTelemetry Java with AWS X-Ray
 
-You can now use OpenTelemetry Java SDK and still send traces to AWS X-Ray. For more details, please follow [this link](https://docs.aws.amazon.com/xray/latest/devguide/xray-java.html).
+AWS X-Ray recommends using AWS Distro for OpenTelemetry (ADOT) to instrument your application due to its wider range of features and instrumentations. See [Working with Java](https://docs.aws.amazon.com/xray/latest/devguide/xray-java.html) for more help with choosing between ADOT and X-Ray SDK.
 
 If you want additional features when tracing your Java applications, please [open an issue on the OpenTelemetry Java Instrumentation repository](https://github.com/open-telemetry/opentelemetry-java-instrumentation/issues/new?labels=enhancement&template=feature_request.md&title=X-Ray%20Compatible%20Feature%20Request).
 
