@@ -32,96 +32,98 @@ import org.apache.commons.logging.LogFactory;
  */
 @Deprecated
 public class UDPEmitter extends Emitter {
-  private static final Log logger = LogFactory.getLog(UDPEmitter.class);
+    private static final Log logger = LogFactory.getLog(UDPEmitter.class);
 
-  private final DatagramSocket daemonSocket;
-  private final DaemonConfiguration config;
-  private final byte[] sendBuffer = new byte[DAEMON_BUF_RECEIVE_SIZE];
+    private DatagramSocket daemonSocket;
+    private DaemonConfiguration config;
+    private byte[] sendBuffer = new byte[DAEMON_BUF_RECEIVE_SIZE];
 
-  /**
-   * Constructs a UDPEmitter. Sets the daemon address to the value of the {@code AWS_XRAY_DAEMON_ADDRESS} environment variable
-   * or {@code com.amazonaws.xray.emitters.daemonAddress} system property, if either are set to a non-empty value. Otherwise,
-   * points to {@code InetAddress.getLoopbackAddress()} at port {@code 2000}.
-   *
-   * @throws SocketException if an error occurs while instantiating a {@code DatagramSocket}.
-   */
-  public UDPEmitter() throws SocketException {
-    this(new DaemonConfiguration());
-  }
-
-  /**
-   * Constructs a UDPEmitter. This overload allows you to specify the configuration.
-   *
-   * @param config The {@link DaemonConfiguration} for the Emitter.
-   * @throws SocketException if an error occurs while instantiating a {@code DatagramSocket}.
-   */
-  public UDPEmitter(DaemonConfiguration config) throws SocketException {
-    this.config = config;
-    try {
-      daemonSocket = new DatagramSocket();
-    } catch (SocketException e) {
-      logger.error("Exception while instantiating daemon socket.", e);
-      throw e;
+    /**
+     * Constructs a UDPEmitter. Sets the daemon address to the value of the {@code AWS_XRAY_DAEMON_ADDRESS} environment variable
+     * or {@code com.amazonaws.xray.emitters.daemonAddress} system property, if either are set to a non-empty value. Otherwise,
+     * points to {@code InetAddress.getLoopbackAddress()} at port {@code 2000}.
+     *
+     * @throws SocketException
+     *             if an error occurs while instantiating a {@code DatagramSocket}.
+     */
+    public UDPEmitter() throws SocketException {
+        this(new DaemonConfiguration());
     }
-  }
 
-  public String getUDPAddress() {
-    return config.getUDPAddress();
-  }
+    /**
+     * Constructs a UDPEmitter. This overload allows you to specify the configuration.
+     *
+     * @param config The {@link DaemonConfiguration} for the Emitter.
+     * @throws SocketException
+     *             if an error occurs while instantiating a {@code DatagramSocket}.
+     */
+    public UDPEmitter(DaemonConfiguration config) throws SocketException {
+        this.config = config;
+        try {
+            daemonSocket = new DatagramSocket();
+        } catch (SocketException e) {
+            logger.error("Exception while instantiating daemon socket.", e);
+            throw e;
+        }
+    }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @see Emitter#sendSegment(Segment)
-   */
-  @Override
-  public boolean sendSegment(Segment segment) {
-    if (logger.isDebugEnabled()) {
-      logger.debug(segment.prettySerialize());
+    public String getUDPAddress() {
+        return config.getUDPAddress();
     }
-    if (segment.compareAndSetEmitted(false, true)) {
-      return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(StandardCharsets.UTF_8),
-          segment);
-    } else {
-      return false;
-    }
-  }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @see Emitter#sendSubsegment(Subsegment)
-   */
-  @Override
-  public boolean sendSubsegment(Subsegment subsegment) {
-    if (logger.isDebugEnabled()) {
-      logger.debug(subsegment.prettyStreamSerialize());
+    /**
+     * {@inheritDoc}
+     *
+     * @see Emitter#sendSegment(Segment)
+     */
+    @Override
+    public boolean sendSegment(Segment segment) {
+        if (logger.isDebugEnabled()) {
+            logger.debug(segment.prettySerialize());
+        }
+        if (segment.compareAndSetEmitted(false, true)) {
+            return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(StandardCharsets.UTF_8),
+                            segment);
+        } else {
+            return false;
+        }
     }
-    if (subsegment.compareAndSetEmitted(false, true)) {
-      return sendData(
-          (PROTOCOL_HEADER + PROTOCOL_DELIMITER + subsegment.streamSerialize()).getBytes(StandardCharsets.UTF_8),
-          subsegment);
-    } else {
-      return false;
-    }
-  }
 
-  private boolean sendData(byte[] data, Entity entity) {
-    try {
-      DatagramPacket packet = new DatagramPacket(sendBuffer, DAEMON_BUF_RECEIVE_SIZE, config.getAddressForEmitter());
-      packet.setData(data);
-      logger.debug("Sending UDP packet.");
-      daemonSocket.send(packet);
-    } catch (Exception e) {
-      String segmentName = Optional.ofNullable(entity.getParent()).map(this::nameAndId).orElse("[no parent segment]");
-      logger.error("Exception while sending segment (" + entity.getClass().getSimpleName() + ") over UDP for entity "
-          + nameAndId(entity) + " on segment " + segmentName + ". Bytes: " + data.length, e);
-      return false;
+    /**
+     * {@inheritDoc}
+     *
+     * @see Emitter#sendSubsegment(Subsegment)
+     */
+    @Override
+    public boolean sendSubsegment(Subsegment subsegment) {
+        if (logger.isDebugEnabled()) {
+            logger.debug(subsegment.prettyStreamSerialize());
+        }
+        if (subsegment.compareAndSetEmitted(false, true)) {
+            return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER +
+                             subsegment.streamSerialize()).getBytes(StandardCharsets.UTF_8),
+                            subsegment);
+        } else {
+            return false;
+        }
     }
-    return true;
-  }
 
-  private String nameAndId(Entity entity) {
-    return entity.getName() + " [" + entity.getId() + "]";
-  }
+    private boolean sendData(byte[] data, Entity entity) {
+        try {
+            DatagramPacket packet = new DatagramPacket(sendBuffer, DAEMON_BUF_RECEIVE_SIZE, config.getAddressForEmitter());
+            packet.setData(data);
+            logger.debug("Sending UDP packet.");
+            daemonSocket.send(packet);
+        } catch (Exception e) {
+            String segmentName = Optional.ofNullable(entity.getParent()).map(this::nameAndId).orElse("[no parent segment]");
+            logger.error("Exception while sending segment (" + entity.getClass().getSimpleName() + ") over UDP for entity "
+                         + nameAndId(entity) + " on segment " + segmentName + ". Bytes: " + data.length, e);
+            return false;
+        }
+        return true;
+    }
+
+    private String nameAndId(Entity entity) {
+        return entity.getName() + " [" + entity.getId() + "]";
+    }
 }
