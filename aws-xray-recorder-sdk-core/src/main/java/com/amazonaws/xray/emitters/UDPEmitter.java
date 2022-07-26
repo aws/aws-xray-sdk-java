@@ -116,8 +116,8 @@ public class UDPEmitter extends Emitter {
             daemonSocket.send(packet);
         } catch (Exception e) {
             String segmentName = Optional.ofNullable(entity.getParent()).map(this::nameAndId).orElse("[no parent segment]");
-            logger.error("Exception while sending segment over UDP for entity " +  nameAndId(entity) + " on segment "
-                         + segmentName, e);
+            logger.error("Exception while sending segment (" + entity.getClass().getSimpleName() + ") over UDP for entity "
+                         + nameAndId(entity) + " on segment " + segmentName + ". Bytes: " + data.length, e);
             return false;
         }
         return true;
