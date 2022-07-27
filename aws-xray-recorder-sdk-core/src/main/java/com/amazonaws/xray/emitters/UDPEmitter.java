@@ -23,6 +23,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 @Deprecated
 public class UDPEmitter extends Emitter {
     private static final Log logger = LogFactory.getLog(UDPEmitter.class);
+    private static final int UDP_PACKET_LIMIT = 63 * 1024;
 
     private DatagramSocket daemonSocket;
     private DaemonConfiguration config;
@@ -82,8 +84,20 @@ public class UDPEmitter extends Emitter {
             logger.debug(segment.prettySerialize());
         }
         if (segment.compareAndSetEmitted(false, true)) {
-            return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(StandardCharsets.UTF_8),
-                            segment);
+            byte[] bytes = (PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(StandardCharsets.UTF_8);
+
+            if (bytes.length > UDP_PACKET_LIMIT) {
+                List<Subsegment> subsegments = segment.getSubsegmentsCopy();
+                logger.debug("Segment too large, sending subsegments to daemon first. bytes " + bytes.length + " subsegemnts "
+                            + subsegments.size());
+                for (Subsegment subsegment : subsegments) {
+                    sendSubsegment(subsegment);
+                    segment.removeSubsegment(subsegment);
+                }
+                bytes = (PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(StandardCharsets.UTF_8);
+                logger.debug("New segment size. bytes " + bytes.length);
+            }
+            return sendData(bytes, segment);
         } else {
             return false;
         }
