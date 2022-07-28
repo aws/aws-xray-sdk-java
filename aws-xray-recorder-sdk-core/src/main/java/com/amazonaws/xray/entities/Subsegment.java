@@ -87,7 +87,7 @@ public interface Subsegment extends Entity {
     /**
      * Serializes the subsegment as a standalone String with enough information for the subsegment to be streamed on its own.
      * @return
-     *  the string representation of the subsegment with enouogh information for it to be streamed
+     *  the string representation of the subsegment with enough information for it to be streamed
      */
     String streamSerialize();
 
@@ -96,10 +96,16 @@ public interface Subsegment extends Entity {
      * own. Only used for debugging.
      *
      * @return
-     *  the pretty string representation of the subsegment with enouogh information for it to be streamed
+     *  the pretty string representation of the subsegment with enough information for it to be streamed
      */
     String prettyStreamSerialize();
 
+    /**
+     * Implements the {@link AutoCloseable} interface.
+     *
+     * Warning. This method is intended to be private to the xray library and should not be used externally. Instead, use
+     * {@link com.amazonaws.xray.AWSXRay#endSubsegment(Subsegment)}.
+     */
     @Override
     void close();
 }
