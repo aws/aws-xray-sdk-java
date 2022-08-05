@@ -192,7 +192,7 @@ public class AWSXRay {
      * the trace entity so it can be restored correctly.
      */
     @Deprecated
-    public static void setTraceEntity(Entity entity) {
+    public static void setTraceEntity(@Nullable Entity entity) {
         globalRecorder.setTraceEntity(entity);
     }
 
