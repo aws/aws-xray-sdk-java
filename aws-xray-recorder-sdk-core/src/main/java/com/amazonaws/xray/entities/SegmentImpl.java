@@ -34,7 +34,8 @@ public class SegmentImpl extends EntityImpl implements Segment {
     protected Map<String, Object> service;
 
     @JsonIgnore
-    private volatile boolean sampled;
+    @GuardedBy("lock")
+    private boolean sampled;
 
     @SuppressWarnings({ "unused", "nullness" })
     private SegmentImpl() {
@@ -87,15 +88,17 @@ public class SegmentImpl extends EntityImpl implements Segment {
 
     @Override
     public boolean isSampled() {
-        return sampled;
+        synchronized (lock) {
+            return sampled;
+        }
     }
 
     @Override
     public void setSampled(boolean sampled) {
         synchronized (lock) {
             checkAlreadyEmitted();
+            this.sampled = sampled;
         }
-        this.sampled = sampled;
     }
 
     @Override

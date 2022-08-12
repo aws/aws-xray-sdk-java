@@ -67,7 +67,7 @@ public class DefaultStreamingStrategy implements StreamingStrategy {
      */
     @Override
     public boolean requiresStreaming(Segment segment) {
-        if (segment.isSampled()) {
+        if (segment.isSampled() && null != segment.getTotalSize()) {
             return segment.getTotalSize().intValue() > maxSegmentSize;
         }
         return false;
