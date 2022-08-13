@@ -34,7 +34,6 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
 
     private Set<String> precursorIds;
 
-    @GuardedBy("lock")
     private boolean shouldPropagate;
 
     @SuppressWarnings("nullness")
@@ -111,9 +110,7 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
 
     @Override
     public boolean shouldPropagate() {
-        synchronized (lock) {
-            return shouldPropagate;
-        }
+        return shouldPropagate;
     }
 
     private ObjectNode getStreamSerializeObjectNode() {
