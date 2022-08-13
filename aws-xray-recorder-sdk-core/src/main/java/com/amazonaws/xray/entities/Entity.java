@@ -600,7 +600,19 @@ public interface Entity extends AutoCloseable {
 
     boolean isEmitted();
 
+    /**
+     * Sets emitted on the entity.
+     */
     void setEmitted(boolean emitted);
+
+    /**
+     * Checks whether this {@link Entity} currently has emitted state of {@code current} and if so, set emitted state to
+     * {@code next}. Returns {@code true} if the state was updated, or {@code false} otherwise.
+     *
+     * @deprecated Use {@link #setEmitted(boolean)}
+     */
+    @Deprecated
+    boolean compareAndSetEmitted(boolean current, boolean next);
 
     String serialize();
 

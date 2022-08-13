@@ -600,6 +600,16 @@ public abstract class EntityImpl implements Entity {
     }
 
     @Override
+    public boolean compareAndSetEmitted(boolean current, boolean next) {
+        checkAlreadyEmitted();
+        if (emitted == current) {
+            emitted = next;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public String serialize() {
         try {
             return mapper.writeValueAsString(this);

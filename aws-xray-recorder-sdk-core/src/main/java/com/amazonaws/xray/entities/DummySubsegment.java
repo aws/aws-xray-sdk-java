@@ -291,6 +291,11 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
+    public boolean compareAndSetEmitted(boolean current, boolean next) {
+        return false;
+    }
+
+    @Override
     public String serialize() {
         return "";
     }
