@@ -158,7 +158,7 @@ public interface Entity extends AutoCloseable {
     void setNamespace(String namespace);
 
     /**
-     * @return an unused {@link ReentrantLock}
+     * @return the subsegmentsLock
      *
      * @deprecated This is for internal use of the SDK and will be made private.
      */
@@ -367,17 +367,8 @@ public interface Entity extends AutoCloseable {
 
     /**
      * @return the subsegments
-     *
-     * @deprecated Use {@link #getSubsegmentsCopy()}.
      */
-    @Deprecated
     List<Subsegment> getSubsegments();
-
-    /**
-     * Returns a copy of the currently added subsegments. Updates to the returned {@link List} will not be reflected in the
-     * {@link Entity}.
-     */
-    List<Subsegment> getSubsegmentsCopy();
 
     /**
      * Adds a subsegment.

@@ -20,7 +20,6 @@ import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import java.util.ArrayList;
-import java.util.List;
 
 public class DefaultStreamingStrategy implements StreamingStrategy {
 
@@ -83,18 +82,30 @@ public class DefaultStreamingStrategy implements StreamingStrategy {
      */
     @Override
     public void streamSome(Entity entity, Emitter emitter) {
-        stream(entity, emitter);
+        if (entity.getSubsegmentsLock().tryLock()) {
+            try {
+                stream(entity, emitter);
+            } finally {
+                entity.getSubsegmentsLock().unlock();
+            }
+        }
     }
 
     private boolean stream(Entity entity, Emitter emitter) {
-        List<Subsegment> children = entity.getSubsegmentsCopy();
-        List<Subsegment> streamable = new ArrayList<>();
+        ArrayList<Subsegment> children = new ArrayList<>(entity.getSubsegments());
+        ArrayList<Subsegment> streamable = new ArrayList<>();
 
         //Gather children and in the condition they are ready to stream, add them to the streamable list.
         if (children.size() > 0) {
             for (Subsegment child : children) {
-                if (stream(child, emitter)) {
-                    streamable.add(child);
+                if (child.getSubsegmentsLock().tryLock()) {
+                    try {
+                        if (stream(child, emitter)) {
+                            streamable.add(child);
+                        }
+                    } finally {
+                        child.getSubsegmentsLock().unlock();
+                    }
                 }
             }
         }
