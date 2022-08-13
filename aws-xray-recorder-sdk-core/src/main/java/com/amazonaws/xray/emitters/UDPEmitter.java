@@ -83,24 +83,21 @@ public class UDPEmitter extends Emitter {
         if (logger.isDebugEnabled()) {
             logger.debug(segment.prettySerialize());
         }
-        if (segment.compareAndSetEmitted(false, true)) {
-            byte[] bytes = (PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(StandardCharsets.UTF_8);
+        
+        byte[] bytes = (PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(StandardCharsets.UTF_8);
 
-            if (bytes.length > UDP_PACKET_LIMIT) {
-                List<Subsegment> subsegments = segment.getSubsegmentsCopy();
-                logger.debug("Segment too large, sending subsegments to daemon first. bytes " + bytes.length + " subsegemnts "
-                            + subsegments.size());
-                for (Subsegment subsegment : subsegments) {
-                    sendSubsegment(subsegment);
-                    segment.removeSubsegment(subsegment);
-                }
-                bytes = (PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(StandardCharsets.UTF_8);
-                logger.debug("New segment size. bytes " + bytes.length);
+        if (bytes.length > UDP_PACKET_LIMIT) {
+            List<Subsegment> subsegments = segment.getSubsegmentsCopy();
+            logger.debug("Segment too large, sending subsegments to daemon first. bytes " + bytes.length + " subsegemnts "
+                        + subsegments.size());
+            for (Subsegment subsegment : subsegments) {
+                sendSubsegment(subsegment);
+                segment.removeSubsegment(subsegment);
             }
-            return sendData(bytes, segment);
-        } else {
-            return false;
+            bytes = (PROTOCOL_HEADER + PROTOCOL_DELIMITER + segment.serialize()).getBytes(StandardCharsets.UTF_8);
+            logger.debug("New segment size. bytes " + bytes.length);
         }
+        return sendData(bytes, segment);
     }
 
     /**
@@ -113,13 +110,8 @@ public class UDPEmitter extends Emitter {
         if (logger.isDebugEnabled()) {
             logger.debug(subsegment.prettyStreamSerialize());
         }
-        if (subsegment.compareAndSetEmitted(false, true)) {
-            return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER +
-                             subsegment.streamSerialize()).getBytes(StandardCharsets.UTF_8),
-                            subsegment);
-        } else {
-            return false;
-        }
+        return sendData((PROTOCOL_HEADER + PROTOCOL_DELIMITER + subsegment.streamSerialize()).getBytes(StandardCharsets.UTF_8),
+                        subsegment);
     }
 
     private boolean sendData(byte[] data, Entity entity) {

@@ -107,6 +107,7 @@ public class DefaultStreamingStrategy implements StreamingStrategy {
         //Stream the subtrees that are ready.
         for (Subsegment child : streamable) {
             emitter.sendSubsegment(child);
+            child.setEmitted(true);
             entity.removeSubsegment(child);
         }
 
