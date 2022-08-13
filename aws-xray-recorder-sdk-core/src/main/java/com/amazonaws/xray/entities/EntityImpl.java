@@ -430,6 +430,12 @@ public abstract class EntityImpl implements Entity {
         return subsegments;
     }
 
+    @JsonIgnore
+    @Override
+    public List<Subsegment> getSubsegmentsCopy() {
+        return new ArrayList<>(subsegments);
+    }
+
     @Override
     public void addSubsegment(Subsegment subsegment) {
         checkAlreadyEmitted();

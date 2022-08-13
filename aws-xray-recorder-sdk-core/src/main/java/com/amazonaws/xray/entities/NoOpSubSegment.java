@@ -232,6 +232,11 @@ class NoOpSubSegment implements Subsegment {
     }
 
     @Override
+    public List<Subsegment> getSubsegmentsCopy() {
+        return NoOpList.get();
+    }
+
+    @Override
     public void addSubsegment(Subsegment subsegment) {
     }
 
