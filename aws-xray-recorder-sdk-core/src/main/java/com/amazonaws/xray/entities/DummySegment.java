@@ -246,7 +246,6 @@ public class DummySegment implements Segment {
         return new ArrayList<>(list);
     }
 
-
     @Override
     public void addSubsegment(Subsegment subsegment) {
     }
