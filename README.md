@@ -244,6 +244,8 @@ The X-Ray SDK can now automatically vend metrics that aggregate information abou
 
 If you are working in an environment with a supported plugin enabled and you use CloudWatch logs, the X-Ray SDK will automatically record the log group(s) you are using in that environment in the segment document. To learn more and see which plugins are supported, see the [developer guide](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-configuration.html#xray-sdk-java-configuration-plugins).
 
+Alternatively, you can manually configure a log group to be associated with your application's segment data by setting the `AWS_LOG_GROUP` environment variable to the name of your application's log group. Note this setting makes the assumption the log group is in the same AWS account and region as the application.
+
 ## Snapshots
 
 Snapshots are published for each commit to AWS Sonatype snapshots repository at https://aws.oss.sonatype.org/content/repositories/snapshots
