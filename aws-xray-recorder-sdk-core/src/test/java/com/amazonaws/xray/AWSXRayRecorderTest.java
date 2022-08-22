@@ -750,7 +750,6 @@ public class AWSXRayRecorderTest {
         assertThat(segment.getReferenceCount()).isZero();
         segment.removeSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder(), true));
         segment.setEmitted(true);
-        segment.compareAndSetEmitted(false, true);
         assertThat(segment.isEmitted()).isFalse();
         assertThat(segment.serialize()).isEmpty();
         assertThat(segment.prettySerialize()).isEmpty();
@@ -868,7 +867,6 @@ public class AWSXRayRecorderTest {
         assertThat(subsegment.getReferenceCount()).isZero();
         subsegment.removeSubsegment(Subsegment.noOp(AWSXRay.getGlobalRecorder(), true));
         subsegment.setEmitted(true);
-        subsegment.compareAndSetEmitted(false, true);
         assertThat(subsegment.isEmitted()).isFalse();
         assertThat(subsegment.serialize()).isEmpty();
         assertThat(subsegment.prettySerialize()).isEmpty();

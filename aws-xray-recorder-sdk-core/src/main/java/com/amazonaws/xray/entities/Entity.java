@@ -158,7 +158,7 @@ public interface Entity extends AutoCloseable {
     void setNamespace(String namespace);
 
     /**
-     * @return an unused {@link ReentrantLock}
+     * @return the subsegmentsLock
      *
      * @deprecated This is for internal use of the SDK and will be made private.
      */
@@ -601,15 +601,17 @@ public interface Entity extends AutoCloseable {
     boolean isEmitted();
 
     /**
-     * @deprecated Use {@link #compareAndSetEmitted(boolean, boolean)}
+     * Sets emitted on the entity.
      */
-    @Deprecated
     void setEmitted(boolean emitted);
 
     /**
      * Checks whether this {@link Entity} currently has emitted state of {@code current} and if so, set emitted state to
      * {@code next}. Returns {@code true} if the state was updated, or {@code false} otherwise.
+     *
+     * @deprecated Use {@link #setEmitted(boolean)}
      */
+    @Deprecated
     boolean compareAndSetEmitted(boolean current, boolean next);
 
     String serialize();

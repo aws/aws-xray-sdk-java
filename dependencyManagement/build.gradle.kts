@@ -11,11 +11,6 @@ val DEPENDENCY_BOMS = listOf(
 
 val DEPENDENCY_SETS = listOf(
         DependencySet(
-                "com.google.errorprone",
-                "2.5.1",
-                listOf("error_prone_annotations")
-        ),
-        DependencySet(
                 "com.fasterxml.jackson.datatype",
                 "2.12.0",
                 listOf("jackson-datatype-jsr310")

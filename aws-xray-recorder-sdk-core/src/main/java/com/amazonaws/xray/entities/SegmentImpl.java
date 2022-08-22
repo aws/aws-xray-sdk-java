@@ -17,24 +17,20 @@ package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SegmentImpl extends EntityImpl implements Segment {
 
-    @GuardedBy("lock")
     protected String resourceArn;
-    @GuardedBy("lock")
     protected String user;
-    @GuardedBy("lock")
     protected String origin;
 
-    @GuardedBy("lock")
     protected Map<String, Object> service;
 
     @JsonIgnore
-    private volatile boolean sampled;
+    private boolean sampled;
 
     @SuppressWarnings({ "unused", "nullness" })
     private SegmentImpl() {
@@ -58,26 +54,24 @@ public class SegmentImpl extends EntityImpl implements Segment {
         }
         setTraceId(traceId);
 
-        this.service = new HashMap<>();
+        this.service = new ConcurrentHashMap<>();
 
         this.sampled = true;
     }
 
     @Override
     public boolean end() {
-        synchronized (lock) {
-            if (getEndTime() < Double.MIN_NORMAL) {
-                setEndTime(System.currentTimeMillis() / 1000d);
-            }
-
-            setInProgress(false);
-            boolean shouldEmit = referenceCount <= 0;
-            if (shouldEmit) {
-                checkAlreadyEmitted();
-                ended = true;
-            }
-            return shouldEmit;
+        if (getEndTime() < Double.MIN_NORMAL) {
+            setEndTime(System.currentTimeMillis() / 1000d);
         }
+
+        setInProgress(false);
+        boolean shouldEmit = referenceCount.intValue() <= 0;
+        if (shouldEmit) {
+            checkAlreadyEmitted();
+            setEmitted(true);
+        }
+        return shouldEmit;
     }
 
     @Override
@@ -92,102 +86,78 @@ public class SegmentImpl extends EntityImpl implements Segment {
 
     @Override
     public void setSampled(boolean sampled) {
-        synchronized (lock) {
-            checkAlreadyEmitted();
-        }
+        checkAlreadyEmitted();
         this.sampled = sampled;
     }
 
     @Override
     public String getResourceArn() {
-        synchronized (lock) {
-            return resourceArn;
-        }
+        return resourceArn;
     }
 
     @Override
     public void setResourceArn(String resourceArn) {
-        synchronized (lock) {
-            checkAlreadyEmitted();
-            this.resourceArn = resourceArn;
-        }
+        checkAlreadyEmitted();
+        this.resourceArn = resourceArn;
     }
 
     @Override
     public String getUser() {
-        synchronized (lock) {
-            return user;
-        }
+        return user;
     }
 
     @Override
     public void setUser(String user) {
-        synchronized (lock) {
-            checkAlreadyEmitted();
-            this.user = user;
-        }
+        checkAlreadyEmitted();
+        this.user = user;
     }
 
     @Override
     public String getOrigin() {
-        synchronized (lock) {
-            return origin;
-        }
+        return origin;
     }
 
     @Override
     public void setOrigin(String origin) {
-        synchronized (lock) {
-            checkAlreadyEmitted();
-            this.origin = origin;
-        }
+        checkAlreadyEmitted();
+        this.origin = origin;
     }
 
     @Override
     public Map<String, Object> getService() {
-        synchronized (lock) {
-            return service;
-        }
+        return service;
     }
 
     @Override
     public void setService(Map<String, Object> service) {
-        synchronized (lock) {
-            checkAlreadyEmitted();
-            this.service = service;
-        }
+        checkAlreadyEmitted();
+        this.service = service;
     }
 
     @Override
     public void putService(String key, Object object) {
-        synchronized (lock) {
-            checkAlreadyEmitted();
-            service.put(key, object);
-        }
+        checkAlreadyEmitted();
+        service.put(key, object);
     }
 
     @Override
     public void putAllService(Map<String, Object> all) {
-        synchronized (lock) {
-            checkAlreadyEmitted();
-            service.putAll(all);
-        }
+        checkAlreadyEmitted();
+        service.putAll(all);
     }
 
     @Override
     public void setRuleName(String ruleName) {
-        synchronized (lock) {
-            checkAlreadyEmitted();
-            if (getAws().get("xray") instanceof Map) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> a = (Map<String, Object>) getAws().get("xray");
-                HashMap<String, Object> referA = new HashMap<>();
-                if (a != null) {
-                    referA.putAll(a);
-                }
-                referA.put("rule_name", ruleName);
-                this.putAws("xray", referA);
+        checkAlreadyEmitted();
+        if (getAws().get("xray") instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> a = (Map<String, Object>) getAws().get("xray");
+            HashMap<String, Object> referA = new HashMap<>();
+            if (a != null) {
+                referA.putAll(a);
             }
+            referA.put("rule_name", ruleName);
+            this.putAws("xray", referA);
         }
     }
 
@@ -198,9 +168,7 @@ public class SegmentImpl extends EntityImpl implements Segment {
 
     @Override
     public void close() {
-        synchronized (lock) {
-            getCreator().endSegment();
-        }
+        getCreator().endSegment();
     }
 
 }
