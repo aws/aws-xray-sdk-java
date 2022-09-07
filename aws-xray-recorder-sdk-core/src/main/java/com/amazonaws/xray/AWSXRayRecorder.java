@@ -32,6 +32,7 @@ import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
 import com.amazonaws.xray.internal.FastIdGenerator;
 import com.amazonaws.xray.internal.IdGenerator;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.amazonaws.xray.internal.SecureIdGenerator;
 import com.amazonaws.xray.listeners.SegmentListener;
 import com.amazonaws.xray.strategy.ContextMissingStrategy;
@@ -627,7 +628,28 @@ public class AWSXRayRecorder {
     public void endSubsegment() {
         SegmentContext context = segmentContextResolverChain.resolve();
         if (context != null) {
-            context.endSubsegment(this);
+            context.endSubsegment(this,
+                    SamplingStrategyOverride.OVERRIDE_DISABLED);
+        }
+    }
+
+    /**
+     * Ends a subsegment.
+     *
+     * @param samplingOverrideTo
+     *            Overrides the sampling decision to this value.
+     * @throws SegmentNotFoundException
+     *             if {@code contextMissingStrategy} throws exceptions and no segment is currently in progress
+     * @throws SubsegmentNotFoundException
+     *             if {@code contextMissingStrategy} throws exceptions and no subsegment is currently in progress
+     */
+    public void endSubsegmentWithSamplingOverride(boolean samplingOverrideTo) {
+        SegmentContext context = segmentContextResolverChain.resolve();
+        if (context != null) {
+            context.endSubsegment(this,
+                    samplingOverrideTo ?
+                            SamplingStrategyOverride.OVERRIDE_TO_TRUE :
+                            SamplingStrategyOverride.OVERRIDE_TO_FALSE);
         }
     }
 

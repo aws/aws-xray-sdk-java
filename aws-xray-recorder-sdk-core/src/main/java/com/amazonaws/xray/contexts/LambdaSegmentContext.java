@@ -25,6 +25,7 @@ import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.amazonaws.xray.listeners.SegmentListener;
 import java.util.List;
 import java.util.Objects;
@@ -103,7 +104,7 @@ public class LambdaSegmentContext implements SegmentContext {
     }
 
     @Override
-    public void endSubsegment(AWSXRayRecorder recorder) {
+    public void endSubsegment(AWSXRayRecorder recorder, SamplingStrategyOverride samplingStrategyOverride) {
         Entity current = getTraceEntity();
         if (current instanceof Subsegment) {
             if (logger.isDebugEnabled()) {
@@ -134,14 +135,15 @@ public class LambdaSegmentContext implements SegmentContext {
 
             Entity parentEntity = current.getParent();
             if (parentEntity instanceof FacadeSegment) {
-                if (((FacadeSegment) parentEntity).isSampled()) {
+                if ((((FacadeSegment) parentEntity).isSampled() &&
+                        samplingStrategyOverride == SamplingStrategyOverride.OVERRIDE_DISABLED) ||
+                        samplingStrategyOverride == SamplingStrategyOverride.OVERRIDE_TO_TRUE) {
                     current.getCreator().getEmitter().sendSubsegment((Subsegment) current);
                 }
                 clearTraceEntity();
             } else {
                 setTraceEntity(current.getParent());
             }
-
         } else {
             recorder.getContextMissingStrategy().contextMissing("Failed to end subsegment: subsegment cannot be found.",
                 SubsegmentNotFoundException.class);

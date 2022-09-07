@@ -20,6 +20,7 @@ import com.amazonaws.xray.ThreadLocalStorage;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import java.util.Objects;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -65,5 +66,9 @@ public interface SegmentContext {
 
     Subsegment beginSubsegment(AWSXRayRecorder recorder, String name);
 
-    void endSubsegment(AWSXRayRecorder recorder);
+    default void endSubsegment(AWSXRayRecorder recorder) {
+        endSubsegment(recorder, SamplingStrategyOverride.OVERRIDE_DISABLED);
+    }
+
+    void endSubsegment(AWSXRayRecorder recorder, SamplingStrategyOverride samplingStrategyOverride);
 }

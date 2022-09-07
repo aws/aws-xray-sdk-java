@@ -22,6 +22,7 @@ import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.amazonaws.xray.listeners.SegmentListener;
 import java.util.List;
 import java.util.Objects;
@@ -61,7 +62,7 @@ public class ThreadLocalSegmentContext implements SegmentContext {
     }
 
     @Override
-    public void endSubsegment(AWSXRayRecorder recorder) {
+    public void endSubsegment(AWSXRayRecorder recorder, SamplingStrategyOverride samplingStrategyOverride) {
         Entity current = getTraceEntity();
         if (current instanceof Subsegment) {
             if (logger.isDebugEnabled()) {
@@ -79,7 +80,9 @@ public class ThreadLocalSegmentContext implements SegmentContext {
                     .filter(Objects::nonNull)
                     .forEach(listener -> listener.beforeEndSubsegment(currentSubsegment));
 
-            if (currentSubsegment.end()) {
+            if ((currentSubsegment.end() &&
+                    samplingStrategyOverride == SamplingStrategyOverride.OVERRIDE_DISABLED) ||
+                    samplingStrategyOverride == SamplingStrategyOverride.OVERRIDE_TO_TRUE) {
                 recorder.sendSegment(currentSubsegment.getParentSegment());
             } else {
                 if (recorder.getStreamingStrategy().requiresStreaming(currentSubsegment.getParentSegment())) {
