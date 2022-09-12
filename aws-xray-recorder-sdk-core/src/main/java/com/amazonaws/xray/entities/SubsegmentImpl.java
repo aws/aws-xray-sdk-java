@@ -16,6 +16,7 @@
 package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.HashSet;
@@ -42,11 +43,20 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     } // default constructor for jackson
 
     public SubsegmentImpl(AWSXRayRecorder creator, String name, Segment parentSegment) {
-        super(creator, name);
+        this(creator, name, parentSegment, SamplingStrategyOverride.DISABLED);
+    }
+
+    public SubsegmentImpl(
+            AWSXRayRecorder creator,
+            String name,
+            Segment parentSegment,
+            SamplingStrategyOverride samplingStrategyOverride) {
+        super(creator, name, samplingStrategyOverride);
         this.parentSegment = parentSegment;
         parentSegment.incrementReferenceCount();
         this.precursorIds = new HashSet<>();
         this.shouldPropagate = true;
+        this.samplingStrategyOverride = samplingStrategyOverride;
     }
 
     @Override

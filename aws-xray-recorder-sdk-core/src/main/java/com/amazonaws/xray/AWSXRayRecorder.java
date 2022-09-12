@@ -618,6 +618,32 @@ public class AWSXRayRecorder {
     }
 
     /**
+     * Begins a subsegment.
+     *
+     * @param name
+     *            the name to use for the created subsegment
+     * @param overrideSamplingTo
+     *            overrides the sampling strategy and uses this value instead
+     * @throws SegmentNotFoundException
+     *             if {@code contextMissingStrategy} throws exceptions and no segment is currently in progress
+     * @return the newly created subsegment, or {@code null} if {@code contextMissingStrategy} suppresses and no segment is
+     * currently in progress
+     */
+    public Subsegment beginSubsegmentWithSamplingOverride(String name, boolean overrideSamplingTo) {
+        SegmentContext context = getSegmentContext();
+        if (context == null) {
+            // No context available, we return a no-op subsegment so user code does not have to work around this. Based on
+            // ContextMissingStrategy they will still know about the issue unless they explicitly opt-ed out.
+            // This no-op subsegment is different from unsampled no-op subsegments only in that it should not cause trace
+            // context to be propagated downstream
+            return Subsegment.noOp(this, false);
+        }
+        return context.beginSubsegmentWithSamplingOverride(this, name, overrideSamplingTo ?
+                SamplingStrategyOverride.TRUE :
+                SamplingStrategyOverride.FALSE);
+    }
+
+    /**
      * Ends a subsegment.
      *
      * @throws SegmentNotFoundException
@@ -628,28 +654,7 @@ public class AWSXRayRecorder {
     public void endSubsegment() {
         SegmentContext context = segmentContextResolverChain.resolve();
         if (context != null) {
-            context.endSubsegment(this,
-                    SamplingStrategyOverride.OVERRIDE_DISABLED);
-        }
-    }
-
-    /**
-     * Ends a subsegment.
-     *
-     * @param samplingOverrideTo
-     *            Overrides the sampling decision to this value.
-     * @throws SegmentNotFoundException
-     *             if {@code contextMissingStrategy} throws exceptions and no segment is currently in progress
-     * @throws SubsegmentNotFoundException
-     *             if {@code contextMissingStrategy} throws exceptions and no subsegment is currently in progress
-     */
-    public void endSubsegmentWithSamplingOverride(boolean samplingOverrideTo) {
-        SegmentContext context = segmentContextResolverChain.resolve();
-        if (context != null) {
-            context.endSubsegment(this,
-                    samplingOverrideTo ?
-                            SamplingStrategyOverride.OVERRIDE_TO_TRUE :
-                            SamplingStrategyOverride.OVERRIDE_TO_FALSE);
+            context.endSubsegment(this);
         }
     }
 

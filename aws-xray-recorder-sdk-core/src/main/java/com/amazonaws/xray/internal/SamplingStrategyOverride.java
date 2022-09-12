@@ -16,7 +16,7 @@
 package com.amazonaws.xray.internal;
 
 public enum SamplingStrategyOverride {
-    OVERRIDE_DISABLED, // Does not override the SamplingStrategy.
-    OVERRIDE_TO_FALSE, // Overrides the SamplingStrategy and always chooses NOT to sample.
-    OVERRIDE_TO_TRUE // Overrides the SamplingStrategy and always chooses to sample.
+    DISABLED, // Does not override the SamplingStrategy.
+    FALSE, // Overrides the SamplingStrategy and always chooses NOT to sample.
+    TRUE // Overrides the SamplingStrategy and always chooses to sample.
 }

@@ -3,9 +3,15 @@ plugins {
     `maven-publish`
 }
 
+
+buildscript {
+    dependencies {
+       classpath("com.amazonaws:aws-lambda-java-events:3.11.0")
+    }
+}
+
 dependencies {
     implementation(project(":aws-xray-recorder-sdk-core"))
-
     compileOnly("com.amazonaws:aws-lambda-java-events:3.11.0")
 }
 

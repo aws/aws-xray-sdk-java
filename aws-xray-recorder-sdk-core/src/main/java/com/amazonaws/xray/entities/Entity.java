@@ -18,6 +18,7 @@ package com.amazonaws.xray.entities;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.exceptions.AlreadyEmittedException;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import java.util.Map;
@@ -618,4 +619,5 @@ public interface Entity extends AutoCloseable {
 
     String prettySerialize();
 
+    SamplingStrategyOverride getSamplingStrategyOverride();
 }

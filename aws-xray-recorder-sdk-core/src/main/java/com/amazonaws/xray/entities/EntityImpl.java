@@ -17,6 +17,7 @@ package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.exceptions.AlreadyEmittedException;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.amazonaws.xray.serializers.CauseSerializer;
 import com.amazonaws.xray.serializers.StackTraceElementSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -121,6 +122,9 @@ public abstract class EntityImpl implements Entity {
     @JsonIgnore
     private boolean emitted = false;
 
+    @JsonIgnore
+    protected SamplingStrategyOverride samplingStrategyOverride;
+
     static {
         /*
          * Inject the CauseSerializer and StackTraceElementSerializer classes into the local mapper such that they will serialize
@@ -164,6 +168,11 @@ public abstract class EntityImpl implements Entity {
     // it makes the code to hard to reason about e.g., nullness.
     @SuppressWarnings("nullness")
     protected EntityImpl(AWSXRayRecorder creator, String name) {
+        this(creator, name, SamplingStrategyOverride.DISABLED);
+    }
+
+    @SuppressWarnings("nullness")
+    protected EntityImpl(AWSXRayRecorder creator, String name, SamplingStrategyOverride samplingStrategyOverride) {
         StringValidator.throwIfNullOrBlank(name, "(Sub)segment name cannot be null or blank.");
         validateNotNull(creator);
 
@@ -182,6 +191,7 @@ public abstract class EntityImpl implements Entity {
         this.inProgress = true;
         this.referenceCount = new LongAdder();
         this.totalSize = new LongAdder();
+        this.samplingStrategyOverride = samplingStrategyOverride;
     }
 
     /**
@@ -645,5 +655,10 @@ public abstract class EntityImpl implements Entity {
         if (null == object) {
             throw new NullPointerException();
         }
+    }
+
+    @Override
+    public SamplingStrategyOverride getSamplingStrategyOverride() {
+        return samplingStrategyOverride;
     }
 }

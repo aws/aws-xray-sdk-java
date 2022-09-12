@@ -42,10 +42,13 @@ class CustomSegmentContextTest {
         private Map<Long, Entity> map = new HashMap<>();
 
         @Override
-        public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
+        public Subsegment beginSubsegmentWithSamplingOverride(
+                AWSXRayRecorder recorder,
+                String name,
+                SamplingStrategyOverride samplingStrategyOverride) {
             Entity current = map.get(Thread.currentThread().getId());
             Segment parentSegment = current.getParentSegment();
-            Subsegment subsegment = new SubsegmentImpl(recorder, name, parentSegment);
+            Subsegment subsegment = new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride);
             subsegment.setParent(current);
             current.addSubsegment(subsegment);
             map.put(Thread.currentThread().getId(), subsegment);
@@ -53,13 +56,18 @@ class CustomSegmentContextTest {
         }
 
         @Override
-        public void endSubsegment(AWSXRayRecorder recorder, SamplingStrategyOverride samplingStrategyOverride) {
+        public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
+            return beginSubsegmentWithSamplingOverride(recorder, name, SamplingStrategyOverride.DISABLED);
+        }
+
+        @Override
+        public void endSubsegment(AWSXRayRecorder recorder) {
             Entity current = map.get(Thread.currentThread().getId());
             if (current instanceof Subsegment) {
                 Subsegment currentSubsegment = (Subsegment) current;
                 if ((currentSubsegment.end() &&
-                        samplingStrategyOverride == SamplingStrategyOverride.OVERRIDE_DISABLED) ||
-                        samplingStrategyOverride == SamplingStrategyOverride.OVERRIDE_TO_TRUE) {
+                        currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED) ||
+                        currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.TRUE) {
                     recorder.sendSegment(currentSubsegment.getParentSegment());
                 } else {
                     if (recorder.getStreamingStrategy().requiresStreaming(currentSubsegment.getParentSegment())) {

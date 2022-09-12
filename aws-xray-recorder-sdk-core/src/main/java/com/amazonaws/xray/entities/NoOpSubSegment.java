@@ -16,6 +16,7 @@
 package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -370,5 +371,10 @@ class NoOpSubSegment implements Subsegment {
 
     @Override
     public void close() {
+    }
+
+    @Override
+    public SamplingStrategyOverride getSamplingStrategyOverride() {
+        return SamplingStrategyOverride.DISABLED;
     }
 }

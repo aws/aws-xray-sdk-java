@@ -66,9 +66,10 @@ public interface SegmentContext {
 
     Subsegment beginSubsegment(AWSXRayRecorder recorder, String name);
 
-    default void endSubsegment(AWSXRayRecorder recorder) {
-        endSubsegment(recorder, SamplingStrategyOverride.OVERRIDE_DISABLED);
-    }
+    Subsegment beginSubsegmentWithSamplingOverride(
+            AWSXRayRecorder recorder,
+            String name,
+            SamplingStrategyOverride samplingStrategyOverride);
 
-    void endSubsegment(AWSXRayRecorder recorder, SamplingStrategyOverride samplingStrategyOverride);
+    void endSubsegment(AWSXRayRecorder recorder);
 }

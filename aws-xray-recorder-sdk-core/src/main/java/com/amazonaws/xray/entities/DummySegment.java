@@ -16,6 +16,7 @@
 package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,8 @@ public class DummySegment implements Segment {
     private AWSXRayRecorder creator;
     private TraceID traceId;
 
+    private SamplingStrategyOverride samplingStrategyOverride;
+
     public DummySegment(AWSXRayRecorder creator, String name, TraceID traceId) {
         this(creator, traceId);
         this.name = name;
@@ -61,6 +64,11 @@ public class DummySegment implements Segment {
     }
 
     public DummySegment(AWSXRayRecorder creator, TraceID traceId) {
+        this(creator, traceId, SamplingStrategyOverride.DISABLED);
+    }
+
+    public DummySegment(AWSXRayRecorder creator, TraceID traceId, SamplingStrategyOverride samplingStrategyOverride) {
+        this.samplingStrategyOverride = samplingStrategyOverride;
         this.startTime = System.currentTimeMillis() / 1000.0d;
         this.creator = creator;
         this.traceId = traceId;
@@ -440,4 +448,8 @@ public class DummySegment implements Segment {
     public void setRuleName(String name) {
     }
 
+    @Override
+    public SamplingStrategyOverride getSamplingStrategyOverride() {
+        return samplingStrategyOverride;
+    }
 }
