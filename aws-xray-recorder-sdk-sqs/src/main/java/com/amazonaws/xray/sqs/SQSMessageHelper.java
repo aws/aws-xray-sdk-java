@@ -22,10 +22,10 @@ public final class SQSMessageHelper {
     }
 
     public static boolean isSampled(SQSEvent.SQSMessage message) {
-        if (message.getAttributes().get("AWSTraceHeader") == null) {
+        if (!message.getAttributes().containsKey("AWSTraceHeader")) {
             return false;
         }
 
-        return message.getAttributes().get("AWSTraceHeader").contains(";Sampled=1");
+        return message.getAttributes().get("AWSTraceHeader").contains("Sampled=1");
     }
 }

@@ -49,7 +49,7 @@ public class ThreadLocalSegmentContext implements SegmentContext {
         }
         Segment parentSegment = current.getParentSegment();
         Subsegment subsegment = parentSegment.isRecording()
-                ? new SubsegmentImpl(recorder, name, parentSegment)
+                ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
                 : Subsegment.noOp(parentSegment, recorder);
         subsegment.setParent(current);
         current.addSubsegment(subsegment);

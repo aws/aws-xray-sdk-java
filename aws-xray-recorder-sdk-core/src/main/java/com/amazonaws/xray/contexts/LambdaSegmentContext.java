@@ -98,8 +98,8 @@ public class LambdaSegmentContext implements SegmentContext {
             Segment parentSegment = parentSubsegment.getParentSegment();
 
             boolean isSampled = (parentSegment.isRecording() &&
-                    entity.getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED) ||
-                    entity.getSamplingStrategyOverride() == SamplingStrategyOverride.TRUE;
+                    samplingStrategyOverride == SamplingStrategyOverride.DISABLED) ||
+                    samplingStrategyOverride == SamplingStrategyOverride.TRUE;
 
             Subsegment subsegment = isSampled
                     ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
