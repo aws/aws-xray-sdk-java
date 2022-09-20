@@ -947,4 +947,16 @@ public class AWSXRayRecorderTest {
         assertThat(segment.isSampled()).isFalse();
         assertThat(subsegment.shouldPropagate()).isTrue();
     }
+
+    /*
+    The default behavior of missing context strategy should not cause an exception.
+     */
+    @Test
+    public void testDefaultContextMissingBehavior() {
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+            .build();
+
+        recorder.beginSubsegment("test");
+    }
 }
