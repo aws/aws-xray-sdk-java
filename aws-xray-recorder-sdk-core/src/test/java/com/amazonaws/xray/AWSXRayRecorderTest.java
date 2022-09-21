@@ -46,7 +46,6 @@ import com.amazonaws.xray.strategy.sampling.SamplingResponse;
 import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -60,7 +59,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
 import org.json.JSONException;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -979,10 +977,15 @@ public class AWSXRayRecorderTest {
             .withSamplingStrategy(new NoSamplingStrategy())
             .build();
 
-        TraceHeader malformedHeader = TraceHeader.fromString("Self=1-00000000-000000000000000000000000;Root=1-00000000-000000000000000000000000;Parent=0000000000000000;Sampled=0");
+        TraceHeader malformedHeader = TraceHeader.fromString("malformedTraceID");
 
-        PowerMockito.stub(PowerMockito.method(LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(malformedHeader);
-        PowerMockito.stub(PowerMockito.method(LambdaSegmentContextResolver.class, "getLambdaTaskRoot")).toReturn("/var/task");
+        PowerMockito.stub(PowerMockito.method(
+                LambdaSegmentContext.class, "getTraceHeaderFromEnvironment"))
+                .toReturn(malformedHeader);
+        
+        PowerMockito.stub(PowerMockito.method(
+                LambdaSegmentContextResolver.class, "getLambdaTaskRoot"))
+                .toReturn("/var/task");
 
         recorder.beginSubsegment("Test");
 
