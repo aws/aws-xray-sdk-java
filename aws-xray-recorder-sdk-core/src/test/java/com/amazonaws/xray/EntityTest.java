@@ -23,7 +23,6 @@ import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.exceptions.AlreadyEmittedException;
-import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import com.amazonaws.xray.strategy.sampling.NoSamplingStrategy;
