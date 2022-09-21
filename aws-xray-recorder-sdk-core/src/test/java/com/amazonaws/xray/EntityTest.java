@@ -23,7 +23,10 @@ import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.exceptions.AlreadyEmittedException;
+import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
+import com.amazonaws.xray.strategy.RuntimeErrorContextMissingStrategy;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
+import com.amazonaws.xray.strategy.sampling.NoSamplingStrategy;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.lang.reflect.InvocationTargetException;
@@ -182,8 +185,13 @@ public class EntityTest {
     @SuppressWarnings("resource")
     @Test(expected = AlreadyEmittedException.class)
     public void testModifyingSegmentAfterEndingThrowsAlreadyEmittedException() {
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+                .withContextMissingStrategy(new RuntimeErrorContextMissingStrategy())
+            .build();
+
         TraceID traceId = new TraceID();
-        Segment segment = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test", traceId);
+        Segment segment = new SegmentImpl(recorder, "test", traceId);
         segment.end();
         segment.setStartTime(1.0);
     }
@@ -213,6 +221,10 @@ public class EntityTest {
             if (MUTATING_METHOD_PREFIXES.stream().anyMatch((prefix) -> {
                 return m.getName().startsWith(prefix);
             })) {
+                if (m.getName().equals("setCreator")) {
+                    // Skip this call since it will interfere with other tests.
+                    continue;
+                }
                 numberOfMutatingMethods++;
                 try {
                     List<Parameter> parameters = Arrays.asList(m.getParameters());
@@ -247,7 +259,12 @@ public class EntityTest {
 
     @Test
     public void testAllSegmentImplMutationMethodsThrowAlreadyEmittedExceptions() {
-        SegmentImpl segment = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test");
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+            .withContextMissingStrategy(new RuntimeErrorContextMissingStrategy())
+            .build();
+
+        SegmentImpl segment = new SegmentImpl(recorder, "test");
 
         MutatingMethodCount mutationResults = numberOfMutatingMethodsThatThrewException(segment, SegmentImpl.class);
         Assert.assertEquals(0, mutationResults.getMutatingMethodsThrowingExceptions());
@@ -260,9 +277,14 @@ public class EntityTest {
 
     @Test
     public void testAllSubsegmentImplMutationMethodsThrowAlreadyEmittedExceptions() {
-        SegmentImpl segment = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test");
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+            .withContextMissingStrategy(new RuntimeErrorContextMissingStrategy())
+            .build();
+
+        SegmentImpl segment = new SegmentImpl(recorder, "test");
         segment.getName();
-        SubsegmentImpl subsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "test", segment);
+        SubsegmentImpl subsegment = new SubsegmentImpl(recorder, "test", segment);
 
         MutatingMethodCount mutationResults = numberOfMutatingMethodsThatThrewException(subsegment, SubsegmentImpl.class);
         Assert.assertEquals(0, mutationResults.getMutatingMethodsThrowingExceptions());
@@ -277,7 +299,12 @@ public class EntityTest {
 
     @Test(expected = AlreadyEmittedException.class)
     public void testEndingSegmentImplTwiceThrowsAlreadyEmittedException() {
-        SegmentImpl segment = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test");
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+            .withContextMissingStrategy(new RuntimeErrorContextMissingStrategy())
+            .build();
+
+        SegmentImpl segment = new SegmentImpl(recorder, "test");
         segment.getName();
         segment.end();
         segment.end();
@@ -285,9 +312,14 @@ public class EntityTest {
 
     @Test(expected = AlreadyEmittedException.class)
     public void testEndingSubsegmentImplTwiceThrowsAlreadyEmittedException() {
-        SegmentImpl segment = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test");
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+            .withContextMissingStrategy(new RuntimeErrorContextMissingStrategy())
+            .build();
+
+        SegmentImpl segment = new SegmentImpl(recorder, "test");
         segment.getName();
-        SubsegmentImpl subsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "test", segment);
+        SubsegmentImpl subsegment = new SubsegmentImpl(recorder, "test", segment);
         segment.end();
         subsegment.end();
         subsegment.end();
@@ -295,13 +327,18 @@ public class EntityTest {
 
     @Test(expected = AlreadyEmittedException.class)
     public void testEndingSubsegmentImplAfterStreamingThrowsAlreadyEmittedException() {
-        SegmentImpl segment = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test");
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+            .withContextMissingStrategy(new RuntimeErrorContextMissingStrategy())
+            .build();
 
-        SubsegmentImpl firstSubsegment = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "test", segment);
+        SegmentImpl segment = new SegmentImpl(recorder, "test");
+
+        SubsegmentImpl firstSubsegment = new SubsegmentImpl(recorder, "test", segment);
         firstSubsegment.end();
 
         for (int i = 0; i < 100; i++) { // add enough subsegments to trigger the DefaultStreamingStrategy and stream subsegments
-            SubsegmentImpl current = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "test", segment);
+            SubsegmentImpl current = new SubsegmentImpl(recorder, "test", segment);
             current.end();
         }
 

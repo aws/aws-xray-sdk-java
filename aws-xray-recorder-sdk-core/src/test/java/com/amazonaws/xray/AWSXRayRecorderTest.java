@@ -982,7 +982,7 @@ public class AWSXRayRecorderTest {
         PowerMockito.stub(PowerMockito.method(
                 LambdaSegmentContext.class, "getTraceHeaderFromEnvironment"))
                 .toReturn(malformedHeader);
-        
+
         PowerMockito.stub(PowerMockito.method(
                 LambdaSegmentContextResolver.class, "getLambdaTaskRoot"))
                 .toReturn("/var/task");
