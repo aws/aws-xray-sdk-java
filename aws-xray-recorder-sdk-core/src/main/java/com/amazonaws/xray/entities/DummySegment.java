@@ -447,9 +447,4 @@ public class DummySegment implements Segment {
     @Override
     public void setRuleName(String name) {
     }
-
-    @Override
-    public SamplingStrategyOverride getSamplingStrategyOverride() {
-        return samplingStrategyOverride;
-    }
 }

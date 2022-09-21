@@ -391,9 +391,4 @@ class NoOpSegment implements Segment {
     @Override
     public void close() {
     }
-
-    @Override
-    public SamplingStrategyOverride getSamplingStrategyOverride() {
-        return SamplingStrategyOverride.DISABLED;
-    }
 }

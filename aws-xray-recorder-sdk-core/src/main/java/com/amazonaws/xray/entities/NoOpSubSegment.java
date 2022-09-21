@@ -22,6 +22,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
+
+import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 class NoOpSubSegment implements Subsegment {
@@ -32,15 +35,27 @@ class NoOpSubSegment implements Subsegment {
 
     private volatile Entity parent;
 
+    @JsonIgnore
+    private SamplingStrategyOverride samplingStrategyOverride;
+
     NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator) {
         this(parentSegment, creator, true);
     }
 
     NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator, boolean shouldPropagate) {
+        this(parentSegment, creator, shouldPropagate, SamplingStrategyOverride.DISABLED);
+    }
+
+    NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator, SamplingStrategyOverride samplingStrategyOverride) {
+        this(parentSegment, creator, true, samplingStrategyOverride);
+    }
+
+    NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator, boolean shouldPropagate, SamplingStrategyOverride samplingStrategyOverride) {
         this.parentSegment = parentSegment;
         this.creator = creator;
         this.shouldPropagate = shouldPropagate;
         parent = parentSegment;
+        this.samplingStrategyOverride = samplingStrategyOverride;
     }
 
     @Override
@@ -375,6 +390,6 @@ class NoOpSubSegment implements Subsegment {
 
     @Override
     public SamplingStrategyOverride getSamplingStrategyOverride() {
-        return SamplingStrategyOverride.DISABLED;
+        return samplingStrategyOverride;
     }
 }

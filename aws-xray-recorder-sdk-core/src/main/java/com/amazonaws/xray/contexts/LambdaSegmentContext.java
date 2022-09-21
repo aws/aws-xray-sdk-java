@@ -66,6 +66,7 @@ public class LambdaSegmentContext implements SegmentContext {
             AWSXRayRecorder recorder,
             String name,
             SamplingStrategyOverride samplingStrategyOverride) {
+
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);
         }
@@ -80,7 +81,7 @@ public class LambdaSegmentContext implements SegmentContext {
 
             Subsegment subsegment = isSampled
                     ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
-                    : Subsegment.noOp(parentSegment, recorder);
+                    : Subsegment.noOp(parentSegment, recorder, samplingStrategyOverride);
             subsegment.setParent(parentSegment);
             // Enable FacadeSegment to keep track of its subsegments for subtree streaming
             parentSegment.addSubsegment(subsegment);
@@ -97,13 +98,13 @@ public class LambdaSegmentContext implements SegmentContext {
             }
             Segment parentSegment = parentSubsegment.getParentSegment();
 
-            boolean isSampled = (parentSegment.isRecording() &&
+            boolean isRecording = (parentSegment.isRecording() &&
                     samplingStrategyOverride == SamplingStrategyOverride.DISABLED) ||
                     samplingStrategyOverride == SamplingStrategyOverride.TRUE;
 
-            Subsegment subsegment = isSampled
+            Subsegment subsegment = isRecording
                     ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
-                    : Subsegment.noOp(parentSegment, recorder);
+                    : Subsegment.noOp(parentSegment, recorder, samplingStrategyOverride);
             subsegment.setParent(parentSubsegment);
             parentSubsegment.addSubsegment(subsegment);
             setTraceEntity(subsegment);
@@ -155,8 +156,8 @@ public class LambdaSegmentContext implements SegmentContext {
             Entity parentEntity = current.getParent();
             if (parentEntity instanceof FacadeSegment) {
                 if ((((FacadeSegment) parentEntity).isSampled() &&
-                        current.getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED) ||
-                        current.getSamplingStrategyOverride() == SamplingStrategyOverride.TRUE) {
+                        currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED) ||
+                        currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.TRUE) {
                     current.getCreator().getEmitter().sendSubsegment((Subsegment) current);
                 }
                 clearTraceEntity();

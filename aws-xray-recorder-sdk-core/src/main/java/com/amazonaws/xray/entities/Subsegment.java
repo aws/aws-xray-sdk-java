@@ -17,9 +17,19 @@ package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
 import java.util.Set;
+
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface Subsegment extends Entity {
+
+    static Subsegment noOp(AWSXRayRecorder recorder, boolean shouldPropagate, SamplingStrategyOverride samplingStrategyOverride) {
+        return new NoOpSubSegment(Segment.noOp(TraceID.invalid(), recorder), recorder, shouldPropagate, samplingStrategyOverride);
+    }
+
+    static Subsegment noOp(Segment parent, AWSXRayRecorder recorder, SamplingStrategyOverride samplingStrategyOverride) {
+        return new NoOpSubSegment(parent, recorder, samplingStrategyOverride);
+    }
 
     static Subsegment noOp(AWSXRayRecorder recorder, boolean shouldPropagate) {
         return new NoOpSubSegment(Segment.noOp(TraceID.invalid(), recorder), recorder, shouldPropagate);
@@ -108,4 +118,6 @@ public interface Subsegment extends Entity {
      */
     @Override
     void close();
+
+    SamplingStrategyOverride getSamplingStrategyOverride();
 }

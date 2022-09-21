@@ -17,6 +17,8 @@ package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.internal.SamplingStrategyOverride;
+import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.HashSet;
@@ -37,6 +39,9 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
 
     private boolean shouldPropagate;
 
+    @JsonIgnore
+    private SamplingStrategyOverride samplingStrategyOverride;
+
     @SuppressWarnings("nullness")
     private SubsegmentImpl() {
         super();
@@ -51,7 +56,7 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
             String name,
             Segment parentSegment,
             SamplingStrategyOverride samplingStrategyOverride) {
-        super(creator, name, samplingStrategyOverride);
+        super(creator, name);
         this.parentSegment = parentSegment;
         parentSegment.incrementReferenceCount();
         this.precursorIds = new HashSet<>();
@@ -70,7 +75,11 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
             setEndTime(System.currentTimeMillis() / 1000d);
         }
         setInProgress(false);
-        boolean shouldEmit = parentSegment.decrementReferenceCount() && parentSegment.isSampled();
+        boolean shouldEmit = parentSegment.decrementReferenceCount() &&
+                (
+                    (parentSegment.isSampled() && samplingStrategyOverride == SamplingStrategyOverride.DISABLED) ||
+                    samplingStrategyOverride == SamplingStrategyOverride.TRUE
+                );
         if (shouldEmit) {
             checkAlreadyEmitted();
             setEmitted(true);
@@ -156,5 +165,10 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     @Override
     public void close() {
         getCreator().endSubsegment();
+    }
+
+    @Override
+    public SamplingStrategyOverride getSamplingStrategyOverride() {
+        return samplingStrategyOverride;
     }
 }

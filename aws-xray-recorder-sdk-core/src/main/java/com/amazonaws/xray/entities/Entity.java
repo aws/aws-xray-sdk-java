@@ -618,6 +618,4 @@ public interface Entity extends AutoCloseable {
     String serialize();
 
     String prettySerialize();
-
-    SamplingStrategyOverride getSamplingStrategyOverride();
 }
