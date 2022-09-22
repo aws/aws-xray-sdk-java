@@ -974,11 +974,17 @@ public class AWSXRayRecorderTest {
 
         recorder.setEmitter(mock);
 
-        recorder.beginSubsegmentWithSamplingOverride("test", true);
+        recorder.beginSubsegmentWithSamplingOverride("test1", true);
 
         recorder.endSubsegment();
 
         Mockito.verify(mock, Mockito.times(1)).sendSubsegment(any());
+
+        recorder.beginSubsegmentWithSamplingOverride("test2", true);
+
+        recorder.endSubsegment();
+
+        Mockito.verify(mock, Mockito.times(2)).sendSubsegment(any());
     }
 
     /*
