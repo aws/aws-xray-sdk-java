@@ -26,7 +26,6 @@ import com.amazonaws.xray.contexts.SegmentContextResolverChain;
 import com.amazonaws.xray.emitters.DefaultEmitter;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.AWSLogReference;
-import com.amazonaws.xray.entities.FacadeSegment;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
@@ -77,7 +76,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -972,7 +970,7 @@ public class AWSXRayRecorderTest {
             LambdaSegmentContextResolver.class, "getLambdaTaskRoot")).toReturn("/var/task");
 
         Emitter mock = Mockito.mock(DefaultEmitter.class);
-        Mockito.doAnswer(invocation -> {return true;}).when(mock).sendSubsegment(any());
+        Mockito.doAnswer(invocation -> { return true; }).when(mock).sendSubsegment(any());
 
         recorder.setEmitter(mock);
 

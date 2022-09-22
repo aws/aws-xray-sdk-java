@@ -17,14 +17,12 @@ package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.internal.SamplingStrategyOverride;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
-
-import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 class NoOpSubSegment implements Subsegment {
@@ -50,7 +48,11 @@ class NoOpSubSegment implements Subsegment {
         this(parentSegment, creator, true, samplingStrategyOverride);
     }
 
-    NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator, boolean shouldPropagate, SamplingStrategyOverride samplingStrategyOverride) {
+    NoOpSubSegment(
+            Segment parentSegment,
+            AWSXRayRecorder creator,
+            boolean shouldPropagate,
+            SamplingStrategyOverride samplingStrategyOverride) {
         this.parentSegment = parentSegment;
         this.creator = creator;
         this.shouldPropagate = shouldPropagate;

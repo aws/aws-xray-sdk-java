@@ -17,7 +17,6 @@ package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.internal.SamplingStrategyOverride;
-import com.amazonaws.xray.strategy.sampling.SamplingStrategy;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
