@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.xray.sqs;
+package com.amazonaws.xray.lambda;
 
 import com.amazonaws.services.lambda.runtime.events.SQSEvent;
 
