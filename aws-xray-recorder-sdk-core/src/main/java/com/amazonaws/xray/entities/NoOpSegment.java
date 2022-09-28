@@ -390,4 +390,5 @@ class NoOpSegment implements Segment {
     @Override
     public void close() {
     }
+
 }

@@ -87,8 +87,8 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.net.ssl.*")
 public class AWSXRayRecorderTest {
-    private static final String TRACE_HEADER =
-            "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1";
+
+    private static final String TRACE_HEADER = "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1";
 
     private static ExecutorService threadExecutor;
 
@@ -938,8 +938,8 @@ public class AWSXRayRecorderTest {
     @Test
     public void testUnsampledSubsegmentPropagation() {
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-                .withSamplingStrategy(new NoSamplingStrategy())
-                .build();
+            .withSamplingStrategy(new NoSamplingStrategy())
+            .build();
 
         Segment segment = recorder.beginSegmentWithSampling("test");
         Subsegment subsegment = recorder.beginSubsegment("test");

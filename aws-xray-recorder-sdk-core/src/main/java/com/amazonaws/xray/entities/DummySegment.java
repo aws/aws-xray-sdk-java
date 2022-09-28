@@ -439,4 +439,5 @@ public class DummySegment implements Segment {
     @Override
     public void setRuleName(String name) {
     }
+
 }
