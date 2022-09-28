@@ -75,10 +75,7 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
         }
         setInProgress(false);
         boolean shouldEmit = parentSegment.decrementReferenceCount() &&
-                (
-                    (parentSegment.isSampled() && samplingStrategyOverride == SamplingStrategyOverride.DISABLED) ||
-                    samplingStrategyOverride == SamplingStrategyOverride.TRUE
-                );
+                parentSegment.isSampled() && samplingStrategyOverride == SamplingStrategyOverride.DISABLED;
         if (shouldEmit) {
             checkAlreadyEmitted();
             setEmitted(true);

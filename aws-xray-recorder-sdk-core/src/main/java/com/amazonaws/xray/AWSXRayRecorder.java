@@ -622,14 +622,12 @@ public class AWSXRayRecorder {
      *
      * @param name
      *            the name to use for the created subsegment
-     * @param overrideSamplingTo
-     *            overrides the sampling strategy and uses this value instead
      * @throws SegmentNotFoundException
      *             if {@code contextMissingStrategy} throws exceptions and no segment is currently in progress
      * @return the newly created subsegment, or {@code null} if {@code contextMissingStrategy} suppresses and no segment is
-     * currently in progress
+     * currently in progress. The subsegment will not be sampled regardless of the SamplingStrategy.
      */
-    public Subsegment beginSubsegmentWithSamplingOverride(String name, boolean overrideSamplingTo) {
+    public Subsegment beginSubsegmentWithoutSampling(String name) {
         SegmentContext context = getSegmentContext();
         if (context == null) {
             // No context available, we return a no-op subsegment so user code does not have to work around this. Based on
@@ -638,8 +636,9 @@ public class AWSXRayRecorder {
             // context to be propagated downstream
             return Subsegment.noOp(this, false);
         }
-        return context.beginSubsegmentWithSamplingOverride(this, name, overrideSamplingTo ?
-                SamplingStrategyOverride.TRUE :
+        return context.beginSubsegmentWithSamplingOverride(
+                this,
+                name,
                 SamplingStrategyOverride.FALSE);
     }
 

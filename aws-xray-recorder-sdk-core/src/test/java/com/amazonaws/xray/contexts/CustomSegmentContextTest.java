@@ -65,9 +65,8 @@ class CustomSegmentContextTest {
             Entity current = map.get(Thread.currentThread().getId());
             if (current instanceof Subsegment) {
                 Subsegment currentSubsegment = (Subsegment) current;
-                if ((currentSubsegment.end() &&
-                        currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED) ||
-                        currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.TRUE) {
+                if (currentSubsegment.end() &&
+                        currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED) {
                     recorder.sendSegment(currentSubsegment.getParentSegment());
                 } else {
                     if (recorder.getStreamingStrategy().requiresStreaming(currentSubsegment.getParentSegment())) {

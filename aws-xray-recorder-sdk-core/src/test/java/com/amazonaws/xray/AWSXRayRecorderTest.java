@@ -91,9 +91,6 @@ public class AWSXRayRecorderTest {
     private static final String TRACE_HEADER =
             "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=1";
 
-    private static final String TRACE_HEADER_DONT_SAMPLE =
-            "Root=1-57ff426a-80c11c39b0c928905eb0828d;Parent=1234abcd1234abcd;Sampled=0";
-
     private static ExecutorService threadExecutor;
 
     @Mock
@@ -962,7 +959,7 @@ public class AWSXRayRecorderTest {
             .withSamplingStrategy(new NoSamplingStrategy())
             .build();
 
-        TraceHeader header = TraceHeader.fromString(TRACE_HEADER_DONT_SAMPLE);
+        TraceHeader header = TraceHeader.fromString(TRACE_HEADER);
 
         PowerMockito.stub(PowerMockito.method(
             LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);
@@ -974,13 +971,13 @@ public class AWSXRayRecorderTest {
 
         recorder.setEmitter(mock);
 
-        recorder.beginSubsegmentWithSamplingOverride("test1", true);
+        recorder.beginSubsegment("test1");
 
         recorder.endSubsegment();
 
         Mockito.verify(mock, Mockito.times(1)).sendSubsegment(any());
 
-        recorder.beginSubsegmentWithSamplingOverride("test2", true);
+        recorder.beginSubsegment("test2");
 
         recorder.endSubsegment();
 
@@ -1007,7 +1004,7 @@ public class AWSXRayRecorderTest {
 
         recorder.setEmitter(mock);
 
-        recorder.beginSubsegmentWithSamplingOverride("test", false);
+        recorder.beginSubsegmentWithoutSampling("test");
 
         recorder.endSubsegment();
 

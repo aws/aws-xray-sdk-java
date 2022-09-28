@@ -75,9 +75,8 @@ public class LambdaSegmentContext implements SegmentContext {
         if (entity == null) { // First subsgment of a subsegment branch.
             Segment parentSegment = newFacadeSegment(recorder, name);
 
-            boolean isSampled = (parentSegment.isRecording() &&
-                    samplingStrategyOverride == SamplingStrategyOverride.DISABLED) ||
-                    samplingStrategyOverride == SamplingStrategyOverride.TRUE;
+            boolean isSampled = parentSegment.isRecording() &&
+                    samplingStrategyOverride == SamplingStrategyOverride.DISABLED;
 
             Subsegment subsegment = isSampled
                     ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
@@ -98,9 +97,8 @@ public class LambdaSegmentContext implements SegmentContext {
             }
             Segment parentSegment = parentSubsegment.getParentSegment();
 
-            boolean isRecording = (parentSegment.isRecording() &&
-                    samplingStrategyOverride == SamplingStrategyOverride.DISABLED) ||
-                    samplingStrategyOverride == SamplingStrategyOverride.TRUE;
+            boolean isRecording = parentSegment.isRecording() &&
+                    samplingStrategyOverride == SamplingStrategyOverride.DISABLED;
 
             Subsegment subsegment = isRecording
                     ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
@@ -155,9 +153,8 @@ public class LambdaSegmentContext implements SegmentContext {
 
             Entity parentEntity = current.getParent();
             if (parentEntity instanceof FacadeSegment) {
-                if ((((FacadeSegment) parentEntity).isSampled() &&
-                        currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED) ||
-                        currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.TRUE) {
+                if (((FacadeSegment) parentEntity).isSampled() &&
+                        currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED) {
                     current.getCreator().getEmitter().sendSubsegment((Subsegment) current);
                 }
                 clearTraceEntity();

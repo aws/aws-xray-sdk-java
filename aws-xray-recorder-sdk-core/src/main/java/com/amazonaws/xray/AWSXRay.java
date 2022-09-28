@@ -121,6 +121,10 @@ public class AWSXRay {
         return globalRecorder.beginSubsegment(name);
     }
 
+    public static Subsegment beginSubsegmentWithoutSampling(String name) {
+        return globalRecorder.beginSubsegmentWithoutSampling(name);
+    }
+
     public static void endSubsegment() {
         globalRecorder.endSubsegment();
     }

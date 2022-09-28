@@ -49,8 +49,7 @@ public class ThreadLocalSegmentContext implements SegmentContext {
         }
         Segment parentSegment = current.getParentSegment();
         Subsegment subsegment =
-                (parentSegment.isRecording() && samplingStrategyOverride == SamplingStrategyOverride.DISABLED) ||
-                        samplingStrategyOverride == SamplingStrategyOverride.TRUE
+                (parentSegment.isRecording() && samplingStrategyOverride == SamplingStrategyOverride.DISABLED)
                 ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
                 : Subsegment.noOp(parentSegment, recorder, samplingStrategyOverride);
         subsegment.setParent(current);
@@ -90,8 +89,7 @@ public class ThreadLocalSegmentContext implements SegmentContext {
                     .forEach(listener -> listener.beforeEndSubsegment(currentSubsegment));
 
             if ((currentSubsegment.end() &&
-                    currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED) ||
-                    currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.TRUE) {
+                    currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED)) {
                 recorder.sendSegment(currentSubsegment.getParentSegment());
             } else {
                 if (recorder.getStreamingStrategy().requiresStreaming(currentSubsegment.getParentSegment())) {
