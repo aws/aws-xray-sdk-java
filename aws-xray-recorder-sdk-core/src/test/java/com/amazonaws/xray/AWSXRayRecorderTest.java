@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 import com.amazonaws.xray.contexts.LambdaSegmentContext;
 import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
 import com.amazonaws.xray.contexts.SegmentContextResolverChain;
-import com.amazonaws.xray.emitters.DefaultEmitter;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.AWSLogReference;
 import com.amazonaws.xray.entities.Segment;
@@ -939,75 +938,13 @@ public class AWSXRayRecorderTest {
     @Test
     public void testUnsampledSubsegmentPropagation() {
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-            .withSamplingStrategy(new NoSamplingStrategy())
-            .build();
+                .withSamplingStrategy(new NoSamplingStrategy())
+                .build();
 
         Segment segment = recorder.beginSegmentWithSampling("test");
         Subsegment subsegment = recorder.beginSubsegment("test");
 
         assertThat(segment.isSampled()).isFalse();
         assertThat(subsegment.shouldPropagate()).isTrue();
-    }
-
-    /*
-    For this test we will disable sampling and make the parent not sampled.
-    Then we will use the sampling override to force the subsegment to emit.
-     */
-    @Test
-    public void testSamplingOverrideTrueInLambda() {
-        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-            .withSamplingStrategy(new NoSamplingStrategy())
-            .build();
-
-        TraceHeader header = TraceHeader.fromString(TRACE_HEADER);
-
-        PowerMockito.stub(PowerMockito.method(
-            LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);
-        PowerMockito.stub(PowerMockito.method(
-            LambdaSegmentContextResolver.class, "getLambdaTaskRoot")).toReturn("/var/task");
-
-        Emitter mock = Mockito.mock(DefaultEmitter.class);
-        Mockito.doAnswer(invocation -> { return true; }).when(mock).sendSubsegment(any());
-
-        recorder.setEmitter(mock);
-
-        recorder.beginSubsegment("test1");
-
-        recorder.endSubsegment();
-
-        Mockito.verify(mock, Mockito.times(1)).sendSubsegment(any());
-
-        recorder.beginSubsegment("test2");
-
-        recorder.endSubsegment();
-
-        Mockito.verify(mock, Mockito.times(2)).sendSubsegment(any());
-    }
-
-    /*
-    This test will have sampling set to always and the parent will be set to sample.
-    Then we will use the sampling override to force it to not emit a subsegment.
-     */
-    @Test
-    public void testSamplingOverrideFalseInLambda() {
-        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-            .build();
-
-        TraceHeader header = TraceHeader.fromString(TRACE_HEADER);
-
-        PowerMockito.stub(PowerMockito.method(
-            LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);
-        PowerMockito.stub(PowerMockito.method(
-            LambdaSegmentContextResolver.class, "getLambdaTaskRoot")).toReturn("/var/task");
-
-        Emitter mock = Mockito.mock(DefaultEmitter.class);
-
-        recorder.setEmitter(mock);
-
-        recorder.beginSubsegmentWithoutSampling("test");
-
-        recorder.endSubsegment();
-
-        Mockito.verify(mock, Mockito.times(0)).sendSubsegment(any());
     }
 }

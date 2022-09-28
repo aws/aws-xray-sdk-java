@@ -57,7 +57,6 @@ import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
 
 class TracingHandlerTest {
-
     @BeforeEach
     void setupAWSXRay() {
         Emitter blankEmitter = Mockito.mock(Emitter.class);

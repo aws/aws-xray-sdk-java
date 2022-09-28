@@ -18,8 +18,10 @@ dependencies {
     testImplementation("com.amazonaws:aws-java-sdk-lambda:1.12.228")
     testImplementation("com.amazonaws:aws-java-sdk-s3:1.12.228")
     testImplementation("com.amazonaws:aws-java-sdk-sns:1.12.228")
-    testImplementation("org.powermock:powermock-reflect:2.0.2")
     testImplementation("org.skyscreamer:jsonassert:1.3.0")
+    testImplementation("org.powermock:powermock-module-junit4:2.0.7")
+    testImplementation("org.powermock:powermock-api-mockito2:2.0.7")
+    testImplementation("com.github.stefanbirkner:system-rules:1.16.0")
 }
 
 tasks.jar {

@@ -37,6 +37,7 @@ import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import com.amazonaws.xray.handlers.config.AWSOperationHandler;
 import com.amazonaws.xray.handlers.config.AWSOperationHandlerManifest;
 import com.amazonaws.xray.handlers.config.AWSServiceHandlerManifest;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -183,6 +184,8 @@ public class TracingHandler extends RequestHandler2 {
         if (null != entityContext) {
             recorder.setTraceEntity(entityContext);
         }
+
+        Optional<Subsegment> previousSubsegment = recorder.getCurrentSubsegmentOptional();
         Subsegment currentSubsegment = recorder.beginSubsegment(serviceName);
         currentSubsegment.putAllAws(extractRequestParameters(request));
         currentSubsegment.putAws(EntityDataKeys.AWS.OPERATION_KEY, operationName);
@@ -192,10 +195,14 @@ public class TracingHandler extends RequestHandler2 {
         currentSubsegment.setNamespace(Namespace.AWS.toString());
 
         if (recorder.getCurrentSegment() != null && recorder.getCurrentSubsegment().shouldPropagate()) {
+            boolean isSampled = recorder.getCurrentSegment().isSampled() &&
+                    (!previousSubsegment.isPresent() ||
+                            previousSubsegment.get().getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED);
+
             TraceHeader header =
                 new TraceHeader(recorder.getCurrentSegment().getTraceId(),
-                                recorder.getCurrentSegment().isSampled() ? currentSubsegment.getId() : null,
-                                recorder.getCurrentSegment().isSampled() ? SampleDecision.SAMPLED : SampleDecision.NOT_SAMPLED);
+                        isSampled ? currentSubsegment.getId() : null,
+                        isSampled ? SampleDecision.SAMPLED : SampleDecision.NOT_SAMPLED);
             request.addHeader(TraceHeader.HEADER_KEY, header.toString());
         }
     }
