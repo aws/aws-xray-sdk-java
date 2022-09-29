@@ -133,60 +133,52 @@ public class TracingHandlerLambdaTest {
 
         Mockito.doAnswer(invocation -> { return true; }).when(mockedEmitted).sendSubsegment(any());
 
-        {
-            recorder.beginSubsegment("test1");
-            Subsegment subsegment1 = ((Subsegment) recorder.getTraceEntity());
-            assertThat(subsegment1.shouldPropagate()).isTrue();
-            DefaultRequest<Void> request1 = new DefaultRequest<>(new InvokeRequest(), "Test");
-            TracingHandler tracingHandler1 = new TracingHandler(recorder);
-            tracingHandler1.beforeRequest(request1);
-            assertThat(TraceHeader.fromString(request1.getHeaders().get(TraceHeader.HEADER_KEY)).getSampled())
-                    .isEqualTo(TraceHeader.SampleDecision.SAMPLED);
-            tracingHandler1.afterResponse(request1, new Response(new InvokeResult(), new HttpResponse(request1, null)));
-            recorder.endSubsegment();
-            Mockito.verify(mockedEmitted, Mockito.times(1)).sendSubsegment(any());
-        }
+        recorder.beginSubsegment("test1");
+        Subsegment subsegment1 = ((Subsegment) recorder.getTraceEntity());
+        assertThat(subsegment1.shouldPropagate()).isTrue();
+        DefaultRequest<Void> request1 = new DefaultRequest<>(new InvokeRequest(), "Test");
+        TracingHandler tracingHandler1 = new TracingHandler(recorder);
+        tracingHandler1.beforeRequest(request1);
+        assertThat(TraceHeader.fromString(request1.getHeaders().get(TraceHeader.HEADER_KEY)).getSampled())
+                .isEqualTo(TraceHeader.SampleDecision.SAMPLED);
+        tracingHandler1.afterResponse(request1, new Response(new InvokeResult(), new HttpResponse(request1, null)));
+        recorder.endSubsegment();
+        Mockito.verify(mockedEmitted, Mockito.times(1)).sendSubsegment(any());
 
-        {
-            recorder.beginSubsegmentWithoutSampling("test2");
-            Subsegment subsegment2 = ((Subsegment) recorder.getTraceEntity());
-            assertThat(subsegment2.shouldPropagate()).isTrue();
-            DefaultRequest<Void> request2 = new DefaultRequest<>(new InvokeRequest(), "Test");
-            TracingHandler tracingHandler2 = new TracingHandler(recorder);
-            tracingHandler2.beforeRequest(request2);
-            assertThat(TraceHeader.fromString(request2.getHeaders().get(TraceHeader.HEADER_KEY)).getSampled())
-                    .isEqualTo(TraceHeader.SampleDecision.NOT_SAMPLED);
-            tracingHandler2.afterResponse(request2, new Response(new InvokeResult(), new HttpResponse(request2, null)));
-            recorder.endSubsegment();
-            Mockito.verify(mockedEmitted, Mockito.times(1)).sendSubsegment(any());
-        }
+        recorder.beginSubsegmentWithoutSampling("test2");
+        Subsegment subsegment2 = ((Subsegment) recorder.getTraceEntity());
+        assertThat(subsegment2.shouldPropagate()).isTrue();
+        DefaultRequest<Void> request2 = new DefaultRequest<>(new InvokeRequest(), "Test");
+        TracingHandler tracingHandler2 = new TracingHandler(recorder);
+        tracingHandler2.beforeRequest(request2);
+        assertThat(TraceHeader.fromString(request2.getHeaders().get(TraceHeader.HEADER_KEY)).getSampled())
+                .isEqualTo(TraceHeader.SampleDecision.NOT_SAMPLED);
+        tracingHandler2.afterResponse(request2, new Response(new InvokeResult(), new HttpResponse(request2, null)));
+        recorder.endSubsegment();
+        Mockito.verify(mockedEmitted, Mockito.times(1)).sendSubsegment(any());
 
-        {
-            recorder.beginSubsegment("test3");
-            Subsegment subsegment3 = ((Subsegment) recorder.getTraceEntity());
-            assertThat(subsegment3.shouldPropagate()).isTrue();
-            DefaultRequest<Void> request3 = new DefaultRequest<>(new InvokeRequest(), "Test");
-            TracingHandler tracingHandler3 = new TracingHandler(recorder);
-            tracingHandler3.beforeRequest(request3);
-            assertThat(TraceHeader.fromString(request3.getHeaders().get(TraceHeader.HEADER_KEY)).getSampled())
-                    .isEqualTo(TraceHeader.SampleDecision.SAMPLED);
-            tracingHandler3.afterResponse(request3, new Response(new InvokeResult(), new HttpResponse(request3, null)));
-            recorder.endSubsegment();
-            Mockito.verify(mockedEmitted, Mockito.times(2)).sendSubsegment(any());
-        }
+        recorder.beginSubsegment("test3");
+        Subsegment subsegment3 = ((Subsegment) recorder.getTraceEntity());
+        assertThat(subsegment3.shouldPropagate()).isTrue();
+        DefaultRequest<Void> request3 = new DefaultRequest<>(new InvokeRequest(), "Test");
+        TracingHandler tracingHandler3 = new TracingHandler(recorder);
+        tracingHandler3.beforeRequest(request3);
+        assertThat(TraceHeader.fromString(request3.getHeaders().get(TraceHeader.HEADER_KEY)).getSampled())
+                .isEqualTo(TraceHeader.SampleDecision.SAMPLED);
+        tracingHandler3.afterResponse(request3, new Response(new InvokeResult(), new HttpResponse(request3, null)));
+        recorder.endSubsegment();
+        Mockito.verify(mockedEmitted, Mockito.times(2)).sendSubsegment(any());
 
-        {
-            recorder.beginSubsegmentWithoutSampling("test4");
-            Subsegment subsegment4 = ((Subsegment) recorder.getTraceEntity());
-            assertThat(subsegment4.shouldPropagate()).isTrue();
-            DefaultRequest<Void> request4 = new DefaultRequest<>(new InvokeRequest(), "Test");
-            TracingHandler tracingHandler4 = new TracingHandler(recorder);
-            tracingHandler4.beforeRequest(request4);
-            assertThat(TraceHeader.fromString(request4.getHeaders().get(TraceHeader.HEADER_KEY)).getSampled())
-                    .isEqualTo(TraceHeader.SampleDecision.NOT_SAMPLED);
-            tracingHandler4.afterResponse(request4, new Response(new InvokeResult(), new HttpResponse(request4, null)));
-            recorder.endSubsegment();
-            Mockito.verify(mockedEmitted, Mockito.times(2)).sendSubsegment(any());
-        }
+        recorder.beginSubsegmentWithoutSampling("test4");
+        Subsegment subsegment4 = ((Subsegment) recorder.getTraceEntity());
+        assertThat(subsegment4.shouldPropagate()).isTrue();
+        DefaultRequest<Void> request4 = new DefaultRequest<>(new InvokeRequest(), "Test");
+        TracingHandler tracingHandler4 = new TracingHandler(recorder);
+        tracingHandler4.beforeRequest(request4);
+        assertThat(TraceHeader.fromString(request4.getHeaders().get(TraceHeader.HEADER_KEY)).getSampled())
+                .isEqualTo(TraceHeader.SampleDecision.NOT_SAMPLED);
+        tracingHandler4.afterResponse(request4, new Response(new InvokeResult(), new HttpResponse(request4, null)));
+        recorder.endSubsegment();
+        Mockito.verify(mockedEmitted, Mockito.times(2)).sendSubsegment(any());
     }
 }
