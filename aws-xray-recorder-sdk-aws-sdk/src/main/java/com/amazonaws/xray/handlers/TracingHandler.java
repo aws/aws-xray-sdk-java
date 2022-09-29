@@ -37,7 +37,6 @@ import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import com.amazonaws.xray.handlers.config.AWSOperationHandler;
 import com.amazonaws.xray.handlers.config.AWSOperationHandlerManifest;
 import com.amazonaws.xray.handlers.config.AWSServiceHandlerManifest;
-import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -195,9 +194,9 @@ public class TracingHandler extends RequestHandler2 {
         currentSubsegment.setNamespace(Namespace.AWS.toString());
 
         if (recorder.getCurrentSegment() != null && recorder.getCurrentSubsegment().shouldPropagate()) {
-            boolean isSampled = recorder.getCurrentSegment().isSampled() &&
-                    (!previousSubsegment.isPresent() ||
-                            previousSubsegment.get().getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED);
+            boolean isSampled = previousSubsegment.isPresent() ?
+                    previousSubsegment.get().isSampled() :
+                    recorder.getCurrentSegment().isSampled();
 
             TraceHeader header =
                 new TraceHeader(recorder.getCurrentSegment().getTraceId(),

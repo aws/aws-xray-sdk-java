@@ -75,10 +75,10 @@ public class LambdaSegmentContext implements SegmentContext {
         if (entity == null) { // First subsgment of a subsegment branch.
             Segment parentSegment = newFacadeSegment(recorder, name);
 
-            boolean isSampled = parentSegment.isRecording() &&
+            boolean isRecording = parentSegment.isRecording() &&
                     samplingStrategyOverride == SamplingStrategyOverride.DISABLED;
 
-            Subsegment subsegment = isSampled
+            Subsegment subsegment = isRecording
                     ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
                     : Subsegment.noOp(parentSegment, recorder, samplingStrategyOverride);
             subsegment.setParent(parentSegment);
@@ -153,8 +153,7 @@ public class LambdaSegmentContext implements SegmentContext {
 
             Entity parentEntity = current.getParent();
             if (parentEntity instanceof FacadeSegment) {
-                if (((FacadeSegment) parentEntity).isSampled() &&
-                        currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED) {
+                if (((Subsegment) current).isSampled()) {
                     current.getCreator().getEmitter().sendSubsegment((Subsegment) current);
                 }
                 clearTraceEntity();

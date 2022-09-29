@@ -48,8 +48,7 @@ public class ThreadLocalSegmentContext implements SegmentContext {
             logger.debug("Beginning subsegment named: " + name);
         }
         Segment parentSegment = current.getParentSegment();
-        Subsegment subsegment =
-                (parentSegment.isRecording() && samplingStrategyOverride == SamplingStrategyOverride.DISABLED)
+        Subsegment subsegment = parentSegment.isRecording() && (samplingStrategyOverride == SamplingStrategyOverride.DISABLED)
                 ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
                 : Subsegment.noOp(parentSegment, recorder, samplingStrategyOverride);
         subsegment.setParent(current);
