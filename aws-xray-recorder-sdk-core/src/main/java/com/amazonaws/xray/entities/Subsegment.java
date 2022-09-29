@@ -18,6 +18,7 @@ package com.amazonaws.xray.entities;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface Subsegment extends Entity {
@@ -119,4 +120,14 @@ public interface Subsegment extends Entity {
     void close();
 
     SamplingStrategyOverride getSamplingStrategyOverride();
+
+    @JsonIgnore
+    default boolean isSampled() {
+        return getParentSegment().isSampled() && getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED;
+    }
+
+    @JsonIgnore
+    default boolean isRecording() {
+        return getParentSegment().isRecording() && getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED;
+    }
 }
