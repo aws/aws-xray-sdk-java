@@ -25,6 +25,7 @@ import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.amazonaws.xray.listeners.SegmentListener;
 import java.util.List;
 import java.util.Objects;
@@ -61,16 +62,25 @@ public class LambdaSegmentContext implements SegmentContext {
     }
 
     @Override
-    public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
+    public Subsegment beginSubsegmentWithSamplingOverride(
+            AWSXRayRecorder recorder,
+            String name,
+            SamplingStrategyOverride samplingStrategyOverride) {
+
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);
         }
+
         Entity entity = getTraceEntity();
         if (entity == null) { // First subsgment of a subsegment branch.
             Segment parentSegment = newFacadeSegment(recorder, name);
-            Subsegment subsegment = parentSegment.isRecording()
-                                    ? new SubsegmentImpl(recorder, name, parentSegment)
-                                    : Subsegment.noOp(parentSegment, recorder);
+
+            boolean isRecording = parentSegment.isRecording() &&
+                    samplingStrategyOverride == SamplingStrategyOverride.DISABLED;
+
+            Subsegment subsegment = isRecording
+                    ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
+                    : Subsegment.noOp(parentSegment, recorder, samplingStrategyOverride);
             subsegment.setParent(parentSegment);
             // Enable FacadeSegment to keep track of its subsegments for subtree streaming
             parentSegment.addSubsegment(subsegment);
@@ -81,14 +91,18 @@ public class LambdaSegmentContext implements SegmentContext {
             // Ensure customers have not leaked subsegments across invocations
             TraceID environmentRootTraceId = LambdaSegmentContext.getTraceHeaderFromEnvironment().getRootTraceId();
             if (environmentRootTraceId != null &&
-                !environmentRootTraceId.equals(parentSubsegment.getParentSegment().getTraceId())) {
+                    !environmentRootTraceId.equals(parentSubsegment.getParentSegment().getTraceId())) {
                 clearTraceEntity();
                 return beginSubsegment(recorder, name);
             }
             Segment parentSegment = parentSubsegment.getParentSegment();
-            Subsegment subsegment = parentSegment.isRecording()
-                                    ? new SubsegmentImpl(recorder, name, parentSegment)
-                                    : Subsegment.noOp(parentSegment, recorder);
+
+            boolean isRecording = parentSegment.isRecording() &&
+                    samplingStrategyOverride == SamplingStrategyOverride.DISABLED;
+
+            Subsegment subsegment = isRecording
+                    ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
+                    : Subsegment.noOp(parentSegment, recorder, samplingStrategyOverride);
             subsegment.setParent(parentSubsegment);
             parentSubsegment.addSubsegment(subsegment);
             setTraceEntity(subsegment);
@@ -100,6 +114,11 @@ public class LambdaSegmentContext implements SegmentContext {
 
             return subsegment;
         }
+    }
+
+    @Override
+    public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
+        return beginSubsegmentWithSamplingOverride(recorder, name, SamplingStrategyOverride.DISABLED);
     }
 
     @Override
@@ -134,14 +153,13 @@ public class LambdaSegmentContext implements SegmentContext {
 
             Entity parentEntity = current.getParent();
             if (parentEntity instanceof FacadeSegment) {
-                if (((FacadeSegment) parentEntity).isSampled()) {
+                if (((Subsegment) current).isSampled()) {
                     current.getCreator().getEmitter().sendSubsegment((Subsegment) current);
                 }
                 clearTraceEntity();
             } else {
                 setTraceEntity(current.getParent());
             }
-
         } else {
             recorder.getContextMissingStrategy().contextMissing("Failed to end subsegment: subsegment cannot be found.",
                 SubsegmentNotFoundException.class);

@@ -32,6 +32,7 @@ import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
 import com.amazonaws.xray.internal.FastIdGenerator;
 import com.amazonaws.xray.internal.IdGenerator;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.amazonaws.xray.internal.SecureIdGenerator;
 import com.amazonaws.xray.listeners.SegmentListener;
 import com.amazonaws.xray.strategy.ContextMissingStrategy;
@@ -614,6 +615,31 @@ public class AWSXRayRecorder {
             return Subsegment.noOp(this, false);
         }
         return context.beginSubsegment(this, name);
+    }
+
+    /**
+     * Begins a subsegment.
+     *
+     * @param name
+     *            the name to use for the created subsegment
+     * @throws SegmentNotFoundException
+     *             if {@code contextMissingStrategy} throws exceptions and no segment is currently in progress
+     * @return the newly created subsegment, or {@code null} if {@code contextMissingStrategy} suppresses and no segment is
+     * currently in progress. The subsegment will not be sampled regardless of the SamplingStrategy.
+     */
+    public Subsegment beginSubsegmentWithoutSampling(String name) {
+        SegmentContext context = getSegmentContext();
+        if (context == null) {
+            // No context available, we return a no-op subsegment so user code does not have to work around this. Based on
+            // ContextMissingStrategy they will still know about the issue unless they explicitly opt-ed out.
+            // This no-op subsegment is different from unsampled no-op subsegments only in that it should not cause trace
+            // context to be propagated downstream
+            return Subsegment.noOp(this, false);
+        }
+        return context.beginSubsegmentWithSamplingOverride(
+                this,
+                name,
+                SamplingStrategyOverride.FALSE);
     }
 
     /**

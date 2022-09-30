@@ -16,6 +16,7 @@
 package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -43,14 +44,21 @@ public class DummySubsegment implements Subsegment {
     private TraceID traceId;
     private Segment parentSegment;
 
+    private SamplingStrategyOverride samplingStrategyOverride;
+
     public DummySubsegment(AWSXRayRecorder creator) {
         this(creator, TraceID.create(creator));
     }
 
-    public DummySubsegment(AWSXRayRecorder creator, TraceID traceId) {
+    public DummySubsegment(AWSXRayRecorder creator, TraceID traceId, SamplingStrategyOverride samplingStrategyOverride) {
         this.creator = creator;
         this.traceId = traceId;
         this.parentSegment = new DummySegment(creator);
+        this.samplingStrategyOverride = samplingStrategyOverride;
+    }
+
+    public DummySubsegment(AWSXRayRecorder creator, TraceID traceId) {
+        this(creator, traceId, SamplingStrategyOverride.DISABLED);
     }
 
     @Override
@@ -387,4 +395,8 @@ public class DummySubsegment implements Subsegment {
     public void removeSubsegment(Subsegment subsegment) {
     }
 
+    @Override
+    public SamplingStrategyOverride getSamplingStrategyOverride() {
+        return samplingStrategyOverride;
+    }
 }

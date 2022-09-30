@@ -22,6 +22,7 @@ import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.amazonaws.xray.listeners.SegmentListener;
 import java.util.List;
 import java.util.Objects;
@@ -32,22 +33,24 @@ public class ThreadLocalSegmentContext implements SegmentContext {
     private static final Log logger =
         LogFactory.getLog(ThreadLocalSegmentContext.class);
 
-
     @Override
-    public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
+    public Subsegment beginSubsegmentWithSamplingOverride(
+            AWSXRayRecorder recorder,
+            String name,
+            SamplingStrategyOverride samplingStrategyOverride) {
         Entity current = getTraceEntity();
         if (current == null) {
             recorder.getContextMissingStrategy().contextMissing("Failed to begin subsegment named '" + name
-                                                                + "': segment cannot be found.", SegmentNotFoundException.class);
-            return Subsegment.noOp(recorder, false);
+                    + "': segment cannot be found.", SegmentNotFoundException.class);
+            return Subsegment.noOp(recorder, false, samplingStrategyOverride);
         }
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);
         }
         Segment parentSegment = current.getParentSegment();
-        Subsegment subsegment = parentSegment.isRecording()
-                                ? new SubsegmentImpl(recorder, name, parentSegment)
-                                : Subsegment.noOp(parentSegment, recorder);
+        Subsegment subsegment = parentSegment.isRecording() && (samplingStrategyOverride == SamplingStrategyOverride.DISABLED)
+                ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
+                : Subsegment.noOp(parentSegment, recorder, samplingStrategyOverride);
         subsegment.setParent(current);
         current.addSubsegment(subsegment);
         setTraceEntity(subsegment);
@@ -58,6 +61,11 @@ public class ThreadLocalSegmentContext implements SegmentContext {
                 .forEach(listener -> listener.onBeginSubsegment(subsegment));
 
         return subsegment;
+    }
+
+    @Override
+    public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
+        return beginSubsegmentWithSamplingOverride(recorder, name, SamplingStrategyOverride.DISABLED);
     }
 
     @Override
@@ -79,7 +87,8 @@ public class ThreadLocalSegmentContext implements SegmentContext {
                     .filter(Objects::nonNull)
                     .forEach(listener -> listener.beforeEndSubsegment(currentSubsegment));
 
-            if (currentSubsegment.end()) {
+            if ((currentSubsegment.end() &&
+                    currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED)) {
                 recorder.sendSegment(currentSubsegment.getParentSegment());
             } else {
                 if (recorder.getStreamingStrategy().requiresStreaming(currentSubsegment.getParentSegment())) {
