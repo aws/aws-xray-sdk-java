@@ -171,11 +171,6 @@ public class AWSXRayRecorderTest {
         AWSXRay.getTraceEntity();
     }
 
-    @Test(expected = SegmentNotFoundException.class)
-    public void testBeginSubsegmentOnEmptyThreadThrowsExceptionByDefault() {
-        AWSXRay.beginSubsegment("test");
-    }
-
     @Test
     public void testBeginSubsegmentOnEmptyThreadDoesNotThrowExceptionWithLogErrorContextMissingStrategy() {
         AWSXRay.getGlobalRecorder().setContextMissingStrategy(new LogErrorContextMissingStrategy());
@@ -267,8 +262,13 @@ public class AWSXRayRecorderTest {
     }
 
     @Test(expected = SegmentNotFoundException.class)
-    public void testSubsegmentBeginWithoutSegmentContextThrowsException() {
-        AWSXRay.beginSubsegment("test");
+    public void testRuntimeContextStrategyEmitsExceptionOnMissingContext() {
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+                .withContextMissingStrategy(new RuntimeErrorContextMissingStrategy())
+            .build();
+
+        recorder.beginSubsegment("test");
     }
 
     @Test
@@ -474,10 +474,15 @@ public class AWSXRayRecorderTest {
 
     @Test(expected = AlreadyEmittedException.class)
     public void testEmittingSegmentTwiceThrowsSegmentAlreadyEmittedException() {
-        Segment s = AWSXRay.beginSegment("test");
-        AWSXRay.endSegment();
-        AWSXRay.injectThreadLocal(s);
-        AWSXRay.endSegment();
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+                .withContextMissingStrategy(new RuntimeErrorContextMissingStrategy())
+            .build();
+
+        Segment s = recorder.beginSegment("test");
+        recorder.endSegment();
+        recorder.injectThreadLocal(s);
+        recorder.endSegment();
     }
 
     @Test
@@ -946,5 +951,51 @@ public class AWSXRayRecorderTest {
 
         assertThat(segment.isSampled()).isFalse();
         assertThat(subsegment.shouldPropagate()).isTrue();
+    }
+
+    @Test
+    public void testDefaultContextMissingBehaviorBegin() {
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+            .build();
+
+        recorder.beginSubsegment("test");
+    }
+
+    @Test
+    public void testDefaultContextMissingBehaviorEnd() {
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+            .build();
+
+        recorder.endSubsegment();
+    }
+
+    @Test
+    public void testMalformedTraceId() {
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+            .build();
+
+        TraceHeader malformedHeader = TraceHeader.fromString("malformedTraceID");
+
+        PowerMockito.stub(PowerMockito.method(
+                LambdaSegmentContext.class, "getTraceHeaderFromEnvironment"))
+                .toReturn(malformedHeader);
+
+        PowerMockito.stub(PowerMockito.method(
+                LambdaSegmentContextResolver.class, "getLambdaTaskRoot"))
+                .toReturn("/var/task");
+
+        recorder.beginSubsegment("Test");
+
+        // Sanity checks that this is a NoOpSubsegment. (We cannot compare the instance of the private class directly)
+        assertThat(recorder.getTraceEntity().getId()).isEqualTo("");
+        assertThat(recorder.getTraceEntity().getName()).isEqualTo("");
+        assertThat(recorder.getTraceEntity().getNamespace()).isEqualTo("");
+        assertThat(recorder.getTraceEntity().getStartTime()).isEqualTo(0);
+        assertThat(recorder.getTraceEntity().getEndTime()).isEqualTo(0);
+
+        recorder.endSubsegment();
     }
 }
