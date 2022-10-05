@@ -16,21 +16,11 @@
 package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface Subsegment extends Entity {
-
-    static Subsegment noOp(AWSXRayRecorder recorder, boolean shouldPropagate, SamplingStrategyOverride samplingStrategyOverride) {
-        return new NoOpSubSegment(Segment.noOp(TraceID.invalid(), recorder), recorder, shouldPropagate, samplingStrategyOverride);
-    }
-
-    static Subsegment noOp(Segment parent, AWSXRayRecorder recorder, SamplingStrategyOverride samplingStrategyOverride) {
-        return new NoOpSubSegment(parent, recorder, samplingStrategyOverride);
-    }
-
     static Subsegment noOp(AWSXRayRecorder recorder, boolean shouldPropagate) {
         return new NoOpSubSegment(Segment.noOp(TraceID.invalid(), recorder), recorder, shouldPropagate);
     }
@@ -119,15 +109,12 @@ public interface Subsegment extends Entity {
     @Override
     void close();
 
-    SamplingStrategyOverride getSamplingStrategyOverride();
+    @JsonIgnore
+    boolean isSampled();
 
     @JsonIgnore
-    default boolean isSampled() {
-        return getParentSegment().isSampled() && getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED;
-    }
+    boolean isRecording();
 
     @JsonIgnore
-    default boolean isRecording() {
-        return getParentSegment().isRecording() && getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED;
-    }
+    void setSampledFalse();
 }

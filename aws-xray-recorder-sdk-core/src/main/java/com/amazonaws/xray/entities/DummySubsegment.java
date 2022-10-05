@@ -16,7 +16,7 @@
 package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.internal.SamplingStrategyOverride;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -44,21 +44,20 @@ public class DummySubsegment implements Subsegment {
     private TraceID traceId;
     private Segment parentSegment;
 
-    private SamplingStrategyOverride samplingStrategyOverride;
+    @JsonIgnore
+    private boolean isSampled;
+
+    @JsonIgnore
+    private boolean isRecording;
 
     public DummySubsegment(AWSXRayRecorder creator) {
         this(creator, TraceID.create(creator));
     }
 
-    public DummySubsegment(AWSXRayRecorder creator, TraceID traceId, SamplingStrategyOverride samplingStrategyOverride) {
+    public DummySubsegment(AWSXRayRecorder creator, TraceID traceId) {
         this.creator = creator;
         this.traceId = traceId;
         this.parentSegment = new DummySegment(creator);
-        this.samplingStrategyOverride = samplingStrategyOverride;
-    }
-
-    public DummySubsegment(AWSXRayRecorder creator, TraceID traceId) {
-        this(creator, traceId, SamplingStrategyOverride.DISABLED);
     }
 
     @Override
@@ -396,7 +395,21 @@ public class DummySubsegment implements Subsegment {
     }
 
     @Override
-    public SamplingStrategyOverride getSamplingStrategyOverride() {
-        return samplingStrategyOverride;
+    @JsonIgnore
+    public boolean isSampled() {
+        return isSampled;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isRecording() {
+        return isRecording;
+    }
+
+    @Override
+    @JsonIgnore
+    public void setSampledFalse() {
+        isSampled = false;
+        isRecording = false;
     }
 }

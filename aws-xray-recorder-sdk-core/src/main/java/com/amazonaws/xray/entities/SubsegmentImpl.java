@@ -16,7 +16,6 @@
 package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -39,7 +38,10 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     private boolean shouldPropagate;
 
     @JsonIgnore
-    private SamplingStrategyOverride samplingStrategyOverride;
+    private boolean isSampled;
+
+    @JsonIgnore
+    private boolean isRecording;
 
     @SuppressWarnings("nullness")
     private SubsegmentImpl() {
@@ -47,20 +49,14 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     } // default constructor for jackson
 
     public SubsegmentImpl(AWSXRayRecorder creator, String name, Segment parentSegment) {
-        this(creator, name, parentSegment, SamplingStrategyOverride.DISABLED);
-    }
-
-    public SubsegmentImpl(
-            AWSXRayRecorder creator,
-            String name,
-            Segment parentSegment,
-            SamplingStrategyOverride samplingStrategyOverride) {
         super(creator, name);
         this.parentSegment = parentSegment;
         parentSegment.incrementReferenceCount();
         this.precursorIds = new HashSet<>();
         this.shouldPropagate = true;
-        this.samplingStrategyOverride = samplingStrategyOverride;
+
+        isSampled = parentSegment.isSampled();
+        isRecording = parentSegment.isRecording();
     }
 
     @Override
@@ -163,7 +159,22 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     }
 
     @Override
-    public SamplingStrategyOverride getSamplingStrategyOverride() {
-        return samplingStrategyOverride;
+    @JsonIgnore
+    public boolean isSampled() {
+        return isSampled;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isRecording() {
+        return isRecording;
+    }
+
+    @Override
+    @JsonIgnore
+    public void setSampledFalse() {
+        checkAlreadyEmitted();
+        isSampled = false;
+        isRecording = false;
     }
 }

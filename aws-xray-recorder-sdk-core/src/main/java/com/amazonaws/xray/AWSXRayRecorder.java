@@ -32,7 +32,6 @@ import com.amazonaws.xray.exceptions.SegmentNotFoundException;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
 import com.amazonaws.xray.internal.FastIdGenerator;
 import com.amazonaws.xray.internal.IdGenerator;
-import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.amazonaws.xray.internal.SecureIdGenerator;
 import com.amazonaws.xray.listeners.SegmentListener;
 import com.amazonaws.xray.strategy.ContextMissingStrategy;
@@ -636,10 +635,7 @@ public class AWSXRayRecorder {
             // context to be propagated downstream
             return Subsegment.noOp(this, false);
         }
-        return context.beginSubsegmentWithSamplingOverride(
-                this,
-                name,
-                SamplingStrategyOverride.FALSE);
+        return context.beginSubsegmentWithoutSampling(this, name);
     }
 
     /**

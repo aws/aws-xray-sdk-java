@@ -25,7 +25,6 @@ import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
-import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.amazonaws.xray.listeners.SegmentListener;
 import java.util.List;
 import java.util.Objects;
@@ -62,11 +61,17 @@ public class LambdaSegmentContext implements SegmentContext {
     }
 
     @Override
-    public Subsegment beginSubsegmentWithSamplingOverride(
+    public Subsegment beginSubsegmentWithoutSampling(
             AWSXRayRecorder recorder,
-            String name,
-            SamplingStrategyOverride samplingStrategyOverride) {
+            String name) {
 
+        Subsegment subsegment = beginSubsegment(recorder, name);
+        subsegment.setSampledFalse();
+        return subsegment;
+    }
+
+    @Override
+    public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);
         }
@@ -75,12 +80,11 @@ public class LambdaSegmentContext implements SegmentContext {
         if (entity == null) { // First subsgment of a subsegment branch.
             Segment parentSegment = newFacadeSegment(recorder, name);
 
-            boolean isRecording = parentSegment.isRecording() &&
-                    samplingStrategyOverride == SamplingStrategyOverride.DISABLED;
+            boolean isRecording = parentSegment.isRecording();
 
             Subsegment subsegment = isRecording
-                    ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
-                    : Subsegment.noOp(parentSegment, recorder, samplingStrategyOverride);
+                    ? new SubsegmentImpl(recorder, name, parentSegment)
+                    : Subsegment.noOp(parentSegment, recorder);
             subsegment.setParent(parentSegment);
             // Enable FacadeSegment to keep track of its subsegments for subtree streaming
             parentSegment.addSubsegment(subsegment);
@@ -97,12 +101,11 @@ public class LambdaSegmentContext implements SegmentContext {
             }
             Segment parentSegment = parentSubsegment.getParentSegment();
 
-            boolean isRecording = parentSegment.isRecording() &&
-                    samplingStrategyOverride == SamplingStrategyOverride.DISABLED;
+            boolean isRecording = parentSegment.isRecording();
 
             Subsegment subsegment = isRecording
-                    ? new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride)
-                    : Subsegment.noOp(parentSegment, recorder, samplingStrategyOverride);
+                    ? new SubsegmentImpl(recorder, name, parentSegment)
+                    : Subsegment.noOp(parentSegment, recorder);
             subsegment.setParent(parentSubsegment);
             parentSubsegment.addSubsegment(subsegment);
             setTraceEntity(subsegment);
@@ -114,11 +117,6 @@ public class LambdaSegmentContext implements SegmentContext {
 
             return subsegment;
         }
-    }
-
-    @Override
-    public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
-        return beginSubsegmentWithSamplingOverride(recorder, name, SamplingStrategyOverride.DISABLED);
     }
 
     @Override
