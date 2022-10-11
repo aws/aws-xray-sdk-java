@@ -1,5 +1,27 @@
 # Change Log
 
+## 2.12.0 - 2022-10-07
+- Allow list TopicArn for SNS Publish and PublishBatch
+[PR 357](https://github.com/aws/aws-xray-sdk-java/pull/357)
+- Oversampling mitigation
+[PR 354](https://github.com/aws/aws-xray-sdk-java/pull/354)
+- Change missing context default behavior to log error
+[PR 353](https://github.com/aws/aws-xray-sdk-java/pull/353)
+- Revert subsegment synchronization changes
+[PR 350](https://github.com/aws/aws-xray-sdk-java/pull/350)
+- Update README with manual configuration for log groups
+[PR 349](https://github.com/aws/aws-xray-sdk-java/pull/349)
+- Add Nullable annotation to AWSXray.setTraceEntity() parameter
+[PR 345](https://github.com/aws/aws-xray-sdk-java/pull/345)
+- Add javadoc to Subsegment.close() method
+[PR 342](https://github.com/aws/aws-xray-sdk-java/pull/342)
+- Send subsegments separately from segments when the serialized size is larger than the UDP packet size limit
+[PR 344](https://github.com/aws/aws-xray-sdk-java/pull/344)
+- Improve the emitter sendData failure log message
+[PR 343](https://github.com/aws/aws-xray-sdk-java/pull/343)
+- Throw ClientProtocolException instead of returning null to avoid possible NPE in Apache HTTP instrumentation
+[PR 338](https://github.com/aws/aws-xray-sdk-java/pull/338)
+
 ## 2.11.2 - 2022-06-02
 - Upgrade AWS Java SDK to 1.12.228
 [PR 334](https://github.com/aws/aws-xray-sdk-java/pull/334)

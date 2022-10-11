@@ -1,5 +1,19 @@
 {
   "services": {
+    "SNS": {
+      "operations": {
+        "Publish": {
+          "request_parameters": [
+            "TopicArn"
+          ]
+        },
+        "PublishBatch": {
+          "request_parameters": [
+            "TopicArn"
+          ]
+        }
+      }
+    },
     "DynamoDb": {
       "operations": {
         "BatchGetItem": {
