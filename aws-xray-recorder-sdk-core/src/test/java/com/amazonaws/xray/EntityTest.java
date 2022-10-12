@@ -220,7 +220,7 @@ public class EntityTest {
             if (MUTATING_METHOD_PREFIXES.stream().anyMatch((prefix) -> {
                 return m.getName().startsWith(prefix);
             })) {
-                if (m.getName().equals("setCreator")) {
+                if (m.getName().equals("setCreator") || m.getName().equals("setSampledFalse")) {
                     // Skip this call since it will interfere with other tests.
                     continue;
                 }

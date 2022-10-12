@@ -16,7 +16,6 @@
 package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
-import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import java.util.Map;
@@ -34,30 +33,24 @@ class NoOpSubSegment implements Subsegment {
     private volatile Entity parent;
 
     @JsonIgnore
-    private SamplingStrategyOverride samplingStrategyOverride;
+    private boolean isSampled;
+
+    @JsonIgnore
+    private boolean isRecording;
 
     NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator) {
         this(parentSegment, creator, true);
     }
 
-    NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator, boolean shouldPropagate) {
-        this(parentSegment, creator, shouldPropagate, SamplingStrategyOverride.DISABLED);
-    }
-
-    NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator, SamplingStrategyOverride samplingStrategyOverride) {
-        this(parentSegment, creator, true, samplingStrategyOverride);
-    }
 
     NoOpSubSegment(
             Segment parentSegment,
             AWSXRayRecorder creator,
-            boolean shouldPropagate,
-            SamplingStrategyOverride samplingStrategyOverride) {
+            boolean shouldPropagate) {
         this.parentSegment = parentSegment;
         this.creator = creator;
         this.shouldPropagate = shouldPropagate;
         parent = parentSegment;
-        this.samplingStrategyOverride = samplingStrategyOverride;
     }
 
     @Override
@@ -391,7 +384,21 @@ class NoOpSubSegment implements Subsegment {
     }
 
     @Override
-    public SamplingStrategyOverride getSamplingStrategyOverride() {
-        return samplingStrategyOverride;
+    @JsonIgnore
+    public boolean isSampled() {
+        return isSampled;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isRecording() {
+        return isRecording;
+    }
+
+    @Override
+    @JsonIgnore
+    public void setSampledFalse() {
+        isSampled = false;
+        isRecording = false;
     }
 }

@@ -24,7 +24,6 @@ import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
-import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,22 +41,23 @@ class CustomSegmentContextTest {
         private Map<Long, Entity> map = new HashMap<>();
 
         @Override
-        public Subsegment beginSubsegmentWithSamplingOverride(
+        public Subsegment beginSubsegmentWithoutSampling(
                 AWSXRayRecorder recorder,
-                String name,
-                SamplingStrategyOverride samplingStrategyOverride) {
-            Entity current = map.get(Thread.currentThread().getId());
-            Segment parentSegment = current.getParentSegment();
-            Subsegment subsegment = new SubsegmentImpl(recorder, name, parentSegment, samplingStrategyOverride);
-            subsegment.setParent(current);
-            current.addSubsegment(subsegment);
-            map.put(Thread.currentThread().getId(), subsegment);
+                String name) {
+            Subsegment subsegment = beginSubsegment(recorder, name);
+            subsegment.setSampledFalse();
             return subsegment;
         }
 
         @Override
         public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
-            return beginSubsegmentWithSamplingOverride(recorder, name, SamplingStrategyOverride.DISABLED);
+            Entity current = map.get(Thread.currentThread().getId());
+            Segment parentSegment = current.getParentSegment();
+            Subsegment subsegment = new SubsegmentImpl(recorder, name, parentSegment);
+            subsegment.setParent(current);
+            current.addSubsegment(subsegment);
+            map.put(Thread.currentThread().getId(), subsegment);
+            return subsegment;
         }
 
         @Override
@@ -66,7 +66,7 @@ class CustomSegmentContextTest {
             if (current instanceof Subsegment) {
                 Subsegment currentSubsegment = (Subsegment) current;
                 if (currentSubsegment.end() &&
-                        currentSubsegment.getSamplingStrategyOverride() == SamplingStrategyOverride.DISABLED) {
+                        currentSubsegment.isSampled()) {
                     recorder.sendSegment(currentSubsegment.getParentSegment());
                 } else {
                     if (recorder.getStreamingStrategy().requiresStreaming(currentSubsegment.getParentSegment())) {
