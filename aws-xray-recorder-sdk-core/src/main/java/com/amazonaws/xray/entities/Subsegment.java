@@ -16,6 +16,7 @@
 package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -23,6 +24,15 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public interface Subsegment extends Entity {
     static Subsegment noOp(AWSXRayRecorder recorder) {
         return new NoOpSubSegment(Segment.noOp(TraceID.invalid(), recorder), recorder);
+    }
+
+    @Deprecated
+    static Subsegment noOp(AWSXRayRecorder recorder, boolean shouldPropagate, SamplingStrategyOverride samplingStrategyOverride) {
+        return new NoOpSubSegment(Segment.noOp(TraceID.invalid(), recorder), recorder, shouldPropagate, samplingStrategyOverride);
+    }
+    @Deprecated
+    static Subsegment noOp(Segment parent, AWSXRayRecorder recorder, SamplingStrategyOverride samplingStrategyOverride) {
+        return new NoOpSubSegment(parent, recorder, samplingStrategyOverride);
     }
     
     static Subsegment noOp(AWSXRayRecorder recorder, boolean shouldPropagate) {
@@ -121,4 +131,6 @@ public interface Subsegment extends Entity {
 
     @JsonIgnore
     void setSampledFalse();
+
+    SamplingStrategyOverride getSamplingStrategyOverride();
 }
