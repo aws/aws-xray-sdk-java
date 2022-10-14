@@ -61,16 +61,6 @@ public class LambdaSegmentContext implements SegmentContext {
     }
 
     @Override
-    public Subsegment beginSubsegmentWithoutSampling(
-            AWSXRayRecorder recorder,
-            String name) {
-
-        Subsegment subsegment = beginSubsegment(recorder, name);
-        subsegment.setSampledFalse();
-        return subsegment;
-    }
-
-    @Override
     public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);

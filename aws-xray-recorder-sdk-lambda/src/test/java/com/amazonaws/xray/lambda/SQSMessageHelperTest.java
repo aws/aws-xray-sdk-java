@@ -29,6 +29,7 @@ public class SQSMessageHelperTest {
         testTrue("Root=1-5759e988-bd862e3fe1be46a994272793;Sampled=1");
         testTrue("Root=1-5759e988-bd862e3fe1be46a994272793;Parent=53995c3f42cd8ad8;Sampled=1");
 
+        testFalse("Root=1-632BB806-bd862e3fe1be46a994272793");
         testFalse("Root=1-632BB806-bd862e3fe1be46a994272793;Sampled=0");
         testFalse("Root=1-5759e988-bd862e3fe1be46a994272793;Sampled=0");
         testFalse("Root=1-5759e988-bd862e3fe1be46a994272793;Parent=53995c3f42cd8ad8;Sampled=0");

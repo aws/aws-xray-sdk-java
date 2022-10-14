@@ -16,6 +16,7 @@
 package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -43,20 +44,34 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     @JsonIgnore
     private boolean isRecording;
 
+    @JsonIgnore
+    private SamplingStrategyOverride samplingStrategyOverride;
+
     @SuppressWarnings("nullness")
     private SubsegmentImpl() {
         super();
     } // default constructor for jackson
 
     public SubsegmentImpl(AWSXRayRecorder creator, String name, Segment parentSegment) {
+        this(creator, name, parentSegment, SamplingStrategyOverride.DISABLED);
+    }
+
+    @Deprecated
+    public SubsegmentImpl(AWSXRayRecorder creator,
+                          String name,
+                          Segment parentSegment,
+                          SamplingStrategyOverride samplingStrategyOverride) {
         super(creator, name);
         this.parentSegment = parentSegment;
         parentSegment.incrementReferenceCount();
         this.precursorIds = new HashSet<>();
         this.shouldPropagate = true;
 
-        isSampled = parentSegment.isSampled();
-        isRecording = parentSegment.isRecording();
+        this.isSampled = samplingStrategyOverride == SamplingStrategyOverride.DISABLED ?
+                parentSegment.isSampled() :
+                false;
+        this.isRecording = isSampled;
+        this.samplingStrategyOverride = samplingStrategyOverride;
     }
 
     @Override
@@ -176,5 +191,11 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
         checkAlreadyEmitted();
         isSampled = false;
         isRecording = false;
+    }
+
+    @Override
+    @Deprecated
+    public SamplingStrategyOverride getSamplingStrategyOverride() {
+        return samplingStrategyOverride;
     }
 }

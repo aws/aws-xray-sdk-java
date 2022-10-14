@@ -33,15 +33,6 @@ public class ThreadLocalSegmentContext implements SegmentContext {
         LogFactory.getLog(ThreadLocalSegmentContext.class);
 
     @Override
-    public Subsegment beginSubsegmentWithoutSampling(
-            AWSXRayRecorder recorder,
-            String name) {
-        Subsegment subsegment = beginSubsegment(recorder, name);
-        subsegment.setSampledFalse();
-        return subsegment;
-    }
-
-    @Override
     public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
         Entity current = getTraceEntity();
         if (current == null) {

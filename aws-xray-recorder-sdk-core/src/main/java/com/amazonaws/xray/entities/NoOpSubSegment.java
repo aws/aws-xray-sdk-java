@@ -16,6 +16,7 @@
 package com.amazonaws.xray.entities;
 
 import com.amazonaws.xray.AWSXRayRecorder;
+import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import java.util.Map;
@@ -38,19 +39,38 @@ class NoOpSubSegment implements Subsegment {
     @JsonIgnore
     private boolean isRecording;
 
+    @JsonIgnore
+    private SamplingStrategyOverride samplingStrategyOverride;
+
     NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator) {
         this(parentSegment, creator, true);
     }
 
+    NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator, boolean shouldPropagate) {
+        this(parentSegment, creator, shouldPropagate, SamplingStrategyOverride.DISABLED);
+    }
 
+    @Deprecated
+    NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator, SamplingStrategyOverride samplingStrategyOverride) {
+        this(parentSegment, creator, true, samplingStrategyOverride);
+    }
+
+    @Deprecated
     NoOpSubSegment(
             Segment parentSegment,
             AWSXRayRecorder creator,
-            boolean shouldPropagate) {
+            boolean shouldPropagate,
+            SamplingStrategyOverride samplingStrategyOverride) {
         this.parentSegment = parentSegment;
         this.creator = creator;
         this.shouldPropagate = shouldPropagate;
         parent = parentSegment;
+
+        this.isSampled = samplingStrategyOverride == SamplingStrategyOverride.DISABLED ?
+                parentSegment.isSampled() :
+                false;
+        this.isRecording = isSampled;
+        this.samplingStrategyOverride = samplingStrategyOverride;
     }
 
     @Override
@@ -400,5 +420,11 @@ class NoOpSubSegment implements Subsegment {
     public void setSampledFalse() {
         isSampled = false;
         isRecording = false;
+    }
+
+    @Override
+    @Deprecated
+    public SamplingStrategyOverride getSamplingStrategyOverride() {
+        return samplingStrategyOverride;
     }
 }
