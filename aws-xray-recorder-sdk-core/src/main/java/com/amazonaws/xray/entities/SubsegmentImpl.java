@@ -55,7 +55,7 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     public SubsegmentImpl(AWSXRayRecorder creator, String name, Segment parentSegment) {
         this(creator, name, parentSegment, SamplingStrategyOverride.DISABLED);
     }
-    
+
     @Deprecated
     public SubsegmentImpl(AWSXRayRecorder creator,
                           String name,
