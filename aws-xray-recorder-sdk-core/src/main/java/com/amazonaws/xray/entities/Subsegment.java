@@ -30,11 +30,12 @@ public interface Subsegment extends Entity {
     static Subsegment noOp(AWSXRayRecorder recorder, boolean shouldPropagate, SamplingStrategyOverride samplingStrategyOverride) {
         return new NoOpSubSegment(Segment.noOp(TraceID.invalid(), recorder), recorder, shouldPropagate, samplingStrategyOverride);
     }
+
     @Deprecated
     static Subsegment noOp(Segment parent, AWSXRayRecorder recorder, SamplingStrategyOverride samplingStrategyOverride) {
         return new NoOpSubSegment(parent, recorder, samplingStrategyOverride);
     }
-    
+
     static Subsegment noOp(AWSXRayRecorder recorder, boolean shouldPropagate) {
         return new NoOpSubSegment(Segment.noOp(TraceID.invalid(), recorder), recorder, shouldPropagate);
     }
