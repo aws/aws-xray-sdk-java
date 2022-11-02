@@ -43,6 +43,8 @@ public interface Segment extends Entity {
     /**
      * @return the sampled
      */
+    @JsonIgnore
+    @Override
     boolean isSampled();
 
     /**
