@@ -21,7 +21,6 @@ import com.amazonaws.xray.entities.Namespace;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
-import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -105,7 +104,7 @@ public class TracedHttpClient extends CloseableHttpClient {
         Segment parentSegment = subsegment.getParentSegment();
 
         if (subsegment.shouldPropagate()) {
-            request.addHeader(TraceHeader.HEADER_KEY, TraceHeader.generateFromEntity(subsegment).toString());
+            request.addHeader(TraceHeader.HEADER_KEY, TraceHeader.fromEntity(subsegment).toString());
         }
 
         Map<String, Object> requestInformation = new HashMap<>();

@@ -249,7 +249,7 @@ public class TracingInterceptor implements ExecutionInterceptor {
             return httpRequest;
         }
 
-        return httpRequest.toBuilder().appendHeader(TraceHeader.HEADER_KEY, TraceHeader.generateFromEntity(subsegment).toString()).build();
+        return httpRequest.toBuilder().appendHeader(TraceHeader.HEADER_KEY, TraceHeader.fromEntity(subsegment).toString()).build();
     }
 
     @Override
