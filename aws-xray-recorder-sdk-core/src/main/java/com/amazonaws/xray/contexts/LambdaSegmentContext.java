@@ -95,7 +95,7 @@ public class LambdaSegmentContext implements SegmentContext {
 
             Subsegment subsegment = isRecording
                     ? new SubsegmentImpl(recorder, name, parentSegment)
-                    : Subsegment.noOp(parentSegment, recorder);
+                    : Subsegment.noOp(parentSegment, recorder, name);
             subsegment.setParent(parentSubsegment);
             parentSubsegment.addSubsegment(subsegment);
             setTraceEntity(subsegment);

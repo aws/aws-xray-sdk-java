@@ -40,6 +40,10 @@ public interface Subsegment extends Entity {
         return new NoOpSubSegment(Segment.noOp(TraceID.invalid(), recorder), recorder, shouldPropagate);
     }
 
+    static Subsegment noOp(Segment parent, AWSXRayRecorder recorder, String name) {
+        return new NoOpSubSegment(parent, recorder, name);
+    }
+
     static Subsegment noOp(Segment parent, AWSXRayRecorder recorder) {
         return new NoOpSubSegment(parent, recorder);
     }

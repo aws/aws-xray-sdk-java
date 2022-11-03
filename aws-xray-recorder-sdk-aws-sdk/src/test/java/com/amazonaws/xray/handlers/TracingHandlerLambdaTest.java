@@ -65,7 +65,7 @@ public class TracingHandlerLambdaTest {
                 .withEmitter(mockedEmitted)
                 .build();
 
-        lambdaTestHelper(recorder, "test1", false);
+        lambdaTestHelper(recorder, "testFalse", false);
         Mockito.verify(mockedEmitted, Mockito.times(0)).sendSubsegment(any());
     }
 
@@ -87,7 +87,7 @@ public class TracingHandlerLambdaTest {
 
         Mockito.doAnswer(invocation -> { return true; }).when(mockedEmitted).sendSubsegment(any());
 
-        lambdaTestHelper(recorder, "test1", true);
+        lambdaTestHelper(recorder, "testTrue", true);
         Mockito.verify(mockedEmitted, Mockito.times(1)).sendSubsegment(any());
     }
 
@@ -141,7 +141,7 @@ public class TracingHandlerLambdaTest {
         assertThat(traceHeader.getParentId()).isEqualTo(subsegment.getId());
 
         tracingHandler.afterResponse(request, new Response(new InvokeResult(), new HttpResponse(request, null)));
-        recorder.endSubsegment();
+
         recorder.endSubsegment();
     }
 }
