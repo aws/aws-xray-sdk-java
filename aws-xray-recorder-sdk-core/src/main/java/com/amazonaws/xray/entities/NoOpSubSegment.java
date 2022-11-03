@@ -38,12 +38,15 @@ class NoOpSubSegment implements Subsegment {
     @JsonIgnore
     private boolean isRecording;
 
+    @JsonIgnore
     private String id;
 
+    @JsonIgnore
+    private String name;
+
+    @JsonIgnore
     @Nullable
     private String namespace;
-
-    private String name;
 
     @JsonIgnore
     private SamplingStrategyOverride samplingStrategyOverride;
