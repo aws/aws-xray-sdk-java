@@ -506,7 +506,7 @@ public class AWSXRayRecorderTest {
                                                          .build();
         Subsegment subsegment = recorder.beginSubsegment("hello");
         assertThat(subsegment).isNotNull();
-        assertThat(subsegment.getNamespace()).isNull();
+        assertThat(subsegment.getNamespace()).isEmpty();
         assertThat(subsegment.shouldPropagate()).isFalse();
     }
 
@@ -984,7 +984,7 @@ public class AWSXRayRecorderTest {
 
         // Sanity checks that this is a NoOpSubsegment. (We cannot compare the instance of the private class directly)
         assertThat(recorder.getTraceEntity().getName()).isEqualTo("");
-        assertThat(recorder.getTraceEntity().getNamespace()).isNull();
+        assertThat(recorder.getTraceEntity().getNamespace()).isEmpty();
         assertThat(recorder.getTraceEntity().getStartTime()).isEqualTo(0);
         assertThat(recorder.getTraceEntity().getEndTime()).isEqualTo(0);
 

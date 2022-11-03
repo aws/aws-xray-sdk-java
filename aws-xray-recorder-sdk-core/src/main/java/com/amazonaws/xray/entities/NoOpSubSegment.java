@@ -80,6 +80,7 @@ class NoOpSubSegment implements Subsegment {
         this.shouldPropagate = shouldPropagate;
         parent = parentSegment;
         name = "";
+        namespace = "";
 
         this.isSampled = false;
         this.isRecording = false;
