@@ -136,9 +136,12 @@ public class TracingHandlerLambdaTest {
         tracingHandler.beforeRequest(request);
         TraceHeader traceHeader = TraceHeader.fromString(request.getHeaders().get(TraceHeader.HEADER_KEY));
 
-        assertThat(traceHeader.getSampled()).isEqualTo(subsegment.isSampled() ? TraceHeader.SampleDecision.SAMPLED : TraceHeader.SampleDecision.NOT_SAMPLED);
+        assertThat(traceHeader.getSampled()).isEqualTo(
+                subsegment.isSampled() ?
+                        TraceHeader.SampleDecision.SAMPLED :
+                        TraceHeader.SampleDecision.NOT_SAMPLED);
         assertThat(traceHeader.getRootTraceId()).isEqualTo(subsegment.getTraceId());
-        assertThat(traceHeader.getParentId()).isEqualTo(subsegment.isSampled() ? subsegment.getId(): null);
+        assertThat(traceHeader.getParentId()).isEqualTo(subsegment.isSampled() ? subsegment.getId() : null);
 
         tracingHandler.afterResponse(request, new Response(new InvokeResult(), new HttpResponse(request, null)));
 
