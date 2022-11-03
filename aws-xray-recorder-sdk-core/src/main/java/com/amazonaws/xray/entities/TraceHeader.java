@@ -94,7 +94,7 @@ public class TraceHeader {
     public static TraceHeader fromEntity(Entity entity) {
         return new TraceHeader(
                 entity.getTraceId(),
-                entity.getId(),
+                entity.isSampled() ? entity.getId() : null,
                 entity.isSampled() ? SampleDecision.SAMPLED : SampleDecision.NOT_SAMPLED);
     }
 

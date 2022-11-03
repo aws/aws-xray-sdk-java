@@ -138,7 +138,7 @@ public class TracingHandlerLambdaTest {
 
         assertThat(traceHeader.getSampled()).isEqualTo(subsegment.isSampled() ? TraceHeader.SampleDecision.SAMPLED : TraceHeader.SampleDecision.NOT_SAMPLED);
         assertThat(traceHeader.getRootTraceId()).isEqualTo(subsegment.getTraceId());
-        assertThat(traceHeader.getParentId()).isEqualTo(subsegment.getId());
+        assertThat(traceHeader.getParentId()).isEqualTo(subsegment.isSampled() ? subsegment.getId(): null);
 
         tracingHandler.afterResponse(request, new Response(new InvokeResult(), new HttpResponse(request, null)));
 
