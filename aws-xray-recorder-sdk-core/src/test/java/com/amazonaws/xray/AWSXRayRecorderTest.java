@@ -806,6 +806,7 @@ public class AWSXRayRecorderTest {
         assertThat(subsegment.isFault()).isFalse();
         subsegment.setError(true);
         assertThat(subsegment.isError()).isFalse();
+        assertThat(subsegment.getNamespace()).isEmpty();
         subsegment.setSubsegmentsLock(new ReentrantLock());
         Thread thread = new Thread(() -> subsegment.getSubsegmentsLock().lock());
         thread.start();
