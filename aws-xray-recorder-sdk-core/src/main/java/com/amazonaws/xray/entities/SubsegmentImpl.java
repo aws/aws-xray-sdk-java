@@ -94,6 +94,7 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     }
 
     @Override
+    @JsonIgnore
     public TraceID getTraceId() {
         return parentSegment.getTraceId();
     }
