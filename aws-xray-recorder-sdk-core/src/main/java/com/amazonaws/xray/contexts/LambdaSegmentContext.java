@@ -91,7 +91,7 @@ public class LambdaSegmentContext implements SegmentContext {
             }
             Segment parentSegment = parentSubsegment.getParentSegment();
 
-            boolean isRecording = parentSegment.isRecording();
+            boolean isRecording = parentSubsegment.isRecording();
 
             Subsegment subsegment = isRecording
                     ? new SubsegmentImpl(recorder, name, parentSegment)

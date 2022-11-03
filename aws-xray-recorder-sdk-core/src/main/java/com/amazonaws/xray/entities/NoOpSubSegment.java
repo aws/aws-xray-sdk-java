@@ -39,6 +39,8 @@ class NoOpSubSegment implements Subsegment {
     @JsonIgnore
     private boolean isRecording;
 
+    private String id;
+
     @JsonIgnore
     private SamplingStrategyOverride samplingStrategyOverride;
 
@@ -66,11 +68,11 @@ class NoOpSubSegment implements Subsegment {
         this.shouldPropagate = shouldPropagate;
         parent = parentSegment;
 
-        this.isSampled = samplingStrategyOverride == SamplingStrategyOverride.DISABLED ?
-                parentSegment.isSampled() :
-                false;
-        this.isRecording = isSampled;
+        this.isSampled = false;
+        this.isRecording = false;
         this.samplingStrategyOverride = samplingStrategyOverride;
+
+        id = creator.getIdGenerator().newEntityId();
     }
 
     @Override
@@ -85,11 +87,12 @@ class NoOpSubSegment implements Subsegment {
 
     @Override
     public String getId() {
-        return "";
+        return id;
     }
 
     @Override
     public void setId(String id) {
+        this.id  = id;
     }
 
     @Override
