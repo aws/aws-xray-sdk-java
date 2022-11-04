@@ -129,10 +129,6 @@ public interface Subsegment extends Entity {
     void close();
 
     @JsonIgnore
-    @Override
-    boolean isSampled();
-
-    @JsonIgnore
     boolean isRecording();
 
     @JsonIgnore
