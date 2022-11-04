@@ -29,7 +29,6 @@ import com.amazonaws.xray.contexts.LambdaSegmentContext;
 import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
 import com.amazonaws.xray.emitters.DefaultEmitter;
 import com.amazonaws.xray.emitters.Emitter;
-import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.strategy.sampling.NoSamplingStrategy;
