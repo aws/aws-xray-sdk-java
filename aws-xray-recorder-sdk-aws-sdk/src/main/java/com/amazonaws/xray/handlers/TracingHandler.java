@@ -183,7 +183,6 @@ public class TracingHandler extends RequestHandler2 {
             recorder.setTraceEntity(entityContext);
         }
 
-        Optional<Subsegment> previousSubsegment = recorder.getCurrentSubsegmentOptional();
         Subsegment currentSubsegment = recorder.beginSubsegment(serviceName);
         currentSubsegment.putAllAws(extractRequestParameters(request));
         currentSubsegment.putAws(EntityDataKeys.AWS.OPERATION_KEY, operationName);
@@ -193,8 +192,7 @@ public class TracingHandler extends RequestHandler2 {
         currentSubsegment.setNamespace(Namespace.AWS.toString());
 
         if (recorder.getCurrentSegment() != null && recorder.getCurrentSubsegment().shouldPropagate()) {
-            request.addHeader(TraceHeader.HEADER_KEY, TraceHeader.fromEntity(
-                    previousSubsegment.isPresent() ? previousSubsegment.get() : currentSubsegment).toString());
+            request.addHeader(TraceHeader.HEADER_KEY, TraceHeader.fromEntity(currentSubsegment).toString());
         }
     }
 

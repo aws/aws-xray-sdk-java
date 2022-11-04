@@ -39,9 +39,6 @@ class NoOpSubSegment implements Subsegment {
     private boolean isRecording;
 
     @JsonIgnore
-    private String id;
-
-    @JsonIgnore
     private String name;
 
     @JsonIgnore
@@ -85,8 +82,6 @@ class NoOpSubSegment implements Subsegment {
         this.isSampled = false;
         this.isRecording = false;
         this.samplingStrategyOverride = samplingStrategyOverride;
-
-        id = creator.getIdGenerator().newEntityId();
     }
 
     @Override
@@ -101,12 +96,11 @@ class NoOpSubSegment implements Subsegment {
 
     @Override
     public String getId() {
-        return id;
+        return "";
     }
 
     @Override
     public void setId(String id) {
-        this.id  = id;
     }
 
     @Override

@@ -29,6 +29,7 @@ import com.amazonaws.xray.contexts.LambdaSegmentContext;
 import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
 import com.amazonaws.xray.emitters.DefaultEmitter;
 import com.amazonaws.xray.emitters.Emitter;
+import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.strategy.sampling.NoSamplingStrategy;
@@ -135,13 +136,14 @@ public class TracingHandlerLambdaTest {
         TracingHandler tracingHandler = new TracingHandler(recorder);
         tracingHandler.beforeRequest(request);
         TraceHeader traceHeader = TraceHeader.fromString(request.getHeaders().get(TraceHeader.HEADER_KEY));
+        String serviceEntityId = recorder.getCurrentSubsegment().getId();
 
         assertThat(traceHeader.getSampled()).isEqualTo(
                 subsegment.isSampled() ?
                         TraceHeader.SampleDecision.SAMPLED :
                         TraceHeader.SampleDecision.NOT_SAMPLED);
         assertThat(traceHeader.getRootTraceId()).isEqualTo(subsegment.getTraceId());
-        assertThat(traceHeader.getParentId()).isEqualTo(subsegment.isSampled() ? subsegment.getId() : null);
+        assertThat(traceHeader.getParentId()).isEqualTo(subsegment.isSampled() ? serviceEntityId : null);
 
         tracingHandler.afterResponse(request, new Response(new InvokeResult(), new HttpResponse(request, null)));
 
