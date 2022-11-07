@@ -26,7 +26,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 class NoOpSubSegment implements Subsegment {
-
     private final Segment parentSegment;
     private final AWSXRayRecorder creator;
     private final boolean shouldPropagate;
@@ -40,7 +39,19 @@ class NoOpSubSegment implements Subsegment {
     private boolean isRecording;
 
     @JsonIgnore
+    private String name;
+
+    @JsonIgnore
+    @Nullable
+    private String namespace;
+
+    @JsonIgnore
     private SamplingStrategyOverride samplingStrategyOverride;
+
+    NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator, String name) {
+        this(parentSegment, creator);
+        this.name = name;
+    }
 
     NoOpSubSegment(Segment parentSegment, AWSXRayRecorder creator) {
         this(parentSegment, creator, true);
@@ -65,11 +76,11 @@ class NoOpSubSegment implements Subsegment {
         this.creator = creator;
         this.shouldPropagate = shouldPropagate;
         parent = parentSegment;
+        name = "";
+        namespace = "";
 
-        this.isSampled = samplingStrategyOverride == SamplingStrategyOverride.DISABLED ?
-                parentSegment.isSampled() :
-                false;
-        this.isRecording = isSampled;
+        this.isSampled = false;
+        this.isRecording = false;
         this.samplingStrategyOverride = samplingStrategyOverride;
     }
 
@@ -80,7 +91,7 @@ class NoOpSubSegment implements Subsegment {
 
     @Override
     public String getName() {
-        return "";
+        return name;
     }
 
     @Override
@@ -129,12 +140,14 @@ class NoOpSubSegment implements Subsegment {
     }
 
     @Override
+    @Nullable
     public String getNamespace() {
-        return "";
+        return namespace;
     }
 
     @Override
     public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 
     @Override

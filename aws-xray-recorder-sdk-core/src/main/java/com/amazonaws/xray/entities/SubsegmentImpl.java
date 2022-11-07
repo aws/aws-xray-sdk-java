@@ -94,6 +94,12 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     }
 
     @Override
+    @JsonIgnore
+    public TraceID getTraceId() {
+        return parentSegment.getTraceId();
+    }
+
+    @Override
     @Nullable
     public String getNamespace() {
         return namespace;

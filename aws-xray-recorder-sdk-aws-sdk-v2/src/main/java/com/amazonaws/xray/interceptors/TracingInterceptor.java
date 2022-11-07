@@ -249,14 +249,9 @@ public class TracingInterceptor implements ExecutionInterceptor {
             return httpRequest;
         }
 
-        boolean isSampled = subsegment.getParentSegment().isSampled();
-        TraceHeader header = new TraceHeader(
-                subsegment.getParentSegment().getTraceId(),
-                isSampled ? subsegment.getId() : null,
-                isSampled ? TraceHeader.SampleDecision.SAMPLED : TraceHeader.SampleDecision.NOT_SAMPLED
-        );
-
-        return httpRequest.toBuilder().appendHeader(TraceHeader.HEADER_KEY, header.toString()).build();
+        return httpRequest.toBuilder().appendHeader(
+                TraceHeader.HEADER_KEY,
+                TraceHeader.fromEntity(subsegment).toString()).build();
     }
 
     @Override

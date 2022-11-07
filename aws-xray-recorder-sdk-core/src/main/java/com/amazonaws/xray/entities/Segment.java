@@ -41,11 +41,6 @@ public interface Segment extends Entity {
     boolean isRecording();
 
     /**
-     * @return the sampled
-     */
-    boolean isSampled();
-
-    /**
      * @param sampled
      *            the sampled to set
      *

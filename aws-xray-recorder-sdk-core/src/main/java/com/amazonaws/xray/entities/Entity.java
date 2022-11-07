@@ -600,6 +600,8 @@ public interface Entity extends AutoCloseable {
 
     boolean isEmitted();
 
+    boolean isSampled();
+
     /**
      * Sets emitted on the entity.
      */

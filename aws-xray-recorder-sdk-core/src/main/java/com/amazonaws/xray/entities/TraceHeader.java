@@ -91,6 +91,13 @@ public class TraceHeader {
         }
     }
 
+    public static TraceHeader fromEntity(Entity entity) {
+        return new TraceHeader(
+                entity.getTraceId(),
+                entity.isSampled() ? entity.getId() : null,
+                entity.isSampled() ? SampleDecision.SAMPLED : SampleDecision.NOT_SAMPLED);
+    }
+
     /**
      * Creates a TraceHeader object from a String. Note that this will silently ignore any "Self=" trace ids injected from ALB.
      *
