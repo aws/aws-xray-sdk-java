@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.13.0 - 2022-11-08
+- Oversampling Mitigation
+[#PR381](https://github.com/aws/aws-xray-sdk-go/pull/381)
+- Changed Missing Context default strategy to log
+[#PR382](https://github.com/aws/aws-xray-sdk-go/pull/382)
+
 ## 2.12.0 - 2022-10-07
 - Allow list TopicArn for SNS Publish and PublishBatch
 [PR 357](https://github.com/aws/aws-xray-sdk-java/pull/357)
