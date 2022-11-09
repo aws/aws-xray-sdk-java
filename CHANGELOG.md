@@ -6,6 +6,8 @@
 - Add back original subsegment noOp method
 [PR359](https://github.com/aws/aws-xray-sdk-java/pull/359)
 - Refactoring TraceHeader Calls
+[PR360](https://github.com/aws/aws-xray-sdk-java/pull/360)
+- Adding back depricated functions
 [PR361](https://github.com/aws/aws-xray-sdk-java/pull/361)
 
 ## 2.12.0 - 2022-10-07
