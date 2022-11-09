@@ -3,6 +3,10 @@
 ## 2.13.0 - 2022-11-08
 - Oversampling Mitigation
 [PR356](https://github.com/aws/aws-xray-sdk-java/pull/356)
+- Add back original subsegment noOp method
+[PR359](https://github.com/aws/aws-xray-sdk-java/pull/359)
+- Refactoring TraceHeader Calls
+[PR361](https://github.com/aws/aws-xray-sdk-java/pull/361)
 
 ## 2.12.0 - 2022-10-07
 - Allow list TopicArn for SNS Publish and PublishBatch
