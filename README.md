@@ -228,6 +228,43 @@ try {
 ```
 Note that in the closure-based example above, exceptions are intercepted automatically.
 
+### Oversampling Mitigation
+Oversampling mitigation allows you to ignore a parent segment/subsegment's sampled flag and instead set it to false.
+The code below demonstrates overriding the sampled flag based on the SQS messages sent to Lambda.
+
+```java
+public class Handler implements RequestHandler<SQSEvent, String> {
+  public Handler() {
+  }
+
+  @Override
+  public String handleRequest(SQSEvent event, Context context) {
+
+    // Check to see if any messages upstream are sampled.
+    boolean toSample = false;
+    for (SQSMessage message: event.getRecords()) {
+      if (SQSMessageHelper.isSampled(message)) {
+        toSample = true;
+      }
+    }
+
+    // Create a new subsegment
+    if (toSample) {
+      AWSXRay.beginSubsegment("Processing Message");
+    } else {
+      AWSXRay.beginSubsegmentWithoutSampling("Processing Message");
+    }
+    
+    // Do your procesing work here
+    System.out.println("Doing processing work");
+
+    // End your subsegment
+    AWSXRay.endSubsegment();
+
+    return "Success";
+  }
+}
+```
 ## Integration with ServiceLens
 
 As of version 2.4.0, the X-Ray SDK for Java is integrated with [CloudWatch ServiceLens](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ServiceLens.html). This allows you to use a wide range of new observability features which connect your traces, logs, and metrics in one place.
