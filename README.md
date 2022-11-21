@@ -240,26 +240,25 @@ public class Handler implements RequestHandler<SQSEvent, String> {
   @Override
   public String handleRequest(SQSEvent event, Context context) {
 
-    // Check to see if any messages upstream are sampled.
-    boolean toSample = false;
+    int i = 1;
+
     for (SQSMessage message: event.getRecords()) {
+
+      // Check if the message is sampled
       if (SQSMessageHelper.isSampled(message)) {
-        toSample = true;
+        AWSXRay.beginSubsegment("Processing Message - " + i);
+      } else {
+        AWSXRay.beginSubsegmentWithoutSampling("Processing Message - " + i);
       }
-    }
 
-    // Create a new subsegment
-    if (toSample) {
-      AWSXRay.beginSubsegment("Processing Message");
-    } else {
-      AWSXRay.beginSubsegmentWithoutSampling("Processing Message");
-    }
-    
-    // Do your procesing work here
-    System.out.println("Doing processing work");
+      i++;
 
-    // End your subsegment
-    AWSXRay.endSubsegment();
+      // Do your procesing work here
+      System.out.println("Doing processing work");
+
+      // End your subsegment
+      AWSXRay.endSubsegment();
+    }
 
     return "Success";
   }
