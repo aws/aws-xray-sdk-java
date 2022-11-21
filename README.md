@@ -230,6 +230,7 @@ Note that in the closure-based example above, exceptions are intercepted automat
 
 ### Oversampling Mitigation
 Oversampling mitigation allows you to ignore a parent segment/subsegment's sampled flag and instead set it to false.
+This ensures that downstream calls are not sampled and this subsegment is not emitted.
 
 ```Java
  public class Handler implements RequestHandler<SQSEvent, String> {
