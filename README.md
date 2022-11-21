@@ -229,7 +229,7 @@ try {
 Note that in the closure-based example above, exceptions are intercepted automatically.
 
 ### Oversampling Mitigation
-Oversampling mitigation allows you to ignore a parent segment/subsegment's sampled flag and instead set it to false.
+Oversampling mitigation allows you to ignore a parent segment/subsegment's sampled flag and instead sets the subsegment's sampled flag to false.
 This ensures that downstream calls are not sampled and this subsegment is not emitted.
 
 ```Java
