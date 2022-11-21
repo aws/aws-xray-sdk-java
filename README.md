@@ -233,28 +233,28 @@ Oversampling mitigation allows you to ignore a parent segment/subsegment's sampl
 This ensures that downstream calls are not sampled and this subsegment is not emitted.
 
 ```Java
- public class Handler implements RequestHandler<SQSEvent, String> {
-  public Handler() {
-  }
+public class Handler implements RequestHandler<SQSEvent, String> {
+    public Handler() {
+    }
 
-  @Override
-  public String handleRequest(SQSEvent event, Context context) {
-      AWSXRay.beginSubsegmentWithoutSampling("Processing Event");
+    @Override
+    public String handleRequest(SQSEvent event, Context context) {
+        AWSXRay.beginSubsegmentWithoutSampling("Processing Event");
 
-      AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
+        AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
 
-      ListQueuesResult lq_result = sqs.listQueues();
+        ListQueuesResult lq_result = sqs.listQueues();
       
-      System.out.println("Your SQS Queue URLs:");
+        System.out.println("Your SQS Queue URLs:");
 
-      for (String url : lq_result.getQueueUrls()) {
-          System.out.println(url);
-      }
+        for (String url : lq_result.getQueueUrls()) {
+            System.out.println(url);
+        }
 
-      AWSXRay.endSubsegment();
+        AWSXRay.endSubsegment();
 
-    return "Success";
-  }
+        return "Success";
+    }
 }
 ```
 
@@ -262,34 +262,34 @@ The code below demonstrates overriding the sampled flag based on the SQS message
 
 ```java
 public class Handler implements RequestHandler<SQSEvent, String> {
-  public Handler() {
-  }
-
-  @Override
-  public String handleRequest(SQSEvent event, Context context) {
-
-    int i = 1;
-
-    for (SQSMessage message: event.getRecords()) {
-
-      // Check if the message is sampled
-      if (SQSMessageHelper.isSampled(message)) {
-        AWSXRay.beginSubsegment("Processing Message - " + i);
-      } else {
-        AWSXRay.beginSubsegmentWithoutSampling("Processing Message - " + i);
-      }
-
-      i++;
-
-      // Do your procesing work here
-      System.out.println("Doing processing work");
-
-      // End your subsegment
-      AWSXRay.endSubsegment();
+    public Handler() {
     }
 
-    return "Success";
-  }
+    @Override
+    public String handleRequest(SQSEvent event, Context context) {
+
+        int i = 1;
+
+        for (SQSMessage message: event.getRecords()) {
+
+            // Check if the message is sampled
+            if (SQSMessageHelper.isSampled(message)) {
+                AWSXRay.beginSubsegment("Processing Message - " + i);
+            } else {
+                AWSXRay.beginSubsegmentWithoutSampling("Processing Message - " + i);
+            }
+
+            i++;
+
+            // Do your procesing work here
+            System.out.println("Doing processing work");
+
+            // End your subsegment
+            AWSXRay.endSubsegment();
+        }
+        
+        return "Success";
+    }
 }
 ```
 
