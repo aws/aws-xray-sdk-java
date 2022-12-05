@@ -15,45 +15,38 @@
 
 package com.amazonaws.xray;
 
-import com.amazonaws.xray.entities.Cause;
 import com.amazonaws.xray.serializers.CauseSerializer;
 import com.amazonaws.xray.serializers.StackTraceElementSerializer;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 import java.awt.event.FocusEvent;
 
 public class AWSXRayObjectMapper extends ObjectMapper {
 
-    private static AWSXRayObjectMapper instance = new AWSXRayObjectMapper();
+    private static AWSXRayObjectMapper instance;
 
     public static AWSXRayObjectMapper getInstance() {
         return instance;
     }
 
-    private AWSXRayObjectMapper() {
-        findAndRegisterModules();
-        configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
-        setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    static {
+        instance = new AWSXRayObjectMapper();
 
-        registerModule(new SimpleModule() {
+        instance.findAndRegisterModules();
+        instance.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        instance.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+        instance.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
+        instance.registerModule(new SimpleModule() {
             private static final long serialVersionUID = 545800949242254918L;
 
             @Override

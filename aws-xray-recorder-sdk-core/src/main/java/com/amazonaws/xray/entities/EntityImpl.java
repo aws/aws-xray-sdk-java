@@ -44,18 +44,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *
  */
 public abstract class EntityImpl implements Entity {
-
-    /**
-     * @deprecated For internal use only.
-     */
-    @SuppressWarnings("checkstyle:ConstantName")
-    @Deprecated
-    protected static final ObjectMapper mapper = new ObjectMapper()
-        .findAndRegisterModules()
-        .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-        .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
-        .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-
     private static final Log logger = LogFactory.getLog(EntityImpl.class);
 
     private static final String DEFAULT_METADATA_NAMESPACE = "default";
@@ -114,37 +102,6 @@ public abstract class EntityImpl implements Entity {
 
     @JsonIgnore
     private boolean emitted = false;
-
-    static {
-        /*
-         * Inject the CauseSerializer and StackTraceElementSerializer classes into the local mapper such that they will serialize
-         * their respective object types.
-         */
-        mapper.registerModule(new SimpleModule() {
-            private static final long serialVersionUID = 545800949242254918L;
-
-            @Override
-            public void setupModule(SetupContext setupContext) {
-                super.setupModule(setupContext);
-                setupContext.addBeanSerializerModifier(new BeanSerializerModifier() {
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    public JsonSerializer<?> modifySerializer(
-                        SerializationConfig serializationConfig,
-                        BeanDescription beanDescription,
-                        JsonSerializer<?> jsonSerializer) {
-                        Class<?> beanClass = beanDescription.getBeanClass();
-                        if (Cause.class.isAssignableFrom(beanClass)) {
-                            return new CauseSerializer((JsonSerializer<Object>) jsonSerializer);
-                        } else if (StackTraceElement.class.isAssignableFrom(beanClass)) {
-                            return new StackTraceElementSerializer();
-                        }
-                        return jsonSerializer;
-                    }
-                });
-            }
-        });
-    }
 
     // default constructor for Jackson, so it can understand the default values to compare when using the Include.NON_DEFAULT
     // annotation.
