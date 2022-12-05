@@ -15,24 +15,18 @@
 
 package com.amazonaws.xray.entities;
 
+import com.amazonaws.xray.AWSXRayObjectMapper;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.exceptions.AlreadyEmittedException;
-import com.amazonaws.xray.serializers.CauseSerializer;
-import com.amazonaws.xray.serializers.StackTraceElementSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import java.util.ArrayList;
 import java.util.List;
@@ -612,7 +606,7 @@ public abstract class EntityImpl implements Entity {
     @Override
     public String serialize() {
         try {
-            return mapper.writeValueAsString(this);
+            return AWSXRayObjectMapper.getInstance().writeValueAsString(this);
         } catch (JsonProcessingException jpe) {
             logger.error("Exception while serializing entity.", jpe);
         }
@@ -622,7 +616,7 @@ public abstract class EntityImpl implements Entity {
     @Override
     public String prettySerialize() {
         try {
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
+            return AWSXRayObjectMapper.getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(this);
         } catch (JsonProcessingException jpe) {
             logger.error("Exception while serializing segment.", jpe);
         }
