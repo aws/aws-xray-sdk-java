@@ -15,6 +15,7 @@
 
 package com.amazonaws.xray;
 
+import com.amazonaws.xray.entities.Cause;
 import com.amazonaws.xray.serializers.CauseSerializer;
 import com.amazonaws.xray.serializers.StackTraceElementSerializer;
 
@@ -60,7 +61,7 @@ public class AWSXRayObjectMapper extends ObjectMapper {
                             BeanDescription beanDescription,
                             JsonSerializer<?> jsonSerializer) {
                         Class<?> beanClass = beanDescription.getBeanClass();
-                        if (FocusEvent.Cause.class.isAssignableFrom(beanClass)) {
+                        if (Cause.class.isAssignableFrom(beanClass)) {
                             return new CauseSerializer((JsonSerializer<Object>) jsonSerializer);
                         } else if (StackTraceElement.class.isAssignableFrom(beanClass)) {
                             return new StackTraceElementSerializer();
