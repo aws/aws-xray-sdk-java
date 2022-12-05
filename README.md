@@ -20,67 +20,67 @@ Add the AWS X-Ray SDK dependencies to your pom.xml:
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-core</artifactId>
-  <version>2.12.0</version>
+  <version>2.13.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-apache-http</artifactId>
-  <version>2.12.0</version>
+  <version>2.13.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
-  <version>2.12.0</version>
+  <version>2.13.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-aws-sdk-v2</artifactId>
-  <version>2.12.0</version>
+  <version>2.13.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-aws-sdk-instrumentor</artifactId>
-  <version>2.12.0</version>
+  <version>2.13.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-aws-sdk-v2-instrumentor</artifactId>
-  <version>2.12.0</version>
+  <version>2.13.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-sql</artifactId>
-  <version>2.12.0</version>
+  <version>2.13.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-sql-mysql</artifactId>
-  <version>2.12.0</version>
+  <version>2.13.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-sql-postgres</artifactId>
-  <version>2.12.0</version>
+  <version>2.13.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-spring</artifactId>
-  <version>2.12.0</version>
+  <version>2.13.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-log4j</artifactId>
-  <version>2.12.0</version>
+  <version>2.13.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-slf4j</artifactId>
-  <version>2.12.0</version>
+  <version>2.13.0</version>
 </dependency>
 <dependency>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-xray-recorder-sdk-metrics</artifactId>
-  <version>2.12.0</version>
+  <version>2.13.0</version>
 </dependency>
 ```
 
@@ -227,6 +227,71 @@ try {
 }
 ```
 Note that in the closure-based example above, exceptions are intercepted automatically.
+
+### Oversampling Mitigation
+Oversampling mitigation allows you to ignore a parent segment/subsegment's sampled flag and instead sets the subsegment's sampled flag to false.
+This ensures that downstream calls are not sampled and this subsegment is not emitted.
+
+```Java
+public class Handler implements RequestHandler<SQSEvent, String> {
+    public Handler() {
+    }
+
+    @Override
+    public String handleRequest(SQSEvent event, Context context) {
+        AWSXRay.beginSubsegmentWithoutSampling("Processing Event");
+
+        AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
+
+        ListQueuesResult lq_result = sqs.listQueues();
+      
+        System.out.println("Your SQS Queue URLs:");
+
+        for (String url : lq_result.getQueueUrls()) {
+            System.out.println(url);
+        }
+
+        AWSXRay.endSubsegment();
+
+        return "Success";
+    }
+}
+```
+
+The code below demonstrates overriding the sampled flag based on the SQS message.
+
+```java
+public class Handler implements RequestHandler<SQSEvent, String> {
+    public Handler() {
+    }
+
+    @Override
+    public String handleRequest(SQSEvent event, Context context) {
+
+        int i = 1;
+
+        for (SQSMessage message: event.getRecords()) {
+
+            // Check if the message is sampled
+            if (SQSMessageHelper.isSampled(message)) {
+                AWSXRay.beginSubsegment("Processing Message - " + i);
+            } else {
+                AWSXRay.beginSubsegmentWithoutSampling("Processing Message - " + i);
+            }
+
+            i++;
+
+            // Do your procesing work here
+            System.out.println("Doing processing work");
+
+            // End your subsegment
+            AWSXRay.endSubsegment();
+        }
+        
+        return "Success";
+    }
+}
+```
 
 ## Integration with ServiceLens
 
