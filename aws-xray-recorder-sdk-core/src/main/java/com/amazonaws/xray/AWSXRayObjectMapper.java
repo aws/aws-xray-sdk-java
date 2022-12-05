@@ -18,18 +18,15 @@ package com.amazonaws.xray;
 import com.amazonaws.xray.entities.Cause;
 import com.amazonaws.xray.serializers.CauseSerializer;
 import com.amazonaws.xray.serializers.StackTraceElementSerializer;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
-
-import java.awt.event.FocusEvent;
 
 public class AWSXRayObjectMapper extends ObjectMapper {
 

@@ -168,7 +168,8 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     public String prettyStreamSerialize() {
         String ret = "";
         try {
-            ret = AWSXRayObjectMapper.getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(getStreamSerializeObjectNode());
+            ret = AWSXRayObjectMapper.getInstance().writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(getStreamSerializeObjectNode());
         } catch (JsonProcessingException jpe) {
             logger.error("Exception while serializing entity.", jpe);
         }
