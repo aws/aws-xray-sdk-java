@@ -15,24 +15,15 @@
 
 package com.amazonaws.xray.entities;
 
+import com.amazonaws.xray.AWSXRayObjectMapper;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.exceptions.AlreadyEmittedException;
-import com.amazonaws.xray.serializers.CauseSerializer;
-import com.amazonaws.xray.serializers.StackTraceElementSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,18 +41,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *
  */
 public abstract class EntityImpl implements Entity {
-
-    /**
-     * @deprecated For internal use only.
-     */
-    @SuppressWarnings("checkstyle:ConstantName")
-    @Deprecated
-    protected static final ObjectMapper mapper = new ObjectMapper()
-        .findAndRegisterModules()
-        .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-        .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
-        .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-
     private static final Log logger = LogFactory.getLog(EntityImpl.class);
 
     private static final String DEFAULT_METADATA_NAMESPACE = "default";
@@ -120,37 +99,6 @@ public abstract class EntityImpl implements Entity {
 
     @JsonIgnore
     private boolean emitted = false;
-
-    static {
-        /*
-         * Inject the CauseSerializer and StackTraceElementSerializer classes into the local mapper such that they will serialize
-         * their respective object types.
-         */
-        mapper.registerModule(new SimpleModule() {
-            private static final long serialVersionUID = 545800949242254918L;
-
-            @Override
-            public void setupModule(SetupContext setupContext) {
-                super.setupModule(setupContext);
-                setupContext.addBeanSerializerModifier(new BeanSerializerModifier() {
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    public JsonSerializer<?> modifySerializer(
-                        SerializationConfig serializationConfig,
-                        BeanDescription beanDescription,
-                        JsonSerializer<?> jsonSerializer) {
-                        Class<?> beanClass = beanDescription.getBeanClass();
-                        if (Cause.class.isAssignableFrom(beanClass)) {
-                            return new CauseSerializer((JsonSerializer<Object>) jsonSerializer);
-                        } else if (StackTraceElement.class.isAssignableFrom(beanClass)) {
-                            return new StackTraceElementSerializer();
-                        }
-                        return jsonSerializer;
-                    }
-                });
-            }
-        });
-    }
 
     // default constructor for Jackson, so it can understand the default values to compare when using the Include.NON_DEFAULT
     // annotation.
@@ -612,7 +560,7 @@ public abstract class EntityImpl implements Entity {
     @Override
     public String serialize() {
         try {
-            return mapper.writeValueAsString(this);
+            return AWSXRayObjectMapper.getInstance().writeValueAsString(this);
         } catch (JsonProcessingException jpe) {
             logger.error("Exception while serializing entity.", jpe);
         }
@@ -622,7 +570,7 @@ public abstract class EntityImpl implements Entity {
     @Override
     public String prettySerialize() {
         try {
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
+            return AWSXRayObjectMapper.getInstance().writerWithDefaultPrettyPrinter().writeValueAsString(this);
         } catch (JsonProcessingException jpe) {
             logger.error("Exception while serializing segment.", jpe);
         }

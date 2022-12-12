@@ -15,6 +15,7 @@
 
 package com.amazonaws.xray.entities;
 
+import com.amazonaws.xray.AWSXRayObjectMapper;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -145,7 +146,7 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     }
 
     private ObjectNode getStreamSerializeObjectNode() {
-        ObjectNode obj = (ObjectNode) mapper.valueToTree(this);
+        ObjectNode obj = (ObjectNode) AWSXRayObjectMapper.getInstance().valueToTree(this);
         obj.put("type", "subsegment");
         obj.put("parent_id", getParent().getId());
         obj.put("trace_id", parentSegment.getTraceId().toString());
@@ -156,7 +157,7 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     public String streamSerialize() {
         String ret = "";
         try {
-            ret = mapper.writeValueAsString(getStreamSerializeObjectNode());
+            ret = AWSXRayObjectMapper.getInstance().writeValueAsString(getStreamSerializeObjectNode());
         } catch (JsonProcessingException jpe) {
             logger.error("Exception while serializing entity.", jpe);
         }
@@ -167,7 +168,8 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
     public String prettyStreamSerialize() {
         String ret = "";
         try {
-            ret = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(getStreamSerializeObjectNode());
+            ret = AWSXRayObjectMapper.getInstance().writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(getStreamSerializeObjectNode());
         } catch (JsonProcessingException jpe) {
             logger.error("Exception while serializing entity.", jpe);
         }
