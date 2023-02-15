@@ -16,11 +16,10 @@
 package com.amazonaws.xray.strategy.jakarta;
 
 import com.amazonaws.xray.entities.SearchPattern;
+import java.util.Optional;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.Optional;
 
 /**
  * @deprecated Use {@link SegmentNamingStrategy#dynamic(String)}.
