@@ -15,24 +15,9 @@
 
 package com.amazonaws.xray.strategy.jakarta;
 
-import com.amazonaws.xray.entities.StringValidator;
 import jakarta.servlet.http.HttpServletRequest;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
-public interface SegmentNamingStrategy {
-
-    /**
-     * Environment variable key used to override the default segment name used by implementors of {@code SegmentNamingStrategy}.
-     * Takes precedence over any system property, web.xml configuration value, or constructor value used for a fixed segment name.
-     */
-    String NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY = "AWS_XRAY_TRACING_NAME";
-
-    /**
-     * System property key used to override the default segment name used by implementors of {@code SegmentNamingStrategy}.
-     * Takes precedence over any web.xml configuration value or constructor value used for a fixed segment name.
-     */
-    String NAME_OVERRIDE_SYSTEM_PROPERTY_KEY = "com.amazonaws.xray.strategy.tracingName";
-
+public interface SegmentNamingStrategy extends com.amazonaws.xray.strategy.interfaces.SegmentNamingStrategy {
     /**
      * Returns a {@link SegmentNamingStrategy} that assigns the provided {@code name} to all segments generated for incoming
      * requests. This will be ignored and will use the the value of the {@code AWS_XRAY_TRACING_NAME} environment variable or
@@ -72,16 +57,4 @@ public interface SegmentNamingStrategy {
     }
 
     String nameForRequest(HttpServletRequest request);
-
-    @Nullable
-    default String getOverrideName() {
-        String environmentNameOverrideValue = System.getenv(NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY);
-        String systemNameOverrideValue = System.getProperty(NAME_OVERRIDE_SYSTEM_PROPERTY_KEY);
-        if (StringValidator.isNotNullOrBlank(environmentNameOverrideValue)) {
-            return environmentNameOverrideValue;
-        } else if (StringValidator.isNotNullOrBlank(systemNameOverrideValue)) {
-            return systemNameOverrideValue;
-        }
-        return null;
-    }
 }

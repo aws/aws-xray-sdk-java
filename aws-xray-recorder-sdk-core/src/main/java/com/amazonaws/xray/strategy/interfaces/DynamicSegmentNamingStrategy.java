@@ -13,11 +13,9 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.xray.strategy.jakarta;
+package com.amazonaws.xray.strategy.interfaces;
 
 import com.amazonaws.xray.entities.SearchPattern;
-import jakarta.servlet.http.HttpServletRequest;
-import java.util.Optional;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -25,7 +23,13 @@ import org.apache.commons.logging.LogFactory;
  * @deprecated Use {@link SegmentNamingStrategy#dynamic(String)}.
  */
 @Deprecated
-public class DynamicSegmentNamingStrategy extends com.amazonaws.xray.strategy.interfaces.DynamicSegmentNamingStrategy implements SegmentNamingStrategy {
+public class DynamicSegmentNamingStrategy implements SegmentNamingStrategy {
+    private static final Log logger =
+        LogFactory.getLog(DynamicSegmentNamingStrategy.class);
+
+    protected final String recognizedHosts;
+    protected final String fallbackName;
+
     /**
      * Creates an instance of {@code DynamicSegmentNamingStrategy} with the provided {@code fallbackName} and a
      * {@code recognizedHosts} value of "*".
@@ -39,7 +43,7 @@ public class DynamicSegmentNamingStrategy extends com.amazonaws.xray.strategy.in
      */
     @Deprecated
     public DynamicSegmentNamingStrategy(String fallbackName) {
-        super(fallbackName, "*");
+        this(fallbackName, "*");
     }
 
     /**
@@ -62,29 +66,20 @@ public class DynamicSegmentNamingStrategy extends com.amazonaws.xray.strategy.in
     @SuppressWarnings("nullness")
     @Deprecated
     public DynamicSegmentNamingStrategy(String fallbackName, String recognizedHosts) {
-        super(fallbackName, recognizedHosts);
-    }
-
-    /**
-     *
-     * Returns the derived segment name for an incoming request. Attempts to get the {@code Host} header from the
-     * {@code HttpServletRequest}. If the {@code Host} header has a value and if the value matches the optionally provided
-     * {@code recognizedHosts} pattern, then this value is returned as the segment name. Otherwise, {@code fallbackName} is
-     * returned.
-     *
-     *
-     * @param request
-     *  the incoming request
-     * @return
-     *  the segment name for the incoming request.
-     */
-    @Override
-    public String nameForRequest(HttpServletRequest request) {
-        Optional<String> hostHeaderValue = Optional.ofNullable(request.getHeader("Host"));
-        if (hostHeaderValue.isPresent() &&
-            (null == recognizedHosts || SearchPattern.wildcardMatch(recognizedHosts, hostHeaderValue.get()))) {
-            return hostHeaderValue.get();
+        String overrideName = getOverrideName();
+        if (overrideName != null) {
+            this.fallbackName = getOverrideName();
+            if (logger.isInfoEnabled()) {
+                logger.info("Environment variable " + SegmentNamingStrategy.NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY + " or system property "
+                            + SegmentNamingStrategy.NAME_OVERRIDE_SYSTEM_PROPERTY_KEY
+                            + " set. Overriding DynamicSegmentNamingStrategy constructor argument. Segments generated with this "
+                            + "strategy will be named: " + this.fallbackName
+                            + " when the host header is unavilable or does not match the provided recognizedHosts pattern.");
+            }
+        } else {
+            this.fallbackName = fallbackName;
         }
-        return fallbackName;
+
+        this.recognizedHosts = recognizedHosts;
     }
 }
