@@ -16,10 +16,10 @@
 package com.amazonaws.xray.strategy.jakarta;
 
 import com.amazonaws.xray.entities.SearchPattern;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 /**

@@ -17,12 +17,11 @@ package com.amazonaws.xray.jakarta.servlet;
 
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.entities.Entity;
-import org.checkerframework.checker.initialization.qual.UnderInitialization;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import jakarta.servlet.AsyncEvent;
 import jakarta.servlet.AsyncListener;
 import java.io.IOException;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 class AWSXRayServletAsyncListener implements AsyncListener {
 

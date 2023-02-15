@@ -16,9 +16,8 @@
 package com.amazonaws.xray.strategy.jakarta;
 
 import com.amazonaws.xray.entities.StringValidator;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 import jakarta.servlet.http.HttpServletRequest;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public interface SegmentNamingStrategy {
 

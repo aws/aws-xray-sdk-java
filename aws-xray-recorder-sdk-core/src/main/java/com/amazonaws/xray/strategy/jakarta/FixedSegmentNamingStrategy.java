@@ -15,10 +15,9 @@
 
 package com.amazonaws.xray.strategy.jakarta;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @deprecated Use {@link SegmentNamingStrategy#fixed(String)}.
