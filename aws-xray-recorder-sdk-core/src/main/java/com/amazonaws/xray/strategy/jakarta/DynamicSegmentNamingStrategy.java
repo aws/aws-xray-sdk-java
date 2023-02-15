@@ -25,7 +25,13 @@ import org.apache.commons.logging.LogFactory;
  * @deprecated Use {@link SegmentNamingStrategy#dynamic(String)}.
  */
 @Deprecated
-public class DynamicSegmentNamingStrategy extends com.amazonaws.xray.strategy.interfaces.DynamicSegmentNamingStrategy implements SegmentNamingStrategy {
+public class DynamicSegmentNamingStrategy implements SegmentNamingStrategy {
+    private static final Log logger =
+        LogFactory.getLog(DynamicSegmentNamingStrategy.class);
+
+    private final String recognizedHosts;
+    private final String fallbackName;
+
     /**
      * Creates an instance of {@code DynamicSegmentNamingStrategy} with the provided {@code fallbackName} and a
      * {@code recognizedHosts} value of "*".
@@ -39,7 +45,7 @@ public class DynamicSegmentNamingStrategy extends com.amazonaws.xray.strategy.in
      */
     @Deprecated
     public DynamicSegmentNamingStrategy(String fallbackName) {
-        super(fallbackName, "*");
+        this(fallbackName, "*");
     }
 
     /**
@@ -62,7 +68,21 @@ public class DynamicSegmentNamingStrategy extends com.amazonaws.xray.strategy.in
     @SuppressWarnings("nullness")
     @Deprecated
     public DynamicSegmentNamingStrategy(String fallbackName, String recognizedHosts) {
-        super(fallbackName, recognizedHosts);
+        String overrideName = getOverrideName();
+        if (overrideName != null) {
+            this.fallbackName = getOverrideName();
+            if (logger.isInfoEnabled()) {
+                logger.info("Environment variable " + NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY + " or system property "
+                            + NAME_OVERRIDE_SYSTEM_PROPERTY_KEY
+                            + " set. Overriding DynamicSegmentNamingStrategy constructor argument. Segments generated with this "
+                            + "strategy will be named: " + this.fallbackName
+                            + " when the host header is unavilable or does not match the provided recognizedHosts pattern.");
+            }
+        } else {
+            this.fallbackName = fallbackName;
+        }
+
+        this.recognizedHosts = recognizedHosts;
     }
 
     /**

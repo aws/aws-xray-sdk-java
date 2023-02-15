@@ -16,15 +16,40 @@
 package com.amazonaws.xray.strategy;
 
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @deprecated Use {@link SegmentNamingStrategy#fixed(String)}.
  */
 @Deprecated
-public class FixedSegmentNamingStrategy extends com.amazonaws.xray.strategy.interfaces.FixedSegmentNamingStrategy implements com.amazonaws.xray.strategy.SegmentNamingStrategy {
+public class FixedSegmentNamingStrategy implements SegmentNamingStrategy {
+    private static final Log logger =
+        LogFactory.getLog(FixedSegmentNamingStrategy.class);
 
+    private final String fixedName;
+
+    /**
+     * @deprecated Use {@link SegmentNamingStrategy#fixed(String)}.
+     */
+    // Instance method is called before the class is initialized. This can cause undefined behavior, e.g., if getOverrideName
+    // accesses fixedName. This class doesn't really need to be exposed to users so we suppress for now and will clean up after
+    // hiding.
+    @SuppressWarnings("nullness")
+    @Deprecated
     public FixedSegmentNamingStrategy(String name) {
-        super(name);
+        String overrideName = getOverrideName();
+        if (overrideName != null) {
+            this.fixedName = overrideName;
+            if (logger.isInfoEnabled()) {
+                logger.info("Environment variable " + NAME_OVERRIDE_ENVIRONMENT_VARIABLE_KEY + " or system property "
+                            + NAME_OVERRIDE_SYSTEM_PROPERTY_KEY
+                            + " set. Overriding FixedSegmentNamingStrategy constructor argument. Segments generated with this "
+                            + "strategy will be named: " + this.fixedName + ".");
+            }
+        } else {
+            this.fixedName = name;
+        }
     }
 
     /**
