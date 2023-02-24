@@ -127,7 +127,15 @@ public class TracingInterceptorTest {
 
     @Test
     public void testSqsSendMessageSubsegmentContainsQueueUrl() throws Exception {
-        SdkHttpClient mockClient = mockClientWithSuccessResponse("<SendMessageResponse><SendMessageResult><MD5OfMessageBody>b10a8db164e0754105b7a99be72e3fe5</MD5OfMessageBody><MessageId>abc-def-ghi</MessageId></SendMessageResult><ResponseMetadata><RequestId>123-456-789</RequestId></ResponseMetadata></SendMessageResponse>");
+        SdkHttpClient mockClient = mockClientWithSuccessResponse(
+                "<SendMessageResponse>" +
+                    "<SendMessageResult>" +
+                        "<MD5OfMessageBody>b10a8db164e0754105b7a99be72e3fe5</MD5OfMessageBody>" +
+                        "<MessageId>abc-def-ghi</MessageId>" +
+                    "</SendMessageResult>" +
+                    "<ResponseMetadata><RequestId>123-456-789</RequestId></ResponseMetadata>" +
+                "</SendMessageResponse>"
+        );
         SqsClient client = sqsClient(mockClient);
 
         Segment segment = AWSXRay.getCurrentSegment();
@@ -152,7 +160,12 @@ public class TracingInterceptorTest {
 
     @Test
     public void testSnsPublishSubsegmentContainsTopicArn() throws Exception {
-        SdkHttpClient mockClient = mockClientWithSuccessResponse("<PublishResponse><PublishResult><MessageId>abc-def-ghi</MessageId></PublishResult><ResponseMetadata><RequestId>123-456-789</RequestId></ResponseMetadata></PublishResponse>");
+        SdkHttpClient mockClient = mockClientWithSuccessResponse(
+                "<PublishResponse>" +
+                    "<PublishResult><MessageId>abc-def-ghi</MessageId></PublishResult>" +
+                    "<ResponseMetadata><RequestId>123-456-789</RequestId></ResponseMetadata>" +
+                "</PublishResponse>"
+        );
         SnsClient client = snsClient(mockClient);
 
         Segment segment = AWSXRay.getCurrentSegment();
