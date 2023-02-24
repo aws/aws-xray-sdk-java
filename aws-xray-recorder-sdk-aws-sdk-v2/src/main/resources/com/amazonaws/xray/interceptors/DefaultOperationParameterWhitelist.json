@@ -1,6 +1,6 @@
 {
   "services": {
-    "SNS": {
+    "Sns": {
       "operations": {
         "Publish": {
           "request_parameters": [
@@ -152,7 +152,7 @@
         }
       }
     },
-    "SQS": {
+    "Sqs": {
       "operations": {
         "AddPermission": {
           "request_parameters": [
