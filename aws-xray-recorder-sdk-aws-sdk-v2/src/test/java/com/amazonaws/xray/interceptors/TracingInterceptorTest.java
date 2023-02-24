@@ -62,6 +62,10 @@ import software.amazon.awssdk.services.dynamodb.model.ListTablesRequest;
 import software.amazon.awssdk.services.lambda.LambdaAsyncClient;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
 @FixMethodOrder(MethodSorters.JVM)
 @RunWith(MockitoJUnitRunner.class)
@@ -86,50 +90,6 @@ public class TracingInterceptorTest {
         AWSXRay.endSegment();
     }
 
-    private SdkHttpClient mockSdkHttpClient(SdkHttpResponse response) throws Exception {
-        return mockSdkHttpClient(response, "OK");
-    }
-
-    private SdkHttpClient mockSdkHttpClient(SdkHttpResponse response, String body) throws Exception {
-        ExecutableHttpRequest abortableCallable = Mockito.mock(ExecutableHttpRequest.class);
-        SdkHttpClient mockClient = Mockito.mock(SdkHttpClient.class);
-
-        when(mockClient.prepareRequest(Mockito.any())).thenReturn(abortableCallable);
-        when(abortableCallable.call()).thenReturn(HttpExecuteResponse.builder()
-                .response(response)
-                .responseBody(AbortableInputStream.create(
-                        new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8))
-                ))
-                .build()
-        );
-        return mockClient;
-    }
-
-    private SdkAsyncHttpClient mockSdkAsyncHttpClient(SdkHttpResponse response) {
-        SdkAsyncHttpClient mockClient = Mockito.mock(SdkAsyncHttpClient.class);
-        when(mockClient.execute(Mockito.any(AsyncExecuteRequest.class)))
-               .thenAnswer((Answer<CompletableFuture<Void>>) invocationOnMock -> {
-                   AsyncExecuteRequest request = invocationOnMock.getArgument(0);
-                   SdkAsyncHttpResponseHandler handler = request.responseHandler();
-                   handler.onHeaders(response);
-                   handler.onStream(new EmptyPublisher<>());
-
-                   return CompletableFuture.completedFuture(null);
-               });
-
-        return mockClient;
-    }
-
-    private SdkHttpResponse generateLambdaInvokeResponse(int statusCode) {
-        return SdkHttpResponse.builder()
-                .statusCode(statusCode)
-                .putHeader("x-amz-request-id", "1111-2222-3333-4444")
-                .putHeader("x-amz-id-2", "extended")
-                .putHeader("Content-Length", "2")
-                .putHeader("X-Amz-Function-Error", "Failure")
-                .build();
-    }
-
     @Test
     public void testResponseDescriptors() throws Exception {
         String responseBody = "{\"LastEvaluatedTableName\":\"baz\",\"TableNames\":[\"foo\",\"bar\",\"baz\"]}";
@@ -140,19 +100,7 @@ public class TracingInterceptorTest {
                 .putHeader("Content-Type", "application/x-amz-json-1.0")
                 .build();
         SdkHttpClient mockClient = mockSdkHttpClient(mockResponse, responseBody);
-
-        DynamoDbClient client = DynamoDbClient.builder()
-                .httpClient(mockClient)
-                .endpointOverride(URI.create("http://example.com"))
-                .region(Region.of("us-west-42"))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsSessionCredentials.create("key", "secret", "session")
-                ))
-                .overrideConfiguration(ClientOverrideConfiguration.builder()
-                        .addExecutionInterceptor(new TracingInterceptor())
-                        .build()
-                )
-                .build();
+        DynamoDbClient client = dynamoDbClient(mockClient);
 
         Segment segment = AWSXRay.getCurrentSegment();
         client.listTables(ListTablesRequest.builder()
@@ -178,21 +126,59 @@ public class TracingInterceptorTest {
     }
 
     @Test
+    public void testSqsSendMessageSubsegmentContainsQueueUrl() throws Exception {
+        SdkHttpClient mockClient = mockClientWithSuccessResponse("<SendMessageResponse><SendMessageResult><MD5OfMessageBody>b10a8db164e0754105b7a99be72e3fe5</MD5OfMessageBody><MessageId>abc-def-ghi</MessageId></SendMessageResult><ResponseMetadata><RequestId>123-456-789</RequestId></ResponseMetadata></SendMessageResponse>");
+        SqsClient client = sqsClient(mockClient);
+
+        Segment segment = AWSXRay.getCurrentSegment();
+        client.sendMessage(SendMessageRequest.builder()
+                .queueUrl("http://queueurl.com")
+                .messageBody("Hello World")
+                .build()
+        );
+
+        Assert.assertEquals(1, segment.getSubsegments().size());
+        Subsegment subsegment = segment.getSubsegments().get(0);
+        Map<String, Object> awsStats = subsegment.getAws();
+
+        Assert.assertEquals("SendMessage", awsStats.get("operation"));
+        Assert.assertEquals("http://queueurl.com", awsStats.get("queue_url"));
+        Assert.assertEquals("abc-def-ghi", awsStats.get("message_id"));
+        Assert.assertEquals("123-456-789", awsStats.get("request_id"));
+        Assert.assertEquals("us-west-42", awsStats.get("region"));
+        Assert.assertEquals(0, awsStats.get("retries"));
+        Assert.assertEquals(false, subsegment.isInProgress());
+    }
+
+    @Test
+    public void testSnsPublishSubsegmentContainsTopicArn() throws Exception {
+        SdkHttpClient mockClient = mockClientWithSuccessResponse("<PublishResponse><PublishResult><MessageId>abc-def-ghi</MessageId></PublishResult><ResponseMetadata><RequestId>123-456-789</RequestId></ResponseMetadata></PublishResponse>");
+        SnsClient client = snsClient(mockClient);
+
+        Segment segment = AWSXRay.getCurrentSegment();
+        client.publish(PublishRequest.builder()
+                .topicArn("arn:aws:sns:us-west-42:123456789012:MyTopic")
+                .message("Hello World")
+                .build()
+        );
+
+        Assert.assertEquals(1, segment.getSubsegments().size());
+        Subsegment subsegment = segment.getSubsegments().get(0);
+        Map<String, Object> awsStats = subsegment.getAws();
+
+        Assert.assertEquals("Publish", awsStats.get("operation"));
+        Assert.assertEquals("arn:aws:sns:us-west-42:123456789012:MyTopic", awsStats.get("topic_arn"));
+        Assert.assertEquals("us-west-42", awsStats.get("region"));
+        Assert.assertEquals("123-456-789", awsStats.get("request_id"));
+        Assert.assertEquals(0, awsStats.get("retries"));
+        Assert.assertEquals(false, subsegment.isInProgress());
+    }
+
+    @Test
     public void testLambdaInvokeSubsegmentContainsFunctionName() throws Exception {
         SdkHttpClient mockClient = mockSdkHttpClient(generateLambdaInvokeResponse(200));
 
-        LambdaClient client = LambdaClient.builder()
-                .httpClient(mockClient)
-                .endpointOverride(URI.create("http://example.com"))
-                .region(Region.of("us-west-42"))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsSessionCredentials.create("key", "secret", "session")
-                ))
-                .overrideConfiguration(ClientOverrideConfiguration.builder()
-                        .addExecutionInterceptor(new TracingInterceptor())
-                        .build()
-                )
-                .build();
+        LambdaClient client = lambdaClient(mockClient);
 
 
         Segment segment = AWSXRay.getCurrentSegment();
@@ -223,22 +209,9 @@ public class TracingInterceptorTest {
     @Test
     public void testAsyncLambdaInvokeSubsegmentContainsFunctionName() {
         SdkAsyncHttpClient mockClient = mockSdkAsyncHttpClient(generateLambdaInvokeResponse(200));
-
-        LambdaAsyncClient client = LambdaAsyncClient.builder()
-                .httpClient(mockClient)
-                .endpointOverride(URI.create("http://example.com"))
-                .region(Region.of("us-west-42"))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsSessionCredentials.create("key", "secret", "session")
-                ))
-                .overrideConfiguration(ClientOverrideConfiguration.builder()
-                        .addExecutionInterceptor(new TracingInterceptor())
-                        .build()
-                )
-                .build();
+        LambdaAsyncClient client = lambdaAsyncClient(mockClient);
 
         Segment segment = AWSXRay.getCurrentSegment();
-
         client.invoke(InvokeRequest.builder()
                 .functionName("testFunctionName")
                 .build()
@@ -265,23 +238,9 @@ public class TracingInterceptorTest {
     @Test
     public void test400Exception() throws Exception {
         SdkHttpClient mockClient = mockSdkHttpClient(generateLambdaInvokeResponse(400));
-
-        LambdaClient client = LambdaClient.builder()
-                .httpClient(mockClient)
-                .endpointOverride(URI.create("http://example.com"))
-                .region(Region.of("us-west-42"))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsSessionCredentials.create("key", "secret", "session")
-                ))
-                .overrideConfiguration(ClientOverrideConfiguration.builder()
-                        .addExecutionInterceptor(new TracingInterceptor())
-                        .build()
-                )
-                .build();
-
+        LambdaClient client = lambdaClient(mockClient);
 
         Segment segment = AWSXRay.getCurrentSegment();
-
         try {
             client.invoke(InvokeRequest.builder()
                     .functionName("testFunctionName")
@@ -317,22 +276,9 @@ public class TracingInterceptorTest {
     @Test
     public void testAsync400Exception() {
         SdkAsyncHttpClient mockClient = mockSdkAsyncHttpClient(generateLambdaInvokeResponse(400));
-
-        LambdaAsyncClient client = LambdaAsyncClient.builder()
-                .httpClient(mockClient)
-                .endpointOverride(URI.create("http://example.com"))
-                .region(Region.of("us-west-42"))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsSessionCredentials.create("key", "secret", "session")
-                ))
-                .overrideConfiguration(ClientOverrideConfiguration.builder()
-                        .addExecutionInterceptor(new TracingInterceptor())
-                        .build()
-                )
-                .build();
+        LambdaAsyncClient client = lambdaAsyncClient(mockClient);
 
         Segment segment = AWSXRay.getCurrentSegment();
-
         try {
             client.invoke(InvokeRequest.builder()
                     .functionName("testFunctionName")
@@ -368,23 +314,9 @@ public class TracingInterceptorTest {
     @Test
     public void testThrottledException() throws Exception {
         SdkHttpClient mockClient = mockSdkHttpClient(generateLambdaInvokeResponse(429));
-
-        LambdaClient client = LambdaClient.builder()
-                .httpClient(mockClient)
-                .endpointOverride(URI.create("http://example.com"))
-                .region(Region.of("us-west-42"))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsSessionCredentials.create("key", "secret", "session")
-                ))
-                .overrideConfiguration(ClientOverrideConfiguration.builder()
-                        .addExecutionInterceptor(new TracingInterceptor())
-                        .build()
-                )
-                .build();
-
+        LambdaClient client = lambdaClient(mockClient);
 
         Segment segment = AWSXRay.getCurrentSegment();
-
         try {
             client.invoke(InvokeRequest.builder()
                     .functionName("testFunctionName")
@@ -418,22 +350,9 @@ public class TracingInterceptorTest {
     @Test
     public void testAsyncThrottledException() {
         SdkAsyncHttpClient mockClient = mockSdkAsyncHttpClient(generateLambdaInvokeResponse(429));
-
-        LambdaAsyncClient client = LambdaAsyncClient.builder()
-                .httpClient(mockClient)
-                .endpointOverride(URI.create("http://example.com"))
-                .region(Region.of("us-west-42"))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsSessionCredentials.create("key", "secret", "session")
-                ))
-                .overrideConfiguration(ClientOverrideConfiguration.builder()
-                        .addExecutionInterceptor(new TracingInterceptor())
-                        .build()
-                )
-                .build();
+        LambdaAsyncClient client = lambdaAsyncClient(mockClient);
 
         Segment segment = AWSXRay.getCurrentSegment();
-
         try {
             client.invoke(InvokeRequest.builder()
                     .functionName("testFunctionName")
@@ -467,23 +386,9 @@ public class TracingInterceptorTest {
     @Test
     public void test500Exception() throws Exception {
         SdkHttpClient mockClient = mockSdkHttpClient(generateLambdaInvokeResponse(500));
-
-        LambdaClient client = LambdaClient.builder()
-                .httpClient(mockClient)
-                .endpointOverride(URI.create("http://example.com"))
-                .region(Region.of("us-west-42"))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsSessionCredentials.create("key", "secret", "session")
-                ))
-                .overrideConfiguration(ClientOverrideConfiguration.builder()
-                        .addExecutionInterceptor(new TracingInterceptor())
-                        .build()
-                )
-                .build();
-
+        LambdaClient client = lambdaClient(mockClient);
 
         Segment segment = AWSXRay.getCurrentSegment();
-
         try {
             client.invoke(InvokeRequest.builder()
                     .functionName("testFunctionName")
@@ -517,22 +422,9 @@ public class TracingInterceptorTest {
     @Test
     public void testAsync500Exception() {
         SdkAsyncHttpClient mockClient = mockSdkAsyncHttpClient(generateLambdaInvokeResponse(500));
-
-        LambdaAsyncClient client = LambdaAsyncClient.builder()
-                .httpClient(mockClient)
-                .endpointOverride(URI.create("http://example.com"))
-                .region(Region.of("us-west-42"))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsSessionCredentials.create("key", "secret", "session")
-                ))
-                .overrideConfiguration(ClientOverrideConfiguration.builder()
-                        .addExecutionInterceptor(new TracingInterceptor())
-                        .build()
-                )
-                .build();
+        LambdaAsyncClient client = lambdaAsyncClient(mockClient);
 
         Segment segment = AWSXRay.getCurrentSegment();
-
         try {
             client.invoke(InvokeRequest.builder()
                     .functionName("testFunctionName")
@@ -578,6 +470,132 @@ public class TracingInterceptorTest {
         interceptor.modifyHttpRequest(context, attributes);
 
         verify(mockRequest.toBuilder(), never()).appendHeader(anyString(), anyString());
+    }
+
+    private SdkHttpClient mockSdkHttpClient(SdkHttpResponse response) throws Exception {
+        return mockSdkHttpClient(response, "OK");
+    }
+
+    private SdkHttpClient mockSdkHttpClient(SdkHttpResponse response, String body) throws Exception {
+        ExecutableHttpRequest abortableCallable = Mockito.mock(ExecutableHttpRequest.class);
+        SdkHttpClient mockClient = Mockito.mock(SdkHttpClient.class);
+
+        when(mockClient.prepareRequest(Mockito.any())).thenReturn(abortableCallable);
+        when(abortableCallable.call()).thenReturn(HttpExecuteResponse.builder()
+                .response(response)
+                .responseBody(AbortableInputStream.create(
+                        new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8))
+                ))
+                .build()
+        );
+        return mockClient;
+    }
+
+    private SdkAsyncHttpClient mockSdkAsyncHttpClient(SdkHttpResponse response) {
+        SdkAsyncHttpClient mockClient = Mockito.mock(SdkAsyncHttpClient.class);
+        when(mockClient.execute(Mockito.any(AsyncExecuteRequest.class)))
+                .thenAnswer((Answer<CompletableFuture<Void>>) invocationOnMock -> {
+                    AsyncExecuteRequest request = invocationOnMock.getArgument(0);
+                    SdkAsyncHttpResponseHandler handler = request.responseHandler();
+                    handler.onHeaders(response);
+                    handler.onStream(new EmptyPublisher<>());
+
+                    return CompletableFuture.completedFuture(null);
+                });
+
+        return mockClient;
+    }
+
+    private SdkHttpResponse generateLambdaInvokeResponse(int statusCode) {
+        return SdkHttpResponse.builder()
+                .statusCode(statusCode)
+                .putHeader("x-amz-request-id", "1111-2222-3333-4444")
+                .putHeader("x-amz-id-2", "extended")
+                .putHeader("Content-Length", "2")
+                .putHeader("X-Amz-Function-Error", "Failure")
+                .build();
+    }
+
+    private SdkHttpClient mockClientWithSuccessResponse(String responseBody) throws Exception {
+        SdkHttpResponse mockResponse = SdkHttpResponse.builder()
+                .statusCode(200)
+                .build();
+        return mockSdkHttpClient(mockResponse, responseBody);
+    }
+
+    private static LambdaClient lambdaClient(SdkHttpClient mockClient) {
+        return LambdaClient.builder()
+                .httpClient(mockClient)
+                .endpointOverride(URI.create("http://example.com"))
+                .region(Region.of("us-west-42"))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsSessionCredentials.create("key", "secret", "session")
+                ))
+                .overrideConfiguration(ClientOverrideConfiguration.builder()
+                        .addExecutionInterceptor(new TracingInterceptor())
+                        .build()
+                )
+                .build();
+    }
+
+    private static LambdaAsyncClient lambdaAsyncClient(SdkAsyncHttpClient mockClient) {
+        return LambdaAsyncClient.builder()
+                .httpClient(mockClient)
+                .endpointOverride(URI.create("http://example.com"))
+                .region(Region.of("us-west-42"))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsSessionCredentials.create("key", "secret", "session")
+                ))
+                .overrideConfiguration(ClientOverrideConfiguration.builder()
+                        .addExecutionInterceptor(new TracingInterceptor())
+                        .build()
+                )
+                .build();
+    }
+
+    private static DynamoDbClient dynamoDbClient(SdkHttpClient mockClient) {
+        return DynamoDbClient.builder()
+                .httpClient(mockClient)
+                .endpointOverride(URI.create("http://example.com"))
+                .region(Region.of("us-west-42"))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsSessionCredentials.create("key", "secret", "session")
+                ))
+                .overrideConfiguration(ClientOverrideConfiguration.builder()
+                        .addExecutionInterceptor(new TracingInterceptor())
+                        .build()
+                )
+                .build();
+    }
+
+    private static SqsClient sqsClient(SdkHttpClient mockClient) {
+        return SqsClient.builder()
+                .httpClient(mockClient)
+                .endpointOverride(URI.create("http://example.com"))
+                .region(Region.of("us-west-42"))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsSessionCredentials.create("key", "secret", "session")
+                ))
+                .overrideConfiguration(ClientOverrideConfiguration.builder()
+                        .addExecutionInterceptor(new TracingInterceptor())
+                        .build()
+                )
+                .build();
+    }
+
+    private static SnsClient snsClient(SdkHttpClient mockClient) {
+        return SnsClient.builder()
+                .httpClient(mockClient)
+                .endpointOverride(URI.create("http://example.com"))
+                .region(Region.of("us-west-42"))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsSessionCredentials.create("key", "secret", "session")
+                ))
+                .overrideConfiguration(ClientOverrideConfiguration.builder()
+                        .addExecutionInterceptor(new TracingInterceptor())
+                        .build()
+                )
+                .build();
     }
 }
 
