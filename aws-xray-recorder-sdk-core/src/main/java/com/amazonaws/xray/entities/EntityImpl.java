@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationConfig;
@@ -57,7 +58,6 @@ public abstract class EntityImpl implements Entity {
     @SuppressWarnings("checkstyle:ConstantName")
     @Deprecated
     protected static final ObjectMapper mapper = new ObjectMapper()
-        .findAndRegisterModules()
         .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
         .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
         .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -122,6 +122,15 @@ public abstract class EntityImpl implements Entity {
     private boolean emitted = false;
 
     static {
+        for (Module module: mapper.findModules()) {
+            try {
+                mapper.registerModule(module);
+                logger.debug("Registered module: " + module.getModuleName());
+            } catch (Throwable t) {
+                logger.error("Exception registering module: " + module.getModuleName(), t);
+            }
+        }
+
         /*
          * Inject the CauseSerializer and StackTraceElementSerializer classes into the local mapper such that they will serialize
          * their respective object types.
