@@ -1,5 +1,13 @@
 # Change Log
 
+## 2.14.0 - 2023-04-13
+- Add support for Jakarta and Sprig 6
+[PR 372](https://github.com/aws/aws-xray-sdk-java/pull/372)
+- Fix sqs/sns case for aws sdk v2 parameter allowlist lookups
+[PR 373](https://github.com/aws/aws-xray-sdk-java/pull/373)
+- Fixing NoClassDefFoundError
+[PR 375](https://github.com/aws/aws-xray-sdk-java/pull/375)
+
 ## 2.13.0 - 2022-11-08
 - Oversampling Mitigation
 [PR 356](https://github.com/aws/aws-xray-sdk-java/pull/356)

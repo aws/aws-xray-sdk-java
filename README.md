@@ -143,6 +143,9 @@ public class WebConfig {
 ```
 The servlet filter will fail to serve incoming requests if a `SegmentNamingStrategy` is not supplied, either through web.xml init-params or through the constructor.
 
+##### Applications using `jakarta.servlet` or Spring 6
+Include from the Jakarta namespace. Example: `com.amazonaws.xray.javax.servlet.AWSXRayServletFilter`
+
 ##### Applications not using `javax.servlet` may include custom interceptors to begin and end trace segments
 
 Directly call `beginSegment` and `endSegment` as necessary. *Note:* this method requires additional work to ensure that the `X-Amzn-Trace-Id` header is properly propogated and sufficient information about the request and response is captured with the segment.
