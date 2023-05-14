@@ -26,11 +26,10 @@ import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.handlers.config.AWSOperationHandler;
 import com.amazonaws.xray.handlers.config.AWSOperationHandlerManifest;
 import com.amazonaws.xray.handlers.config.AWSServiceHandlerManifest;
-import com.amazonaws.xray.utils.StringTransform;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
@@ -68,10 +67,12 @@ public class TracingInterceptor implements ExecutionInterceptor {
     private static final Log logger = LogFactory.getLog(TracingInterceptor.class);
 
     private static final ObjectMapper MAPPER = new ObjectMapper()
-            .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 
+    private static final PropertyNamingStrategies.NamingBase SNAKE_CASE_NAMING_STRATEGY = (PropertyNamingStrategies.NamingBase) PropertyNamingStrategies.SNAKE_CASE;
+    
     private static final URL DEFAULT_OPERATION_PARAMETER_WHITELIST =
         TracingInterceptor.class.getResource("/com/amazonaws/xray/interceptors/DefaultOperationParameterWhitelist.json");
 
@@ -147,7 +148,7 @@ public class TracingInterceptor implements ExecutionInterceptor {
                 SdkRequest request = context.request();
                 Optional<Object> parameterValue = request.getValueForField(parameterName, Object.class);
                 if (parameterValue.isPresent()) {
-                    parameters.put(StringTransform.toSnakeCase(parameterName), parameterValue.get());
+                    parameters.put(SNAKE_CASE_NAMING_STRATEGY.translate(parameterName), parameterValue.get());
                 }
             });
         }
@@ -159,14 +160,14 @@ public class TracingInterceptor implements ExecutionInterceptor {
                     Optional<Map> parameterValue = request.getValueForField(key, Map.class);
                     if (parameterValue.isPresent()) {
                         String renameTo = descriptor.getRenameTo() != null ? descriptor.getRenameTo() : key;
-                        parameters.put(StringTransform.toSnakeCase(renameTo), parameterValue.get().keySet());
+                        parameters.put(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo), parameterValue.get().keySet());
                     }
                 } else if (descriptor.isList() && descriptor.shouldGetCount()) {
                     SdkRequest request = context.request();
                     Optional<List> parameterValue = request.getValueForField(key, List.class);
                     if (parameterValue.isPresent()) {
                         String renameTo = descriptor.getRenameTo() != null ? descriptor.getRenameTo() : key;
-                        parameters.put(StringTransform.toSnakeCase(renameTo), parameterValue.get().size());
+                        parameters.put(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo), parameterValue.get().size());
                     }
                 }
             });
@@ -189,7 +190,7 @@ public class TracingInterceptor implements ExecutionInterceptor {
                 SdkResponse response = context.response();
                 Optional<Object> parameterValue = response.getValueForField(parameterName, Object.class);
                 if (parameterValue.isPresent()) {
-                    parameters.put(StringTransform.toSnakeCase(parameterName), parameterValue.get());
+                    parameters.put(SNAKE_CASE_NAMING_STRATEGY.translate(parameterName), parameterValue.get());
                 }
             });
         }
@@ -201,14 +202,14 @@ public class TracingInterceptor implements ExecutionInterceptor {
                     Optional<Map> parameterValue = response.getValueForField(key, Map.class);
                     if (parameterValue.isPresent()) {
                         String renameTo = descriptor.getRenameTo() != null ? descriptor.getRenameTo() : key;
-                        parameters.put(StringTransform.toSnakeCase(renameTo), parameterValue.get().keySet());
+                        parameters.put(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo), parameterValue.get().keySet());
                     }
                 } else if (descriptor.isList() && descriptor.shouldGetCount()) {
                     SdkResponse response = context.response();
                     Optional<List> parameterValue = response.getValueForField(key, List.class);
                     if (parameterValue.isPresent()) {
                         String renameTo = descriptor.getRenameTo() != null ? descriptor.getRenameTo() : key;
-                        parameters.put(StringTransform.toSnakeCase(renameTo), parameterValue.get().size());
+                        parameters.put(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo), parameterValue.get().size());
                     }
                 }
             });
