@@ -76,6 +76,18 @@ class EntityTest {
         seg.serialize();  // Verify we don't crash here
     }
 
+    @Test
+    void testPrecursorIds() {
+        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test");
+        SubsegmentImpl subseg = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "test", seg);
+        subseg.addPrecursorId("myId1");
+        subseg.addPrecursorId("myId2");
+        String serializedSubSeg = subseg.serialize();
+
+        String expected = "\"precursor_ids\":[\"myId1\",\"myId2\"]";
+        assertThat(serializedSubSeg).contains(expected);
+    }
+
     static class EmptyBean {
         String otherField = "cerealization";
     }
