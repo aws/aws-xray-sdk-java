@@ -16,7 +16,15 @@
 package com.amazonaws.xray;
 
 import com.amazonaws.xray.emitters.Emitter;
+import com.amazonaws.xray.entities.Segment;
+import com.amazonaws.xray.entities.SegmentImpl;
+import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
+
+import java.util.Iterator;
+import java.util.Random;
+import java.util.Vector;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,4 +72,31 @@ class ConcurrencyTest {
         }
     }
 
+    @Test
+    public void testPrecursorIdConcurrency() throws Exception {
+        Segment seg = new SegmentImpl(AWSXRay.getGlobalRecorder(), "test");
+        SubsegmentImpl subseg = new SubsegmentImpl(AWSXRay.getGlobalRecorder(), "test", seg);
+
+        final long startTime = System.currentTimeMillis();
+
+        Thread thread1 = new Thread(() -> {
+            while (true) {
+                subseg.addPrecursorId("ID" + new Random().nextInt());
+            }
+        });
+        thread1.start();
+
+        Callable<Void> callable = (Callable) () -> {
+            while (System.currentTimeMillis() - startTime < TimeUnit.SECONDS.toMillis(1)) {
+                Iterator it = subseg.getPrecursorIds().iterator();
+                while (it.hasNext()) {
+                    it.next();
+                }
+            }
+            return null;
+        };
+        callable.call();
+
+        thread1.join();
+    }
 }
