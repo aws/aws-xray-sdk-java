@@ -20,10 +20,8 @@ import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.SegmentImpl;
 import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
-
 import java.util.Iterator;
 import java.util.Random;
-import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
