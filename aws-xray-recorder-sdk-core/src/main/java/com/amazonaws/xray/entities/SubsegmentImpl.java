@@ -20,8 +20,9 @@ import com.amazonaws.xray.internal.SamplingStrategyOverride;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -64,7 +65,7 @@ public class SubsegmentImpl extends EntityImpl implements Subsegment {
         super(creator, name);
         this.parentSegment = parentSegment;
         parentSegment.incrementReferenceCount();
-        this.precursorIds = new HashSet<>();
+        this.precursorIds = Collections.newSetFromMap(new ConcurrentHashMap<>());
         this.shouldPropagate = true;
 
         this.isSampled = samplingStrategyOverride == SamplingStrategyOverride.DISABLED ?
