@@ -19,7 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.amazonaws.xray.internal.UnsignedXrayClient;
 import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
+
+import java.lang.reflect.Method;
 import java.time.Clock;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -44,5 +48,36 @@ public class TargetPollerTest {
         poller.shutdown();
 
         assertThat(poller.getExecutor().isShutdown()).isTrue();
+    }
+
+    @Test
+    public void testInterval() throws Exception {
+        TargetPoller poller = new TargetPoller(client, manifest, Clock.systemUTC());
+
+        Method method = TargetPoller.class.getDeclaredMethod("getIntervalWithJitter");
+        method.setAccessible(true);
+
+        boolean nineSecondBucket = false;
+        boolean tenSecondBucket = false;
+        boolean elevenSecondBucket = false;
+
+        for (int i = 0; i < 1000 ;i++) {
+            long interval = (Long)method.invoke(poller);
+
+            if (interval/1000 == 9) {
+                nineSecondBucket = true;
+            } else if (interval/1000 == 10) {
+                tenSecondBucket = true;
+            } else if (interval/1000 == 11) {
+                elevenSecondBucket = true;
+            }
+
+            assertThat(interval).isLessThan(TimeUnit.SECONDS.toMillis(12));
+            assertThat(interval).isGreaterThanOrEqualTo(TimeUnit.SECONDS.toMillis(9));
+        }
+
+        assertThat(nineSecondBucket).isTrue();
+        assertThat(tenSecondBucket).isTrue();
+        assertThat(elevenSecondBucket).isTrue();
     }
 }
