@@ -19,11 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.amazonaws.xray.internal.UnsignedXrayClient;
 import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
-
 import java.lang.reflect.Method;
 import java.time.Clock;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -61,14 +59,14 @@ public class TargetPollerTest {
         boolean tenSecondBucket = false;
         boolean elevenSecondBucket = false;
 
-        for (int i = 0; i < 1000 ;i++) {
-            long interval = (Long)method.invoke(poller);
+        for (int i = 0; i < 1000; i++) {
+            long interval = (Long) method.invoke(poller);
 
-            if (interval/1000 == 9) {
+            if (interval / 1000 == 9) {
                 nineSecondBucket = true;
-            } else if (interval/1000 == 10) {
+            } else if (interval / 1000 == 10) {
                 tenSecondBucket = true;
-            } else if (interval/1000 == 11) {
+            } else if (interval / 1000 == 11) {
                 elevenSecondBucket = true;
             }
 
