@@ -35,8 +35,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class TargetPoller {
     private static final Log logger = LogFactory.getLog(TargetPoller.class);
-    private static final long PERIOD_MILLIS = TimeUnit.SECONDS.toMillis(10);
-    private static final long MAX_JITTER_MILLIS = 100;
+    private static final long PERIOD_MILLIS = TimeUnit.SECONDS.toMillis(9);
+    private static final long MAX_JITTER_MILLIS = TimeUnit.SECONDS.toMillis(3);
 
     private final UnsignedXrayClient client;
     private final CentralizedManifest manifest;
