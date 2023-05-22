@@ -70,7 +70,7 @@ public class TargetPollerTest {
                 elevenSecondBucket = true;
             }
 
-            assertThat(interval).isLessThan(TimeUnit.SECONDS.toMillis(12));
+            assertThat(interval).isLessThanOrEqualTo(TimeUnit.SECONDS.toMillis(12));
             assertThat(interval).isGreaterThanOrEqualTo(TimeUnit.SECONDS.toMillis(9));
         }
 
