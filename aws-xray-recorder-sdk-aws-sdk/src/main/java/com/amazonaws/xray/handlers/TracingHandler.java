@@ -39,7 +39,7 @@ import com.amazonaws.xray.handlers.config.AWSServiceHandlerManifest;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -60,7 +60,7 @@ public class TracingHandler extends RequestHandler2 {
     private static final Log logger = LogFactory.getLog(TracingHandler.class);
 
     private static final ObjectMapper MAPPER = new ObjectMapper()
-        .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
+        .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 
@@ -81,9 +81,9 @@ public class TracingHandler extends RequestHandler2 {
 
     private static final HandlerContextKey<Entity> ENTITY_KEY = new HandlerContextKey<>("AWS X-Ray Entity");
     private static final HandlerContextKey<Long> EXECUTING_THREAD_KEY = new HandlerContextKey<>("AWS X-Ray Executing Thread ID");
-
-    private static final String TO_SNAKE_CASE_REGEX = "([a-z])([A-Z]+)";
-    private static final String TO_SNAKE_CASE_REPLACE = "$1_$2";
+    
+    private static final PropertyNamingStrategies.NamingBase
+            SNAKE_CASE_NAMING_STRATEGY = (PropertyNamingStrategies.NamingBase) PropertyNamingStrategies.SNAKE_CASE;
 
     private final String accountId;
 
@@ -206,10 +206,6 @@ public class TracingHandler extends RequestHandler2 {
         return ret;
     }
 
-    private static String toSnakeCase(String camelCase) {
-        return camelCase.replaceAll(TO_SNAKE_CASE_REGEX, TO_SNAKE_CASE_REPLACE).toLowerCase();
-    }
-
     private HashMap<String, Object> extractRequestParameters(Request<?> request) {
         HashMap<String, Object> ret = new HashMap<>();
         if (null == awsServiceHandlerManifest) {
@@ -235,7 +231,7 @@ public class TracingHandler extends RequestHandler2 {
                     Object parameterValue = originalRequest
                         .getClass().getMethod(GETTER_METHOD_NAME_PREFIX + parameterName).invoke(originalRequest);
                     if (null != parameterValue) {
-                        ret.put(TracingHandler.toSnakeCase(parameterName), parameterValue);
+                        ret.put(SNAKE_CASE_NAMING_STRATEGY.translate(parameterName), parameterValue);
                     }
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     logger.error("Error getting request parameter: " + parameterName, e);
@@ -255,7 +251,7 @@ public class TracingHandler extends RequestHandler2 {
                         if (null != parameterValue) {
                             String renameTo =
                                 null != requestDescriptor.getRenameTo() ? requestDescriptor.getRenameTo() : requestKeyName;
-                            ret.put(TracingHandler.toSnakeCase(renameTo), parameterValue.keySet());
+                            ret.put(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo), parameterValue.keySet());
                         }
                     } else if (requestDescriptor.isList() && requestDescriptor.shouldGetCount()) {
                         @SuppressWarnings("unchecked")
@@ -265,7 +261,7 @@ public class TracingHandler extends RequestHandler2 {
                         if (null != parameterValue) {
                             String renameTo =
                                 null != requestDescriptor.getRenameTo() ? requestDescriptor.getRenameTo() : requestKeyName;
-                            ret.put(TracingHandler.toSnakeCase(renameTo), parameterValue.size());
+                            ret.put(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo), parameterValue.size());
                         }
                     }
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassCastException e) {
@@ -300,7 +296,7 @@ public class TracingHandler extends RequestHandler2 {
                     Object parameterValue = response
                         .getClass().getMethod(GETTER_METHOD_NAME_PREFIX + parameterName).invoke(response);
                     if (null != parameterValue) {
-                        ret.put(TracingHandler.toSnakeCase(parameterName), parameterValue);
+                        ret.put(SNAKE_CASE_NAMING_STRATEGY.translate(parameterName), parameterValue);
                     }
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     logger.error("Error getting response parameter: " + parameterName, e);
@@ -319,7 +315,7 @@ public class TracingHandler extends RequestHandler2 {
                         if (null != parameterValue) {
                             String renameTo =
                                 null != responseDescriptor.getRenameTo() ? responseDescriptor.getRenameTo() : responseKeyName;
-                            ret.put(TracingHandler.toSnakeCase(renameTo), parameterValue.keySet());
+                            ret.put(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo), parameterValue.keySet());
                         }
                     } else if (responseDescriptor.isList() && responseDescriptor.shouldGetCount()) {
                         @SuppressWarnings("unchecked")
@@ -329,7 +325,7 @@ public class TracingHandler extends RequestHandler2 {
                         if (null != parameterValue) {
                             String renameTo =
                                 null != responseDescriptor.getRenameTo() ? responseDescriptor.getRenameTo() : responseKeyName;
-                            ret.put(TracingHandler.toSnakeCase(renameTo), parameterValue.size());
+                            ret.put(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo), parameterValue.size());
                         }
                     }
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassCastException e) {
