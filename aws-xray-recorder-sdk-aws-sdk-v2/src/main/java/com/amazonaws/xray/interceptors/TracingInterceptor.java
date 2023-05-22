@@ -71,7 +71,8 @@ public class TracingInterceptor implements ExecutionInterceptor {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 
-    private static final PropertyNamingStrategies.NamingBase SNAKE_CASE_NAMING_STRATEGY = (PropertyNamingStrategies.NamingBase) PropertyNamingStrategies.SNAKE_CASE;
+    private static final PropertyNamingStrategies.NamingBase
+            SNAKE_CASE_NAMING_STRATEGY = (PropertyNamingStrategies.NamingBase) PropertyNamingStrategies.SNAKE_CASE;
     
     private static final URL DEFAULT_OPERATION_PARAMETER_WHITELIST =
         TracingInterceptor.class.getResource("/com/amazonaws/xray/interceptors/DefaultOperationParameterWhitelist.json");

@@ -40,7 +40,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -83,7 +82,8 @@ public class TracingHandler extends RequestHandler2 {
     private static final HandlerContextKey<Entity> ENTITY_KEY = new HandlerContextKey<>("AWS X-Ray Entity");
     private static final HandlerContextKey<Long> EXECUTING_THREAD_KEY = new HandlerContextKey<>("AWS X-Ray Executing Thread ID");
     
-    private static final PropertyNamingStrategies.NamingBase SNAKE_CASE_NAMING_STRATEGY = (PropertyNamingStrategies.NamingBase) PropertyNamingStrategies.SNAKE_CASE;
+    private static final PropertyNamingStrategies.NamingBase
+            SNAKE_CASE_NAMING_STRATEGY = (PropertyNamingStrategies.NamingBase) PropertyNamingStrategies.SNAKE_CASE;
 
     private final String accountId;
 
