@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 @Deprecated
 @SuppressWarnings("checkstyle:HideUtilityClassConstructor")
 public class StringTransform {
-    private static final Pattern REGEX = Pattern.compile("([a-z])([A-Z]+)");
+    private static final Pattern REGEX = Pattern.compile("([a-z])([A-Z])");
     private static final String REPLACE = "$1_$2";
 
     public static String toSnakeCase(String camelCase) {
