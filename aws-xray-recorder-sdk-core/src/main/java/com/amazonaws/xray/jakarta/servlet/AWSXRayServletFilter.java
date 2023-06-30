@@ -68,7 +68,7 @@ public class AWSXRayServletFilter implements jakarta.servlet.Filter {
     }
 
     public AWSXRayServletFilter(String fixedSegmentName) {
-        this(new FixedSegmentNamingStrategy(fixedSegmentName));
+        this(SegmentNamingStrategy.fixed(fixedSegmentName));
     }
 
     public AWSXRayServletFilter(@Nullable SegmentNamingStrategy segmentNamingStrategy) {
@@ -158,12 +158,12 @@ public class AWSXRayServletFilter implements jakarta.servlet.Filter {
         String dynamicNamingRecognizedHosts = config.getInitParameter("dynamicNamingRecognizedHosts");
         if (StringValidator.isNotNullOrBlank(dynamicNamingFallbackName)) {
             if (StringValidator.isNotNullOrBlank(dynamicNamingRecognizedHosts)) {
-                segmentNamingStrategy = new DynamicSegmentNamingStrategy(dynamicNamingFallbackName, dynamicNamingRecognizedHosts);
+                segmentNamingStrategy = SegmentNamingStrategy.dynamic(dynamicNamingFallbackName, dynamicNamingRecognizedHosts);
             } else {
-                segmentNamingStrategy = new DynamicSegmentNamingStrategy(dynamicNamingFallbackName);
+                segmentNamingStrategy = SegmentNamingStrategy.dynamic(dynamicNamingFallbackName);
             }
         } else if (StringValidator.isNotNullOrBlank(fixedName)) {
-            segmentNamingStrategy = new FixedSegmentNamingStrategy(fixedName);
+            segmentNamingStrategy = SegmentNamingStrategy.fixed(fixedName);
         } else if (null == segmentNamingStrategy) {
             throw new ServletException(
                 "The AWSXRayServletFilter requires either a fixedName init-param or an instance of SegmentNamingStrategy. "
