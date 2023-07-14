@@ -164,8 +164,12 @@ public class AWSXRayRecorder {
         }
 
         segmentContextResolverChain = new SegmentContextResolverChain();
-        segmentContextResolverChain.addResolver(new LambdaSegmentContextResolver());
-        segmentContextResolverChain.addResolver(new ThreadLocalSegmentContextResolver());
+        LambdaSegmentContextResolver lambdaSegmentContextResolver = new LambdaSegmentContextResolver();
+        if (lambdaSegmentContextResolver.resolve() != null) {
+            segmentContextResolverChain.addResolver(lambdaSegmentContextResolver);
+        } else {
+            segmentContextResolverChain.addResolver(new ThreadLocalSegmentContextResolver());
+        }
 
         segmentListeners = new ArrayList<>();
 
