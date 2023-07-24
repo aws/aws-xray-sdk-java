@@ -967,10 +967,6 @@ public class AWSXRayRecorderTest {
 
     @Test
     public void testMalformedTraceId() {
-        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
-            .withSamplingStrategy(new NoSamplingStrategy())
-            .build();
-
         TraceHeader malformedHeader = TraceHeader.fromString("malformedTraceID");
 
         PowerMockito.stub(PowerMockito.method(
@@ -980,6 +976,10 @@ public class AWSXRayRecorderTest {
         PowerMockito.stub(PowerMockito.method(
                 LambdaSegmentContextResolver.class, "getLambdaTaskRoot"))
                 .toReturn("/var/task");
+
+        AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
+            .withSamplingStrategy(new NoSamplingStrategy())
+            .build();
 
         recorder.beginSubsegment("Test");
 
