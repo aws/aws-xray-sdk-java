@@ -73,17 +73,17 @@ public class TracingHandlerLambdaTest {
     public void testSamplingOverrideTrueInLambda() {
         Emitter mockedEmitted = Mockito.mock(DefaultEmitter.class);
 
+        PowerMockito.stub(PowerMockito.method(
+                LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);
+        PowerMockito.stub(PowerMockito.method(
+                LambdaSegmentContextResolver.class, "getLambdaTaskRoot")).toReturn("/var/task");
+
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
                 .withSamplingStrategy(new NoSamplingStrategy())
                 .withEmitter(mockedEmitted)
                 .build();
 
         TraceHeader header = TraceHeader.fromString(TRACE_HEADER);
-
-        PowerMockito.stub(PowerMockito.method(
-                LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);
-        PowerMockito.stub(PowerMockito.method(
-                LambdaSegmentContextResolver.class, "getLambdaTaskRoot")).toReturn("/var/task");
 
         Mockito.doAnswer(invocation -> { return true; }).when(mockedEmitted).sendSubsegment(any());
 
@@ -95,17 +95,17 @@ public class TracingHandlerLambdaTest {
     public void testSamplingOverrideMixedInLambda() {
         Emitter mockedEmitted = Mockito.mock(DefaultEmitter.class);
 
+        PowerMockito.stub(PowerMockito.method(
+                LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);
+        PowerMockito.stub(PowerMockito.method(
+                LambdaSegmentContextResolver.class, "getLambdaTaskRoot")).toReturn("/var/task");
+
         AWSXRayRecorder recorder = AWSXRayRecorderBuilder.standard()
                 .withSamplingStrategy(new NoSamplingStrategy())
                 .withEmitter(mockedEmitted)
                 .build();
 
         TraceHeader header = TraceHeader.fromString(TRACE_HEADER);
-
-        PowerMockito.stub(PowerMockito.method(
-                LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);
-        PowerMockito.stub(PowerMockito.method(
-                LambdaSegmentContextResolver.class, "getLambdaTaskRoot")).toReturn("/var/task");
 
         Mockito.doAnswer(invocation -> { return true; }).when(mockedEmitted).sendSubsegment(any());
 
