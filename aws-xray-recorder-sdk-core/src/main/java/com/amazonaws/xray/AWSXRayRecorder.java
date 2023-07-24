@@ -167,10 +167,10 @@ public class AWSXRayRecorder {
         LambdaSegmentContextResolver lambdaSegmentContextResolver = new LambdaSegmentContextResolver();
         if (lambdaSegmentContextResolver.resolve() != null) {
             segmentContextResolverChain.addResolver(lambdaSegmentContextResolver);
+        } else {
+            segmentContextResolverChain.addResolver(new ThreadLocalSegmentContextResolver());
         }
         
-        segmentContextResolverChain.addResolver(new ThreadLocalSegmentContextResolver());
-
         segmentListeners = new ArrayList<>();
 
         awsRuntimeContext = new ConcurrentHashMap<>();
