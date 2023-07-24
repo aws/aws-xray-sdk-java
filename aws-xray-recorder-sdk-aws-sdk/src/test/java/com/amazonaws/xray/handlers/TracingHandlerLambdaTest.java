@@ -73,6 +73,8 @@ public class TracingHandlerLambdaTest {
     public void testSamplingOverrideTrueInLambda() {
         Emitter mockedEmitted = Mockito.mock(DefaultEmitter.class);
 
+        TraceHeader header = TraceHeader.fromString(TRACE_HEADER);
+
         PowerMockito.stub(PowerMockito.method(
                 LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);
         PowerMockito.stub(PowerMockito.method(
@@ -82,8 +84,6 @@ public class TracingHandlerLambdaTest {
                 .withSamplingStrategy(new NoSamplingStrategy())
                 .withEmitter(mockedEmitted)
                 .build();
-
-        TraceHeader header = TraceHeader.fromString(TRACE_HEADER);
 
         Mockito.doAnswer(invocation -> { return true; }).when(mockedEmitted).sendSubsegment(any());
 
@@ -95,6 +95,8 @@ public class TracingHandlerLambdaTest {
     public void testSamplingOverrideMixedInLambda() {
         Emitter mockedEmitted = Mockito.mock(DefaultEmitter.class);
 
+        TraceHeader header = TraceHeader.fromString(TRACE_HEADER);
+
         PowerMockito.stub(PowerMockito.method(
                 LambdaSegmentContext.class, "getTraceHeaderFromEnvironment")).toReturn(header);
         PowerMockito.stub(PowerMockito.method(
@@ -104,8 +106,6 @@ public class TracingHandlerLambdaTest {
                 .withSamplingStrategy(new NoSamplingStrategy())
                 .withEmitter(mockedEmitted)
                 .build();
-
-        TraceHeader header = TraceHeader.fromString(TRACE_HEADER);
 
         Mockito.doAnswer(invocation -> { return true; }).when(mockedEmitted).sendSubsegment(any());
 
