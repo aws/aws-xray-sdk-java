@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -59,7 +59,7 @@ public abstract class EntityImpl implements Entity {
     @Deprecated
     protected static final ObjectMapper mapper = new ObjectMapper()
         .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-        .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
+        .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
         .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
     private static final Log logger = LogFactory.getLog(EntityImpl.class);

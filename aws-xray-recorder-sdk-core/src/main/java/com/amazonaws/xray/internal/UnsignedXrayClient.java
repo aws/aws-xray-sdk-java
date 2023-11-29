@@ -28,7 +28,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyName;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -62,8 +62,7 @@ public class UnsignedXrayClient {
     // Visible for testing
     static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .setSerializationInclusion(Include.NON_EMPTY)
-            // Use deprecated field to support older Jackson versions for now.
-            .setPropertyNamingStrategy(PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE)
+            .setPropertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
             .registerModule(new SimpleModule().addDeserializer(Date.class, new FloatDateDeserializer()))
             .setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
                 @Override

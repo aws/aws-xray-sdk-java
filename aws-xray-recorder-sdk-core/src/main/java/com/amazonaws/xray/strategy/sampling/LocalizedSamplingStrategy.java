@@ -20,7 +20,7 @@ import com.amazonaws.xray.strategy.sampling.rule.SamplingRule;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class LocalizedSamplingStrategy implements SamplingStrategy {
 
     private static final ObjectMapper MAPPER =
         new ObjectMapper()
-            .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
+            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 
