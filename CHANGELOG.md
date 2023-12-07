@@ -1,5 +1,19 @@
 # Change Log
 
+## 2.15.0 - 2023-12-07
+- Remove usage of deprecated jackson property
+  [PR 391](https://github.com/aws/aws-xray-sdk-java/pull/391)
+- Optimize default resolver chain construction
+  [PR 387](https://github.com/aws/aws-xray-sdk-java/pull/387)
+- Refactored AWSXRayServletFilter - not to use deprecated method for strategy creation
+  [PR 386](https://github.com/aws/aws-xray-sdk-java/pull/386)
+- Bumping grgit version
+  [PR 385](https://github.com/aws/aws-xray-sdk-java/pull/385)
+- Use jackson to snake case for better performance
+  [PR 382](https://github.com/aws/aws-xray-sdk-java/pull/382)
+- Thread safety
+  [PR 383](https://github.com/aws/aws-xray-sdk-java/pull/383)
+
 ## 2.14.0 - 2023-04-13
 - Add support for Jakarta and Spring 6
 [PR 372](https://github.com/aws/aws-xray-sdk-java/pull/372)
