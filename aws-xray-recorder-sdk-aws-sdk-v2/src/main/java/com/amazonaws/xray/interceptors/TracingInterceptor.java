@@ -149,7 +149,7 @@ public class TracingInterceptor implements ExecutionInterceptor {
                 SdkRequest request = context.request();
                 Optional<Object> parameterValue = request.getValueForField(parameterName, Object.class);
                 if (parameterValue.isPresent()) {
-                    parameters.put(SNAKE_CASE_NAMING_STRATEGY.translate(parameterName), parameterValue.get());
+                    parameters.put(normalizeParameterName(SNAKE_CASE_NAMING_STRATEGY.translate(parameterName)), parameterValue.get());
                 }
             });
         }
@@ -161,20 +161,34 @@ public class TracingInterceptor implements ExecutionInterceptor {
                     Optional<Map> parameterValue = request.getValueForField(key, Map.class);
                     if (parameterValue.isPresent()) {
                         String renameTo = descriptor.getRenameTo() != null ? descriptor.getRenameTo() : key;
-                        parameters.put(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo), parameterValue.get().keySet());
+                        parameters.put(normalizeParameterName(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo)), parameterValue.get().keySet());
                     }
                 } else if (descriptor.isList() && descriptor.shouldGetCount()) {
                     SdkRequest request = context.request();
                     Optional<List> parameterValue = request.getValueForField(key, List.class);
                     if (parameterValue.isPresent()) {
                         String renameTo = descriptor.getRenameTo() != null ? descriptor.getRenameTo() : key;
-                        parameters.put(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo), parameterValue.get().size());
+                        parameters.put(normalizeParameterName(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo)), parameterValue.get().size());
                     }
                 }
             });
         }
 
         return parameters;
+    }
+
+    /**
+     * @param parameterName
+     *      The name of the parameter to normalize.
+     * @return
+     *      The field key for a parameter that the X-Ray backend expects.
+     */
+    private String normalizeParameterName(String parameterName) {
+        // AWS SDK V2 changed the field name from BucketName to Bucket.
+        if (parameterName.equals("bucket")) {
+            return "bucket_name";
+        }
+        return parameterName;
     }
 
     private HashMap<String, Object> extractResponseParameters(
@@ -191,7 +205,7 @@ public class TracingInterceptor implements ExecutionInterceptor {
                 SdkResponse response = context.response();
                 Optional<Object> parameterValue = response.getValueForField(parameterName, Object.class);
                 if (parameterValue.isPresent()) {
-                    parameters.put(SNAKE_CASE_NAMING_STRATEGY.translate(parameterName), parameterValue.get());
+                    parameters.put(normalizeParameterName(SNAKE_CASE_NAMING_STRATEGY.translate(parameterName)), parameterValue.get());
                 }
             });
         }
@@ -203,14 +217,14 @@ public class TracingInterceptor implements ExecutionInterceptor {
                     Optional<Map> parameterValue = response.getValueForField(key, Map.class);
                     if (parameterValue.isPresent()) {
                         String renameTo = descriptor.getRenameTo() != null ? descriptor.getRenameTo() : key;
-                        parameters.put(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo), parameterValue.get().keySet());
+                        parameters.put(normalizeParameterName(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo)), parameterValue.get().keySet());
                     }
                 } else if (descriptor.isList() && descriptor.shouldGetCount()) {
                     SdkResponse response = context.response();
                     Optional<List> parameterValue = response.getValueForField(key, List.class);
                     if (parameterValue.isPresent()) {
                         String renameTo = descriptor.getRenameTo() != null ? descriptor.getRenameTo() : key;
-                        parameters.put(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo), parameterValue.get().size());
+                        parameters.put(normalizeParameterName(SNAKE_CASE_NAMING_STRATEGY.translate(renameTo)), parameterValue.get().size());
                     }
                 }
             });

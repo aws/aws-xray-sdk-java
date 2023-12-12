@@ -15,6 +15,7 @@ dependencies {
     testImplementation("software.amazon.awssdk:lambda:2.15.20")
     testImplementation("software.amazon.awssdk:sqs:2.15.20")
     testImplementation("software.amazon.awssdk:sns:2.15.20")
+    testImplementation("software.amazon.awssdk:s3:2.15.20")
 }
 
 tasks.jar {
