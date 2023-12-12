@@ -36,6 +36,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
@@ -47,6 +48,7 @@ import software.amazon.awssdk.core.async.EmptyPublisher;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.core.interceptor.Context;
 import software.amazon.awssdk.core.interceptor.ExecutionAttributes;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.http.AbortableInputStream;
 import software.amazon.awssdk.http.ExecutableHttpRequest;
 import software.amazon.awssdk.http.HttpExecuteResponse;
@@ -62,6 +64,12 @@ import software.amazon.awssdk.services.dynamodb.model.ListTablesRequest;
 import software.amazon.awssdk.services.lambda.LambdaAsyncClient;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -485,6 +493,108 @@ public class TracingInterceptorTest {
         verify(mockRequest.toBuilder(), never()).appendHeader(anyString(), anyString());
     }
 
+    @Test
+    public void testS3() throws Exception {
+        SdkHttpClient mockClient = mockClientWithSuccessResponse("");
+
+        try (S3Client s3 = s3Client(mockClient)) {
+            String bucket = "test-bucket";
+            String key = "test-key";
+
+            Segment segment = AWSXRay.beginSegment("test");
+
+            //Create a Bucket
+            CreateBucketRequest createBucketRequest = CreateBucketRequest.builder()
+                .bucket(bucket)
+                .build();
+
+            s3.createBucket(createBucketRequest);
+
+            // Put an Object
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build();
+
+            s3.putObject(putObjectRequest, RequestBody.fromString("This is a test from java"));
+
+            // Get an Object
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build();
+
+            s3.getObject(getObjectRequest);
+
+            // Delete an Object
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build();
+
+            s3.deleteObject(deleteObjectRequest);
+
+            Assertions.assertEquals(4, segment.getSubsegments().size());
+
+            Assertions.assertEquals("CreateBucket", segment.getSubsegments().get(0).getAws().get("operation"));
+            Assertions.assertEquals(bucket, segment.getSubsegments().get(0).getAws().get("bucket_name"));
+
+            Assertions.assertEquals("PutObject", segment.getSubsegments().get(1).getAws().get("operation"));
+            Assertions.assertEquals(bucket, segment.getSubsegments().get(1).getAws().get("bucket_name"));
+            Assertions.assertEquals(key, segment.getSubsegments().get(1).getAws().get("key"));
+
+            Assertions.assertEquals("GetObject", segment.getSubsegments().get(2).getAws().get("operation"));
+            Assertions.assertEquals(bucket, segment.getSubsegments().get(2).getAws().get("bucket_name"));
+            Assertions.assertEquals(key, segment.getSubsegments().get(2).getAws().get("key"));
+
+            Assertions.assertEquals("DeleteObject", segment.getSubsegments().get(3).getAws().get("operation"));
+            Assertions.assertEquals(bucket, segment.getSubsegments().get(3).getAws().get("bucket_name"));
+            Assertions.assertEquals(key, segment.getSubsegments().get(3).getAws().get("key"));
+        }
+    }
+
+    @Test
+    public void testS3ListObjects() throws Exception {
+        SdkHttpClient mockClient = mockClientWithSuccessResponse(
+                "<ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">\n" +
+                "    <Name>bucket</Name>\n" +
+                "    <Prefix/>\n" +
+                "    <Marker/>\n" +
+                "    <MaxKeys>1000</MaxKeys>\n" +
+                "    <IsTruncated>false</IsTruncated>\n" +
+                "    <Contents>\n" +
+                "        <Key>my-image.jpg</Key>\n" +
+                "        <LastModified>2009-10-12T17:50:30.000Z</LastModified>\n" +
+                "        <ETag>\"fba9dede5f27731c9771645a39863328\"</ETag>\n" +
+                "        <Size>434234</Size>\n" +
+                "        <StorageClass>STANDARD</StorageClass>\n" +
+                "        <Owner>\n" +
+                "            <ID>75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a</ID>\n" +
+                "            <DisplayName>xray_test@amazon.com</DisplayName>\n" +
+                "        </Owner>\n" +
+                "    </Contents>\n" +
+                "</ListBucketResult>");
+
+        try (S3Client s3 = s3Client(mockClient)) {
+            String bucket = "test-bucket";
+
+            // List Objects
+            ListObjectsRequest listObjectsRequest = ListObjectsRequest.builder()
+                    .bucket(bucket)
+                    .build();
+
+            s3.listObjects(listObjectsRequest);
+
+            Segment segment = AWSXRay.getCurrentSegment();
+
+            Assertions.assertEquals(1, segment.getSubsegments().size());
+
+            Assertions.assertEquals("ListObjects", segment.getSubsegments().get(0).getAws().get("operation"));
+            Assertions.assertEquals(bucket, segment.getSubsegments().get(0).getAws().get("bucket_name"));
+
+        }
+    }
+
     private SdkHttpClient mockSdkHttpClient(SdkHttpResponse response) throws Exception {
         return mockSdkHttpClient(response, "OK");
     }
@@ -598,6 +708,21 @@ public class TracingInterceptorTest {
 
     private static SnsClient snsClient(SdkHttpClient mockClient) {
         return SnsClient.builder()
+                .httpClient(mockClient)
+                .endpointOverride(URI.create("http://example.com"))
+                .region(Region.of("us-west-42"))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsSessionCredentials.create("key", "secret", "session")
+                ))
+                .overrideConfiguration(ClientOverrideConfiguration.builder()
+                        .addExecutionInterceptor(new TracingInterceptor())
+                        .build()
+                )
+                .build();
+    }
+
+    private static S3Client s3Client(SdkHttpClient mockClient) {
+        return S3Client.builder()
                 .httpClient(mockClient)
                 .endpointOverride(URI.create("http://example.com"))
                 .region(Region.of("us-west-42"))
