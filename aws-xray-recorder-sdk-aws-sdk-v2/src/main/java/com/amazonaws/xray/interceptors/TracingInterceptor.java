@@ -221,8 +221,8 @@ public class TracingInterceptor implements ExecutionInterceptor {
                     Optional<Map> parameterValue = response.getValueForField(key, Map.class);
                     if (parameterValue.isPresent()) {
                         String renameTo = descriptor.getRenameTo() != null ? descriptor.getRenameTo() : key;
-                        parameters.put(normalizeParameterName(S
-                                NAKE_CASE_NAMING_STRATEGY.translate(renameTo)), parameterValue.get().keySet());
+                        parameters.put(normalizeParameterName(
+                                SNAKE_CASE_NAMING_STRATEGY.translate(renameTo)), parameterValue.get().keySet());
                     }
                 } else if (descriptor.isList() && descriptor.shouldGetCount()) {
                     SdkResponse response = context.response();
