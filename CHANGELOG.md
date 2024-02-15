@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.15.1 - 2024-02-15
+- Fixing S3 bucket name extraction for AWS SDK V2
+  [PR 393](https://github.com/aws/aws-xray-sdk-java/pull/393)
+
 ## 2.15.0 - 2023-12-07
 - Remove usage of deprecated jackson property
   [PR 391](https://github.com/aws/aws-xray-sdk-java/pull/391)
