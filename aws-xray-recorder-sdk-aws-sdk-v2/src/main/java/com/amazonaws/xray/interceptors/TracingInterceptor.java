@@ -64,6 +64,9 @@ public class TracingInterceptor implements ExecutionInterceptor {
     // TODO(anuraaga): Make private in next major version and rename.
     public static final ExecutionAttribute<Subsegment> entityKey = new ExecutionAttribute("AWS X-Ray Entity");
 
+    // Make sure only one xray interceptor takes effect.
+    private static final ExecutionAttribute<TracingInterceptor> XRAY_INTERCEPTOR_KEY = new ExecutionAttribute("AWS X-Ray Interceptor");
+
     private static final Log logger = LogFactory.getLog(TracingInterceptor.class);
 
     private static final ObjectMapper MAPPER = new ObjectMapper()
@@ -239,8 +242,26 @@ public class TracingInterceptor implements ExecutionInterceptor {
         return parameters;
     }
 
+    private boolean isDuplicateInterceptor(ExecutionAttributes executionAttributes) {
+        if (executionAttributes.getAttribute(XRAY_INTERCEPTOR_KEY) == null) {
+            executionAttributes.putAttribute(XRAY_INTERCEPTOR_KEY, this);
+            return false;
+        }
+
+        if (executionAttributes.getAttribute(XRAY_INTERCEPTOR_KEY) != this) {
+            return true;
+        }
+
+        return false;
+    }
+
     @Override
     public void beforeExecution(Context.BeforeExecution context, ExecutionAttributes executionAttributes) {
+        if (isDuplicateInterceptor(executionAttributes)) {
+            logger.debug("X-Ray TracingInterceptor already exists.");
+            return;
+        }
+
         AWSXRayRecorder recorder = getRecorder();
         Entity origin = recorder.getTraceEntity();
 
@@ -265,19 +286,26 @@ public class TracingInterceptor implements ExecutionInterceptor {
     @Override
     public SdkHttpRequest modifyHttpRequest(Context.ModifyHttpRequest context, ExecutionAttributes executionAttributes) {
         SdkHttpRequest httpRequest = context.httpRequest();
+        if (isDuplicateInterceptor(executionAttributes)) {
+            return httpRequest;
+        }
 
         Subsegment subsegment = executionAttributes.getAttribute(entityKey);
         if (!subsegment.shouldPropagate()) {
             return httpRequest;
         }
 
-        return httpRequest.toBuilder().appendHeader(
+        return httpRequest.toBuilder().putHeader(
                 TraceHeader.HEADER_KEY,
                 TraceHeader.fromEntity(subsegment).toString()).build();
     }
 
     @Override
     public void beforeTransmission(Context.BeforeTransmission context, ExecutionAttributes executionAttributes) {
+        if (isDuplicateInterceptor(executionAttributes)) {
+            return;
+        }
+
         Subsegment subsegment = executionAttributes.getAttribute(entityKey);
         if (subsegment == null) {
             return;
@@ -293,6 +321,10 @@ public class TracingInterceptor implements ExecutionInterceptor {
 
     @Override
     public void afterExecution(Context.AfterExecution context, ExecutionAttributes executionAttributes) {
+        if (isDuplicateInterceptor(executionAttributes)) {
+            return;
+        }
+
         Subsegment subsegment = executionAttributes.getAttribute(entityKey);
         if (subsegment == null) {
             return;
@@ -307,6 +339,10 @@ public class TracingInterceptor implements ExecutionInterceptor {
 
     @Override
     public void onExecutionFailure(Context.FailedExecution context, ExecutionAttributes executionAttributes) {
+        if (isDuplicateInterceptor(executionAttributes)) {
+            return;
+        }
+
         Subsegment subsegment = executionAttributes.getAttribute(entityKey);
         if (subsegment == null) {
             return;
