@@ -65,7 +65,8 @@ public class TracingInterceptor implements ExecutionInterceptor {
     public static final ExecutionAttribute<Subsegment> entityKey = new ExecutionAttribute("AWS X-Ray Entity");
 
     // Make sure only one xray interceptor takes effect.
-    private static final ExecutionAttribute<TracingInterceptor> XRAY_INTERCEPTOR_KEY = new ExecutionAttribute("AWS X-Ray Interceptor");
+    private static final ExecutionAttribute<TracingInterceptor> XRAY_INTERCEPTOR_KEY =
+            new ExecutionAttribute("AWS X-Ray Interceptor");
 
     private static final Log logger = LogFactory.getLog(TracingInterceptor.class);
 
