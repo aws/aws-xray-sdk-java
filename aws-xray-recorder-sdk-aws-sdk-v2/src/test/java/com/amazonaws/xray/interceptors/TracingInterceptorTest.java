@@ -99,6 +99,44 @@ public class TracingInterceptorTest {
     }
 
     @Test
+    public void testDuplicateInterceptor() throws Exception {
+        SdkHttpClient mockClient = mockSdkHttpClient(generateLambdaInvokeResponse(400));
+        LambdaClient client = lambdaClientDupInterceptor(mockClient);
+
+        Segment segment = AWSXRay.getCurrentSegment();
+        try {
+            client.invoke(InvokeRequest.builder()
+                    .functionName("testFunctionName")
+                    .build()
+            );
+        } catch (Exception e) {
+            // ignore SDK errors
+        } finally {
+            Assert.assertEquals(1, segment.getSubsegments().size());
+            Subsegment subsegment = segment.getSubsegments().get(0);
+            Map<String, Object> awsStats = subsegment.getAws();
+            @SuppressWarnings("unchecked")
+            Map<String, Object> httpResponseStats = (Map<String, Object>) subsegment.getHttp().get("response");
+            Cause cause = subsegment.getCause();
+
+            Assert.assertEquals("Invoke", awsStats.get("operation"));
+            Assert.assertEquals("testFunctionName", awsStats.get("function_name"));
+            Assert.assertEquals("1111-2222-3333-4444", awsStats.get("request_id"));
+            Assert.assertEquals("extended", awsStats.get("id_2"));
+            Assert.assertEquals("us-west-42", awsStats.get("region"));
+            Assert.assertEquals(0, awsStats.get("retries"));
+            Assert.assertEquals(2L, httpResponseStats.get("content_length"));
+            Assert.assertEquals(400, httpResponseStats.get("status"));
+            Assert.assertEquals(false, subsegment.isInProgress());
+            Assert.assertEquals(true, subsegment.isError());
+            Assert.assertEquals(false, subsegment.isThrottle());
+            Assert.assertEquals(false, subsegment.isFault());
+            Assert.assertEquals(1, cause.getExceptions().size());
+            Assert.assertEquals(true, cause.getExceptions().get(0).isRemote());
+        }
+    }
+
+    @Test
     public void testResponseDescriptors() throws Exception {
         String responseBody = "{\"LastEvaluatedTableName\":\"baz\",\"TableNames\":[\"foo\",\"bar\",\"baz\"]}";
         SdkHttpResponse mockResponse = SdkHttpResponse.builder()
@@ -490,7 +528,7 @@ public class TracingInterceptorTest {
 
         interceptor.modifyHttpRequest(context, attributes);
 
-        verify(mockRequest.toBuilder(), never()).appendHeader(anyString(), anyString());
+        verify(mockRequest.toBuilder(), never()).putHeader(anyString(), anyString());
     }
 
     @Test
@@ -655,6 +693,22 @@ public class TracingInterceptorTest {
                         AwsSessionCredentials.create("key", "secret", "session")
                 ))
                 .overrideConfiguration(ClientOverrideConfiguration.builder()
+                        .addExecutionInterceptor(new TracingInterceptor())
+                        .build()
+                )
+                .build();
+    }
+
+    private static LambdaClient lambdaClientDupInterceptor(SdkHttpClient mockClient) {
+        return LambdaClient.builder()
+                .httpClient(mockClient)
+                .endpointOverride(URI.create("http://example.com"))
+                .region(Region.of("us-west-42"))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsSessionCredentials.create("key", "secret", "session")
+                ))
+                .overrideConfiguration(ClientOverrideConfiguration.builder()
+                        .addExecutionInterceptor(new TracingInterceptor())
                         .addExecutionInterceptor(new TracingInterceptor())
                         .build()
                 )
