@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.15.2 - 2024-03-08
+- Fixed TracingInterceptor to take effect only one time
+  [PR 399](https://github.com/aws/aws-xray-sdk-java/pull/399)
+
 ## 2.15.1 - 2024-02-15
 - Fixing S3 bucket name extraction for AWS SDK V2
   [PR 393](https://github.com/aws/aws-xray-sdk-java/pull/393)
