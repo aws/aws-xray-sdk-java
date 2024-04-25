@@ -13,7 +13,7 @@ dependencies {
     //  for resolution not only in the SDK projects but also in projects
     //  like benchmark.
     //  See PR for more details: https://github.com/aws/aws-xray-sdk-java/pull/336
-    api("com.amazonaws:aws-java-sdk-core:1.12.228")
+    api("com.amazonaws:aws-java-sdk-core:1.12.708")
 
     testImplementation("com.amazonaws:aws-java-sdk-lambda:1.12.228")
     testImplementation("com.amazonaws:aws-java-sdk-s3:1.12.228")
