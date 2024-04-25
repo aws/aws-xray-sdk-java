@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.15.3 - 2024-04-25
+- Bump aws-java-sdk-core version to 1.12.708
+  [PR 401](https://github.com/aws/aws-xray-sdk-java/pull/401)
+
 ## 2.15.2 - 2024-03-08
 - Fixed TracingInterceptor to take effect only one time
   [PR 399](https://github.com/aws/aws-xray-sdk-java/pull/399)
