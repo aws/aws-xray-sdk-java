@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-class NoOpSegment implements Segment {
+public class NoOpSegment implements Segment {
 
     private final TraceID traceId;
     private final AWSXRayRecorder creator;
