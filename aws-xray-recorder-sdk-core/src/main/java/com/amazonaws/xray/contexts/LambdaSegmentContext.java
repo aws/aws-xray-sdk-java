@@ -18,6 +18,7 @@ package com.amazonaws.xray.contexts;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.FacadeSegment;
+import com.amazonaws.xray.entities.NoOpSegment;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.SubsegmentImpl;
@@ -50,25 +51,18 @@ public class LambdaSegmentContext implements SegmentContext {
         return traceHeader.getRootTraceId() == null || traceHeader.getSampled() == null || traceHeader.getParentId() == null;
     }
 
-    private static FacadeSegment newFacadeSegment(AWSXRayRecorder recorder, String name) {
-        TraceHeader traceHeader = getTraceHeaderFromEnvironment();
-        if (isInitializing(traceHeader)) {
-            logger.warn(LAMBDA_TRACE_HEADER_KEY + " is missing a trace ID, parent ID, or sampling decision. Subsegment "
-                        + name + " discarded.");
-            return new FacadeSegment(recorder, TraceID.create(recorder), "", SampleDecision.NOT_SAMPLED);
-        }
-        return new FacadeSegment(recorder, traceHeader.getRootTraceId(), traceHeader.getParentId(), traceHeader.getSampled());
-    }
-
     @Override
     public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);
         }
 
+        TraceHeader traceHeader = LambdaSegmentContext.getTraceHeaderFromEnvironment();
         Entity entity = getTraceEntity();
-        if (entity == null) { // First subsgment of a subsegment branch.
-            Segment parentSegment = newFacadeSegment(recorder, name);
+        if (entity == null) { // First subsegment of a subsegment branch
+            Segment parentSegment = isInitializing(traceHeader)
+                ? Segment.noOp(TraceID.create(recorder), recorder)
+                : new FacadeSegment(recorder, traceHeader.getRootTraceId(), traceHeader.getParentId(), traceHeader.getSampled());
 
             boolean isRecording = parentSegment.isRecording();
 
@@ -144,6 +138,9 @@ public class LambdaSegmentContext implements SegmentContext {
                 if (((Subsegment) current).isSampled()) {
                     current.getCreator().getEmitter().sendSubsegment((Subsegment) current);
                 }
+                clearTraceEntity();
+            }
+            else if (parentEntity instanceof NoOpSegment) {
                 clearTraceEntity();
             } else {
                 setTraceEntity(current.getParent());
