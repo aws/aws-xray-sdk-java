@@ -50,8 +50,10 @@ class LambdaSegmentContextTest {
 
     private static final String MALFORMED_TRACE_HEADER =
         ";;Root=1-57ff426a-80c11c39b0c928905eb0828d;;Parent=1234abcd1234abcd;;;Sampled=1;;;";
-    private static final String MALFORMED_TRACE_HEADER_2 =
-        ";;root-missing;;Parent=1234abcd1234abcd;;;Sampled=1;;;";
+    private static final String MALFORMED_TRACE_HEADER_2 = ";;root-missing;;Parent=1234abcd1234abcd;;;Sampled=1;;;";
+
+    private static final String ROOT_LAMBDA_PASSTHROUGH_TRACE_HEADER =
+        "Root=1-5759e988-bd862e3fe1be46a994272711;Lineage=10:1234abcd:3";
 
     @BeforeEach
     public void setupAWSXRay() {
@@ -91,6 +93,12 @@ class LambdaSegmentContextTest {
     @Test
     @SetEnvironmentVariable(key = "_X_AMZN_TRACE_ID", value = MALFORMED_TRACE_HEADER_2)
     void testBeginSubsegmentWithIncompleteAndMalformedTraceHeaderEnvironmentVariableResultsInANoOpSegmentParent() {
+        testContextResultsInNoOpSegmentParent();
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "_X_AMZN_TRACE_ID", value = ROOT_LAMBDA_PASSTHROUGH_TRACE_HEADER)
+    void testBeginSubsegmentWithRootLambdaPassthroughTraceHeaderEnvironmentVariableResultsInANoOpSegmentParent() {
         testContextResultsInNoOpSegmentParent();
     }
 

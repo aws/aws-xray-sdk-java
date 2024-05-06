@@ -60,9 +60,15 @@ public class LambdaSegmentContext implements SegmentContext {
         TraceHeader traceHeader = LambdaSegmentContext.getTraceHeaderFromEnvironment();
         Entity entity = getTraceEntity();
         if (entity == null) { // First subsegment of a subsegment branch
-            Segment parentSegment = isInitializing(traceHeader)
-                ? Segment.noOp(TraceID.create(recorder), recorder)
-                : new FacadeSegment(recorder, traceHeader.getRootTraceId(), traceHeader.getParentId(), traceHeader.getSampled());
+            Segment parentSegment;
+            if (isInitializing(traceHeader)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Creating No-Op parent segment");
+                }
+                parentSegment = Segment.noOp(TraceID.create(recorder), recorder);
+            } else {
+                parentSegment = new FacadeSegment(recorder, traceHeader.getRootTraceId(), traceHeader.getParentId(), traceHeader.getSampled());
+            }
 
             boolean isRecording = parentSegment.isRecording();
 
