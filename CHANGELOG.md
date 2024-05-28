@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.16.0 - 2024-05-28
+- Send NoOp segment when trace header is incomplete in Lambda Context
+  [PR 403](https://github.com/aws/aws-xray-sdk-java/pull/403)
+- Do not propagate trace header if dummy subsegment
+  [PR 404](https://github.com/aws/aws-xray-sdk-java/pull/404)
+
 ## 2.15.3 - 2024-04-25
 - Bump aws-java-sdk-core version to 1.12.708
   [PR 401](https://github.com/aws/aws-xray-sdk-java/pull/401)
