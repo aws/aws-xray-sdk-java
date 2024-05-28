@@ -30,6 +30,7 @@ import com.amazonaws.xray.contexts.LambdaSegmentContextResolver;
 import com.amazonaws.xray.emitters.DefaultEmitter;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.Subsegment;
+import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.strategy.sampling.NoSamplingStrategy;
 import org.junit.FixMethodOrder;
@@ -137,12 +138,17 @@ public class TracingHandlerLambdaTest {
         TraceHeader traceHeader = TraceHeader.fromString(request.getHeaders().get(TraceHeader.HEADER_KEY));
         String serviceEntityId = recorder.getCurrentSubsegment().getId();
 
-        assertThat(traceHeader.getSampled()).isEqualTo(
+        if (!sampled) {
+            assertThat(subsegment).isInstanceOf(SubsegmentImpl.class);
+        } else {
+            assertThat(subsegment).isInstanceOf(SubsegmentImpl.class);
+            assertThat(traceHeader.getRootTraceId()).isEqualTo(subsegment.getTraceId());
+            assertThat(traceHeader.getParentId()).isEqualTo(subsegment.isSampled() ? serviceEntityId : null);
+            assertThat(traceHeader.getSampled()).isEqualTo(
                 subsegment.isSampled() ?
                         TraceHeader.SampleDecision.SAMPLED :
                         TraceHeader.SampleDecision.NOT_SAMPLED);
-        assertThat(traceHeader.getRootTraceId()).isEqualTo(subsegment.getTraceId());
-        assertThat(traceHeader.getParentId()).isEqualTo(subsegment.isSampled() ? serviceEntityId : null);
+        }
 
         tracingHandler.afterResponse(request, new Response(new InvokeResult(), new HttpResponse(request, null)));
 

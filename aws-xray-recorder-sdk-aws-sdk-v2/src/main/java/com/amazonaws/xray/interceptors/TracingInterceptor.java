@@ -21,6 +21,7 @@ import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.EntityDataKeys;
 import com.amazonaws.xray.entities.EntityHeaderKeys;
 import com.amazonaws.xray.entities.Namespace;
+import com.amazonaws.xray.entities.NoOpSubSegment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.handlers.config.AWSOperationHandler;
@@ -292,7 +293,7 @@ public class TracingInterceptor implements ExecutionInterceptor {
         }
 
         Subsegment subsegment = executionAttributes.getAttribute(entityKey);
-        if (!subsegment.shouldPropagate()) {
+        if (!subsegment.shouldPropagate() || subsegment instanceof NoOpSubSegment) {
             return httpRequest;
         }
 
