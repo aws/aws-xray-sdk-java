@@ -31,6 +31,7 @@ import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.EntityDataKeys;
 import com.amazonaws.xray.entities.EntityHeaderKeys;
 import com.amazonaws.xray.entities.Namespace;
+import com.amazonaws.xray.entities.NoOpSubSegment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.handlers.config.AWSOperationHandler;
@@ -191,7 +192,9 @@ public class TracingHandler extends RequestHandler2 {
         }
         currentSubsegment.setNamespace(Namespace.AWS.toString());
 
-        if (recorder.getCurrentSegment() != null && recorder.getCurrentSubsegment().shouldPropagate()) {
+        if (recorder.getCurrentSegment() != null &&
+            !(currentSubsegment instanceof NoOpSubSegment) &&
+            recorder.getCurrentSubsegment().shouldPropagate()) {
             request.addHeader(TraceHeader.HEADER_KEY, TraceHeader.fromEntity(currentSubsegment).toString());
         }
     }
