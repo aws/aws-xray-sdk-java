@@ -80,6 +80,7 @@ public class LambdaSegmentContext implements SegmentContext {
                     ? new SubsegmentImpl(recorder, name, parentSegment)
                     : Subsegment.noOp(parentSegment, recorder);
             subsegment.setParent(parentSegment);
+            subsegment.putAllAws(recorder.getAwsRuntimeContext());
             // Enable FacadeSegment to keep track of its subsegments for subtree streaming
             parentSegment.addSubsegment(subsegment);
             setTraceEntity(subsegment);

@@ -341,7 +341,7 @@ public class AWSXRayRecorderTest {
 
         JSONAssert.assertEquals(expectedLambdaSubsegment(
             header.getRootTraceId(), header.getParentId(), captured.getId(), captured.getStartTime(),
-            captured.getEndTime()).toString(), captured.streamSerialize(), JSONCompareMode.NON_EXTENSIBLE);
+            captured.getEndTime()).toString(), captured.streamSerialize(), JSONCompareMode.LENIENT);
     }
 
     @Test

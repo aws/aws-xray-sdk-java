@@ -122,6 +122,18 @@ class LambdaSegmentContextTest {
         assertThatThrownBy(AWSXRay::endSubsegment).isInstanceOf(SubsegmentNotFoundException.class);
     }
 
+    @Test
+    @SetEnvironmentVariable(key = "_X_AMZN_TRACE_ID", value = TRACE_HEADER)
+    void testSampledSetsAwsXRaySdkVersionToSubsegment() {
+        LambdaSegmentContext lsc = new LambdaSegmentContext();
+        Subsegment subseg1 = lsc.beginSubsegment(AWSXRay.getGlobalRecorder(), "test");
+        Subsegment subseg2 = lsc.beginSubsegment(AWSXRay.getGlobalRecorder(), "test2");
+        assertThat(subseg1.getAws().get("xray")).isNotNull();
+        assertThat(subseg2.getAws().get("xray")).isNull();
+        lsc.endSubsegment(AWSXRay.getGlobalRecorder());
+        lsc.endSubsegment(AWSXRay.getGlobalRecorder());
+    }
+
     // We create segments twice with different environment variables for the same context, similar to how Lambda would invoke
     // a function.
     @Nested
