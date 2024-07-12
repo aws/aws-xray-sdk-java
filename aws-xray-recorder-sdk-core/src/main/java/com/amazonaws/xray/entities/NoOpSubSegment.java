@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public class NoOpSubSegment implements Subsegment {
+class NoOpSubSegment implements Subsegment {
     private final Segment parentSegment;
     private final AWSXRayRecorder creator;
     private final boolean shouldPropagate;
