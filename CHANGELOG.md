@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.17.0 - 2024-07-12
+- Revert aws#403 and aws#404
+  [PR 407](https://github.com/aws/aws-xray-sdk-java/pull/407)
+
 ## 2.16.0 - 2024-05-28
 - Send NoOp segment when trace header is incomplete in Lambda Context
   [PR 403](https://github.com/aws/aws-xray-sdk-java/pull/403)
