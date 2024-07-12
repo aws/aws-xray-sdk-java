@@ -22,7 +22,6 @@ import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorderBuilder;
 import com.amazonaws.xray.emitters.Emitter;
 import com.amazonaws.xray.entities.FacadeSegment;
-import com.amazonaws.xray.entities.NoOpSegment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
 import com.amazonaws.xray.strategy.LogErrorContextMissingStrategy;
@@ -50,10 +49,6 @@ class LambdaSegmentContextTest {
 
     private static final String MALFORMED_TRACE_HEADER =
         ";;Root=1-57ff426a-80c11c39b0c928905eb0828d;;Parent=1234abcd1234abcd;;;Sampled=1;;;";
-    private static final String MALFORMED_TRACE_HEADER_2 = ";;root-missing;;Parent=1234abcd1234abcd;;;Sampled=1;;;";
-
-    private static final String ROOT_LAMBDA_PASSTHROUGH_TRACE_HEADER =
-        "Root=1-5759e988-bd862e3fe1be46a994272711;Lineage=10:1234abcd:3";
 
     @BeforeEach
     public void setupAWSXRay() {
@@ -68,14 +63,14 @@ class LambdaSegmentContextTest {
     }
 
     @Test
-    void testBeginSubsegmentWithNullTraceHeaderEnvironmentVariableResultsInANoOpSegmentParent() {
-        testContextResultsInNoOpSegmentParent();
+    void testBeginSubsegmentWithNullTraceHeaderEnvironmentVariableResultsInAFacadeSegmentParent() {
+        testContextResultsInFacadeSegmentParent();
     }
 
     @Test
     @SetEnvironmentVariable(key = "_X_AMZN_TRACE_ID", value = "a")
-    void testBeginSubsegmentWithIncompleteTraceHeaderEnvironmentVariableResultsInANoOpSegmentParent() {
-        testContextResultsInNoOpSegmentParent();
+    void testBeginSubsegmentWithIncompleteTraceHeaderEnvironmentVariableResultsInAFacadeSegmentParent() {
+        testContextResultsInFacadeSegmentParent();
     }
 
     @Test
@@ -88,18 +83,6 @@ class LambdaSegmentContextTest {
     @SetEnvironmentVariable(key = "_X_AMZN_TRACE_ID", value = MALFORMED_TRACE_HEADER)
     void testBeginSubsegmentWithCompleteButMalformedTraceHeaderEnvironmentVariableResultsInAFacadeSegmentParent() {
         testContextResultsInFacadeSegmentParent();
-    }
-
-    @Test
-    @SetEnvironmentVariable(key = "_X_AMZN_TRACE_ID", value = MALFORMED_TRACE_HEADER_2)
-    void testBeginSubsegmentWithIncompleteAndMalformedTraceHeaderEnvironmentVariableResultsInANoOpSegmentParent() {
-        testContextResultsInNoOpSegmentParent();
-    }
-
-    @Test
-    @SetEnvironmentVariable(key = "_X_AMZN_TRACE_ID", value = ROOT_LAMBDA_PASSTHROUGH_TRACE_HEADER)
-    void testBeginSubsegmentWithRootLambdaPassthroughTraceHeaderEnvironmentVariableResultsInANoOpSegmentParent() {
-        testContextResultsInNoOpSegmentParent();
     }
 
     @Test
@@ -163,14 +146,6 @@ class LambdaSegmentContextTest {
         LambdaSegmentContext mockContext = new LambdaSegmentContext();
         assertThat(mockContext.beginSubsegment(AWSXRay.getGlobalRecorder(), "test").getParent())
             .isInstanceOf(FacadeSegment.class);
-        mockContext.endSubsegment(AWSXRay.getGlobalRecorder());
-        assertThat(AWSXRay.getTraceEntity()).isNull();
-    }
-
-    private static void testContextResultsInNoOpSegmentParent() {
-        LambdaSegmentContext mockContext = new LambdaSegmentContext();
-        assertThat(mockContext.beginSubsegment(AWSXRay.getGlobalRecorder(), "test").getParent())
-            .isInstanceOf(NoOpSegment.class);
         mockContext.endSubsegment(AWSXRay.getGlobalRecorder());
         assertThat(AWSXRay.getTraceEntity()).isNull();
     }
