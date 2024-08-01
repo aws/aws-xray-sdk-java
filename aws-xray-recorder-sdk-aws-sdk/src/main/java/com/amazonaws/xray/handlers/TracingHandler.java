@@ -192,7 +192,16 @@ public class TracingHandler extends RequestHandler2 {
         currentSubsegment.setNamespace(Namespace.AWS.toString());
 
         if (recorder.getCurrentSegment() != null && recorder.getCurrentSubsegment().shouldPropagate()) {
-            request.addHeader(TraceHeader.HEADER_KEY, TraceHeader.fromEntity(currentSubsegment).toString());
+            // If the trace is not sampled, passing Parent and Sampled won't matter
+            TraceHeader t = TraceHeader.fromEntity(currentSubsegment);
+            if (t.getSampled() != TraceHeader.SampleDecision.SAMPLED) {
+                request.addHeader(
+                        TraceHeader.HEADER_KEY,
+                        "Root=" + t.getRootTraceId().toString());
+            } else {
+                // This will propagate Parent and Sampled
+                request.addHeader(TraceHeader.HEADER_KEY, TraceHeader.fromEntity(currentSubsegment).toString());
+            }
         }
     }
 

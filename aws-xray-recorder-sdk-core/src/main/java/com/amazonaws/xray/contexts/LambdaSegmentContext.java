@@ -18,11 +18,11 @@ package com.amazonaws.xray.contexts;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.FacadeSegment;
+import com.amazonaws.xray.entities.NoOpSegment;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.SubsegmentImpl;
 import com.amazonaws.xray.entities.TraceHeader;
-import com.amazonaws.xray.entities.TraceHeader.SampleDecision;
 import com.amazonaws.xray.entities.TraceID;
 import com.amazonaws.xray.exceptions.SubsegmentNotFoundException;
 import com.amazonaws.xray.listeners.SegmentListener;
@@ -39,36 +39,44 @@ public class LambdaSegmentContext implements SegmentContext {
     // See: https://github.com/aws/aws-xray-sdk-java/issues/251
     private static final String LAMBDA_TRACE_HEADER_PROP = "com.amazonaws.xray.traceHeader";
 
-    private static TraceHeader getTraceHeaderFromEnvironment() {
+    public static TraceHeader getTraceHeaderFromEnvironment() {
         String lambdaTraceHeaderKey = System.getenv(LAMBDA_TRACE_HEADER_KEY);
         return TraceHeader.fromString(lambdaTraceHeaderKey != null && lambdaTraceHeaderKey.length() > 0 
             ? lambdaTraceHeaderKey 
             : System.getProperty(LAMBDA_TRACE_HEADER_PROP));
     }
 
-    private static boolean isInitializing(TraceHeader traceHeader) {
-        return traceHeader.getRootTraceId() == null || traceHeader.getSampled() == null || traceHeader.getParentId() == null;
-    }
-
-    private static FacadeSegment newFacadeSegment(AWSXRayRecorder recorder, String name) {
-        TraceHeader traceHeader = getTraceHeaderFromEnvironment();
-        if (isInitializing(traceHeader)) {
-            logger.warn(LAMBDA_TRACE_HEADER_KEY + " is missing a trace ID, parent ID, or sampling decision. Subsegment "
-                        + name + " discarded.");
-            return new FacadeSegment(recorder, TraceID.create(recorder), "", SampleDecision.NOT_SAMPLED);
-        }
-        return new FacadeSegment(recorder, traceHeader.getRootTraceId(), traceHeader.getParentId(), traceHeader.getSampled());
-    }
-
+    // SuppressWarnings is needed for passing Root TraceId to noOp segment
+    @SuppressWarnings("nullness")
     @Override
     public Subsegment beginSubsegment(AWSXRayRecorder recorder, String name) {
         if (logger.isDebugEnabled()) {
             logger.debug("Beginning subsegment named: " + name);
         }
 
+        TraceHeader traceHeader = LambdaSegmentContext.getTraceHeaderFromEnvironment();
         Entity entity = getTraceEntity();
-        if (entity == null) { // First subsgment of a subsegment branch.
-            Segment parentSegment = newFacadeSegment(recorder, name);
+        if (entity == null) { // First subsegment of a subsegment branch
+            Segment parentSegment;
+            // We rely on the AWS SDK to propagate one or both of these
+            // It is therefore possible to get just Root, or Root and Parent
+            if (traceHeader.getRootTraceId() != null) {
+                if (traceHeader.getParentId() != null) {
+                    parentSegment = new FacadeSegment(
+                        recorder,
+                        traceHeader.getRootTraceId(),
+                        traceHeader.getParentId(),
+                        traceHeader.getSampled());
+                } else {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Creating No-Op parent segment");
+                    }
+                    TraceID t = traceHeader.getRootTraceId();
+                    parentSegment = Segment.noOp(t, recorder);
+                }
+            } else {
+                parentSegment = Segment.noOp(TraceID.create(recorder), recorder);
+            }
 
             boolean isRecording = parentSegment.isRecording();
 
@@ -144,6 +152,8 @@ public class LambdaSegmentContext implements SegmentContext {
                 if (((Subsegment) current).isSampled()) {
                     current.getCreator().getEmitter().sendSubsegment((Subsegment) current);
                 }
+                clearTraceEntity();
+            } else if (parentEntity instanceof NoOpSegment) {
                 clearTraceEntity();
             } else {
                 setTraceEntity(current.getParent());

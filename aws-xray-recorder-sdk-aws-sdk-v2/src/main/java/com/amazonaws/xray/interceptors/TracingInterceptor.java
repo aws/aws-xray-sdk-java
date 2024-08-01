@@ -296,6 +296,15 @@ public class TracingInterceptor implements ExecutionInterceptor {
             return httpRequest;
         }
 
+        // If the trace is not sampled, passing Parent and Sampled won't matter
+        TraceHeader t = TraceHeader.fromEntity(subsegment);
+        if (t.getSampled() != TraceHeader.SampleDecision.SAMPLED) {
+            return httpRequest.toBuilder().putHeader(
+                    TraceHeader.HEADER_KEY,
+                    "Root=" + t.getRootTraceId().toString()).build();
+        }
+
+        // This will propagate Parent and Sampled
         return httpRequest.toBuilder().putHeader(
                 TraceHeader.HEADER_KEY,
                 TraceHeader.fromEntity(subsegment).toString()).build();
