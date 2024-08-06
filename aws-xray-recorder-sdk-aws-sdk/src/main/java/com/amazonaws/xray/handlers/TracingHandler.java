@@ -31,6 +31,7 @@ import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.EntityDataKeys;
 import com.amazonaws.xray.entities.EntityHeaderKeys;
 import com.amazonaws.xray.entities.Namespace;
+import com.amazonaws.xray.entities.NoOpSubSegment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.handlers.config.AWSOperationHandler;
@@ -192,15 +193,15 @@ public class TracingHandler extends RequestHandler2 {
         currentSubsegment.setNamespace(Namespace.AWS.toString());
 
         if (recorder.getCurrentSegment() != null && recorder.getCurrentSubsegment().shouldPropagate()) {
-            // If the trace is not sampled, passing Parent and Sampled won't matter
+            // If no-op, only propagate root trace ID to not taint sampling decision
             TraceHeader t = TraceHeader.fromEntity(currentSubsegment);
-            if (t.getSampled() != TraceHeader.SampleDecision.SAMPLED) {
+            if (currentSubsegment instanceof NoOpSubSegment) {
                 request.addHeader(
                         TraceHeader.HEADER_KEY,
                         "Root=" + t.getRootTraceId().toString());
             } else {
                 // This will propagate Parent and Sampled
-                request.addHeader(TraceHeader.HEADER_KEY, TraceHeader.fromEntity(currentSubsegment).toString());
+                request.addHeader(TraceHeader.HEADER_KEY, t.toString());
             }
         }
     }

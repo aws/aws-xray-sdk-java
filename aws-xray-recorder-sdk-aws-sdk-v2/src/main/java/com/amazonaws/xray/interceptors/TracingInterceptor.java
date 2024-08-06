@@ -21,6 +21,7 @@ import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.EntityDataKeys;
 import com.amazonaws.xray.entities.EntityHeaderKeys;
 import com.amazonaws.xray.entities.Namespace;
+import com.amazonaws.xray.entities.NoOpSubSegment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
 import com.amazonaws.xray.handlers.config.AWSOperationHandler;
@@ -296,9 +297,9 @@ public class TracingInterceptor implements ExecutionInterceptor {
             return httpRequest;
         }
 
-        // If the trace is not sampled, passing Parent and Sampled won't matter
+        // If no-op, only propagate root trace ID to not taint sampling decision
         TraceHeader t = TraceHeader.fromEntity(subsegment);
-        if (t.getSampled() != TraceHeader.SampleDecision.SAMPLED) {
+        if (subsegment instanceof NoOpSubSegment) {
             return httpRequest.toBuilder().putHeader(
                     TraceHeader.HEADER_KEY,
                     "Root=" + t.getRootTraceId().toString()).build();
@@ -307,7 +308,7 @@ public class TracingInterceptor implements ExecutionInterceptor {
         // This will propagate Parent and Sampled
         return httpRequest.toBuilder().putHeader(
                 TraceHeader.HEADER_KEY,
-                TraceHeader.fromEntity(subsegment).toString()).build();
+                t.toString()).build();
     }
 
     @Override

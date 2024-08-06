@@ -58,24 +58,20 @@ public class LambdaSegmentContext implements SegmentContext {
         Entity entity = getTraceEntity();
         if (entity == null) { // First subsegment of a subsegment branch
             Segment parentSegment;
-            // We rely on the AWS SDK to propagate one or both of these
-            // It is therefore possible to get just Root, or Root and Parent
-            if (traceHeader.getRootTraceId() != null) {
-                if (traceHeader.getParentId() != null) {
-                    parentSegment = new FacadeSegment(
-                        recorder,
-                        traceHeader.getRootTraceId(),
-                        traceHeader.getParentId(),
-                        traceHeader.getSampled());
-                } else {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Creating No-Op parent segment");
-                    }
-                    TraceID t = traceHeader.getRootTraceId();
-                    parentSegment = Segment.noOp(t, recorder);
-                }
+            // Trace header either takes the structure `Root=...;<extra-data>` or
+            // `Root=...;Parent=...;Sampled=...;<extra-data>`
+            if (traceHeader.getRootTraceId() != null && traceHeader.getParentId() != null && traceHeader.getSampled() != null) {
+                parentSegment = new FacadeSegment(
+                    recorder,
+                    traceHeader.getRootTraceId(),
+                    traceHeader.getParentId(),
+                    traceHeader.getSampled());
             } else {
-                parentSegment = Segment.noOp(TraceID.create(recorder), recorder);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Creating No-Op parent segment");
+                }
+                TraceID t = traceHeader.getRootTraceId() != null ? traceHeader.getRootTraceId() : TraceID.create(recorder);
+                parentSegment = Segment.noOp(t, recorder);
             }
 
             boolean isRecording = parentSegment.isRecording();

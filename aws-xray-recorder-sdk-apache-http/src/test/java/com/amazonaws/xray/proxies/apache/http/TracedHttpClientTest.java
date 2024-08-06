@@ -114,7 +114,7 @@ public class TracedHttpClientTest {
 
         verify(getRequestedFor(urlPathEqualTo("/"))
                    .withHeader(TraceHeader.HEADER_KEY,
-                               equalTo("Root=1-67891233-abcdef012345678912345678")));
+                               equalTo("Root=1-67891233-abcdef012345678912345678;Sampled=0")));
     }
 
     @Test
