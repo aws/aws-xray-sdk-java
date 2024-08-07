@@ -92,9 +92,16 @@ public class TraceHeader {
     }
 
     public static TraceHeader fromEntity(Entity entity) {
+        String parentId = null;
+        if (entity instanceof Subsegment) {
+            Segment segment = entity.getParentSegment();
+            if (segment != null) {
+                parentId = segment.getId();
+            }
+        }
         return new TraceHeader(
                 entity.getTraceId(),
-                entity.isSampled() ? entity.getId() : null,
+                (entity.getId() == null || entity.getId() == "") ? parentId : entity.getId(),
                 entity.isSampled() ? SampleDecision.SAMPLED : SampleDecision.NOT_SAMPLED);
     }
 

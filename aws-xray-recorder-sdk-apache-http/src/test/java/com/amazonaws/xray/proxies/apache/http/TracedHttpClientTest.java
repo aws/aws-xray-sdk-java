@@ -19,6 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
@@ -99,7 +100,7 @@ public class TracedHttpClientTest {
 
         verify(getRequestedFor(urlPathEqualTo("/"))
                    .withHeader(TraceHeader.HEADER_KEY,
-                               equalTo("Root=1-00000000-000000000000000000000000;Sampled=0")));
+                               equalTo("Root=1-00000000-000000000000000000000000")));
     }
 
     @Test
@@ -114,7 +115,7 @@ public class TracedHttpClientTest {
 
         verify(getRequestedFor(urlPathEqualTo("/"))
                    .withHeader(TraceHeader.HEADER_KEY,
-                               equalTo("Root=1-67891233-abcdef012345678912345678;Sampled=0")));
+                               matching("Root=1-67891233-abcdef012345678912345678;Parent=[a-z0-9]{16};Sampled=0")));
     }
 
     @Test
