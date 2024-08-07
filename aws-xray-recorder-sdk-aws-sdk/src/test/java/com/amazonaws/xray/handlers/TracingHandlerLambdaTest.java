@@ -137,14 +137,15 @@ public class TracingHandlerLambdaTest {
         TraceHeader traceHeader = TraceHeader.fromString(request.getHeaders().get(TraceHeader.HEADER_KEY));
         String serviceEntityId = recorder.getCurrentSubsegment().getId();
 
-        if (subsegment.isSampled()) {
-            assertThat(traceHeader.getSampled()).isEqualTo(TraceHeader.SampleDecision.SAMPLED);
-        } else {
-            // Can't assert non-initialized variable to null, assert absence instead
-            assertThat(traceHeader.toString()).doesNotContain("Sampled=");
-        }
+        assertThat(traceHeader.getSampled()).isEqualTo(
+                subsegment.isSampled() ?
+                        TraceHeader.SampleDecision.SAMPLED :
+                        TraceHeader.SampleDecision.NOT_SAMPLED);
         assertThat(traceHeader.getRootTraceId()).isEqualTo(subsegment.getTraceId());
-        assertThat(traceHeader.getParentId()).isEqualTo(subsegment.isSampled() ? serviceEntityId : null);
+        assertThat(traceHeader.getParentId()).isEqualTo(
+                subsegment.isSampled() ?
+                        serviceEntityId :
+                        subsegment.getParentSegment().getId());
 
         tracingHandler.afterResponse(request, new Response(new InvokeResult(), new HttpResponse(request, null)));
 

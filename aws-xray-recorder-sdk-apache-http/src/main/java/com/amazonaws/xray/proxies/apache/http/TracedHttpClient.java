@@ -18,7 +18,7 @@ package com.amazonaws.xray.proxies.apache.http;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.AWSXRayRecorder;
 import com.amazonaws.xray.entities.Namespace;
-import com.amazonaws.xray.entities.NoOpSubSegment;
+import com.amazonaws.xray.entities.NoOpSegment;
 import com.amazonaws.xray.entities.Segment;
 import com.amazonaws.xray.entities.Subsegment;
 import com.amazonaws.xray.entities.TraceHeader;
@@ -107,7 +107,7 @@ public class TracedHttpClient extends CloseableHttpClient {
         if (subsegment.shouldPropagate()) {
             // If no-op, only propagate root trace ID to not taint sampling decision
             TraceHeader t = TraceHeader.fromEntity(subsegment);
-            if (subsegment instanceof NoOpSubSegment) {
+            if (parentSegment instanceof NoOpSegment) {
                 request.addHeader(
                         TraceHeader.HEADER_KEY,
                         "Root=" + t.getRootTraceId().toString());
