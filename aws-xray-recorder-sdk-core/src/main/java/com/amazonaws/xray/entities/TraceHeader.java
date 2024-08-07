@@ -101,7 +101,7 @@ public class TraceHeader {
         }
         return new TraceHeader(
                 entity.getTraceId(),
-                entity.isSampled() ? entity.getId() : parentId,
+                (entity.getId() == null || entity.getId() == "") ? parentId : entity.getId(),
                 entity.isSampled() ? SampleDecision.SAMPLED : SampleDecision.NOT_SAMPLED);
     }
 
