@@ -267,7 +267,7 @@ public class AWSXRayRecorderBuilder {
      * @return a configured instance of AWSXRayRecorder
      */
     public AWSXRayRecorder build() {
-        AWSXRayRecorder client = new AWSXRayRecorder();
+        AWSXRayRecorder client = new AWSXRayRecorder(emitter);
 
         if (samplingStrategy != null) {
             client.setSamplingStrategy(samplingStrategy);
@@ -289,10 +289,6 @@ public class AWSXRayRecorderBuilder {
         }
         if (segmentContextResolverChain != null) {
             client.setSegmentContextResolverChain(segmentContextResolverChain);
-        }
-
-        if (emitter != null) {
-            client.setEmitter(emitter);
         }
 
         if (!segmentListeners.isEmpty()) {
