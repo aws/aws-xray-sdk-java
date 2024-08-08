@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.18.0 - 2024-08-07
+- Support Lambda PassThrough trace header propagation (#409)
+  [PR 409](https://github.com/aws/aws-xray-sdk-java/pull/409)
+
 ## 2.17.0 - 2024-07-12
 - Revert aws#403 and aws#404
   [PR 407](https://github.com/aws/aws-xray-sdk-java/pull/407)
