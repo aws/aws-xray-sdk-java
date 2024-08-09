@@ -55,14 +55,12 @@ public class LambdaSegmentContext implements SegmentContext {
         }
 
         TraceHeader traceHeader = LambdaSegmentContext.getTraceHeaderFromEnvironment();
-        logger.warn("TRACE HEADER IN CODE: " + traceHeader.toString());
         Entity entity = getTraceEntity();
         if (entity == null) { // First subsegment of a subsegment branch
             Segment parentSegment;
             // Trace header either takes the structure `Root=...;<extra-data>` or
             // `Root=...;Parent=...;Sampled=...;<extra-data>`
             if (traceHeader.getRootTraceId() != null && traceHeader.getParentId() != null && traceHeader.getSampled() != null) {
-                logger.warn("CREATING FACADE SEGMENT");
                 parentSegment = new FacadeSegment(
                     recorder,
                     traceHeader.getRootTraceId(),
