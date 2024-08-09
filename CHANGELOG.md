@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.18.1 - 2024-08-09
+- Remove testing logs (#411)
+  [PR 411](https://github.com/aws/aws-xray-sdk-java/pull/411)
+
 ## 2.18.0 - 2024-08-07
 - Support Lambda PassThrough trace header propagation (#409)
   [PR 409](https://github.com/aws/aws-xray-sdk-java/pull/409)
