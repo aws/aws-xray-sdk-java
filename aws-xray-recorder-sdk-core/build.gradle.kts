@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    api("com.amazonaws:aws-java-sdk-xray:1.12.228")
+    api("com.amazonaws:aws-java-sdk-xray:1.12.767")
 
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
     compileOnly("javax.servlet:javax.servlet-api:3.1.0")
