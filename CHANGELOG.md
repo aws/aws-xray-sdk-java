@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.18.2 - 2024-08-19
+- Update aws-java-sdk-xray version dependency. (#413) 
+  [PR 413](https://github.com/aws/aws-xray-sdk-java/pull/413)
+
 ## 2.18.1 - 2024-08-09
 - Remove testing logs (#411)
   [PR 411](https://github.com/aws/aws-xray-sdk-java/pull/411)
