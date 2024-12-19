@@ -54,7 +54,7 @@ jobs:
         with:
           files: ./jacoco/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         if: ${{ matrix.coverage }}
         with:
           name: coverage-report
