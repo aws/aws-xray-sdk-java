@@ -14,12 +14,12 @@ jobs:
         with:
           java-version: 11
       - name: Cache Gradle Modules
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.gradle/caches
           key: gradle-caches-${{ hashFiles('**/*.gradle.kts') }}
       - name: Cache Gradle Wrapper
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.gradle/wrapper
           key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
