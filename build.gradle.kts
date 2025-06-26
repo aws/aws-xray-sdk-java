@@ -40,6 +40,10 @@ release {
     defaultVersionStrategy = Strategies.getSNAPSHOT()
 }
 
+nebulaRelease {
+  addReleaseBranchPattern("migrate-sonatype-test")
+}
+
 nexusPublishing {
     repositories {
         sonatype {
