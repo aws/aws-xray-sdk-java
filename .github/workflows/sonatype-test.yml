@@ -22,11 +22,11 @@ jobs:
           path: ~/.gradle/wrapper
           key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
       - name: Build and test
-        run: ./gradlew build -Prelease.version=0.0.1-test --stacktrace
+        run: ./gradlew build -Prelease.version=0.0.1-sonatype-test --stacktrace
         env:
           CI: true
       - name: Build and publish to sonatype
-        run: ./gradlew final closeAndReleaseSonatypeStagingRepository -Prelease.version=0.0.1-test --stacktrace
+        run: ./gradlew final closeAndReleaseSonatypeStagingRepository -Prelease.version=0.0.1-sonatype-test --stacktrace
         env:
           CI: true
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME_TEST }}
