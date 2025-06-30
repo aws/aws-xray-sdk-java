@@ -43,8 +43,8 @@ release {
 nexusPublishing {
     repositories {
         sonatype {
-            nexusUrl.set(uri("https://aws.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://aws.oss.sonatype.org/content/repositories/snapshots/"))
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
             username.set("${findProperty("aws.sonatype.username") ?: System.getenv("SONATYPE_USERNAME")}")
             password.set("${findProperty("aws.sonatype.password") ?: System.getenv("SONATYPE_PASSWORD")}")
         }
