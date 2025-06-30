@@ -5,6 +5,7 @@
 .project
 .classpath
 .DS_Store
+.vscode
 
 *.iml
 /.idea

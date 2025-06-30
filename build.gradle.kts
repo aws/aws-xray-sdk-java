@@ -40,19 +40,23 @@ release {
     defaultVersionStrategy = Strategies.getSNAPSHOT()
 }
 
+nebulaRelease {
+  addReleaseBranchPattern("migrate-sonatype-test")
+}
+
 nexusPublishing {
     repositories {
         sonatype {
-            nexusUrl.set(uri("https://aws.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://aws.oss.sonatype.org/content/repositories/snapshots/"))
-            username.set("${findProperty("aws.sonatype.username") ?: System.getenv("SONATYPE_USERNAME")}")
-            password.set("${findProperty("aws.sonatype.password") ?: System.getenv("SONATYPE_PASSWORD")}")
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+            username.set("${findProperty("aws.sonatype.username") ?: System.getenv("SONATYPE_USERNAME_TEST")}")
+            password.set("${findProperty("aws.sonatype.password") ?: System.getenv("SONATYPE_PASSWORD_TEST")}")
         }
     }
 }
 
 allprojects {
-    group = "com.amazonaws"
+    group = "com.sonatype.central.testing.amazon"
 
     repositories {
         mavenCentral()
@@ -301,7 +305,7 @@ allprojects {
 }
 
 subprojects {
-    group = "com.amazonaws"
+    group = "com.sonatype.central.testing.amazon"
 
     plugins.withId("java-library") {
         plugins.apply("jacoco")
