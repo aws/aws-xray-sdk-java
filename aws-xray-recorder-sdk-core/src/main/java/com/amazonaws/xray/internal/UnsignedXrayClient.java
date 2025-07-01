@@ -26,6 +26,7 @@ import com.amazonaws.xray.config.DaemonConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -61,6 +62,7 @@ public class UnsignedXrayClient {
 
     // Visible for testing
     static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .setSerializationInclusion(Include.NON_EMPTY)
             .setPropertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
             .registerModule(new SimpleModule().addDeserializer(Date.class, new FloatDateDeserializer()))
