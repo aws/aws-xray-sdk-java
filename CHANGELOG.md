@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.18.3 - 2025-07-23
+- Handle unknown fields in sampler APIs response. (#425) 
+  [PR 425](https://github.com/aws/aws-xray-sdk-java/pull/425)
+
 ## 2.18.2 - 2024-08-19
 - Update aws-java-sdk-xray version dependency. (#413) 
   [PR 413](https://github.com/aws/aws-xray-sdk-java/pull/413)
