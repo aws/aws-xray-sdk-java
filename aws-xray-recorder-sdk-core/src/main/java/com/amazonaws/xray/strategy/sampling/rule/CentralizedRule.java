@@ -15,9 +15,9 @@
 
 package com.amazonaws.xray.strategy.sampling.rule;
 
-import com.amazonaws.services.xray.model.SamplingRule;
-import com.amazonaws.services.xray.model.SamplingStatisticsDocument;
-import com.amazonaws.services.xray.model.SamplingTargetDocument;
+import com.amazonaws.xray.strategy.sampling.GetSamplingRulesResponse.SamplingRule;
+import com.amazonaws.xray.strategy.sampling.GetSamplingTargetsRequest.SamplingStatisticsDocument;
+import com.amazonaws.xray.strategy.sampling.GetSamplingTargetsResponse.SamplingTargetDocument;
 import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import com.amazonaws.xray.strategy.sampling.SamplingResponse;
 import com.amazonaws.xray.strategy.sampling.rand.Rand;
@@ -120,13 +120,13 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
             return false;
         }
 
-        if (!rule.getResourceARN().equals("*") || !rule.getAttributes().isEmpty()) {
+        if (!rule.getResourceArn().equals("*") || !rule.getAttributes().isEmpty()) {
             logger.error("Detect invalid rule. Please check sampling rule format.");
             return false;
         }
 
-        if (rule.getHost() == null || rule.getServiceName() == null || rule.getHTTPMethod() == null ||
-            rule.getURLPath() == null || rule.getServiceType() == null) {
+        if (rule.getHost() == null || rule.getServiceName() == null || rule.getHttpMethod() == null ||
+            rule.getUrlPath() == null || rule.getServiceType() == null) {
             logger.error("Detect invalid rule. Please check sampling rule format.");
             return false;
         }
@@ -149,22 +149,22 @@ public class CentralizedRule implements Rule, Comparable<CentralizedRule> {
     }
 
     public SamplingStatisticsDocument snapshot(Date now) {
-        SamplingStatisticsDocument s = new SamplingStatisticsDocument()
-                .withRuleName(name)
-                .withTimestamp(now);
+        SamplingStatisticsDocument.Builder statisticsDocBuilder = SamplingStatisticsDocument.newBuilder()
+            .setRuleName(name)
+            .setTimestamp(now);
 
         lock.writeLock().lock();
         try {
-            s.setRequestCount(statistics.getRequests());
-            s.setSampledCount(statistics.getSampled());
-            s.setBorrowCount(statistics.getBorrowed());
+            statisticsDocBuilder.setRequestCount(statistics.getRequests());
+            statisticsDocBuilder.setSampledCount(statistics.getSampled());
+            statisticsDocBuilder.setBorrowCount(statistics.getBorrowed());
 
             statistics.reset();
         } finally {
             lock.writeLock().unlock();
         }
 
-        return s;
+        return statisticsDocBuilder.build();
     }
 
     public boolean match(SamplingRequest r) {

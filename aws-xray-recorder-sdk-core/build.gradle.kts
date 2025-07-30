@@ -4,7 +4,15 @@ plugins {
 }
 
 dependencies {
-    api("com.amazonaws:aws-java-sdk-xray:1.12.767")
+    api("commons-logging:commons-logging:1.3.5")
+
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.17.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
+    implementation("com.google.auto.value:auto-value-annotations:1.10.4")
+    implementation("com.google.auto.service:auto-service-annotations:1.1.1")
+    implementation("org.apache.httpcomponents:httpclient:4.5.14")
+
+    annotationProcessor("com.google.auto.value:auto-value:1.10.4")
 
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
     compileOnly("javax.servlet:javax.servlet-api:3.1.0")
