@@ -1,4 +1,7 @@
 # Change Log
+## 2.19.0 - 2025-08-06
+- Remove AWS SDK v1 Dependency from X-Ray SDK Core (#428) 
+  [PR 428](https://github.com/aws/aws-xray-sdk-java/pull/428)
 
 ## 2.18.3 - 2025-07-23
 - Handle unknown fields in sampler APIs response. (#425) 
