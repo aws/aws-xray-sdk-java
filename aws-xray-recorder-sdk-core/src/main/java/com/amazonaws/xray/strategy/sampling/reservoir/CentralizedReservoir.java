@@ -15,8 +15,8 @@
 
 package com.amazonaws.xray.strategy.sampling.reservoir;
 
-import com.amazonaws.services.xray.model.SamplingRule;
-import com.amazonaws.services.xray.model.SamplingTargetDocument;
+import com.amazonaws.xray.strategy.sampling.GetSamplingRulesResponse.SamplingRule;
+import com.amazonaws.xray.strategy.sampling.GetSamplingTargetsResponse.SamplingTargetDocument;
 import java.time.Instant;
 
 public class CentralizedReservoir {
@@ -40,7 +40,7 @@ public class CentralizedReservoir {
     }
 
     public void update(SamplingRule r) {
-        capacity = r.getReservoirSize().longValue();
+        capacity = r.getReservoirSize();
     }
 
     public boolean isExpired(Instant now) {
@@ -65,12 +65,12 @@ public class CentralizedReservoir {
             quota = target.getReservoirQuota();
         }
 
-        if (target.getReservoirQuotaTTL() != null) {
-            expiresAt = target.getReservoirQuotaTTL().toInstant();
+        if (target.getReservoirQuotaTtl() != null) {
+            expiresAt = target.getReservoirQuotaTtl().toInstant();
         }
 
-        if (target.getInterval() != null) {
-            interval = target.getInterval();
+        if (target.getIntervalSecs() != null) {
+            interval = target.getIntervalSecs();
         }
 
         refreshedAt = now;

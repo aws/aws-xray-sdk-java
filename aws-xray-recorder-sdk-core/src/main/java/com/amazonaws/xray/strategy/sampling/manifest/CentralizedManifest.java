@@ -15,10 +15,10 @@
 
 package com.amazonaws.xray.strategy.sampling.manifest;
 
-import com.amazonaws.services.xray.model.SamplingRule;
-import com.amazonaws.services.xray.model.SamplingStatisticsDocument;
-import com.amazonaws.services.xray.model.SamplingTargetDocument;
 import com.amazonaws.xray.strategy.sampling.CentralizedSamplingStrategy;
+import com.amazonaws.xray.strategy.sampling.GetSamplingRulesResponse.SamplingRule;
+import com.amazonaws.xray.strategy.sampling.GetSamplingTargetsRequest.SamplingStatisticsDocument;
+import com.amazonaws.xray.strategy.sampling.GetSamplingTargetsResponse.SamplingTargetDocument;
 import com.amazonaws.xray.strategy.sampling.SamplingRequest;
 import com.amazonaws.xray.strategy.sampling.rand.RandImpl;
 import com.amazonaws.xray.strategy.sampling.rule.CentralizedRule;
@@ -130,16 +130,30 @@ public class CentralizedManifest implements Manifest {
             }
 
             SamplingStatisticsDocument snapshot = rule.snapshot(date);
-            snapshot.withClientID(CentralizedSamplingStrategy.getClientID());
+            SamplingStatisticsDocument newSnapshot = SamplingStatisticsDocument.newBuilder()
+                    .setClientId(CentralizedSamplingStrategy.getClientID())
+                    .setBorrowCount(snapshot.getBorrowCount())
+                    .setRequestCount(snapshot.getRequestCount())
+                    .setRuleName(snapshot.getRuleName())
+                    .setSampledCount(snapshot.getSampledCount())
+                    .setTimestamp(snapshot.getTimestamp())
+                    .build();
 
-            snapshots.add(snapshot);
+            snapshots.add(newSnapshot);
         }
 
         if (defaultRule != null && defaultRule.isStale(now)) {
             SamplingStatisticsDocument snapshot = defaultRule.snapshot(date);
-            snapshot.withClientID(CentralizedSamplingStrategy.getClientID());
+            SamplingStatisticsDocument newSnapshot = SamplingStatisticsDocument.newBuilder()
+                    .setClientId(CentralizedSamplingStrategy.getClientID())
+                    .setBorrowCount(snapshot.getBorrowCount())
+                    .setRequestCount(snapshot.getRequestCount())
+                    .setRuleName(snapshot.getRuleName())
+                    .setSampledCount(snapshot.getSampledCount())
+                    .setTimestamp(snapshot.getTimestamp())
+                    .build();
 
-            snapshots.add(snapshot);
+            snapshots.add(newSnapshot);
         }
 
         return snapshots;

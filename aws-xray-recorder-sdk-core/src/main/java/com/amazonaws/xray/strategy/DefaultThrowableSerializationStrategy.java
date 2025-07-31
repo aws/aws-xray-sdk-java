@@ -15,7 +15,6 @@
 
 package com.amazonaws.xray.strategy;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.Entity;
 import com.amazonaws.xray.entities.Subsegment;
@@ -29,15 +28,16 @@ import java.util.Optional;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+
 /**
  * Default implementation of {@code ThrowableSerializationStrategy}.
- * This class auto-registers the {@code AmazonServiceException} class as a remote exception class if no set of remote exception
+ * This class auto-registers the java.io.UncheckedIOException class as a remote exception class if no set of remote exception
  * classes is provided in the constructor.
  */
 public class DefaultThrowableSerializationStrategy implements ThrowableSerializationStrategy {
     private static final int DEFAULT_MAX_STACK_TRACE_LENGTH = 50;
     private static final Set<Class<? extends Throwable>> DEFAULT_REMOTE_EXCEPTION_CLASSES =
-        Collections.singleton(AmazonServiceException.class);
+        Collections.singleton(java.io.UncheckedIOException.class);
 
     private final int maxStackTraceLength;
     private final Set<Class<? extends Throwable>> remoteExceptionClasses;

@@ -15,13 +15,14 @@
 
 package com.amazonaws.xray.strategy.sampling.rule;
 
-import com.amazonaws.services.xray.model.SamplingRule;
-import com.amazonaws.services.xray.model.SamplingStatisticsDocument;
-import com.amazonaws.services.xray.model.SamplingTargetDocument;
+import com.amazonaws.xray.strategy.sampling.GetSamplingRulesResponse.SamplingRule;
+import com.amazonaws.xray.strategy.sampling.GetSamplingTargetsRequest.SamplingStatisticsDocument;
+import com.amazonaws.xray.strategy.sampling.GetSamplingTargetsResponse.SamplingTargetDocument;
 import com.amazonaws.xray.strategy.sampling.SamplingResponse;
 import com.amazonaws.xray.strategy.sampling.rand.Rand;
 import com.amazonaws.xray.strategy.sampling.rand.RandImpl;
 import com.amazonaws.xray.strategy.sampling.reservoir.CentralizedReservoir;
+import com.amazonaws.xray.strategy.sampling.rule.RuleBuilder.RuleParams;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -211,28 +212,22 @@ public class CentralizedRuleTest {
         // Assert snapshot contains expected statistics
         Assert.assertEquals("r1", snapshot.getRuleName());
         Assert.assertEquals(TimeUnit.SECONDS.toMillis(1500000000), snapshot.getTimestamp().toInstant().toEpochMilli());
-        Assert.assertEquals(1, snapshot.getRequestCount().intValue());
-        Assert.assertEquals(1, snapshot.getSampledCount().intValue());
-        Assert.assertEquals(0, snapshot.getBorrowCount().intValue());
+        Assert.assertEquals(1, snapshot.getRequestCount());
+        Assert.assertEquals(1, snapshot.getSampledCount());
+        Assert.assertEquals(0, snapshot.getBorrowCount());
 
         // Assert current statistics are empty
-        Assert.assertEquals(0, rule.snapshot(Date.from(clock.instant())).getRequestCount().intValue());
-        Assert.assertEquals(0, rule.snapshot(Date.from(clock.instant())).getSampledCount().intValue());
-        Assert.assertEquals(0, rule.snapshot(Date.from(clock.instant())).getBorrowCount().intValue());
+        Assert.assertEquals(0, rule.snapshot(Date.from(clock.instant())).getRequestCount());
+        Assert.assertEquals(0, rule.snapshot(Date.from(clock.instant())).getSampledCount());
+        Assert.assertEquals(0, rule.snapshot(Date.from(clock.instant())).getBorrowCount());
     }
 
     @Test
     public void testRuleUpdateWithInvalidation() {
-        SamplingRule input = createInput("r1", 300, 10, 0.0)
-                .withHTTPMethod("POST")
-                .withServiceName("s1")
-                .withURLPath("/foo/bar");
+        SamplingRule input = createInput("r1", 300, 10, 0.0, "POST", "s1", "/foo/bar");
         CentralizedRule r = new CentralizedRule(input, new RandImpl());
 
-        SamplingRule update = createInput("r1", 301, 5, 0.5)
-                .withHTTPMethod("GET")
-                .withServiceName("s2")
-                .withURLPath("/bar/foo");
+        SamplingRule update = createInput("r1", 301, 5, 0.5, "GET", "s2", "/bar/foo");
         boolean invalidate = r.update(update);
 
         Matchers m = Whitebox.getInternalState(r, "matchers", CentralizedRule.class);
@@ -245,16 +240,10 @@ public class CentralizedRuleTest {
 
     @Test
     public void testRuleUpdateWithoutInvalidation() {
-        SamplingRule input = createInput("r1", 300, 10, 0.0)
-                .withHTTPMethod("POST")
-                .withServiceName("s1")
-                .withURLPath("/foo/bar");
+        SamplingRule input = createInput("r1", 300, 10, 0.0, "POST", "s1", "/foo/bar");
         CentralizedRule r = new CentralizedRule(input, new RandImpl());
 
-        SamplingRule update = createInput("r1", 300, 10, 0.0)
-                .withHTTPMethod("GET")
-                .withServiceName("s2")
-                .withURLPath("/bar/foo");
+        SamplingRule update = createInput("r1", 300, 10, 0.0, "GET", "s2", "/bar/foo");
         boolean invalidate = r.update(update);
 
         Matchers m = Whitebox.getInternalState(r, "matchers", CentralizedRule.class);
@@ -270,10 +259,8 @@ public class CentralizedRuleTest {
         SamplingRule input = createInput("r1", 300, 10, 0.0);
         CentralizedRule r = new CentralizedRule(input, new RandImpl());
 
-        SamplingTargetDocument update = new SamplingTargetDocument()
-                .withRuleName("r1")
-                .withFixedRate(0.5)
-                .withInterval(20);
+        SamplingTargetDocument update = SamplingTargetDocument.create(0.5,
+            20, null, null, "r1");
 
         r.update(update, Instant.now());
 
@@ -283,23 +270,33 @@ public class CentralizedRuleTest {
     }
 
     public static SamplingRule createInput(String name, int priority, int capacity, double rate) {
-        SamplingRule input = new SamplingRule()
-                .withRuleName(name)
-                .withPriority(priority)
-                .withFixedRate(rate)
-                .withReservoirSize(capacity);
+        RuleParams params = new RuleParams(name);
+        params.priority = priority;
+        params.reservoirSize = capacity;
+        params.fixedRate = rate;
+        return RuleBuilder.createRule(params);
+    }
 
-        return input;
+    public static SamplingRule createInput(String name, int priority, int capacity, double rate,
+        String httpMethod, String serviceName, String urlPath) {
+        RuleParams params = new RuleParams(name);
+        params.priority = priority;
+        params.reservoirSize = capacity;
+        params.fixedRate = rate;
+        params.httpMethod = httpMethod;
+        params.serviceName = serviceName;
+        params.urlPath = urlPath;
+        return RuleBuilder.createRule(params);
     }
 
     public static SamplingTargetDocument createTarget(int quota, double rate, long expiresAt) {
-        SamplingTargetDocument target = new SamplingTargetDocument()
-                .withReservoirQuota(quota)
-                .withReservoirQuotaTTL(Date.from(Instant.ofEpochSecond(expiresAt)))
-                .withFixedRate(rate)
-                .withInterval(10);
+        SamplingTargetDocument target = SamplingTargetDocument.create(
+            rate,
+            10,
+            quota,
+            Date.from(Instant.ofEpochSecond(expiresAt)),
+            "");
 
         return target;
     }
-
 }

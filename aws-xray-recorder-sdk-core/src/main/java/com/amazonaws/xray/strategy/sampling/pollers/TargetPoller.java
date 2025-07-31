@@ -15,11 +15,10 @@
 
 package com.amazonaws.xray.strategy.sampling.pollers;
 
-import com.amazonaws.services.xray.AWSXRay;
-import com.amazonaws.services.xray.model.GetSamplingTargetsRequest;
-import com.amazonaws.services.xray.model.GetSamplingTargetsResult;
-import com.amazonaws.services.xray.model.SamplingStatisticsDocument;
 import com.amazonaws.xray.internal.UnsignedXrayClient;
+import com.amazonaws.xray.strategy.sampling.GetSamplingTargetsRequest;
+import com.amazonaws.xray.strategy.sampling.GetSamplingTargetsRequest.SamplingStatisticsDocument;
+import com.amazonaws.xray.strategy.sampling.GetSamplingTargetsResponse;
 import com.amazonaws.xray.strategy.sampling.manifest.CentralizedManifest;
 import com.amazonaws.xray.strategy.sampling.rand.Rand;
 import com.amazonaws.xray.strategy.sampling.rand.RandImpl;
@@ -45,14 +44,6 @@ public class TargetPoller {
 
     @Nullable
     private volatile ScheduledFuture<?> pollFuture;
-
-    /**
-     * @deprecated Use {@link #TargetPoller(UnsignedXrayClient, CentralizedManifest, Clock)}.
-     */
-    @Deprecated
-    public TargetPoller(CentralizedManifest manifest, AWSXRay unused, Clock clock) {
-        this(new UnsignedXrayClient(), manifest, clock);
-    }
 
     public TargetPoller(UnsignedXrayClient client, CentralizedManifest manifest, Clock clock) {
         this.client = client;
@@ -95,11 +86,10 @@ public class TargetPoller {
         }
 
         logger.debug("Polling sampling targets.");
-        GetSamplingTargetsRequest req = new GetSamplingTargetsRequest()
-                .withSamplingStatisticsDocuments(statistics);
+        GetSamplingTargetsRequest req = GetSamplingTargetsRequest.create(statistics);
 
-        GetSamplingTargetsResult result = client.getSamplingTargets(req);
-        manifest.putTargets(result.getSamplingTargetDocuments(), clock.instant());
+        GetSamplingTargetsResponse result = client.getSamplingTargets(req);
+        manifest.putTargets(result.getDocuments(), clock.instant());
     }
 
     private long getIntervalWithJitter() {
