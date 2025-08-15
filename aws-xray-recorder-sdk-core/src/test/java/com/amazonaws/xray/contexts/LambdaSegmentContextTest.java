@@ -40,6 +40,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.slf4j.MDC;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -173,5 +174,119 @@ class LambdaSegmentContextTest {
             .isInstanceOf(NoOpSegment.class);
         mockContext.endSubsegment(AWSXRay.getGlobalRecorder());
         assertThat(AWSXRay.getTraceEntity()).isNull();
+    }
+
+    @Test
+    @SetSystemProperty(key = "com.amazonaws.xray.traceHeader", value = TRACE_HEADER)
+    void testSystemPropertyFallbackWithTraceValidation() {
+        LambdaSegmentContext mockContext = new LambdaSegmentContext();
+        Subsegment subsegment = mockContext.beginSubsegment(AWSXRay.getGlobalRecorder(), "test");
+        FacadeSegment parent = (FacadeSegment) subsegment.getParent();
+
+        // Verify system property values are used correctly
+        assertThat(parent.getTraceId().toString()).isEqualTo("1-57ff426a-80c11c39b0c928905eb0828d");
+        assertThat(parent.getId()).isEqualTo("1234abcd1234abcd");
+        assertThat(parent.isSampled()).isTrue();
+
+        mockContext.endSubsegment(AWSXRay.getGlobalRecorder());
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "_X_AMZN_TRACE_ID", value = TRACE_HEADER)
+    void testEnvironmentVariableFallbackWithTraceValidation() {
+        LambdaSegmentContext mockContext = new LambdaSegmentContext();
+        Subsegment subsegment = mockContext.beginSubsegment(AWSXRay.getGlobalRecorder(), "test");
+        FacadeSegment parent = (FacadeSegment) subsegment.getParent();
+
+        // Verify system property values are used correctly
+        assertThat(parent.getTraceId().toString()).isEqualTo("1-57ff426a-80c11c39b0c928905eb0828d");
+        assertThat(parent.getId()).isEqualTo("1234abcd1234abcd");
+        assertThat(parent.isSampled()).isTrue();
+
+        mockContext.endSubsegment(AWSXRay.getGlobalRecorder());
+    }
+
+    @Test
+    @SetSystemProperty(key = "com.amazonaws.xray.traceHeader", value = TRACE_HEADER_2)
+    void testMdcTakesPriorityOverSystemProperty() {
+        MDC.put("AWS_LAMBDA_X_TRACE_ID", TRACE_HEADER);
+
+        try {
+            LambdaSegmentContext mockContext = new LambdaSegmentContext();
+            Subsegment subsegment = mockContext.beginSubsegment(AWSXRay.getGlobalRecorder(), "test");
+            FacadeSegment parent = (FacadeSegment) subsegment.getParent();
+
+            // Verify MDC values are used (TRACE_HEADER), not system property values (TRACE_HEADER_2)
+            assertThat(parent.getTraceId().toString()).isEqualTo("1-57ff426a-80c11c39b0c928905eb0828d");
+            assertThat(parent.getId()).isEqualTo("1234abcd1234abcd");
+            assertThat(parent.isSampled()).isTrue();
+
+            mockContext.endSubsegment(AWSXRay.getGlobalRecorder());
+        } finally {
+            MDC.remove("AWS_LAMBDA_X_TRACE_ID");
+        }
+    }
+
+    @Test
+    @SetSystemProperty(key = "com.amazonaws.xray.traceHeader", value = TRACE_HEADER)
+    void testMdcWithEmptyStringFallsBackToSystemProperty() {
+        MDC.put("AWS_LAMBDA_X_TRACE_ID", "");
+
+        try {
+            LambdaSegmentContext mockContext = new LambdaSegmentContext();
+            Subsegment subsegment = mockContext.beginSubsegment(AWSXRay.getGlobalRecorder(), "test");
+            FacadeSegment parent = (FacadeSegment) subsegment.getParent();
+
+            // Verify system property values are used when MDC is empty
+            assertThat(parent.getTraceId().toString()).isEqualTo("1-57ff426a-80c11c39b0c928905eb0828d");
+            assertThat(parent.getId()).isEqualTo("1234abcd1234abcd");
+            assertThat(parent.isSampled()).isTrue();
+
+            mockContext.endSubsegment(AWSXRay.getGlobalRecorder());
+        } finally {
+            MDC.remove("AWS_LAMBDA_X_TRACE_ID");
+        }
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "_X_AMZN_TRACE_ID", value = TRACE_HEADER_2)
+    void testMdcTakesPriorityOverEnvironmentVariable() {
+        MDC.put("AWS_LAMBDA_X_TRACE_ID", TRACE_HEADER);
+
+        try {
+            LambdaSegmentContext mockContext = new LambdaSegmentContext();
+            Subsegment subsegment = mockContext.beginSubsegment(AWSXRay.getGlobalRecorder(), "test");
+            FacadeSegment parent = (FacadeSegment) subsegment.getParent();
+
+            // Verify MDC values are used (TRACE_HEADER), not environment variable values (TRACE_HEADER_2)
+            assertThat(parent.getTraceId().toString()).isEqualTo("1-57ff426a-80c11c39b0c928905eb0828d");
+            assertThat(parent.getId()).isEqualTo("1234abcd1234abcd");
+            assertThat(parent.isSampled()).isTrue();
+
+            mockContext.endSubsegment(AWSXRay.getGlobalRecorder());
+        } finally {
+            MDC.remove("AWS_LAMBDA_X_TRACE_ID");
+        }
+    }
+
+    @Test
+    @SetEnvironmentVariable(key = "_X_AMZN_TRACE_ID", value = TRACE_HEADER)
+    void testMdcWithEmptyStringFallsBackToEnvironmentVariable() {
+        MDC.put("AWS_LAMBDA_X_TRACE_ID", "");
+
+        try {
+            LambdaSegmentContext mockContext = new LambdaSegmentContext();
+            Subsegment subsegment = mockContext.beginSubsegment(AWSXRay.getGlobalRecorder(), "test");
+            FacadeSegment parent = (FacadeSegment) subsegment.getParent();
+
+            // Verify environment variable values are used when MDC is empty
+            assertThat(parent.getTraceId().toString()).isEqualTo("1-57ff426a-80c11c39b0c928905eb0828d");
+            assertThat(parent.getId()).isEqualTo("1234abcd1234abcd");
+            assertThat(parent.isSampled()).isTrue();
+
+            mockContext.endSubsegment(AWSXRay.getGlobalRecorder());
+        } finally {
+            MDC.remove("AWS_LAMBDA_X_TRACE_ID");
+        }
     }
 }
