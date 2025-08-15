@@ -6,6 +6,7 @@ plugins {
 dependencies {
     api("commons-logging:commons-logging:1.3.5")
 
+    implementation("software.amazon.awssdk:utils-lite:2.34.0")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.17.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
     implementation("com.google.auto.value:auto-value-annotations:1.10.4")
