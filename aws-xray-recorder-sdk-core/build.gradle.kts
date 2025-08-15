@@ -11,6 +11,7 @@ dependencies {
     implementation("com.google.auto.value:auto-value-annotations:1.10.4")
     implementation("com.google.auto.service:auto-service-annotations:1.1.1")
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
+    implementation("org.slf4j:slf4j-api:1.7.30")
 
     annotationProcessor("com.google.auto.value:auto-value:1.10.4")
 
@@ -26,6 +27,8 @@ dependencies {
     testImplementation("org.powermock:powermock-api-mockito2:2.0.7")
     testImplementation("org.skyscreamer:jsonassert:1.3.0")
     testImplementation("jakarta.servlet:jakarta.servlet-api:5.0.0")
+    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:2.17.2")
+    testImplementation("org.apache.logging.log4j:log4j-core:2.17.2")
 }
 
 tasks.jar {

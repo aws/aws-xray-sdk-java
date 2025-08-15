@@ -30,20 +30,28 @@ import java.util.List;
 import java.util.Objects;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.MDC;
 
 public class LambdaSegmentContext implements SegmentContext {
     private static final Log logger = LogFactory.getLog(LambdaSegmentContext.class);
 
     private static final String LAMBDA_TRACE_HEADER_KEY = "_X_AMZN_TRACE_ID";
-    
+    private static final String CONCURRENT_TRACE_ID_KEY = "AWS_LAMBDA_X_TRACE_ID";
+
     // See: https://github.com/aws/aws-xray-sdk-java/issues/251
     private static final String LAMBDA_TRACE_HEADER_PROP = "com.amazonaws.xray.traceHeader";
 
     public static TraceHeader getTraceHeaderFromEnvironment() {
-        String lambdaTraceHeaderKey = System.getenv(LAMBDA_TRACE_HEADER_KEY);
-        return TraceHeader.fromString(lambdaTraceHeaderKey != null && lambdaTraceHeaderKey.length() > 0 
-            ? lambdaTraceHeaderKey 
-            : System.getProperty(LAMBDA_TRACE_HEADER_PROP));
+        String lambdaTraceHeaderKeyFromMdc = MDC.get(CONCURRENT_TRACE_ID_KEY);
+        String lambdaTraceHeaderKeyFromEnvVar = System.getenv(LAMBDA_TRACE_HEADER_KEY);
+
+        if (lambdaTraceHeaderKeyFromMdc != null && lambdaTraceHeaderKeyFromMdc.length() > 0) {
+            return TraceHeader.fromString(lambdaTraceHeaderKeyFromMdc);
+        } else if (lambdaTraceHeaderKeyFromEnvVar != null && lambdaTraceHeaderKeyFromEnvVar.length() > 0) {
+            return TraceHeader.fromString(lambdaTraceHeaderKeyFromEnvVar);
+        } else {
+            return TraceHeader.fromString(System.getProperty(LAMBDA_TRACE_HEADER_PROP));
+        }
     }
 
     // SuppressWarnings is needed for passing Root TraceId to noOp segment
