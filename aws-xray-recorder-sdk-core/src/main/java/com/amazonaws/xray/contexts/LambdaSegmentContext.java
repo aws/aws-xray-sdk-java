@@ -42,11 +42,11 @@ public class LambdaSegmentContext implements SegmentContext {
     private static final String LAMBDA_TRACE_HEADER_PROP = "com.amazonaws.xray.traceHeader";
 
     public static TraceHeader getTraceHeaderFromEnvironment() {
-        String lambdaTraceHeaderKeyFromMdc = SdkInternalThreadLocal.get(CONCURRENT_TRACE_ID_KEY);
+        String lambdaTraceHeaderKeyFromAwsSdkInternal = SdkInternalThreadLocal.get(CONCURRENT_TRACE_ID_KEY);
         String lambdaTraceHeaderKeyFromEnvVar = System.getenv(LAMBDA_TRACE_HEADER_KEY);
 
-        if (lambdaTraceHeaderKeyFromMdc != null && lambdaTraceHeaderKeyFromMdc.length() > 0) {
-            return TraceHeader.fromString(lambdaTraceHeaderKeyFromMdc);
+        if (lambdaTraceHeaderKeyFromAwsSdkInternal != null && lambdaTraceHeaderKeyFromAwsSdkInternal.length() > 0) {
+            return TraceHeader.fromString(lambdaTraceHeaderKeyFromAwsSdkInternal);
         } else if (lambdaTraceHeaderKeyFromEnvVar != null && lambdaTraceHeaderKeyFromEnvVar.length() > 0) {
             return TraceHeader.fromString(lambdaTraceHeaderKeyFromEnvVar);
         } else {
