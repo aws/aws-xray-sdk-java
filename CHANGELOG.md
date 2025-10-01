@@ -1,4 +1,10 @@
 # Change Log
+## 2.20.0 - 2025-10-01
+- Support extracting X-Ray Trace Id via SdkInternalThreadLocal in Lambda Segment Context (#433)
+  [PR 433](https://github.com/aws/aws-xray-sdk-java/pull/433)
+- Bump aws-java-sdk-core api version to 1.12.788 in AWS SDK for Java v1 Instrumentation (#430)
+  [PR 430](https://github.com/aws/aws-xray-sdk-java/pull/430)
+
 ## 2.19.0 - 2025-08-06
 - Remove AWS SDK v1 Dependency from X-Ray SDK Core (#428) 
   [PR 428](https://github.com/aws/aws-xray-sdk-java/pull/428)
