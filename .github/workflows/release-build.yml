@@ -5,6 +5,9 @@ on:
         description: The version to tag the release with, e.g., 1.2.0, 1.2.1-alpha.1
         required: true
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
