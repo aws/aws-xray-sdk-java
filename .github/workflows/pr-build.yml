@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     name: Build Java ${{ matrix.java }} on ${{ matrix.os }}
+    permissions:
+      contents: read
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
