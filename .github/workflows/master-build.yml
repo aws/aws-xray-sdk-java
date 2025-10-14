@@ -1,4 +1,6 @@
 name: Master Build
+permissions:
+  contents: read
 on:
   push:
     branches:
