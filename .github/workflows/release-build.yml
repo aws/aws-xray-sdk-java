@@ -26,14 +26,22 @@ jobs:
         with:
           path: ~/.gradle/wrapper
           key: gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Validate version input
+        run: |
+          if [[ ! "${{ github.event.inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
+            echo "Invalid version format. Must follow Semantic Versioning (e.g., 1.2.3, 1.2.3-alpha.1, 1.2.3+build.1)"
+            exit 1
+          fi
       - name: Build and test
-        run: ./gradlew build -Prelease.version=${{ github.event.inputs.version }} --stacktrace
+        run: ./gradlew build -Prelease.version="$RELEASE_VERSION" --stacktrace
         env:
           CI: true
+          RELEASE_VERSION: ${{ github.event.inputs.version }}
       - name: Build and publish to sonatype
-        run: ./gradlew final closeAndReleaseSonatypeStagingRepository -Prelease.version=${{ github.event.inputs.version }} --stacktrace
+        run: ./gradlew final closeAndReleaseSonatypeStagingRepository -Prelease.version="$RELEASE_VERSION" --stacktrace
         env:
           CI: true
+          RELEASE_VERSION: ${{ github.event.inputs.version }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
