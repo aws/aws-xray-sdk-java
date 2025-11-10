@@ -33,12 +33,12 @@ jobs:
             exit 1
           fi
       - name: Build and test
-        run: ./gradlew build -Prelease.version="${RELEASE_VERSION}" --stacktrace
+        run: ./gradlew build -Prelease.version="$RELEASE_VERSION" --stacktrace
         env:
           CI: true
           RELEASE_VERSION: ${{ github.event.inputs.version }}
       - name: Build and publish to sonatype
-        run: ./gradlew final closeAndReleaseSonatypeStagingRepository -Prelease.version="${RELEASE_VERSION}" --stacktrace
+        run: ./gradlew final closeAndReleaseSonatypeStagingRepository -Prelease.version="$RELEASE_VERSION" --stacktrace
         env:
           CI: true
           RELEASE_VERSION: ${{ github.event.inputs.version }}
