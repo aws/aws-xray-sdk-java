@@ -1,0 +1,172 @@
+name: "Daily Security Scan"
+
+on:
+  schedule:
+    # Run twice daily at 6 AM and 6 PM UTC
+    - cron: '0 6,18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  scan-published-artifacts:
+    name: Scan Published Maven Artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - artifact: "com.amazonaws:aws-xray-recorder-sdk-core"
+            name: "core"
+          - artifact: "com.amazonaws:aws-xray-recorder-sdk-aws-sdk"
+            name: "aws-sdk"
+          - artifact: "com.amazonaws:aws-xray-recorder-sdk-apache-http"
+            name: "apache-http"
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+
+    - name: Download latest published artifact
+      continue-on-error: true
+      timeout-minutes: 10
+      run: |
+        # Create temp directory for artifact analysis
+        mkdir -p temp-scan/${{ matrix.name }}
+        cd temp-scan/${{ matrix.name }}
+        
+        # Get latest version from Maven Central
+        LATEST_VERSION=$(curl -s "https://search.maven.org/solrsearch/select?q=g:com.amazonaws+AND+a:$(echo '${{ matrix.artifact }}' | cut -d: -f2)&rows=1&wt=json" | jq -r '.response.docs[0].latestVersion // "UNKNOWN"')
+        echo "Latest version: $LATEST_VERSION"
+        
+        if [ "$LATEST_VERSION" != "UNKNOWN" ] && [ "$LATEST_VERSION" != "null" ]; then
+          # Download the JAR file
+          ARTIFACT_PATH=$(echo '${{ matrix.artifact }}' | sed 's/:/\//g' | sed 's/\./\//g')
+          JAR_NAME=$(echo '${{ matrix.artifact }}' | cut -d: -f2)
+          
+          curl -L -o "${JAR_NAME}-${LATEST_VERSION}.jar" "https://repo1.maven.org/maven2/${ARTIFACT_PATH}/${LATEST_VERSION}/${JAR_NAME}-${LATEST_VERSION}.jar" || echo "Failed to download JAR"
+          
+          # Download POM for dependency analysis
+          curl -L -o "${JAR_NAME}-${LATEST_VERSION}.pom" "https://repo1.maven.org/maven2/${ARTIFACT_PATH}/${LATEST_VERSION}/${JAR_NAME}-${LATEST_VERSION}.pom" || echo "Failed to download POM"
+          
+          echo "Downloaded artifacts for ${{ matrix.artifact }} version $LATEST_VERSION"
+          ls -la
+        else
+          echo "Could not determine latest version for ${{ matrix.artifact }}"
+        fi
+
+    - name: Run OWASP Dependency Check on published artifact
+      continue-on-error: true
+      timeout-minutes: 20
+      run: |
+        cd temp-scan/${{ matrix.name }}
+        
+        # Download and run OWASP Dependency Check
+        curl -L -o dependency-check-11.1.0-release.zip https://github.com/jeremylong/DependencyCheck/releases/download/v11.1.0/dependency-check-11.1.0-release.zip
+        unzip -q dependency-check-11.1.0-release.zip
+        
+        # Scan the downloaded artifacts
+        if ls *.jar 1> /dev/null 2>&1; then
+          ./dependency-check/bin/dependency-check.sh \
+            --project "aws-xray-sdk-java-${{ matrix.name }}" \
+            --scan . \
+            --format SARIF \
+            --out "dependency-check-${{ matrix.name }}-results.sarif" \
+            --failOnCVSS 7 \
+            --enableRetired || echo "Dependency check completed with findings"
+        else
+          echo "No JAR files found to scan"
+        fi
+
+    - name: Upload OWASP Dependency Check results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always()
+      with:
+        sarif_file: 'temp-scan/${{ matrix.name }}/dependency-check-${{ matrix.name }}-results.sarif'
+        category: 'daily-scan-${{ matrix.name }}'
+
+    - name: Generate summary report
+      if: always()
+      run: |
+        echo "## Daily Security Scan Results for ${{ matrix.artifact }}" >> $GITHUB_STEP_SUMMARY
+        echo "Scan completed at $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "Artifact: ${{ matrix.artifact }}" >> $GITHUB_STEP_SUMMARY
+        echo "Component: ${{ matrix.name }}" >> $GITHUB_STEP_SUMMARY
+        
+        # Check if vulnerabilities were found
+        SARIF_FILE="temp-scan/${{ matrix.name }}/dependency-check-${{ matrix.name }}-results.sarif"
+        if [ -f "$SARIF_FILE" ]; then
+          VULN_COUNT=$(jq '.runs[0].results | length' "$SARIF_FILE" 2>/dev/null || echo "0")
+          echo "Vulnerabilities found: $VULN_COUNT" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$VULN_COUNT" -gt "0" ]; then
+            echo "⚠️ **Action Required**: Vulnerabilities detected in published artifact" >> $GITHUB_STEP_SUMMARY
+            echo "Check the Security tab for detailed findings" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No high/critical vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "❌ Scan failed or artifact not accessible" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  scan-latest-dependencies:
+    name: Scan Latest Dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@d156388eb19639ec20ade50009f3d199ce1e2808 # v4.1.0
+
+    - name: Run dependency vulnerability scan
+      continue-on-error: true
+      run: |
+        # Generate current dependency tree
+        ./gradlew dependencies --configuration runtimeClasspath > current-dependencies.txt
+        
+        # Download and run OWASP Dependency Check on current dependencies
+        curl -L -o dependency-check-11.1.0-release.zip https://github.com/jeremylong/DependencyCheck/releases/download/v11.1.0/dependency-check-11.1.0-release.zip
+        unzip -q dependency-check-11.1.0-release.zip
+        
+        ./dependency-check/bin/dependency-check.sh \
+          --project "aws-xray-sdk-java-current" \
+          --scan . \
+          --format SARIF \
+          --out dependency-check-current-results.sarif \
+          --failOnCVSS 7 \
+          --enableRetired || echo "Dependency check completed"
+
+    - name: Upload current dependency scan results
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always()
+      with:
+        sarif_file: dependency-check-current-results.sarif
+        category: 'daily-scan-current-deps'
+
+    - name: Upload dependency reports
+      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      if: always()
+      with:
+        name: daily-dependency-reports
+        path: |
+          dependency-check-current-results.sarif
+          current-dependencies.txt
