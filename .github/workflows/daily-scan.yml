@@ -87,8 +87,11 @@ jobs:
       - name: Publish dependency scan status
         if: always()
         run: |
-          value="${{ steps.dep_scan.outcome == 'success' && '0' || '1' }}"
-          aws cloudwatch put-metric-data --metric-name XRayJavaSDKSecurityScanFailures --dimensions failure=rate --namespace MonitorSDK --value $value --timestamp $(date +%s)
+          value="${{ steps.dep_scan.outcome == 'success' && '1.0' || '0.0' }}"
+          aws cloudwatch put-metric-data --namespace 'MonitorSDK' \
+            --metric-name Success \
+            --dimensions repository=${{ github.repository }},branch=${{ github.ref_name }},workflow=daily_scan_low \
+            --value $value
 
       - name: Cleanup
         if: always()
