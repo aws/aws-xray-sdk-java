@@ -48,6 +48,14 @@ jobs:
             OSS_INDEX, ${{ secrets.OSS_INDEX_SECRET_ARN }}
           parse-json-secrets: true
 
+      - name: Download published artifact for scanning
+        run: |
+          mkdir -p scan-target
+          XRAY_VERSION=$(curl -s "https://search.maven.org/solrsearch/select?q=g:com.amazonaws+AND+a:aws-xray-recorder-sdk-core&rows=1&wt=json" | jq -r '.response.docs[0].latestVersion')
+          echo "Latest version: $XRAY_VERSION"
+          printf '<project>\n  <modelVersion>4.0.0</modelVersion>\n  <groupId>scan</groupId><artifactId>scan</artifactId><version>1</version>\n  <dependencies>\n    <dependency>\n      <groupId>com.amazonaws</groupId>\n      <artifactId>aws-xray-recorder-sdk-core</artifactId>\n      <version>%s</version>\n    </dependency>\n  </dependencies>\n</project>\n' "$XRAY_VERSION" > /tmp/scan-pom.xml
+          mvn -f /tmp/scan-pom.xml dependency:copy-dependencies -DoutputDirectory=$(pwd)/scan-target/
+
       # See http://jeremylong.github.io/DependencyCheck/dependency-check-cli/ for installation explanation
       - name: Install and run dependency scan
         id: dep_scan
@@ -59,7 +67,7 @@ jobs:
           curl -Ls "https://github.com/dependency-check/DependencyCheck/releases/download/v$VERSION/dependency-check-$VERSION-release.zip.asc" --output dependency-check.zip.asc
           gpg --verify dependency-check.zip.asc
           unzip dependency-check.zip
-          ./dependency-check/bin/dependency-check.sh --failOnCVSS 0 --nvdApiKey ${{ env.NVD_API_KEY_NVD_API_KEY }} --ossIndexUsername ${{ env.OSS_INDEX_USERNAME }} --ossIndexPassword ${{ env.OSS_INDEX_PASSWORD }} -s "."
+          ./dependency-check/bin/dependency-check.sh --failOnCVSS 0 --nvdApiKey ${{ env.NVD_API_KEY_NVD_API_KEY }} --ossIndexUsername ${{ env.OSS_INDEX_USERNAME }} --ossIndexPassword ${{ env.OSS_INDEX_PASSWORD }} -s "scan-target/"
 
       - name: Print dependency scan results on failure
         if: ${{ steps.dep_scan.outcome != 'success' }}
