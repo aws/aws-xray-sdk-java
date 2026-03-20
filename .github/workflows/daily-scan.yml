@@ -2,6 +2,7 @@
 ## SPDX-License-Identifier: Apache-2.0
 # Performs a daily scan of:
 # * Project dependencies, using DependencyCheck
+# * The published artifact and its dependencies, using Trivy
 #
 #  Publishes results to CloudWatch Metrics.
 name: Daily scan
@@ -53,7 +54,28 @@ jobs:
           mkdir -p scan-target
           XRAY_VERSION=$(curl -s "https://search.maven.org/solrsearch/select?q=g:com.amazonaws+AND+a:aws-xray-recorder-sdk-core&rows=1&wt=json" | jq -r '.response.docs[0].latestVersion')
           echo "Latest version: $XRAY_VERSION"
-          printf '<project>\n  <modelVersion>4.0.0</modelVersion>\n  <groupId>scan</groupId><artifactId>scan</artifactId><version>1</version>\n  <dependencies>\n    <dependency>\n      <groupId>com.amazonaws</groupId>\n      <artifactId>aws-xray-recorder-sdk-core</artifactId>\n      <version>%s</version>\n    </dependency>\n  </dependencies>\n</project>\n' "$XRAY_VERSION" > /tmp/scan-pom.xml
+          ARTIFACTS=(
+            aws-xray-recorder-sdk-core
+            aws-xray-recorder-sdk-apache-http
+            aws-xray-recorder-sdk-aws-sdk
+            aws-xray-recorder-sdk-aws-sdk-core
+            aws-xray-recorder-sdk-aws-sdk-instrumentor
+            aws-xray-recorder-sdk-aws-sdk-v2
+            aws-xray-recorder-sdk-aws-sdk-v2-instrumentor
+            aws-xray-recorder-sdk-lambda
+            aws-xray-recorder-sdk-log4j
+            aws-xray-recorder-sdk-metrics
+            aws-xray-recorder-sdk-slf4j
+            aws-xray-recorder-sdk-spring
+            aws-xray-recorder-sdk-sql
+            aws-xray-recorder-sdk-sql-mysql
+            aws-xray-recorder-sdk-sql-postgres
+          )
+          DEPS=""
+          for a in "${ARTIFACTS[@]}"; do
+            DEPS+="<dependency><groupId>com.amazonaws</groupId><artifactId>$a</artifactId><version>$XRAY_VERSION</version></dependency>"
+          done
+          printf '<project>\n  <modelVersion>4.0.0</modelVersion>\n  <groupId>scan</groupId><artifactId>scan</artifactId><version>1</version>\n  <dependencies>\n    %s\n  </dependencies>\n</project>\n' "$DEPS" > /tmp/scan-pom.xml
           mvn -f /tmp/scan-pom.xml dependency:copy-dependencies -DoutputDirectory=$(pwd)/scan-target/
 
       # See http://jeremylong.github.io/DependencyCheck/dependency-check-cli/ for installation explanation
@@ -73,6 +95,34 @@ jobs:
         if: ${{ steps.dep_scan.outcome != 'success' }}
         run: less dependency-check-report.html
 
+      - name: Extract JARs for Trivy scanning
+        if: always()
+        run: |
+          mkdir -p released-artifact
+          for jar in scan-target/*.jar; do
+            unzip -q -o "$jar" -d released-artifact/
+          done
+
+      - name: Perform high severity scan on published artifact dependencies
+        if: always()
+        id: high_scan_latest
+        uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # v0.34.2
+        with:
+          scan-type: 'fs'
+          scan-ref: 'released-artifact/'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+
+      - name: Perform low severity scan on published artifact dependencies
+        if: always()
+        id: low_scan_latest
+        uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # v0.34.2
+        with:
+          scan-type: 'fs'
+          scan-ref: 'released-artifact/'
+          severity: 'MEDIUM,LOW,UNKNOWN'
+          exit-code: '1'
+
       - name: Configure AWS Credentials for emitting metrics
         if: always()
         uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838 #5.0.0
@@ -80,10 +130,19 @@ jobs:
           role-to-assume: ${{ secrets.AWS_INTEG_TEST_ROLE_ARN }}
           aws-region: ${{ env.AWS_DEFAULT_REGION }}
 
-      - name: Publish dependency scan status
+      - name: Publish high scan status
         if: always()
         run: |
-          value="${{ steps.dep_scan.outcome == 'success' && '1.0' || '0.0' }}"
+          value="${{ steps.high_scan_latest.outcome == 'success' && '1.0' || '0.0' }}"
+          aws cloudwatch put-metric-data --namespace 'MonitorSDK' \
+            --metric-name Success \
+            --dimensions repository=${{ github.repository }},branch=${{ github.ref_name }},workflow=daily_scan_high \
+            --value $value
+
+      - name: Publish low scan status
+        if: always()
+        run: |
+          value="${{ steps.low_scan_latest.outcome == 'success' && steps.dep_scan.outcome == 'success' && '1.0' || '0.0' }}"
           aws cloudwatch put-metric-data --namespace 'MonitorSDK' \
             --metric-name Success \
             --dimensions repository=${{ github.repository }},branch=${{ github.ref_name }},workflow=daily_scan_low \
