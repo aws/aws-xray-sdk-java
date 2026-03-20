@@ -54,7 +54,28 @@ jobs:
           mkdir -p scan-target
           XRAY_VERSION=$(curl -s "https://search.maven.org/solrsearch/select?q=g:com.amazonaws+AND+a:aws-xray-recorder-sdk-core&rows=1&wt=json" | jq -r '.response.docs[0].latestVersion')
           echo "Latest version: $XRAY_VERSION"
-          printf '<project>\n  <modelVersion>4.0.0</modelVersion>\n  <groupId>scan</groupId><artifactId>scan</artifactId><version>1</version>\n  <dependencies>\n    <dependency>\n      <groupId>com.amazonaws</groupId>\n      <artifactId>aws-xray-recorder-sdk-core</artifactId>\n      <version>%s</version>\n    </dependency>\n  </dependencies>\n</project>\n' "$XRAY_VERSION" > /tmp/scan-pom.xml
+          ARTIFACTS=(
+            aws-xray-recorder-sdk-core
+            aws-xray-recorder-sdk-apache-http
+            aws-xray-recorder-sdk-aws-sdk
+            aws-xray-recorder-sdk-aws-sdk-core
+            aws-xray-recorder-sdk-aws-sdk-instrumentor
+            aws-xray-recorder-sdk-aws-sdk-v2
+            aws-xray-recorder-sdk-aws-sdk-v2-instrumentor
+            aws-xray-recorder-sdk-lambda
+            aws-xray-recorder-sdk-log4j
+            aws-xray-recorder-sdk-metrics
+            aws-xray-recorder-sdk-slf4j
+            aws-xray-recorder-sdk-spring
+            aws-xray-recorder-sdk-sql
+            aws-xray-recorder-sdk-sql-mysql
+            aws-xray-recorder-sdk-sql-postgres
+          )
+          DEPS=""
+          for a in "${ARTIFACTS[@]}"; do
+            DEPS+="<dependency><groupId>com.amazonaws</groupId><artifactId>$a</artifactId><version>$XRAY_VERSION</version></dependency>"
+          done
+          printf '<project>\n  <modelVersion>4.0.0</modelVersion>\n  <groupId>scan</groupId><artifactId>scan</artifactId><version>1</version>\n  <dependencies>\n    %s\n  </dependencies>\n</project>\n' "$DEPS" > /tmp/scan-pom.xml
           mvn -f /tmp/scan-pom.xml dependency:copy-dependencies -DoutputDirectory=$(pwd)/scan-target/
 
       # See http://jeremylong.github.io/DependencyCheck/dependency-check-cli/ for installation explanation
