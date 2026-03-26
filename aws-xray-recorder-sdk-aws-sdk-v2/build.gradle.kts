@@ -8,14 +8,17 @@ dependencies {
 
     implementation(project(":aws-xray-recorder-sdk-aws-sdk-core"))
 
-    api("software.amazon.awssdk:aws-core:2.15.20")
+    api("software.amazon.awssdk:aws-core:2.30.31")
+
+    implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("com.fasterxml.jackson.core:jackson-core")
 
     testImplementation("org.skyscreamer:jsonassert:1.3.0")
-    testImplementation("software.amazon.awssdk:dynamodb:2.15.20")
-    testImplementation("software.amazon.awssdk:lambda:2.15.20")
-    testImplementation("software.amazon.awssdk:sqs:2.15.20")
-    testImplementation("software.amazon.awssdk:sns:2.15.20")
-    testImplementation("software.amazon.awssdk:s3:2.15.20")
+    testImplementation("software.amazon.awssdk:dynamodb:2.30.31")
+    testImplementation("software.amazon.awssdk:lambda:2.30.31")
+    testImplementation("software.amazon.awssdk:sqs:2.30.31")
+    testImplementation("software.amazon.awssdk:sns:2.30.31")
+    testImplementation("software.amazon.awssdk:s3:2.30.31")
 }
 
 tasks.jar {

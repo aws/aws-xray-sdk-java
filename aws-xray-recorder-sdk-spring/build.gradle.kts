@@ -9,9 +9,9 @@ dependencies {
     api("org.aspectj:aspectjrt:1.8.11")
 
     // TODO(anuraaga): Remove most of these? Seems only Configurable annotation is used
-    implementation("org.springframework:spring-context-support:5.3.18")
-    implementation("org.springframework:spring-context:5.3.18")
-    implementation("org.springframework:spring-aspects:5.3.18")
+    implementation("org.springframework:spring-context-support:5.3.39")
+    implementation("org.springframework:spring-context:5.3.39")
+    implementation("org.springframework:spring-aspects:5.3.39")
 
     compileOnly("org.springframework.data:spring-data-commons:2.6.3")
 }
