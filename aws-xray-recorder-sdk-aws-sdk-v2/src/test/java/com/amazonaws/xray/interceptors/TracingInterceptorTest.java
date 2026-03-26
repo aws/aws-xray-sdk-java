@@ -173,14 +173,15 @@ public class TracingInterceptorTest {
 
     @Test
     public void testSqsSendMessageSubsegmentContainsQueueUrl() throws Exception {
-        SdkHttpClient mockClient = mockClientWithSuccessResponse(
-                "<SendMessageResponse>" +
-                    "<SendMessageResult>" +
-                        "<MD5OfMessageBody>b10a8db164e0754105b7a99be72e3fe5</MD5OfMessageBody>" +
-                        "<MessageId>abc-def-ghi</MessageId>" +
-                    "</SendMessageResult>" +
-                    "<ResponseMetadata><RequestId>123-456-789</RequestId></ResponseMetadata>" +
-                "</SendMessageResponse>"
+        SdkHttpResponse mockResponse = SdkHttpResponse.builder()
+                .statusCode(200)
+                .putHeader("x-amzn-RequestId", "123-456-789")
+                .build();
+        SdkHttpClient mockClient = mockSdkHttpClient(mockResponse,
+                "{" +
+                    "\"MD5OfMessageBody\":\"b10a8db164e0754105b7a99be72e3fe5\"," +
+                    "\"MessageId\":\"abc-def-ghi\"" +
+                "}"
         );
         SqsClient client = sqsClient(mockClient);
 
