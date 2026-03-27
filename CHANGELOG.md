@@ -1,4 +1,8 @@
 # Change Log
+## 2.21.0 - 2026-03-27
+- Upgrade AWS SDK v2 to 2.30 and other dependencies for CVE fixes (#451)
+  [PR 451](https://github.com/aws/aws-xray-sdk-java/pull/451)
+
 ## 2.20.0 - 2025-10-01
 - Support extracting X-Ray Trace Id via SdkInternalThreadLocal in Lambda Segment Context (#433)
   [PR 433](https://github.com/aws/aws-xray-sdk-java/pull/433)
