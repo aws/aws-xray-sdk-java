@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Trivy ignore file for daily scans.
-# This file is intentionally empty. Daily scans should flag all CVEs.
 # See: https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/
 
 # Format:
@@ -10,4 +9,26 @@
 #   statement: "<Why are we excluding?> <link to CVE where we can track status>"
 #   expired_at: <required - YYYY-MM-DD>
 
-vulnerabilities: []
+vulnerabilities:
+  # The AWS SDK for Java v1 (com.amazonaws:aws-java-sdk-core:1.12.788) reached EOL
+  # on 2025-12-31 and will not receive further releases. Its published JARs embed POM
+  # metadata declaring jackson-core 2.12.7 as a dependency — this cannot be changed.
+  # The X-Ray SDK still supports AWS SDK v1 instrumentation via the
+  # aws-xray-recorder-sdk-aws-sdk module, but the actual jackson-core JAR resolved
+  # at runtime is 2.18.6 (provided by the X-Ray SDK's own jackson BOM). Maven
+  # dependency mediation ensures the higher version wins. These Trivy findings are
+  # from third-party POM metadata only, not the actual runtime JARs.
+  - id: CVE-2025-52999
+    paths:
+      - "META-INF/maven/com.amazonaws/aws-java-sdk-core/pom.xml"
+      - "META-INF/maven/com.amazonaws/aws-java-sdk-xray/pom.xml"
+      - "META-INF/maven/com.amazonaws/jmespath-java/pom.xml"
+    statement: "AWS SDK v1 EOL (1.12.788 is final release) — jackson-core 2.12.7 in POM metadata only. Actual runtime JAR is 2.18.6 via X-Ray SDK BOM."
+    expired_at: 2027-03-25
+  - id: GHSA-72hv-8253-57qq
+    paths:
+      - "META-INF/maven/com.amazonaws/aws-java-sdk-core/pom.xml"
+      - "META-INF/maven/com.amazonaws/aws-java-sdk-xray/pom.xml"
+      - "META-INF/maven/com.amazonaws/jmespath-java/pom.xml"
+    statement: "AWS SDK v1 EOL (1.12.788 is final release) — jackson-core 2.12.7 in POM metadata only. Actual runtime JAR is 2.18.6 via X-Ray SDK BOM."
+    expired_at: 2027-03-25

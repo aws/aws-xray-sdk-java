@@ -1,3 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!--False positive: aws-xray-recorder-sdk-sql-mysql is NOT MySQL Server.
+        The module wraps JDBC calls for tracing and has no MySQL dependency.
+        DependencyCheck matches it via the overly broad CPE cpe:2.3:a:mysql:mysql.-->
+    <suppress>
+        <notes><![CDATA[sql-mysql SDK module is not MySQL Server — CPE false positive]]></notes>
+        <filePath regex="true">.*aws-xray-recorder-sdk-sql-mysql.*</filePath>
+        <cpe>cpe:/a:mysql:mysql</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[sql-mysql SDK module is not www-sql — CPE false positive]]></notes>
+        <filePath regex="true">.*aws-xray-recorder-sdk-sql-mysql.*</filePath>
+        <cpe>cpe:/a:www-sql_project:www-sql</cpe>
+    </suppress>
+    <!--False positive: CVE-2023-35116 is disputed/rejected by jackson-databind maintainers.
+        Requires caller to explicitly enable UNWRAP_SINGLE_VALUE_ARRAYS with untrusted input.
+        See: https://github.com/FasterXML/jackson-databind/issues/3972-->
+    <suppress>
+        <notes><![CDATA[CVE-2023-35116 is disputed — rejected by jackson-databind maintainers]]></notes>
+        <filePath regex="true">.*jackson-databind.*</filePath>
+        <cve>CVE-2023-35116</cve>
+    </suppress>
 </suppressions>
