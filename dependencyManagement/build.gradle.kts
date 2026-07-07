@@ -5,14 +5,14 @@ plugins {
 data class DependencySet(val group: String, val version: String, val modules: List<String>)
 
 val DEPENDENCY_BOMS = listOf(
-        "com.fasterxml.jackson:jackson-bom:2.18.6",
+        "com.fasterxml.jackson:jackson-bom:2.18.8",
         "org.junit:junit-bom:5.8.2"
 )
 
 val DEPENDENCY_SETS = listOf(
         DependencySet(
                 "com.fasterxml.jackson.datatype",
-                "2.18.6",
+                "2.18.8",
                 listOf("jackson-datatype-jsr310")
         ),
         DependencySet(
