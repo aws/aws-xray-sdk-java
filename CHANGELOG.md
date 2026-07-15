@@ -1,4 +1,8 @@
 # Change Log
+## 2.21.1 - 2026-07-15
+- Bump jackson to 2.18.8 to address CVE-2026-54512 and CVE-2026-54513 (#455)
+  [PR 455](https://github.com/aws/aws-xray-sdk-java/pull/455)
+
 ## 2.21.0 - 2026-03-27
 - Upgrade AWS SDK v2 to 2.30 and other dependencies for CVE fixes (#451)
   [PR 451](https://github.com/aws/aws-xray-sdk-java/pull/451)
