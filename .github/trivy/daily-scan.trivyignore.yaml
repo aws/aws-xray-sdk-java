@@ -32,3 +32,19 @@ vulnerabilities:
       - "META-INF/maven/com.amazonaws/jmespath-java/pom.xml"
     statement: "AWS SDK v1 EOL (1.12.788 is final release) — jackson-core 2.12.7 in POM metadata only. Actual runtime JAR is 2.18.6 via X-Ray SDK BOM."
     expired_at: 2027-03-25
+  # AWS SDK v1's POM metadata declares jackson-databind 2.17.2, and its transitive
+  # jackson-dataformat-cbor 2.17.2 JAR does the same. Both are metadata-only findings:
+  # the jackson-databind JAR actually resolved at runtime is 2.18.8 (via the X-Ray
+  # SDK's jackson BOM, bumped in PR #455), which contains the fixes for these CVEs.
+  - id: CVE-2026-54512
+    paths:
+      - "META-INF/maven/com.amazonaws/aws-java-sdk-core/pom.xml"
+      - "META-INF/maven/com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/pom.xml"
+    statement: "AWS SDK v1 EOL (1.12.788 is final release) — jackson-databind 2.17.2 in POM metadata only. Actual runtime JAR is 2.18.8 via X-Ray SDK BOM, which fixes this CVE."
+    expired_at: 2027-07-17
+  - id: CVE-2026-54513
+    paths:
+      - "META-INF/maven/com.amazonaws/aws-java-sdk-core/pom.xml"
+      - "META-INF/maven/com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/pom.xml"
+    statement: "AWS SDK v1 EOL (1.12.788 is final release) — jackson-databind 2.17.2 in POM metadata only. Actual runtime JAR is 2.18.8 via X-Ray SDK BOM, which fixes this CVE."
+    expired_at: 2027-07-17
