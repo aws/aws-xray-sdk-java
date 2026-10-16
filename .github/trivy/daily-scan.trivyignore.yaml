@@ -135,3 +135,31 @@ vulnerabilities:
       - "META-INF/maven/com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/pom.xml"
     statement: "AWS SDK v1 EOL (1.12.788 is final release) — jackson 2.17.2 in POM metadata only. Actual runtime JARs are 2.18.11 via X-Ray SDK BOM, which fixes this CVE."
     expired_at: 2027-10-08
+
+  # Fixed on the default branch by #461 (jackson 2.18.11), but the published release is
+  # still 2.21.1 with jackson 2.18.8. Scoped to 2.18.8 only. Remove in the 2.21.2 release.
+  - id: CVE-2026-89407
+    purls:
+      - "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.18.8"
+    statement: "Fixed in https://github.com/aws/aws-xray-sdk-java/pull/461, pending the 2.21.2 release."
+    expired_at: 2027-10-16
+  - id: CVE-2026-89425
+    purls:
+      - "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.18.8"
+    statement: "Fixed in https://github.com/aws/aws-xray-sdk-java/pull/461, pending the 2.21.2 release."
+    expired_at: 2027-10-16
+  - id: CVE-2026-68497
+    purls:
+      - "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.18.8"
+    statement: "Fixed in https://github.com/aws/aws-xray-sdk-java/pull/461, pending the 2.21.2 release."
+    expired_at: 2027-10-16
+  - id: CVE-2026-91776
+    purls:
+      - "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.18.8"
+    statement: "Fixed in https://github.com/aws/aws-xray-sdk-java/pull/461, pending the 2.21.2 release."
+    expired_at: 2027-10-16
+  - id: CVE-2026-91777
+    purls:
+      - "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.18.8"
+    statement: "Fixed in https://github.com/aws/aws-xray-sdk-java/pull/461, pending the 2.21.2 release."
+    expired_at: 2027-10-16
