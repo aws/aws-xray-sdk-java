@@ -1,4 +1,8 @@
 # Change Log
+## 2.21.2 - 2026-10-20
+- Bump jackson to 2.18.11 to address multiple jackson-core and jackson-databind CVEs (#461)
+  [PR 461](https://github.com/aws/aws-xray-sdk-java/pull/461)
+
 ## 2.21.1 - 2026-07-15
 - Bump jackson to 2.18.8 to address CVE-2026-54512 and CVE-2026-54513 (#455)
   [PR 455](https://github.com/aws/aws-xray-sdk-java/pull/455)
